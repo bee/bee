@@ -87,16 +87,14 @@ show_help() {
     echo "create .bee file with 2 entries .."
     echo "  #!/bin/env be-alpha"
     echo "  SRCURL=\"http:// ..\""
-
-    echo  
+    echo
     echo "follwing entries are optional .."
-    echo "  PGRP=( 'group	1' .. )"
+    echo "  PGRP=( 'group1' .. )"
     echo "  EXCLUDE=\"regex1 ..\""
     echo "  SKIPLIST=\"path/to/skiplist\""
 }
 
 # args: $PATH $PATTERN
-
 #### get_bee_list() ###########################################################
 
 get_bee_list() {
@@ -236,7 +234,7 @@ bee_pkg_pack() {
 
     rm ${DUMP}
 
-    cp ${BEE} ${BEESTORE}
+    cp -v ${BEE} ${BEESTORE}
 }
 
 
@@ -273,16 +271,6 @@ while true ; do
 	  ;;
       -h|--help)
 	  show_help
-	  exit 0
-	  ;;
-      -i|--init)
-	  shift 2
-	  init "${@}"
-	  exit 0
-	  ;;
-      -l|--list)
-	  LIST=$(get_bee_list)
-	  print_bee_list ${LIST}
 	  exit 0
 	  ;;
       --) 
