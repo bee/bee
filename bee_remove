@@ -11,135 +11,68 @@ VERSION=0.1
 PKGMETADIR=${PKGMETADIR:-/usr/share/bee}
 PKGDIR=${PKGDIR:-.}
 
-
-##### pkg_remove ##############################################################
-##### IN: file
-pkg_remove() {
-  local search = $1
-  
-  if [ -f  ]
+pkg_remove_all() {
+    for pkg in ${@} ; do
+        pkg_remove ${pkg}
+    done
 }
 
-
-##### do_remove ###############################################################
-##### IN: absolute filename
-
+pkg_remove() {
+    search=$1
+    
+    # pattern is absolute path to pkg
+    if [ -d ${search} ] ; then
+        do_remove "${search}"
+    fi
+    
+    # pattern is a pkg in PKGMETADIR
+    if [ -d ${PKGMETADIR}/${search} ] ; then
+        do_remove ${PKGMETADIR}/${search}
+    fi
+    
+    # pattern is no installed pkg
+    # show all pkgs that match pattern
+    PKGS=$(find ${PKGMETADIR} -mindepth 1 -maxdepth 1 -iregex "${PKGMETADIR}.*${search}.*")
+    echo "${search} matches following packages .."
+    for p in $PKG ; do
+        echo " -> $(basename $p)"
+    done
+}
 
 do_remove() {
-  local pkg = $1
-  # collect files
-  FILES=$(/project/azubi/bee/beefind.pl --dump ${pkg}/FILES)
-
-  # removing files
-  for f in $FILES ; do
-    # test for other pkg
-    s = $(echo $f | sed -e "s,[\`|&^$.+?(){}],\\\&,g" -e "s,\[,\\\&," -e "s,\],\\\&,")
-    RELPKG=$(egrep "file=$f(|//.*)$" ${PKGMETADIR}/*/FILES)
-    if [ 1 -eq $(echo $RELPKG | wc -w) ] ; then
-      #check for directories
-      if [ -d $f ] ; then
-        DIR="$f $DIR"
-      else
+    pkg=$1
+    
+    FILES=$(/project/azubi/bee/beefind.pl --dump ${pkg}/FILES)
+    
+    # removing files
+    for f in $FILES ; do
+        # test for other pkg
+        s = $(echo $f | sed -e "s,[\`|&^$.+?(){}],\\\&,g" -e "s,\[,\\\&,g" -e "s,\],\\\&,g")
+        RELPKG=$(egrep "file=$f(|//.*)$" ${PKGMETADIR}/*/FILES)
+        if [ 1 -eq $(echo $RELPKG | wc -w) ] ; then
+            #check for directories
+            if [ -d $f ] ; then
+                DIR="$f $DIR"
+            else
+                rm -vf $f
+            fi
+        else
+          echo "cannot remove $f .. is related to other pkgs"
+        fi
+    done
+    
+    #removing directories
+    for d in $DIR ; do
+        if [ -z "$(ls $d)" ] ; then
+            rmdir -v $d
+        fi
+    done
+    
+    #cleaning up meta directory
+    for f in `ls ${INSTALLED}` ; do
         rm -vf $f
-      fi
-    else
-      echo "cannot remove $f .. is related to other pkgs"
-    fi
-  done
-  
-  #removing directories
-  for d in $DIR ; do
-    if [ -z "$(ls $d)" ] ; then
-      rmdir -v $d
-    fi
-  done
-
-  #cleaning up meta directory
-  for f in `ls ${INSTALLED}` ; do
-    rm -vf $f
-  done
-  rm -vfr ${INSTALLED}
+    done
+    rm -vfr ${INSTALLED}
 }
 
-
-##### pkg_remove ##############################################################
-pkg_remove() {
-  while true ; do
-    case "$1" in
-      --)
-        shift
-        # create useful regex, remove whitespaces
-        PATTERN=$(echo $@ | sed -e 's,[[:space:]]*,,g' - )
-        break
-        ;;
-      *)
-        shift
-        ;;
-    esac
-  done
-
-  # check if $PATTERN is nonzero
-  if [ -z "$PATTERN" ] ; then
-    echo "no package passed"
-    exit 1
-  fi
-
-  # check for installed pkgs
-  INSTALLED=$(get_pkg_list $PKGMETADIR -- "${PATTERN}")
-  
-  # check for zero length
-  if [ -z "$INSTALLED" ] ; then
-    echo "no installed package matching '${PATTERN}' .."
-    exit 1
-  fi
-
-  # check if more than 1 pkg matches
-  if [ ! 1 -eq $(echo $INSTALLED | wc -w) ] ; then
-    echo "installed packages matching '${PATTERN}' .."
-    print_pkg_list "$INSTALLED"
-    exit 1
-  fi
-  
-  #check if pattern is package
-  PKGNAME=$(basename ${INSTALLED})
-  if [ "${PATTERN}" != "${PKGNAME}" ] ; then
-    echo "installed packages matching ${PATTERN} .."
-    print_pkg_list "$INSTALLED"
-    exit 1
-  fi
-
-  # vaild from here
-  # -- only 1 pkg is matching
-  
-  # collect files
-  FILES=$(/project/azubi/bee/beefind.pl --dump ${INSTALLED}/FILES)
-
-  # removing files
-  for f in $FILES ; do
-    #test for other pkg
-    RELPKG=$(egrep "file=$f(|//.*)$" ${PKGMETADIR}/*/FILES)
-    if [ 1 -eq $(echo $RELPKG | wc -w) ] ; then
-      #check for directories
-      if [ -d $f ] ; then
-        DIR="$f $DIR"
-      else
-        rm -vf $f
-      fi
-    else
-      echo "cannot remove $f .. is related to other pkgs"
-    fi
-  done
-  
-  #removing directories
-  for d in $DIR ; do
-    if [ -z "$(ls $d)" ] ; then
-      rmdir -v $d
-    fi
-  done
-
-  #cleaning up meta directory
-  for f in `ls ${INSTALLED}` ; do
-    rm -vf $f
-  done
-  rm -vfr ${INSTALLED}
-}
+pkg_remove_all $@
