@@ -1,0 +1,321 @@
+#!/bin/bash
+set -e
+
+###############################################################################
+###############################################################################
+###############################################################################
+
+##### iee_usage ###############################################################
+iee_usage() {
+  echo "Usage: $0 [options] [pkg]"
+  echo "Options:"
+  echo "  -i"
+  echo " --install"
+  echo " --ickbrauch   .. install package"
+  echo
+  echo "  -r"
+  echo " --remove      .. remove package"
+  echo
+  echo "  -l"
+  echo " --list        .. prints installed and available without any option"
+  echo "   --system    .. list only installed packages"
+  echo "   --available .. list only available packages"
+}
+
+##### pkg_remove ##############################################################
+pkg_remove() {
+  while true ; do
+    case "$1" in
+      --)
+        shift
+        # create useful regex, remove whitespaces
+        PATTERN=$(echo $@ | sed -e 's,[[:space:]]*,,g' - )
+        break
+        ;;
+      *)
+        shift
+        ;;
+    esac
+  done
+
+  # check if $PATTERN is nonzero
+  if [ -z "$PATTERN" ] ; then
+    echo "no package passed"
+    exit 1
+  fi
+
+  # check for installed pkgs
+  INSTALLED=$(get_pkg_list $PKGMETADIR -- "${PATTERN}")
+  
+  # check for zero length
+  if [ -z "$INSTALLED" ] ; then
+    echo "no installed package matching '${PATTERN}' .."
+    exit 1
+  fi
+
+  # check if more than 1 pkg matches
+  if [ ! 1 -eq $(echo $INSTALLED | wc -w) ] ; then
+    echo "installed packages matching '${PATTERN}' .."
+    print_pkg_list "$INSTALLED"
+    exit 1
+  fi
+  
+  #check if pattern is package
+  PKGNAME=$(basename ${INSTALLED})
+  if [ "${PATTERN}" != "${PKGNAME}" ] ; then
+    echo "installed packages matching ${PATTERN} .."
+    print_pkg_list "$INSTALLED"
+    exit 1
+  fi
+
+  # vaild from here
+  # -- only 1 pkg is matching
+  
+  # collect files
+  FILES=$(/project/azubi/bee/beefind.pl --dump ${INSTALLED}/FILES)
+
+  # removing files
+  for f in $FILES ; do
+    #test for other pkg
+    s=$(echo $f | sed -e "s,[\`|&^$.+?(){}],\\\&,g" -e "s,\[,\\\&," -e "s,\],\\\&,")
+    RELPKG=$(egrep "file=$s(|//.*)$" ${PKGMETADIR}/*/FILES)
+    if [ 1 -eq $(echo $RELPKG | wc -w) ] ; then
+      #check for directories
+      if [ -d $f ] ; then
+        DIR="$f $DIR"
+      else
+        rm -vf $f
+      fi
+    else
+      echo "cannot remove $f .. is related to other pkgs"
+    fi
+  done
+  
+  #removing directories
+  for d in $DIR ; do
+    if [ -z "$(ls $d)" ] ; then
+      rmdir -v $d
+    fi
+  done
+
+  #cleaning up meta directory
+  for f in `ls ${INSTALLED}` ; do
+    rm -vf $f
+  done
+  rm -vfr ${INSTALLED}
+}
+
+##### pkg_install #############################################################
+pkg_install() {
+  while true ; do
+    case "$1" in
+      --)
+        shift
+        # create useful regex, remove whitespaces
+        PATTERN=$(echo $@ | sed -e 's,[[:space:]]*,,g' - )
+        break
+        ;;
+      *)
+        shift
+        ;;
+    esac
+  done
+
+  # file exists, no need to find file matching pattern
+  if [ -e ${PKGDIR}/${PATTERN} ] ; then
+    PKGNAME=$(basename $(basename $(basename $PATTERN .tar.gz) .tar.bz2) .iee)
+  else
+
+    # check if $PATTERN is nonzero
+    if [ -z "$PATTERN" ] ; then
+      echo "no package passed"
+      exit 1
+    fi
+  
+    # make sure $PATTERN ends not with .tar* and .iee
+    PATTERN=$(basename $(basename ${PATTERN} .tar.bz2) .iee)
+  
+    # get available pkgs
+    AVAIL=$(get_pkg_list $PKGDIR -- "${PATTERN}")
+    if [ -z "$AVAIL" ] ; then
+      echo "no available packages matching '${PATTERN}' .."
+      exit 1
+    fi
+  
+    # check if more than 1 pkg available and make sure patern equals package
+    if [ ! 1 -eq $(echo $AVAIL | wc -w) ] ; then
+      echo "available packages matching '${PATTERN}'"
+      print_pkg_list ${AVAIL}
+      exit 1
+    fi
+    
+    PKGNAME=$(basename $(basename $(basename $AVAIL .tar.gz) .tar.bz2) .iee)
+    if [ "${PATTERN}" != "${PKGNAME}" ] ; then
+      echo "available packages matching '${PATTERN}'"
+      print_pkg_list ${AVAIL}
+      exit 1
+    fi
+  fi
+  
+  # if not in upgrade mode, check for installed package
+  # otherwise overwrite
+  if [ ! $UPGRADE ] ; then
+    INSTALLED=$(get_pkg_list $PKGMETADIR -- "${PKGNAME}")
+    if [ -n "$INSTALLED" ] ; then
+      echo "installed packages matching '${PKGNAME}' .."
+      print_pkg_list $INSTALLED
+      exit 1
+    fi
+  fi
+
+  ## valid from here
+  ## -- only 1 available pkg
+  ## -- no installed pkg or upgrade
+
+  # create META dir
+  mkdir -p ${PKGMETADIR}/${PKGNAME}
+
+#echo $PKGNAME >&2
+
+  # install!!!111elf
+  echo "installing ${PKGNAME}"
+  tar -xvvPf $PKGDIR/$PKGNAME.iee.tar.bz2 \
+          --transform="s,FILES,${PKGMETADIR}/${PKGNAME}/FILES," \
+          --transform="s,BUILD,${PKGMETADIR}/${PKGNAME}/BUILD," \
+          --transform="s,META,${PKGMETADIR}/${PKGNAME}/META," \
+          --show-transformed-names
+  
+}
+
+##### get_pkg_list ############################################################
+# args: $PATH -- $PATTERN
+get_pkg_list() {
+  while true ; do
+    case "$1" in
+      --)
+        shift
+        # create useful regex, remove whitespaces
+        PATTERN=$(echo $@ | sed -e 's,[[:space:]]*,,g' - )
+        break
+        ;;
+      *)
+        CPATH=$1
+        shift
+        ;;
+    esac
+  done
+
+#  ARCH=$(echo $PATTERN |cut -d . -f 2) 
+#  if [ -z "$ARCH" ] ; then
+     ARCH=$(arch)
+#  fi
+  
+#echo $ARCH >&2
+  
+  PATTERN=$(basename "$(basename "${PATTERN}" .i686)" .x86_64)
+
+  if [ "$CPATH" = "$PKGDIR" ] ; then
+    PATTERN="${PATTERN}.*($ARCH|any).iee.tar.bz2"
+  else
+    PATTERN="${PATTERN}.*"
+  fi
+
+#echo $PATTERN >&2
+  
+  HITS=$(find ${CPATH} -maxdepth 1 -mindepth 1 | egrep "${PATTERN}")
+  
+  echo $HITS
+}
+
+##### print_pkg_list ##########################################################
+# args: $LIST
+print_pkg_list() {
+  if [ -z "$1" ] ; then
+    echo "list is empty.. no entries found"
+    exit 1
+  fi
+  
+  LIST=$(ls -d $@)
+  
+  for l in $LIST ; do
+    if [ -z "$DIR" ] ; then
+      DIR=$(dirname $l)
+      echo $DIR
+    fi
+    if [ "$DIR" != "$(dirname $l)" ] ; then
+      DIR=$(dirname $l)
+      echo $DIR
+    fi
+    echo " - $(basename ${l})"
+  done
+}
+
+###############################################################################
+###############################################################################
+###############################################################################
+
+. /etc/bee.defaults
+
+PKGMETADIR=${PKGMETADIR:-/usr/share/bee}
+PKGDIR=${PKGDIR:-.}
+
+. /project/azubi/bee/helpers.bee
+
+
+OPTIONS=$(getopt -n iee-option-parser \
+                 -o irul::h \
+                 --long install,ickbrauch,remove,runta,upgrade,undruebba,list::,help \
+                 -- "$@")
+if [ $? != 0 ] ; then
+  echo "Terminating..." >&2
+  exit 1
+fi
+eval set -- "${OPTIONS}"
+
+UPGRADE=false
+
+while true ; do
+  case "$1" in
+
+    -i|--install|--ickbrauch)
+      shift
+      pkg_install $@
+      exit 0
+      ;;
+    -r|--remove|--runta)
+      shift
+      pkg_remove $@
+      exit 0
+      ;;
+    -u|--upgrade|--undruebba)
+      shift
+      UPGRADE=true
+      pkg_install $@
+      exit 0
+    ;;
+    
+    -l|--list)
+      case "$2" in
+        a|available)
+          shift 2
+          LIST=$(get_pkg_list $PKGDIR $@)
+          ;;
+        s|system)
+          shift 2
+          LIST=$(get_pkg_list $PKGMETADIR $@)
+          ;;
+        *)
+          shift
+          LIST=$(get_pkg_list $PKGDIR $@)
+          LIST="${LIST} $(get_pkg_list $PKGMETADIR $@)"
+          ;;
+      esac
+      print_pkg_list $LIST
+    exit 0
+    ;;
+    -h|--help|*)
+      iee_usage
+      exit 0
+    ;;
+  esac
+done

@@ -1,0 +1,412 @@
+#!/bin/bash
+set -e
+
+PKGDIR=/usr/src/bee/pkgs
+SKIPLIST=/etc/bee.skiplist
+
+#root dir for bee
+BEEROOT=/tmp/beeroot
+
+BEESTORE=/usr/src/bee/bees
+
+TEMPDIR=/tmp
+
+#architecture
+ARCH=$(arch)
+
+#load default files
+BEEFAULTS=/etc/bee.defaults
+
+###############################################################################
+###############################################################################
+###############################################################################
+
+#### init() ###################################################################
+
+init() {
+    pname=$1
+    surl=$2
+    
+    if [ -z ${pname} ] ; then 
+        echo "$0 -i <pkgname> [url]"
+        echo "$0 -i <url>"
+        exit
+    fi
+    
+    if [ -z ${surl} ] ; then
+        surl=${pname}
+        pname=$(basename $(basename ${surl} .tar.bz2) .tar.gz)
+        if [ ${pname} = ${surl} ] ; then
+            surl=""
+	else
+	    pname=${pname}-0
+        fi
+    fi
+    
+    echo "creating ${pname}.bee with default SRCURL='${surl}'"
+    
+    cat >${pname}.bee <<EOF
+#!/bin/env bee-alpha
+
+PGRP=( uncategorized )
+
+SRCURL="${surl}"
+
+# PATCHES=""
+
+# EXCLUDE=""
+
+# mee_configure() {
+#     bee_configure
+# }
+
+# mee_build() {
+#     bee_build
+# }
+
+# mee_install() {
+#     bee_install
+# }
+
+EOF
+    chmod 755 ${pname}.bee    
+}
+
+#### create_meta() ############################################################
+
+create_meta() {
+    echo "PN=${PN}"         >> ${D}/META
+    echo "PVF=${PVF}"       >> ${D}/META
+    echo "PR=${PR}"         >> ${D}/META
+    echo "PGRP=( ${PGRP} )" >> ${D}/META
+}
+
+#### show_help() ##############################################################
+
+show_help() {
+    echo "create .bee file with 2 entries .."
+    echo "  #!/bin/env be-alpha"
+    echo "  SRCURL=\"http:// ..\""
+
+    echo  
+    echo "follwing entries are optional .."
+    echo "  PGRP=( 'group	1' .. )"
+    echo "  EXCLUDE=\"regex1 ..\""
+    echo "  SKIPLIST=\"path/to/skiplist\""
+}
+
+# args: $PATH $PATTERN
+
+#### get_bee_list() ###########################################################
+
+get_bee_list() {
+    PATH=${BEESTORE}
+    PATTERN=.*\.bee
+    
+    HITS=$(find ${PATH} -maxdepth 1 -mindepth 1 -iregex "${PATH}/${PATTERN}$")
+    
+    echo $HITS
+}
+
+#### print_bee_list() #########################################################
+
+# args: $LIST
+print_bee_list() {
+    LIST=$@
+
+    for l in $LIST ; do
+        if [ -z "$DIR" ] ; then
+            DIR=$(dirname $l)
+            echo $DIR
+        fi
+        if [ "$DIR" != "$(dirname $l)" ] ; then
+            DIR=$(dirname $l)
+            echo $DIR
+        fi
+        echo " - $(basename ${l})"
+    done
+}
+
+#### bee_init_builddir() ######################################################
+
+bee_init_builddir() {
+    if [ -d ${W} ] ; then 
+        if [ "${OPT_FORCE}" = "yes" ] ; then
+            echo "cleaning work-dir ${W} .."
+            rm -fr ${W}
+	else
+	    echo "error initializing build-dir ${W}"
+	    exit 1
+	fi
+    fi
+    mkdir -p ${S}
+    mkdir -p ${B}
+    mkdir -p ${D}
+}
+
+#### bee_getsources() #########################################################
+
+bee_getsources() {
+    for s in ${SRCURL} ; do
+	bs=$(basename ${s})
+	mkdir -p "${F}"
+	echo "fetching source ${F}/${bs} .."
+	wget \
+          --no-check-certificate \
+ 	  --output-document="${F}/${bs}" \
+	  --quiet \
+	  --no-clobber \
+	  "${s}" || true
+	#archive
+	A="${A:+ }${bs}"
+    done
+}
+
+#### bee_unpack() #############################################################
+
+bee_unpack() {
+    for s in ${A} ; do
+	echo "unpacking source ${s} .."
+	tar xof ${F}/${s} --strip-components 1 -C ${S}
+    done
+}
+
+#### bee_patch() ##############################################################
+
+bee_patch() {
+    for p in ${PATCHES} ; do
+        patch -Np1 -i ${p}
+    done
+}
+
+#### bee_configure() ##########################################################
+
+bee_configure() {
+    echo "configuring .."
+    echo "  => ${S}/configure ${DEFCONFIG} \"$@\""
+    ${S}/configure ${DEFCONFIG} "$@"
+}
+
+#### bee_build() ##############################################################
+
+bee_build() {
+    make "$@"
+}
+
+#### bee_install() ############################################################
+
+bee_install() {
+    make install DESTDIR=${D} "$@"
+}
+
+#### bee_pkg_pack() ###########################################################
+
+# $EXCLUDE is read from .bee file
+# $SKIPLIST is found in $BEEFAULTS
+bee_pkg_pack() {
+    for e in ${EXCLUDE} ; do
+        exargs="${exargs} --exclude=${e}";
+    done
+
+    beefind.pl --excludelist=${SKIPLIST} \
+               --exclude='^/FILES$' ${exargs} \
+	       --cutroot=${D} ${D} > ${D}/FILES 2>/dev/null
+
+    DUMP=${TEMPDIR}/bee.$$.dump
+
+    beefind.pl --dump ${D}/FILES | sed -e "s,^,${D}," - > ${DUMP}
+
+    cat ${BEE} > ${D}/BUILD
+
+    create_meta
+
+    echo "${PKGDIR}/${PF}.${PARCH}.iee.tar.bz2 contains .."
+
+    tar cjvvf ${PKGDIR}/${PF}.${PARCH}.iee.tar.bz2 \
+      -T ${DUMP} \
+      --transform="s,${D},," \
+      --show-transformed-names \
+      --sparse \
+      --absolute-names \
+      --no-recursion \
+      --transform="s,^/FILES$,FILES," \
+      --transform="s,^/BUILD$,BUILD," \
+      --transform="s,^/META$,META," \
+      ${D}/{FILES,BUILD,META}
+
+    rm ${DUMP}
+
+    cp ${BEE} ${BEESTORE}
+}
+
+
+#### mee_*() ##################################################################
+
+mee_getsources() { bee_getsources ; }
+mee_unpack()     { bee_unpack;      }
+mee_patch()      { bee_patch;       }
+
+mee_configure()  { bee_configure;   }
+mee_build()      { bee_build;       }
+mee_install()    { bee_install ;    }
+
+###############################################################################
+###############################################################################
+###############################################################################
+
+OPTIONS=$(getopt -o fhil --long force,help,init,list -n bee-option-parser -- "$@")
+
+if [ $? != 0 ] ; then 
+    echo "Terminating..." >&2
+    exit 1
+fi
+
+eval set -- "${OPTIONS}"
+
+OPT_FORCE="no"
+
+while true ; do
+    case "$1" in
+      -f|--force) 
+	  OPT_FORCE=yes
+	  shift 
+	  ;;
+      -h|--help)
+	  show_help
+	  exit 0
+	  ;;
+      -i|--init)
+	  shift 2
+	  init "${@}"
+	  exit 0
+	  ;;
+      -l|--list)
+	  LIST=$(get_bee_list)
+	  print_bee_list ${LIST}
+	  exit 0
+	  ;;
+      --) 
+	  shift
+	  break
+	  ;;
+      *) 
+	  echo "Internal error!"
+	  exit 1
+	  ;;
+    esac
+done
+
+
+BEE=$1
+if [ ! $BEE = "/.*" ] ; then
+    BEE=${PWD}/$BEE
+fi
+
+PF=$(basename $BEE .bee)
+
+#parse pkg name
+# PF  = glibc-2.10.1_rc5-1 - full package name
+# PN  = glibc              - package name 
+# PV  = 2.10.1             - version
+# PS  = _rc5               - unterversion
+# PR  = 1                  - revision
+# PVF  = 2.10.1_rc5        - version unterversion
+# PVR = 2.10.1_rc5-1       - version-revision (full version)
+# P   = glibc-2.10.1_rc5   - package name (ohne version revision)
+PN=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\1,' -)
+PV=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\2,' - | sed -e 's,^\(.*\)\(_.*\)$,\1,' -)
+PS=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\2,' - | sed -e 's,^\(.*\)\(_.*\)$,\2,' -)
+PR=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\3,' -)
+
+PVF=${PV}${PS}
+PVR=${PVF}-${PR}
+P=${PN}-${PVF}
+
+#pkg root
+R=${BEEROOT}/${PN}
+
+#pkg files .tar .patch ..
+F=${R}/files
+
+#working dir for current build
+W=${R}/${PF}
+
+S=${W}/source
+B=${W}/build
+D=${W}/image
+
+. ${BEE}
+
+if [ -e ${BEEFAULTS} ] ; then
+    . ${BEEFAULTS}
+fi
+
+: ${PARCH:=${ARCH}}
+: ${PKGDIR:=${PWD}}
+
+#define default directories
+
+: ${PREFIX:=/usr}
+: ${EPREFIX:=${PREFIX}}
+: ${BINDIR:=${EPREFIX}/bin}
+
+: ${SBINDIR:=${EPREFIX}/sbin}
+: ${LIBEXECDIR:=${EPREFIX}/lib/${PN}}
+: ${SYSCONFDIR:=/etc}
+
+: ${LOCALSTATEDIR:=/var}
+: ${SHAREDSTATEDIR:=${LOCALSTATEDIR}}
+: ${LIBDIR:=${EPREFIX}/lib}
+: ${INCLUDEDIR:=${PREFIX}/include}
+: ${DATAROOTDIR:=${PREFIX}/share}
+: ${DATADIR:=${DATAROOTDIR}}
+: ${INFODIR:=${DATAROOTDIR}/info}
+: ${MANDIR:=${DATAROOTDIR}/man}
+: ${DOCDIR:=${DATAROOTDIR}/doc/gtkhtml}
+: ${LOCALEDIR:=${DATAROOTDIR}/locale}
+
+
+if [ ${IGNORE_DATAROOTDIR} ] ; then
+    unset DATAROOTDIR
+fi
+if [ ${IGNORE_LOCALEDIR} ] ; then
+    unset LOCALEDIR
+fi
+if [ ${IGNORE_DOCDIR} ] ; then
+    unset DOCDIR
+fi
+
+
+#define default configure
+: ${DEFCONFIG:="\
+--prefix=${PREFIX} \
+--exec-prefix=${EPREFIX} \
+--bindir=${BINDIR} \
+--sbindir=${SBINDIR} \
+--libexecdir=${LIBEXECDIR} \
+--sysconfdir=${SYSCONFDIR} \
+--sharedstatedir=${SHAREDSTATEDIR} \
+--localstatedir=${LOCALSTATEDIR} \
+--libdir=${LIBDIR} \
+--includedir=${INCLUDEDIR} \
+${DATAROOTDIR:+--datarootdir=${DATAROOTDIR}} \
+--datadir=${DATADIR} \
+--infodir=${INFODIR} \
+${LOCALEDIR:+--localedir=${LOCALEDIR}} \
+--mandir=${MANDIR} \
+${DOCDIR:+--docdir=${DOCDIR}} \
+"}
+
+bee_init_builddir
+mee_getsources
+mee_unpack
+cd ${S}
+mee_patch
+cd ${B}
+mee_configure
+cd ${B}
+mee_build
+cd ${B}
+mee_install
+cd ${D}
+bee_pkg_pack
