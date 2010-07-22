@@ -1,21 +1,8 @@
 #!/bin/bash
 set -e
 
-PKGDIR=/usr/src/bee/pkgs
-SKIPLIST=/etc/bee.skiplist
-
-#root dir for bee
-BEEROOT=/tmp/beeroot
-
-BEESTORE=/usr/src/bee/bees
-
-TEMPDIR=/tmp
-
 #architecture
 ARCH=$(arch)
-
-#load default files
-BEEFAULTS=/etc/bee.defaults
 
 ###############################################################################
 ###############################################################################
@@ -325,9 +312,22 @@ D=${W}/image
 
 . ${BEE}
 
+: ${BEEFAULTS=/etc/bee.defaults}
+
 if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
+
+
+: ${PKGDIR:=/usr/src/bee/pkgs}
+: ${SKIPLIST=/etc/bee.skiplist}
+#root dir for bee
+: ${BEEROOT:=/tmp/beeroot}
+: ${BEESTORE:=/usr/src/bee/bees}
+: ${TEMPDIR:=/tmp}
+
+
+
 
 : ${PARCH:=${ARCH}}
 : ${PKGDIR:=${PWD}}
