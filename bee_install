@@ -6,7 +6,7 @@
 
 VERSION=0.1
 
-. /etc/bee.defaults
+[ -e /etc/bee.defaults ] && . /etc/bee.defaults
 
 PKGMETADIR=${PKGMETADIR:-/usr/share/bee}
 PKGDIR=${PKGDIR:-.}
