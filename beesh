@@ -205,8 +205,8 @@ bee_pkg_pack() {
     for e in ${EXCLUDE} ; do
         exargs="${exargs} --exclude=${e}";
     done
-
-    beefind.pl --excludelist=${SKIPLIST} \
+    
+    beefind.pl ${SKIPLIST:+--excludelist=${SKIPLIST}} \
                --exclude='^/FILES$' ${exargs} \
 	       --cutroot=${D} ${D} > ${D}/FILES 2>/dev/null
 
