@@ -1,6 +1,6 @@
 
 PREFIX=/usr
-BINDIR=${PREFIX}/bin
+SBINDIR=${PREFIX}/sbin
 
 DEST=
 
@@ -8,5 +8,5 @@ all:
 	@echo "make install"
 
 install:
-	@mkdir -vp ${DEST}${BINDIR}
-	@cp -vax iee-alpha bee-alpha beefind.pl ${DEST}${BINDIR}
+	@mkdir -vp ${DEST}${SBINDIR}
+	@cp -vax beesh bee_install bee_init bee_remove bee_check beefind.pl ${DEST}${SBINDIR}

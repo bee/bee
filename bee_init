@@ -23,7 +23,7 @@ fi
 echo "creating ${pname}.bee with default SRCURL='${surl}'"
 
 cat >${pname}.bee <<EOF
-#!/bin/env bee-alpha
+#!/bin/env beesh
 
 PGRP=( uncategorized )
 
