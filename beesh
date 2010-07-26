@@ -8,57 +8,6 @@ ARCH=$(arch)
 ###############################################################################
 ###############################################################################
 
-#### init() ###################################################################
-
-init() {
-    pname=$1
-    surl=$2
-    
-    if [ -z ${pname} ] ; then 
-        echo "$0 -i <pkgname> [url]"
-        echo "$0 -i <url>"
-        exit
-    fi
-    
-    if [ -z ${surl} ] ; then
-        surl=${pname}
-        pname=$(basename $(basename ${surl} .tar.bz2) .tar.gz)
-        if [ ${pname} = ${surl} ] ; then
-            surl=""
-	else
-	    pname=${pname}-0
-        fi
-    fi
-    
-    echo "creating ${pname}.bee with default SRCURL='${surl}'"
-    
-    cat >${pname}.bee <<EOF
-#!/bin/env bee-alpha
-
-PGRP=( uncategorized )
-
-SRCURL="${surl}"
-
-# PATCHES=""
-
-# EXCLUDE=""
-
-# mee_configure() {
-#     bee_configure
-# }
-
-# mee_build() {
-#     bee_build
-# }
-
-# mee_install() {
-#     bee_install
-# }
-
-EOF
-    chmod 755 ${pname}.bee    
-}
-
 #### create_meta() ############################################################
 
 create_meta() {
@@ -79,37 +28,6 @@ show_help() {
     echo "  PGRP=( 'group1' .. )"
     echo "  EXCLUDE=\"regex1 ..\""
     echo "  SKIPLIST=\"path/to/skiplist\""
-}
-
-# args: $PATH $PATTERN
-#### get_bee_list() ###########################################################
-
-get_bee_list() {
-    PATH=${BEESTORE}
-    PATTERN=.*\.bee
-    
-    HITS=$(find ${PATH} -maxdepth 1 -mindepth 1 -iregex "${PATH}/${PATTERN}$")
-    
-    echo $HITS
-}
-
-#### print_bee_list() #########################################################
-
-# args: $LIST
-print_bee_list() {
-    LIST=$@
-
-    for l in $LIST ; do
-        if [ -z "$DIR" ] ; then
-            DIR=$(dirname $l)
-            echo $DIR
-        fi
-        if [ "$DIR" != "$(dirname $l)" ] ; then
-            DIR=$(dirname $l)
-            echo $DIR
-        fi
-        echo " - $(basename ${l})"
-    done
 }
 
 #### bee_init_builddir() ######################################################
