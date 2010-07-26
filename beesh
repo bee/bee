@@ -215,6 +215,8 @@ PVF=${PV}${PS}
 PVR=${PVF}-${PR}
 P=${PN}-${PVF}
 
+: ${BEEROOT:=/tmp/beeroot}
+
 #pkg root
 R=${BEEROOT}/${PN}
 
@@ -240,7 +242,6 @@ fi
 : ${PKGDIR:=/usr/src/bee/pkgs}
 : ${SKIPLIST=/etc/bee.skiplist}
 #root dir for bee
-: ${BEEROOT:=/tmp/beeroot}
 : ${BEESTORE:=/usr/src/bee/bees}
 : ${TEMPDIR:=/tmp}
 
