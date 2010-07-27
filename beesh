@@ -189,6 +189,9 @@ while true ; do
     esac
 done
 
+###############################################################################
+###############################################################################
+###############################################################################
 
 BEE=$1
 if [ ! $BEE = "/.*" ] ; then
@@ -215,7 +218,13 @@ PVF=${PV}${PS}
 PVR=${PVF}-${PR}
 P=${PN}-${PVF}
 
-: ${BEEROOT:=/tmp/beeroot}
+: ${BEEFAULTS=/etc/bee.defaults}
+
+if [ -e ${BEEFAULTS} ] ; then
+    . ${BEEFAULTS}
+fi
+
+: ${BEEROOT=/tmp/beeroot}
 
 #pkg root
 R=${BEEROOT}/${PN}
@@ -223,26 +232,27 @@ R=${BEEROOT}/${PN}
 #pkg files .tar .patch ..
 F=${R}/files
 
-#working dir for current build
+#workdir for current build
 W=${R}/${PF}
 
 S=${W}/source
 B=${W}/build
 D=${W}/image
 
+###############################################################################
+
 . ${BEE}
 
-: ${BEEFAULTS=/etc/bee.defaults}
-
-if [ -e ${BEEFAULTS} ] ; then
-    . ${BEEFAULTS}
-fi
+###############################################################################
 
 
 : ${PKGDIR:=/usr/src/bee/pkgs}
+
 : ${SKIPLIST=/etc/bee.skiplist}
+
 #root dir for bee
 : ${BEESTORE:=/usr/src/bee/bees}
+
 : ${TEMPDIR:=/tmp}
 
 
@@ -311,9 +321,7 @@ cd ${S}
 mee_patch
 cd ${B}
 mee_configure
-cd ${B}
 mee_build
-cd ${B}
 mee_install
 cd ${D}
 bee_pkg_pack
