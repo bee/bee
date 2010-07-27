@@ -8,8 +8,8 @@ VERSION=0.1
 
 [ -e /etc/bee.defaults ] && . /etc/bee.defaults
 
-PKGMETADIR=${PKGMETADIR:-/usr/share/bee}
-PKGDIR=${PKGDIR:-.}
+: ${PKGMETADIR:=/usr/share/bee}
+: ${PKGDIR:=/usr/src/bee/pkgs}
 
 
 ##### iee_usage ###############################################################
