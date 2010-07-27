@@ -84,7 +84,11 @@ fetch_one_file() {
 bee_getsources() {
 
     mkdir -p "${F}"
-
+    
+    if [ -z $SRCURL ] ; then 
+        unset SRCURL
+    fi
+    
     for s in "${SRCURL[@]}" ; do
         fetch_one_file ${s}
     done
