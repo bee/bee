@@ -48,20 +48,38 @@ bee_init_builddir() {
 }
 
 #### bee_getsources() #########################################################
+# fetch_one_file <url> [filename]
+
+fetch_one_file() {
+    url=$1
+    file=${2:-$(basename ${url})}
+
+    echo "fetching $url"
+    wget \
+        --output-document="${F}/${file}" \
+        --no-clobber \
+        "${url}" || true
+
+    ls -ld "${F}/${file}"
+
+    A="${A:+ }${file}"
+}
+
+
+# bee_getsources
+#    SRCURL[] = "<url> [filename]"
+# e.g.:
+#    SRCURL=("<url> [filename]" "<url> [filename]")
+#    SRCURL="<url> [filename]"
+#    SRCURL[0]="<url> [filename]"
+#    SRCURL[1]="<url> [filename]"
 
 bee_getsources() {
-    for s in ${SRCURL} ; do
-	bs=$(basename ${s})
-	mkdir -p "${F}"
-	echo "fetching source ${F}/${bs} .."
-	wget \
-          --no-check-certificate \
- 	  --output-document="${F}/${bs}" \
-	  --quiet \
-	  --no-clobber \
-	  "${s}" || true
-	#archive
-	A="${A:+ }${bs}"
+
+    mkdir -p "${F}"
+
+    for s in "${SRCURL[@]}" ; do
+        fetch_one_file ${s}
     done
 }
 
