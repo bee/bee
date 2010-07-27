@@ -13,7 +13,6 @@ if [ -e ${BEEFAULTS} ] ; then
 fi
 
 PKGMETADIR=${PKGMETADIR:-/usr/share/bee}
-PKGDIR=${PKGDIR:-.}
 
 pkg_remove_all() {
     for pkg in ${@} ; do
@@ -27,38 +26,40 @@ pkg_remove() {
     # pattern is absolute path to pkg
     if [ -d ${search} ] ; then
         do_remove "${search}"
+        exit
     fi
     
     # pattern is a pkg in PKGMETADIR
     if [ -d ${PKGMETADIR}/${search} ] ; then
         do_remove ${PKGMETADIR}/${search}
+        exit
     fi
     
     # pattern is no installed pkg
     # show all pkgs that match pattern
     PKGS=$(find ${PKGMETADIR} -mindepth 1 -maxdepth 1 -iregex "${PKGMETADIR}.*${search}.*")
     echo "${search} matches following packages .."
-    for p in $PKG ; do
-        echo " -> $(basename $p)"
+    for p in ${PKGS} ; do
+        [ -d $p ] && echo " -> $(basename $p)"
     done
 }
 
 do_remove() {
     pkg=$1
     
-    FILES=$(/project/azubi/bee/beefind.pl --dump ${pkg}/FILES)
+    FILES=$(beefind.pl --dump ${pkg}/FILES)
     
     # removing files
     for f in $FILES ; do
         # test for other pkg
-        s = $(echo $f | sed -e "s,[\`|&^$.+?(){}],\\\&,g" -e "s,\[,\\\&,g" -e "s,\],\\\&,g")
+        f=$(echo $f | sed -e "s,[\`|&^$.+?(){}],\\\&,g" -e "s,\[,\\\&,g" -e "s,\],\\\&,g")
         RELPKG=$(egrep "file=$f(|//.*)$" ${PKGMETADIR}/*/FILES)
         if [ 1 -eq $(echo $RELPKG | wc -w) ] ; then
             #check for directories
             if [ -d $f ] ; then
                 DIR="$f $DIR"
             else
-                rm -vf $f
+                ${NOOP:+echo} rm -vf $f
             fi
         else
           echo "cannot remove $f .. is related to other pkgs"
@@ -68,15 +69,49 @@ do_remove() {
     #removing directories
     for d in $DIR ; do
         if [ -z "$(ls $d)" ] ; then
-            rmdir -v $d
+            ${NOOP:+echo} rmdir -v $d
         fi
     done
     
     #cleaning up meta directory
-    for f in `ls ${INSTALLED}` ; do
-        rm -vf $f
+    for f in "${pkg}/*"; do
+        ${NOOP:+echo} rm -vf $f
     done
-    rm -vfr ${INSTALLED}
+    ${NOOP:+echo} rmdir -v ${pkg}
 }
 
-pkg_remove_all $@
+usage() {
+    echo "usage: $0 <option> <package>"
+    echo
+    echo "options:"
+    echo "    -h --help .. prints this"
+    echo "    --noop    .. prints what would happen"
+}
+
+options=$(getopt -n bee_remove \
+                 -o h \
+                 --long noop,help \
+                 -- "$@")
+if [ $? != 0 ] ; then
+  iee_usage
+  exit 1
+fi
+eval set -- "${options}"
+
+while true ; do
+    case "$1" in
+        --noop)
+            shift
+            NOOP=1
+            ;;
+        -h|--help)
+            usage
+            exit
+            ;;
+        --)
+            shift
+            pkg_remove_all "$@"
+            break
+            ;;
+    esac
+done
