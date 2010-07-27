@@ -62,7 +62,7 @@ fetch_one_file() {
 
     ls -ld "${F}/${file}"
 
-    A="${A:+ }${file}"
+    A="${A:+${A} }${file}"
 }
 
 
