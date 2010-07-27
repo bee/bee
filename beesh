@@ -56,6 +56,7 @@ fetch_one_file() {
 
     echo "fetching $url"
     wget \
+        --no-check-certificate \
         --output-document="${F}/${file}" \
         --no-clobber \
         "${url}" || true
