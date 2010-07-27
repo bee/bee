@@ -104,8 +104,8 @@ bee_patch() {
 
 bee_configure() {
     echo "configuring .."
-    echo "  => ${S}/configure ${DEFCONFIG} \"$@\""
-    ${S}/configure ${DEFCONFIG} "$@"
+    echo "  => ${S}/configure ${DEFCONFIG} $@"
+    ${S}/configure ${DEFCONFIG} $@
 }
 
 #### bee_build() ##############################################################
@@ -117,7 +117,7 @@ bee_build() {
 #### bee_install() ############################################################
 
 bee_install() {
-    make install DESTDIR=${D} "$@"
+    make install DESTDIR=${D} $@
 }
 
 #### bee_pkg_pack() ###########################################################
