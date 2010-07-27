@@ -6,7 +6,11 @@
 
 VERSION=0.1
 
-[ -e /etc/bee.defaults ] && . /etc/bee.defaults
+: ${BEEFAULTS=/etc/bee.defaults}
+
+if [ -e ${BEEFAULTS} ] ; then
+    . ${BEEFAULTS}
+fi
 
 : ${PKGMETADIR:=/usr/share/bee}
 : ${PKGDIR:=/usr/src/bee/pkgs}
