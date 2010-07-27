@@ -53,10 +53,18 @@ bee_init_builddir() {
 fetch_one_file() {
     url=$1
     file=${2:-$(basename ${url})}
+    
+    --no-check-certificate
+    
+    if [ ${url:0:5} == "https" ] ; then
+        nocheck="--no-check-certificate"
+    else
+        nocheck=""
+    fi
 
     echo "fetching $url"
     wget \
-        --no-check-certificate \
+        ${nocheck} \
         --output-document="${F}/${file}" \
         --no-clobber \
         "${url}" || true
