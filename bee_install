@@ -81,7 +81,7 @@ pkg_install() {
          do_install "${PKGDIR}/${search}"
     fi
     
-    for e in "" ".$(arch)" ".any" ; do
+    for e in "" ".$(arch)" ".noarch" ".any" ; do
         if [ -f "${PKGDIR}/${search}${e}.iee.tar.bz2" ] ; then
 	    do_install "${PKGDIR}/${search}${e}.iee.tar.bz2"
 	fi
