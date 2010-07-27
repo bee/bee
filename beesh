@@ -228,12 +228,11 @@ PF=$(basename $BEE .bee)
 # PVF  = 2.10.1_rc5        - version unterversion
 # PVR = 2.10.1_rc5-1       - version-revision (full version)
 # P   = glibc-2.10.1_rc5   - package name (ohne version revision)
-PN=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\1,' -)
-PV=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\2,' - | sed -e 's,^\(.*\)\(_.*\)$,\1,' -)
-PS=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\2,' - | sed -e 's,^\(.*\)\(_.*\)$,\2,' -)
-PR=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\3,' -)
-
-PVF=${PV}${PS}
+PN=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\1,' - )
+PVF=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\2,' - )
+PR=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\3,' - )
+PV=$(echo ${PVF} | sed -e 's,\(.*\)\(_.*\),\1,' - )
+PS=$(echo ${PVF} | sed -e '/_.*/!d' - | sed -e 's,\(.*\)\(_.*\),\2,' - )
 PVR=${PVF}-${PR}
 P=${PN}-${PVF}
 
