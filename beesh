@@ -54,8 +54,6 @@ fetch_one_file() {
     url=$1
     file=${2:-$(basename ${url})}
     
-    --no-check-certificate
-    
     if [ ${url:0:5} == "https" ] ; then
         nocheck="--no-check-certificate"
     else
