@@ -12,7 +12,7 @@ if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
 
-PKGMETADIR=${PKGMETADIR:-/usr/share/bee}
+: ${PKGMETADIR:=/usr/share/bee}
 
 pkg_remove_all() {
     for pkg in ${@} ; do
