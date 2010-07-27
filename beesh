@@ -142,6 +142,10 @@ bee_pkg_pack() {
 
     create_meta
 
+    if [ ! -d ${PKGDIR} ] ; then
+        mkdir -pv ${PKGDIR}
+    fi 
+    
     echo "${PKGDIR}/${PF}.${PARCH}.iee.tar.bz2 contains .."
 
     tar cjvvf ${PKGDIR}/${PF}.${PARCH}.iee.tar.bz2 \
@@ -158,6 +162,9 @@ bee_pkg_pack() {
 
     rm ${DUMP}
 
+    if [ ! -d ${BEESTORE} ] ; then
+        mkdir -pv ${BEESTORE}
+    fi 
     cp -v ${BEE} ${BEESTORE}
 }
 
