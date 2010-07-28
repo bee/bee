@@ -73,6 +73,34 @@ fetch_one_file() {
 }
 
 
+# fetch_one_patch <url>  [filename]
+# fetch_one_patch <path>
+fetch_one_patch() {
+    url=$1
+    file=${2:-$(basename ${url})}
+    
+    if [ ${url:0:1} == "/" ] ; then 
+        echo "copying patch ${url}"
+        cp -v ${url} ${F}/${file}
+    else 
+        if [ ${url:0:5} == "https" ] ; then
+            nocheck="--no-check-certificate"
+        else
+            nocheck=""
+        fi
+        echo "fetching patch ${url}"
+        wget \
+            ${nocheck} \
+            --output-document="${F}/${file}" \
+            --no-clobber \
+            "${url}" || true
+
+        ls -ld "${F}/${file}"
+    fi
+    
+    PA="${PA:+${PA} }${file}"
+}
+
 # bee_getsources
 #    SRCURL[] = "<url> [filename]"
 # e.g.:
@@ -85,12 +113,20 @@ bee_getsources() {
 
     mkdir -p "${F}"
     
-    if [ -z $SRCURL ] ; then 
+    if [ -z ${SRCURL} ] ; then 
         unset SRCURL
     fi
     
     for s in "${SRCURL[@]}" ; do
         fetch_one_file ${s}
+    done
+
+    if [ -z ${PATCHES} ] ; then 
+        unset PATCHES
+    fi
+    
+    for p in "${PATCHES[@]}" ; do
+        fetch_one_patch ${p}
     done
 }
 
@@ -106,8 +142,8 @@ bee_unpack() {
 #### bee_patch() ##############################################################
 
 bee_patch() {
-    for p in ${PATCHES} ; do
-        patch -Np1 -i ${p}
+    for p in ${PA} ; do
+        patch -Np1 -i ${F}/${p}
     done
 }
 
