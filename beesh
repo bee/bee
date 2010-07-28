@@ -143,6 +143,7 @@ bee_unpack() {
 
 bee_patch() {
     for p in ${PA} ; do
+        echo "applying patch ${p} .."
         patch -Np1 -i ${F}/${p}
     done
 }
