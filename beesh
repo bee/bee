@@ -54,20 +54,25 @@ fetch_one_file() {
     url=$1
     file=${2:-$(basename ${url})}
     
-    if [ ${url:0:5} == "https" ] ; then
-        nocheck="--no-check-certificate"
+    if [ ${url:0:1} == "/" ] ; then
+        echo "copying file ${url}"
+        cp -v ${url} ${F}/${file}
     else
-        nocheck=""
+        if [ ${url:0:5} == "https" ] ; then
+            nocheck="--no-check-certificate"
+        else
+            nocheck=""
+        fi
+
+        echo "fetching $url"
+        wget \
+            ${nocheck} \
+            --output-document="${F}/${file}" \
+            --no-clobber \
+            "${url}" || true
+
+        ls -ld "${F}/${file}"
     fi
-
-    echo "fetching $url"
-    wget \
-        ${nocheck} \
-        --output-document="${F}/${file}" \
-        --no-clobber \
-        "${url}" || true
-
-    ls -ld "${F}/${file}"
 
     A="${A:+${A} }${file}"
 }
