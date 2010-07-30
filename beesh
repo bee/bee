@@ -74,7 +74,7 @@ fetch_one_file() {
         ls -ld "${F}/${file}"
     fi
 
-    A="${A:+${A} }${file}"
+    A=(${A} ${file})
 }
 
 
@@ -138,9 +138,18 @@ bee_getsources() {
 #### bee_unpack() #############################################################
 
 bee_unpack() {
-    for s in ${A} ; do
-	echo "unpacking source ${s} .."
-	tar xof ${F}/${s} --strip-components 1 -C ${S}
+    
+    if [ -z ${F}/${A[0]} ] ; then return fi;
+    
+    s=${A[0]}
+    echo "#BEE# unpacking source ${s} .."
+    tar xof ${F}/${s} --strip-components 1 -C ${S}
+    
+    unset A[0]
+    
+    for s in ${A[@]} ; do
+	echo "#BEE# unpacking source ${s} .."
+	tar xof ${F}/${s} -C ${S}
     done
 }
 
@@ -148,7 +157,7 @@ bee_unpack() {
 
 bee_patch() {
     for p in ${PA} ; do
-        echo "applying patch ${p} .."
+        echo "#BEE# applying patch ${p} .."
         patch -Np1 -i ${F}/${p}
     done
 }
@@ -156,8 +165,8 @@ bee_patch() {
 #### bee_configure() ##########################################################
 
 bee_configure() {
-    echo "configuring .."
-    echo "  => ${S}/configure ${DEFCONFIG} $@"
+    echo "#BEE# configuring .."
+    echo "#BEE#   => ${S}/configure ${DEFCONFIG} $@"
     ${S}/configure ${DEFCONFIG} $@
 }
 
