@@ -74,7 +74,7 @@ fetch_one_file() {
         ls -ld "${F}/${file}"
     fi
 
-    A=(${A} ${file})
+    A=(${A[@]} ${file})
 }
 
 
@@ -140,6 +140,9 @@ bee_getsources() {
 bee_unpack() {
     
     if [ -z ${A[0]} ] ; then return ; fi
+    
+    
+    
     
     s=${A[0]}
     echo "#BEE# unpacking source ${s} .."
