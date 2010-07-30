@@ -139,7 +139,7 @@ bee_getsources() {
 
 bee_unpack() {
     
-    if [ -z ${F}/${A[0]} ] ; then return ; fi
+    if [ -z ${A[0]} ] ; then return ; fi
     
     s=${A[0]}
     echo "#BEE# unpacking source ${s} .."
