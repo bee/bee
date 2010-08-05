@@ -52,8 +52,8 @@ do_remove() {
     # removing files
     for f in $FILES ; do
         # test for other pkg
-        f=$(echo $f | sed -e "s,[\`|&^$.+?(){}],\\\&,g" -e "s,\[,\\\&,g" -e "s,\],\\\&,g")
-        RELPKG=$(egrep "file=$f(|//.*)$" ${PKGMETADIR}/*/FILES)
+        s=$(echo $f | sed -e "s,[\`|&^$.+?(){}],\\\&,g" -e "s,\[,\\\&,g" -e "s,\],\\\&,g")
+        RELPKG=$(egrep "file=$s(|//.*)$" ${PKGMETADIR}/*/FILES)
         if [ 1 -eq $(echo $RELPKG | wc -w) ] ; then
             #check for directories
             if [ -d $f ] ; then
@@ -74,8 +74,8 @@ do_remove() {
     done
     
     #cleaning up meta directory
-    for f in "${pkg}/*"; do
-        ${NOOP:+echo} rm -vf $f
+    for f in "FILES BUILD META"; do
+        ${NOOP:+echo} rm -vf ${pkg}/$f
     done
     ${NOOP:+echo} rmdir -v ${pkg}
 }
