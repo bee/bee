@@ -424,9 +424,9 @@ cd ${D}
 bee_pkg_pack
 
 if [ $OPT_INSTALL = "yes" ] ; then
-    echo "installing ${PF}.${PARCH}.."
     BEE_INSTALL=$(which bee_install)
     if [ -e $BEE_INSTALL ] ; then
+        echo "installing ${PF}.${PARCH}.."
         $BEE_INSTALL ${OPT_FORCE:+-f} ${PKGDIR}/${PF}.${PARCH}.iee.tar.bz2
     fi
 fi
