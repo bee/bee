@@ -34,7 +34,7 @@ show_help() {
 
 bee_init_builddir() {
     if [ -d ${W} ] ; then 
-        if [ "${OPT_FORCE}" = "yes" ] ; then
+        if [ "${OPT_CLEANUP}" = "yes" ] ; then
             echo "cleaning work-dir ${W} .."
             rm -fr ${W}
 	else
@@ -193,10 +193,10 @@ bee_pkg_pack() {
     for e in ${EXCLUDE} ; do
         exargs="${exargs} --exclude=${e}";
     done
-    
+
     beefind.pl ${SKIPLIST:+--excludelist=${SKIPLIST}} \
                --exclude='^/FILES$' ${exargs} \
-	       --cutroot=${D} ${D} > ${D}/FILES 2>/dev/null
+               --cutroot=${D} ${D} > ${D}/FILES 2>/dev/null
 
     DUMP=${TEMPDIR}/bee.$$.dump
 
@@ -209,26 +209,27 @@ bee_pkg_pack() {
     if [ ! -d ${PKGDIR} ] ; then
         mkdir -pv ${PKGDIR}
     fi 
-    
+
     echo "${PKGDIR}/${PF}.${PARCH}.iee.tar.bz2 contains .."
 
     tar cjvvf ${PKGDIR}/${PF}.${PARCH}.iee.tar.bz2 \
-      -T ${DUMP} \
-      --transform="s,${D},," \
-      --show-transformed-names \
-      --sparse \
-      --absolute-names \
-      --no-recursion \
-      --transform="s,^/FILES$,FILES," \
-      --transform="s,^/BUILD$,BUILD," \
-      --transform="s,^/META$,META," \
-      ${D}/{FILES,BUILD,META}
+        -T ${DUMP} \
+        --transform="s,${D},," \
+        --show-transformed-names \
+        --sparse \
+        --absolute-names \
+        --no-recursion \
+        --transform="s,^/FILES$,FILES," \
+        --transform="s,^/BUILD$,BUILD," \
+        --transform="s,^/META$,META," \
+        ${D}/{FILES,BUILD,META}
 
     rm ${DUMP}
 
     if [ ! -d ${BEESTORE} ] ; then
         mkdir -pv ${BEESTORE}
     fi 
+
     cp -v ${BEE} ${BEESTORE}
 }
 
@@ -247,7 +248,7 @@ mee_install()    { bee_install ;    }
 ###############################################################################
 ###############################################################################
 
-OPTIONS=$(getopt -o fhil --long force,help,init,list -n bee-option-parser -- "$@")
+OPTIONS=$(getopt -o hifc --long help,install,force-install,cleanup -n bee-option-parser -- "$@")
 
 if [ $? != 0 ] ; then 
     echo "Terminating..." >&2
@@ -256,26 +257,36 @@ fi
 
 eval set -- "${OPTIONS}"
 
-OPT_FORCE="no"
+OPT_INSTALL="no" 
+OPT_CLEANUP="no"
 
 while true ; do
     case "$1" in
-      -f|--force) 
-	  OPT_FORCE=yes
-	  shift 
-	  ;;
-      -h|--help)
-	  show_help
-	  exit 0
-	  ;;
-      --) 
-	  shift
-	  break
-	  ;;
-      *) 
-	  echo "Internal error!"
-	  exit 1
-	  ;;
+        -h|--help)
+	    show_help
+	    exit 0
+	    ;;
+        -i|--install)
+            OPT_INSTALL="yes"
+            shift
+            ;;
+        -f|--force-install)
+            OPT_INSTALL="yes"
+            OPT_FORCE="yes"
+            shift
+            ;;
+        -c|--cleanup) 
+	    OPT_CLEANUP="yes"
+	    shift 
+	    ;;
+        --) 
+	    shift
+	    break
+	    ;;
+        *) 
+	    echo "Internal error!"
+	    exit 1
+	    ;;
     esac
 done
 
@@ -414,3 +425,7 @@ mee_build
 mee_install
 cd ${D}
 bee_pkg_pack
+
+if [ $OPT_INSTALL = "yes" ] ; then
+    bee_install ${OPT_FORCE:+-f} ${PKGDIR}/${PF}.${PARCH}.iee.tar.bz2
+fi
