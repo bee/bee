@@ -74,7 +74,7 @@ do_remove() {
     done
     
     #cleaning up meta directory
-    for f in "FILES BUILD META"; do
+    for f in FILES BUILD META; do
         ${NOOP:+echo} rm -vf ${pkg}/$f
     done
     ${NOOP:+echo} rmdir -v ${pkg}
