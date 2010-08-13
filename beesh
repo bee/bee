@@ -236,6 +236,7 @@ bee_pkg_pack() {
     beefind.pl --dump ${D}/FILES | sed -e "s,^,${D}," - > ${DUMP}
 
     cat ${BEE} > ${D}/BUILD
+    chmod 755 ${D}/BUILD
 
     create_meta
 
