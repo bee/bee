@@ -27,22 +27,27 @@ cat >${pname}.bee <<EOF
 
 PGRP=( uncategorized )
 
-SRCURL="${surl}"
+SRCURL[0]="${surl}"
 
-# PATCHES=""
+PATCHES[0]=""
 
 # EXCLUDE=""
 
-# mee_configure() {
-#     bee_configure
-# }
+mee_patch() {
+    bee_patch
+}
 
-# mee_build() {
-#     bee_build
-# }
+mee_configure() {
+    bee_configure
+}
 
-# mee_install() {
-#     bee_install
-# }
+mee_build() {
+    bee_build
+}
+
+mee_install() {
+    bee_install
+}
+
 EOF
     chmod 755 ${pname}.bee
