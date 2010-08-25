@@ -17,7 +17,17 @@ case "$1" in
         shift
         beecheck $@
         ;;
+    version)
+        shift
+        beeversion $@
+        ;;
     *)
-        echo "not a known option.."
+        echo "$1 is not a known option.."
+        echo "possible options are:"
+        echo " * init"
+        echo " * install"
+        echo " * remove"
+        echo " * check"
+        echo " * version"
         ;;
 esac
