@@ -14,7 +14,7 @@ VERSION=0.2
 #### create_meta() ############################################################
 
 create_meta() {
-    echo "PN=${PN}"         >> ${D}/META
+    echo "PNF=${PNF}"         >> ${D}/META
     echo "PVF=${PVF}"       >> ${D}/META
     echo "PR=${PR}"         >> ${D}/META
     echo "PGRP=( ${PGRP} )" >> ${D}/META
@@ -337,20 +337,27 @@ PF=$(basename $BEE .bee)
 
 #parse pkg name
 # PF  = glibc-2.10.1_rc5-1 - full package name
-# PN  = glibc              - package name 
+# PNF =                    - package full name
+# PN  = glibc              - package name
+# PNE =                    - package name extension
+# PVF = 2.10.1_rc5         - version unterversion
 # PV  = 2.10.1             - version
 # PS  = rc5                - unterversion
 # PR  = 1                  - revision
-# PVF  = 2.10.1_rc5        - version unterversion
 # PVR = 2.10.1_rc5-1       - version-revision (full version)
-# P   = glibc-2.10.1_rc5   - package name (ohne version revision)
-PN=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\1,' - )
+# P   = glibc-2.10.1_rc5   - package name (ohne revision)
+PNF=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\1,' - )
+PN=$(echo ${PNF} | sed -e 's,\(.*\)\(_.*\),\1,' - )
+PNE=$(echo ${PNF} | sed -e '/_/!d' - | sed -e 's,\(.*\)_\(.*\),\2,' - )
+
 PVF=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\2,' - )
-PR=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\3,' - )
 PV=$(echo ${PVF} | sed -e 's,\(.*\)\(_.*\),\1,' - )
-PS=$(echo ${PVF} | sed -e '/_.*/!d' - | sed -e 's,\(.*\)_\(.*\),\2,' - )
+PS=$(echo ${PVF} | sed -e '/_/!d' - | sed -e 's,\(.*\)_\(.*\),\2,' - )
+
+PR=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\3,' - )
+
 PVR=${PVF}-${PR}
-P=${PN}-${PVF}
+P=${PNF}-${PVF}
 
 : ${BEEFAULTS=/etc/bee.defaults}
 
@@ -361,7 +368,7 @@ fi
 : ${BEEROOT=/tmp/beeroot}
 
 #pkg root
-R=${BEEROOT}/${PN}
+R=${BEEROOT}/${PNF}
 
 #pkg files .tar .patch ..
 F=${R}/files
@@ -402,7 +409,7 @@ D=${W}/image
 : ${BINDIR:=${EPREFIX}/bin}
 
 : ${SBINDIR:=${EPREFIX}/sbin}
-: ${LIBEXECDIR:=${EPREFIX}/lib/${PN}}
+: ${LIBEXECDIR:=${EPREFIX}/lib/${PNF}}
 : ${SYSCONFDIR:=/etc}
 
 : ${LOCALSTATEDIR:=/var}
