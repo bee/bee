@@ -1,0 +1,23 @@
+#!/bin/bash
+
+case "$1" in
+    init)
+        shift
+        beeinit $@
+        ;;
+    install)
+        shift
+        beeinstall $@
+        ;;
+    remove)
+        shift
+        beeremove $@
+        ;;
+    check)
+        shift
+        beecheck $@
+        ;;
+    *)
+        echo "not a known option.."
+        ;;
+esac
