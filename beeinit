@@ -29,7 +29,7 @@ PGRP=( uncategorized )
 
 SRCURL[0]="${surl}"
 
-PATCHES[0]=""
+PATCHURL[0]=""
 
 # EXCLUDE=""
 

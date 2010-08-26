@@ -48,7 +48,7 @@ show_help() {
     echo "IGNORE_LOCALEDIR=1"
     echo "IGNORE_DOCDIR=1"
     echo ""
-    echo "# PATCHES=\"\""
+    echo "# PATCHURL=\"\""
     echo ""
     echo "# EXCLUDE=\"\""
     echo ""
@@ -153,20 +153,29 @@ fetch_one_patch() {
 bee_getsources() {
 
     mkdir -p "${F}"
-    
+
     if [ -z ${SRCURL} ] ; then 
         unset SRCURL
     fi
-    
+
     for s in "${SRCURL[@]}" ; do
         fetch_one_file ${s}
     done
 
-    if [ -z ${PATCHES} ] ; then 
+    if [ -z ${PATCHURL} ] ; then 
+        unset PATCHURL
+    fi
+
+    if [ -z ${PATCHES} ] ; then
         unset PATCHES
     fi
-    
-    for p in "${PATCHES[@]}" ; do
+
+    if [ -z ${PATCHURL} ] && [ -n ${PATCHES} ] ; then
+        echo '#BEE# warning .. you are using obsolete variable $PATCHES .. please use $PATCHURL instead'
+        PATCHURL=(${PATCHES[@]})
+    fi
+
+    for p in "${PATCHURL[@]}" ; do
         fetch_one_patch ${p}
     done
 }
