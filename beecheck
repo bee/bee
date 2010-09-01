@@ -15,8 +15,6 @@ if [ -e ${BEEFAULTS} ] ; then
 fi
 
 : ${PKGMETADIR:=/usr/share/bee}
-: ${PKGDIR:=/usr/src/bee/pkgs}
-
 
 ###############################################################################
 ##
