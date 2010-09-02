@@ -81,13 +81,13 @@ pkg_install() {
     
     # install package from repository
     
-    if [ -f "${PKGDIR}/${search}" ] ; then
-         do_install "${PKGDIR}/${search}"
+    if [ -f "${PKGSTORE}/${search}" ] ; then
+         do_install "${PKGSTORE}/${search}"
     fi
     
     for e in "" ".$(arch)" ".noarch" ".any" ; do
-        if [ -f "${PKGDIR}/${search}${e}.iee.tar.bz2" ] ; then
-	    do_install "${PKGDIR}/${search}${e}.iee.tar.bz2"
+        if [ -f "${PKGSTORE}/${search}${e}.iee.tar.bz2" ] ; then
+	    do_install "${PKGSTORE}/${search}${e}.iee.tar.bz2"
 	fi
     done
     
@@ -173,13 +173,18 @@ do_install() {
         check_installed ${pkgname}
     fi
     
+    # create bee-filename
+    eval $(tar -xOPf /tmp/bash-4.0-0.i686.iee.tar.bz2 META)
+    BEE="${PNF}-${PVF}-${PR}.bee"
+    unset PNF PVF PR PGRP
+    
 #    echo "would install ${file}"
 #    exit 0
     
 #    mkdir -p ${PKGMETADIR}/${pkgname}
     tar -xvvPf ${file} \
           --transform="s,FILES,${PKGMETADIR}/${pkgname}/FILES," \
-          --transform="s,BUILD,${PKGMETADIR}/${pkgname}/BUILD," \
+          --transform="s,${BEE},${PKGMETADIR}/${pkgname}/${BEE}," \
           --transform="s,META,${PKGMETADIR}/${pkgname}/META," \
           --show-transformed-names
     exit $?
@@ -202,7 +207,7 @@ get_pkg_list_repository() {
         arch="\.(any|noarch|$(arch))"
     fi
     
-    hits=$(find ${PKGDIR} -mindepth 1 \
+    hits=$(find ${PKGSTORE} -mindepth 1 \
              | egrep "${arch}\.iee" \
 	     | egrep "${search}" \
 	     | sort)
