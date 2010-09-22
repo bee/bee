@@ -12,7 +12,7 @@ if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
 
-: ${PKGMETADIR:=/usr/share/bee}
+: ${METADIR:=/usr/share/bee}
 
 pkg_remove_all() {
     for pkg in ${@} ; do
@@ -29,15 +29,15 @@ pkg_remove() {
         exit
     fi
     
-    # pattern is a pkg in PKGMETADIR
-    if [ -d ${PKGMETADIR}/${search} ] ; then
-        do_remove ${PKGMETADIR}/${search}
+    # pattern is a pkg in METADIR
+    if [ -d ${METADIR}/${search} ] ; then
+        do_remove ${METADIR}/${search}
         exit
     fi
     
     # pattern is no installed pkg
     # show all pkgs that match pattern
-    PKGS=$(find ${PKGMETADIR} -mindepth 1 -maxdepth 1 -iregex "${PKGMETADIR}.*${search}.*")
+    PKGS=$(find ${METADIR} -mindepth 1 -maxdepth 1 -iregex "${METADIR}.*${search}.*")
     echo "${search} matches following packages .."
     for p in ${PKGS} ; do
         [ -d $p ] && echo " -> $(basename $p)"
@@ -53,7 +53,7 @@ do_remove() {
     for f in $FILES ; do
         # test for other pkg
         s=$(echo $f | sed -e "s,[\`|&^$.+?(){}],\\\&,g" -e "s,\[,\\\&,g" -e "s,\],\\\&,g")
-        RELPKG=$(egrep "file=$s(|//.*)$" ${PKGMETADIR}/*/FILES)
+        RELPKG=$(egrep "file=$s(|//.*)$" ${METADIR}/*/FILES)
         if [ 1 -eq $(echo $RELPKG | wc -w) ] ; then
             #check for directories
             if [ -d $f ] ; then
@@ -73,8 +73,10 @@ do_remove() {
         fi
     done
     
+    BEE=$(basename ${pkg} | sed -e 's/\(.*-.*-.*\)\..*/\1.bee/')
+    
     #cleaning up meta directory
-    for f in FILES BUILD META; do
+    for f in FILES META ${BEE}; do
         ${NOOP:+echo} rm -vf ${pkg}/$f
     done
     ${NOOP:+echo} rmdir -v ${pkg}
