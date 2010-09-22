@@ -12,7 +12,7 @@ if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
 
-: ${PKGMETADIR:=/usr/share/bee}
+: ${METADIR:=/usr/share/bee}
 : ${PKGSTORE:=/usr/src/bee/pkgs}
 
 
@@ -181,11 +181,11 @@ do_install() {
 #    echo "would install ${file}"
 #    exit 0
     
-#    mkdir -p ${PKGMETADIR}/${pkgname}
+#    mkdir -p ${METADIR}/${pkgname}
     tar -xvvPf ${file} \
-          --transform="s,FILES,${PKGMETADIR}/${pkgname}/FILES," \
-          --transform="s,${BEE},${PKGMETADIR}/${pkgname}/${BEE}," \
-          --transform="s,META,${PKGMETADIR}/${pkgname}/META," \
+          --transform="s,FILES,${METADIR}/${pkgname}/FILES," \
+          --transform="s,${BEE},${METADIR}/${pkgname}/${BEE}," \
+          --transform="s,META,${METADIR}/${pkgname}/META," \
           --show-transformed-names
     exit $?
 }
@@ -227,7 +227,7 @@ get_pkg_list_installed() {
     
     local hits arch
     
-    hits=$(find ${PKGMETADIR} -maxdepth 1 -mindepth 1 -type d -printf "%f\n" \
+    hits=$(find ${METADIR} -maxdepth 1 -mindepth 1 -type d -printf "%f\n" \
              | egrep "${search}")
     
     echo ${hits}
