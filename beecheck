@@ -124,9 +124,9 @@ do_check() {
     echo "checking ${pkg} .."
     
     for line in $(cat ${filesfile}) ; do 
-	local IFS=":"
+	#local IFS=":"
 
-	for ff in ${line} ; do
+	for ff in $(beesep ${line}) ; do
 	    # evil 8)...  don't hack me... hrhr
             eval $ff
 	done
