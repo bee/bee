@@ -45,6 +45,6 @@ clean:
 install: build
 	@mkdir -vp ${DESTDIR}${SBINDIR}
 	@for i in $(SHELLS) $(PERLS) ; do \
-	    echo "installing $(DESTDIR)$(SBINDIR)/$${i}" ; \
-	    install -m 0755 $${i} ${DESTDIR}${SBINDIR} ; \
+	     echo "installing $(DESTDIR)$(SBINDIR)/$${i}" ; \
+	     install -m 0755 $${i} ${DESTDIR}${SBINDIR} ; \
 	 done
