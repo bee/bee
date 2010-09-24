@@ -1,0 +1,26 @@
+#!/bin/env beesh
+
+SRCURL[0]=""
+
+PATCHURL[0]=""
+
+PGRP=( uncategorized )
+
+# EXCLUDE=""
+
+mee_patch() {
+    bee_patch
+}
+
+mee_configure() {
+    bee_configure
+}
+
+mee_build() {
+    bee_build
+}
+
+mee_install() {
+    bee_install
+}
+

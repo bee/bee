@@ -1,53 +1,74 @@
 #!/bin/bash
 set -e
 
-pname=$1
-surl=$2
+: ${TEMPLATEPATH:=/etc/bee/templates/}
 
-if [ -z ${pname} ] ; then 
-    echo "$0 -i <pkgname> [url]"
-    echo "$0 -i <url>"
-    exit
-fi
+usage() {
+    echo "usage.."
+    echo "$0 [options] <url>"
+    echo "$0 [options] <pkgname> [url]"
+    echo
+    echo "options.."
+    echo "  -h                .. show this help"
+    echo "  -t [xorg|default] .. specify template used for beefile"
+}
 
-if [ -z ${surl} ] ; then
-    surl=${pname}
-    pname=$(basename $(basename ${surl} .tar.bz2) .tar.gz)
-    if [ ${pname} = ${surl} ] ; then
-        surl=""
-    else
-        pname=${pname}-0
+initialize() {
+    pname=$1
+    surl=$2
+    if [ -z ${surl} ] ; then
+        surl=${pname}
+        pname=$(basename $(basename ${surl} .tar.bz2) .tar.gz)
+        if [ ${pname} = ${surl} ] ; then
+            surl=""
+        else
+            pname=${pname}-0
+        fi
     fi
-fi
 
-echo "creating ${pname}.bee with default SRCURL='${surl}'"
+    echo "creating ${pname}.bee with TEMPLATE='${TEMPLATE}' and SRCURL='${surl}'"
 
-cat >${pname}.bee <<EOF
-#!/bin/env beesh
+    cp ${TEMPLATEPATH}${TEMPLATE} ${pname}.bee
 
-PGRP=( uncategorized )
+    sed -e "s,SRCURL.*,SRCURL[0]=\"${surl}\"," -i ${pname}.bee
 
-SRCURL[0]="${surl}"
-
-PATCHURL[0]=""
-
-# EXCLUDE=""
-
-mee_patch() {
-    bee_patch
-}
-
-mee_configure() {
-    bee_configure
-}
-
-mee_build() {
-    bee_build
-}
-
-mee_install() {
-    bee_install
-}
-
-EOF
     chmod 755 ${pname}.bee
+}
+
+options=$(getopt -n beeinit \
+                 -o ht: \
+                 --long help,template \
+                 -- "$@")
+if [ $? != 0 ] ; then
+  usage
+  exit 1
+fi
+eval set -- "${options}"
+
+while true ; do
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+    ;;
+    -t|--template)
+      shift
+      TEMPLATE=$1
+      if [ ! -e ${TEMPLATEAPTH}${TEMPLATE} ] ; then
+          echo "template '${TEMPLATE}' doesn't exist in '${TEMPLATEPATH}' .. 'default' template used instead .."
+          TEMPLATE=default
+      fi
+      shift
+      ;;
+    *)
+      shift
+      if [ -z ${1} ] ; then
+           usage
+           exit 1
+      fi
+      : ${TEMPLATE:=default}
+      initialize ${@}
+      exit 0;
+      ;;
+  esac
+done
