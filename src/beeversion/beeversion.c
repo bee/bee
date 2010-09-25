@@ -523,16 +523,17 @@ int main(int argc, char *argv[])
         {"pkgfullpkg",     no_argument,  0, 'F'},
 
         {"pkgname",         no_argument, 0, 'p'},
-        {"pkgsubname",      no_argument, 0, 's'},
+        {"pkgarch",         no_argument, 0, 'a'},
         {"pkgversion",      no_argument, 0, 'v'},
         {"pkgextraversion", no_argument, 0, 'e'},
         {"pkgrevision",     no_argument, 0, 'r'},
-        {"pkgarch",         no_argument, 0, 'a'},
+        {"pkgsubname",      no_argument, 0, 's'},
 
         {0, 0, 0, 0}
     };
     
-    while ((c = getopt_long_only(argc, argv, "", long_options, &option_index)) != -1) {
+    while ((c = getopt_long_only(argc, argv, "PVFpavers", long_options, 
+    &option_index)) != -1) {
     
         if( (c & TEST_TYPE_MASK) && ! (c & ~TEST_FULL_MASK)) {
             if(mode && mode == MODE_PARSE) {
@@ -567,7 +568,7 @@ int main(int argc, char *argv[])
             }
             
             if(!format) {
-                format = calloc(sizeof(char), argc * 3);
+                format = calloc(sizeof(char), argc * 3 + 2);
                 if(!format) {
                     perror("calloc(format)");
                     exit(255);
@@ -604,6 +605,9 @@ int main(int argc, char *argv[])
         
         fprintf(stderr, "YOU HIT A BUG #003 opterr=%d\n", opterr);
     }  /* end while getopt_long_only */
+    
+    if(build_format)
+        format[build_format++] = '\n';
     
     if(mode == MODE_TEST) 
         return(!do_test(argc-optind, argv+optind, test_to_do));
