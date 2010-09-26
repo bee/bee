@@ -1,6 +1,8 @@
 #!/bin/bash
 
 
+BEESEP=beesep
+
 
 ###############################################################################
 ###############################################################################
@@ -124,12 +126,7 @@ do_check() {
     echo "checking ${pkg} .."
     
     for line in $(cat ${filesfile}) ; do 
-	#local IFS=":"
-
-	for ff in $(beesep ${line}) ; do
-	    # evil 8)...  don't hack me... hrhr
-            eval $ff
-	done
+	eval $(${BEESEP} ${line})
 
         # save and strip possible symbolic link destination..
 	symlink=${file#*//}
