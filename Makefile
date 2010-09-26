@@ -1,10 +1,11 @@
 
 PREFIX=/usr
 SBINDIR=${PREFIX}/sbin
+BINDIR=${PREFIX}/bin
 
 DESTDIR=
 
-SHELLS=bee beeinit beecheck beeremove beeinstall beesh
+SHELLS=bee bee-init bee-check bee-remove bee-install beesh
 PERLS=beefind.pl
 PROGRAMS=beeversion beesep
 
@@ -27,17 +28,17 @@ beeversion: src/beeversion/beeversion.c
 bee:
 	cp src/bee.sh        bee
 
-beeinit:
-	cp src/beeinit.sh    beeinit
+bee-init:
+	cp src/beeinit.sh    bee-init
 
-beecheck:
-	cp src/beecheck.sh   beecheck
+bee-check:
+	cp src/beecheck.sh   bee-check
 
-beeremove:
-	cp src/beeremove.sh  beeremove
+bee-remove:
+	cp src/beeremove.sh  bee-remove
 
-beeinstall:
-	cp src/beeinstall.sh beeinstall
+bee-install:
+	cp src/beeinstall.sh bee-install
 
 beesh:
 	cp src/beesh.sh      beesh
@@ -53,8 +54,8 @@ clean:
 	
 
 install: build
-	@mkdir -vp ${DESTDIR}${SBINDIR}
+	@mkdir -vp ${DESTDIR}${BINDIR}
 	@for i in $(SHELLS) $(PERLS) $(PROGRAMS) ; do \
-	     echo "installing $(DESTDIR)$(SBINDIR)/$${i}" ; \
-	     install -m 0755 $${i} ${DESTDIR}${SBINDIR} ; \
+	     echo "installing $(DESTDIR)$(BINDIR)/$${i}" ; \
+	     install -m 0755 $${i} ${DESTDIR}${BINDIR} ; \
 	 done
