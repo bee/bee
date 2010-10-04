@@ -95,7 +95,7 @@ options=$(getopt -n bee_remove \
                  --long noop,help \
                  -- "$@")
 if [ $? != 0 ] ; then
-  iee_usage
+  usage
   exit 1
 fi
 eval set -- "${options}"
