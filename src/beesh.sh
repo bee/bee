@@ -257,7 +257,7 @@ bee_pkg_pack() {
 
     beefind.pl --dump ${D}/FILES | sed -e "s,^,${D}," - > ${DUMP}
 
-    cp ${BEE} ${D}
+    cp ${BEE} ${D}/BUILD
 
     create_meta
 
@@ -275,9 +275,9 @@ bee_pkg_pack() {
         --absolute-names \
         --no-recursion \
         --transform="s,^/FILES$,FILES," \
-        --transform="s,^/${PF}.bee$,${PF}.bee," \
+        --transform="s,^/BUILD$,BUILD," \
         --transform="s,^/META$,META," \
-        ${D}/{FILES,${PF}.bee,META}
+        ${D}/{FILES,BUILD,META}
 
     rm ${DUMP}
 
