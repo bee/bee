@@ -3,19 +3,19 @@
 case "$1" in
     init)
         shift
-        beeinit $@
+        bee-init $@
         ;;
     install)
         shift
-        beeinstall $@
+        bee-install $@
         ;;
     remove)
         shift
-        beeremove $@
+        bee-remove $@
         ;;
     check)
         shift
-        beecheck $@
+        bee-check $@
         ;;
     version)
         shift
