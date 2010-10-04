@@ -25,26 +25,26 @@ beesep: src/beesep/beesep.c
 beeversion: src/beeversion/beeversion.c
 	gcc -Wall -o beeversion src/beeversion/beeversion.c
 
-bee:
+bee: src/bee.sh
 	cp src/bee.sh        bee
 
-bee-init:
+bee-init: src/beeinit.sh
 	cp src/beeinit.sh    bee-init
 
-bee-check:
+bee-check: src/beecheck.sh
 	cp src/beecheck.sh   bee-check
 
-bee-remove:
+bee-remove: src/beeremove.sh
 	cp src/beeremove.sh  bee-remove
 
-bee-install:
+bee-install: src/beeinstall.sh
 	cp src/beeinstall.sh bee-install
 
-beesh:
+beesh: src/beesh.sh
 	cp src/beesh.sh      beesh
 	
 
-beefind.pl:
+beefind.pl: src/beefind.pl
 	cp src/beefind.pl    beefind.pl
 
 clean:
