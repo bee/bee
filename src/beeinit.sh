@@ -48,7 +48,7 @@ EOT
 
 options=$(getopt -n beeinit \
                  -o ht:f \
-                 --long help,template,force \
+                 --long help,template:,force \
                  -- "$@")
 if [ $? != 0 ] ; then
   usage
