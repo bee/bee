@@ -31,8 +31,8 @@ fi
 : ${PKGSTORE:=/usr/src/bee/pkgs}
 
 
-##### iee_usage ###############################################################
-iee_usage() {
+##### usage ###################################################################
+usage() {
     echo "bee-install v${VERSION} 2009-2010"
     echo ""
     echo "  by Tobias Dreyer and Marius Tolzmann <{dreyer,tolzmann}@molgen.mpg.de>"
@@ -302,7 +302,7 @@ options=$(getopt -n bee_install \
                  --long install,upgrade,verbose,all,force,help \
                  -- "$@")
 if [ $? != 0 ] ; then
-  iee_usage
+  usage
   exit 1
 fi
 eval set -- "${options}"
@@ -326,7 +326,7 @@ while true ; do
       exit 0
       ;;    
     -h|--help)
-      iee_usage
+      usage
       exit 0
     ;;
     -i|--install)
@@ -335,7 +335,7 @@ while true ; do
     *)
       shift
       if [ -z ${1} ] ; then
-           iee_usage
+           usage
 	   exit 1
       fi
       pkg_install_all ${@}
