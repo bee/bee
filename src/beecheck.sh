@@ -247,17 +247,33 @@ get_name_from_pkg() {
     echo $(echo $1 | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\1,' - )
 }
 
-
+##### usage ###################################################################
+usage() {
+    echo "bee-check v${VERSION} 2009-2010"
+    echo ""
+    echo "  by Tobias Dreyer and Marius Tolzmann <{dreyer,tolzmann}@molgen.mpg.de>"
+    echo ""
+    echo " Usage: $0 [action] [options] <pkg>"
+    echo ""
+    echo " action:"
+    echo "   -d | --deps"
+    echo "   -h | --help       display this help.. 8)"
+    echo ""
+    echo " options:"
+    echo "   -f | --force      can be used to force check come what may"
+    echo "   -v | --verbose    bee more verbose (can be used twice e.g. -vv)"
+    echo
+}
 
 ###############################################################################
 ##
 ##
 options=$(getopt -n bee_check \
-                 -o iadvfuh \
-                 --long install,upgrade,verbose,all,force,help \
+                 -o advfh \
+                 --long verbose,all,force,help,deps \
                  -- "$@")
 if [ $? != 0 ] ; then
-  iee_usage
+  usage
   exit 1
 fi
 eval set -- "${options}"
@@ -279,23 +295,14 @@ while true ; do
       shift 2;
       pkg_check_deps ${@}
       exit 0
-      ;;
-    -u|--upgrade)
-      shift
-      pkg_upgrade $@
-      exit 0
-      ;;    
+      ;;  
     -h|--help)
-      iee_usage
+      usage
       exit 0
     ;;
-    -i|--install)
-      shift
-      ;;
     *)
       shift
       pkg_check_all ${@}
-      
       exit 0;
       ;;
   esac
