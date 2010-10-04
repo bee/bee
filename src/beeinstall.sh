@@ -189,7 +189,7 @@ do_install() {
     fi
     
     # create bee-filename
-    eval $(tar -xOPf /tmp/bash-4.0-0.i686.iee.tar.bz2 META)
+    eval $(tar -xOPf ${file} META)
     BEE="${PNF}-${PVF}-${PR}.bee"
     unset PNF PVF PR PGRP
     
@@ -199,7 +199,7 @@ do_install() {
 #    mkdir -p ${METADIR}/${pkgname}
     tar -xvvPf ${file} \
           --transform="s,FILES,${METADIR}/${pkgname}/FILES," \
-          --transform="s,${BEE},${METADIR}/${pkgname}/${BEE}," \
+          --transform="s,BUILD,${METADIR}/${pkgname}/${BEE}," \
           --transform="s,META,${METADIR}/${pkgname}/META," \
           --show-transformed-names
     exit $?
