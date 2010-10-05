@@ -73,7 +73,10 @@ do_remove() {
         fi
     done
     
-    BEE=$(basename ${pkg} | sed -e 's/\(.*-.*-.*\)\..*/\1.bee/')
+    # create bee-filename
+    eval $(cat ${pkg}/META)
+    BEE="${PNF}-${PVF}-${PR}.bee"
+    unset PNF PVF PR PGRP
     
     #cleaning up meta directory
     for f in FILES META ${BEE}; do
