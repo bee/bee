@@ -248,6 +248,12 @@ char version_cmp(char *v1, char *v2) {
     
     if(isdigit(*a)) {
         if(isdigit(*b)) {
+            /* rewind string to first digit */
+            /* e.g. to compare 12 vs 100 and not 2 vs 00 */
+            while(a > v1 && isdigit(*(a-1))) {
+                a--;
+                b--;
+            }
             i = atoll(a);
             j = atoll(b);
            
