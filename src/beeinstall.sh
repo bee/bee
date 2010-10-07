@@ -21,14 +21,14 @@
 
 VERSION=0.1
 
-: ${BEEFAULTS=/etc/bee.defaults}
+: ${BEEFAULTS=/etc/bee/beerc}
 
 if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
 
-: ${METADIR:=/usr/share/bee}
-: ${PKGSTORE:=/usr/src/bee/pkgs}
+: ${BEEMETADIR:=/usr/share/bee}
+: ${BEEPKGSTORE:=/usr/src/bee/pkgs}
 
 
 ##### usage ###################################################################
@@ -96,13 +96,13 @@ pkg_install() {
     
     # install package from repository
     
-    if [ -f "${PKGSTORE}/${search}" ] ; then
-         do_install "${PKGSTORE}/${search}"
+    if [ -f "${BEEPKGSTORE}/${search}" ] ; then
+         do_install "${BEEPKGSTORE}/${search}"
     fi
     
     for e in "" ".$(arch)" ".noarch" ".any" ; do
-        if [ -f "${PKGSTORE}/${search}${e}.iee.tar.bz2" ] ; then
-	    do_install "${PKGSTORE}/${search}${e}.iee.tar.bz2"
+        if [ -f "${BEEPKGSTORE}/${search}${e}.iee.tar.bz2" ] ; then
+	    do_install "${BEEPKGSTORE}/${search}${e}.iee.tar.bz2"
 	fi
     done
     
@@ -196,11 +196,11 @@ do_install() {
 #    echo "would install ${file}"
 #    exit 0
     
-#    mkdir -p ${METADIR}/${pkgname}
+#    mkdir -p ${BEEMETADIR}/${pkgname}
     tar -xvvPf ${file} \
-          --transform="s,FILES,${METADIR}/${pkgname}/FILES," \
-          --transform="s,BUILD,${METADIR}/${pkgname}/${BEE}," \
-          --transform="s,META,${METADIR}/${pkgname}/META," \
+          --transform="s,FILES,${BEEMETADIR}/${pkgname}/FILES," \
+          --transform="s,BUILD,${BEEMETADIR}/${pkgname}/${BEE}," \
+          --transform="s,META,${BEEMETADIR}/${pkgname}/META," \
           --show-transformed-names
     exit $?
 }
@@ -222,7 +222,7 @@ get_pkg_list_repository() {
         arch="\.(any|noarch|$(arch))"
     fi
     
-    hits=$(find ${PKGSTORE} -mindepth 1 \
+    hits=$(find ${BEEPKGSTORE} -mindepth 1 \
              | egrep "${arch}\.iee" \
 	     | egrep "${search}" \
 	     | sort)
@@ -242,7 +242,7 @@ get_pkg_list_installed() {
     
     local hits arch
     
-    hits=$(find ${METADIR} -maxdepth 1 -mindepth 1 -type d -printf "%f\n" \
+    hits=$(find ${BEEMETADIR} -maxdepth 1 -mindepth 1 -type d -printf "%f\n" \
              | egrep "${search}")
     
     echo ${hits}

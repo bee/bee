@@ -6,13 +6,13 @@
 
 VERSION=0.1
 
-: ${BEEFAULTS=/etc/bee.defaults}
+: ${BEEFAULTS=/etc/bee/beerc}
 
 if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
 
-: ${METADIR:=/usr/share/bee}
+: ${BEEMETADIR:=/usr/share/bee}
 
 pkg_remove_all() {
     for pkg in ${@} ; do
@@ -29,15 +29,15 @@ pkg_remove() {
         exit
     fi
     
-    # pattern is a pkg in METADIR
-    if [ -d ${METADIR}/${search} ] ; then
-        do_remove ${METADIR}/${search}
+    # pattern is a pkg in BEEMETADIR
+    if [ -d ${BEEMETADIR}/${search} ] ; then
+        do_remove ${BEEMETADIR}/${search}
         exit
     fi
     
     # pattern is no installed pkg
     # show all pkgs that match pattern
-    PKGS=$(find ${METADIR} -mindepth 1 -maxdepth 1 -iregex "${METADIR}.*${search}.*")
+    PKGS=$(find ${BEEMETADIR} -mindepth 1 -maxdepth 1 -iregex "${BEEMETADIR}.*${search}.*")
     echo "${search} matches following packages .."
     for p in ${PKGS} ; do
         [ -d $p ] && echo " -> $(basename $p)"
@@ -53,7 +53,7 @@ do_remove() {
     for f in $FILES ; do
         # test for other pkg
         s=$(echo $f | sed -e "s,[\`|&^$.+?(){}],\\\&,g" -e "s,\[,\\\&,g" -e "s,\],\\\&,g")
-        RELPKG=$(egrep "file=$s(|//.*)$" ${METADIR}/*/FILES)
+        RELPKG=$(egrep "file=$s(|//.*)$" ${BEEMETADIR}/*/FILES)
         if [ 1 -eq $(echo $RELPKG | wc -w) ] ; then
             #check for directories
             if [ -d $f ] ; then

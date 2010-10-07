@@ -28,13 +28,13 @@ BEESEP=beesep
 
 VERSION=0.1
 
-: ${BEEFAULTS:=/etc/bee.defaults}
+: ${BEEFAULTS:=/etc/bee/beerc}
 
 if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
 
-: ${METADIR:=/usr/share/bee}
+: ${BEEMETADIR:=/usr/share/bee}
 
 ###############################################################################
 ##
@@ -105,7 +105,7 @@ pkg_check() {
 ##
 do_check_deps() {
     local pkg=${1}
-    local filesfile=${METADIR}/${pkg}/FILES
+    local filesfile=${BEEMETADIR}/${pkg}/FILES
     
     for line in $(cat ${filesfile}) ; do 
 	local IFS=":"
@@ -139,7 +139,7 @@ do_check_deps() {
 do_check() {
     local pkg=${1}
     
-    local filesfile=${METADIR}/${pkg}/FILES
+    local filesfile=${BEEMETADIR}/${pkg}/FILES
     
     echo "checking ${pkg} .."
     
@@ -224,7 +224,7 @@ get_pkg_list_installed() {
     
     local hits arch
     
-    hits=$(find ${METADIR} -maxdepth 1 -mindepth 1 -type d -printf "%f\n" \
+    hits=$(find ${BEEMETADIR} -maxdepth 1 -mindepth 1 -type d -printf "%f\n" \
              | egrep "${search}" | sort)
     
     echo ${hits}

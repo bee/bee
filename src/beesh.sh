@@ -243,13 +243,13 @@ bee_install() {
 #### bee_pkg_pack() ###########################################################
 
 # $EXCLUDE is read from .bee file
-# $SKIPLIST is found in $BEEFAULTS
+# $BEESKIPLIST is found in $BEEFAULTS
 bee_pkg_pack() {
     for e in ${EXCLUDE} ; do
         exargs="${exargs} --exclude=${e}";
     done
 
-    beefind.pl ${SKIPLIST:+--excludelist=${SKIPLIST}} \
+    beefind.pl ${BEESKIPLIST:+--excludelist=${BEESKIPLIST}} \
                --exclude='^/FILES$' ${exargs} \
                --cutroot=${D} ${D} > ${D}/FILES 2>/dev/null
 
@@ -261,13 +261,13 @@ bee_pkg_pack() {
 
     create_meta
 
-    if [ ! -d ${PKGSTORE} ] ; then
-        mkdir -pv ${PKGSTORE}
+    if [ ! -d ${BEEPKGSTORE} ] ; then
+        mkdir -pv ${BEEPKGSTORE}
     fi 
 
-    echo "#BEE# ${PKGSTORE}/${PF}.${PARCH}.iee.tar.bz2 contains .."
+    echo "#BEE# ${BEEPKGSTORE}/${PF}.${PARCH}.iee.tar.bz2 contains .."
 
-    tar cjvvf ${PKGSTORE}/${PF}.${PARCH}.iee.tar.bz2 \
+    tar cjvvf ${BEEPKGSTORE}/${PF}.${PARCH}.iee.tar.bz2 \
         -T ${DUMP} \
         --transform="s,${D},," \
         --show-transformed-names \
@@ -384,7 +384,7 @@ PR=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\3,' - )
 PVR=${PVF}-${PR}
 P=${PNF}-${PVF}
 
-: ${BEEFAULTS=/etc/bee.defaults}
+: ${BEEFAULTS=/etc/bee/beerc}
 
 if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
@@ -411,11 +411,11 @@ D=${W}/image
 
 ###############################################################################
 
-: ${SKIPLIST=/etc/bee.skiplist}
+: ${BEESKIPLIST=/etc/bee/skiplist}
 
 #root dir for bee
 : ${BEESTORE:=/usr/src/bee/bees}
-: ${PKGSTORE:=/usr/src/bee/pkgs}
+: ${BEEPKGSTORE:=/usr/src/bee/pkgs}
 
 : ${TEMPDIR:=/tmp}
 
@@ -489,5 +489,5 @@ bee_pkg_pack
 if [ $OPT_INSTALL = "yes" ] ; then
     unset bee_install
     echo "installing ${PF}.${PARCH}.."
-    bee_install ${OPT_FORCE:+-f} ${PKGSTORE}/${PF}.${PARCH}.iee.tar.bz2
+    bee_install ${OPT_FORCE:+-f} ${BEEPKGSTORE}/${PF}.${PARCH}.iee.tar.bz2
 fi
