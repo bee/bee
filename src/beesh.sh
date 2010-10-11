@@ -104,6 +104,9 @@ fetch_one_file() {
             nocheck=""
         fi
 
+        if [ ! -s ${F}/${file} ] ; then
+            rm -vf ${F}/${file}
+        fi
         echo "#BEE# fetching $url"
         wget \
             ${nocheck} \
