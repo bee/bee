@@ -74,9 +74,7 @@ do_remove() {
     done
     
     # create bee-filename
-    eval $(cat ${pkg}/META)
-    BEE="${PNF}-${PVF}-${PR}.bee"
-    unset PNF PVF PR PGRP
+    BEE=$(basename $(echo ${pkg} | sed -e "s,\(.*\)-\(.*\)-\(.*\)\..*,\1-\2-\3.bee," - ))
     
     #cleaning up meta directory
     for f in FILES META ${BEE}; do
