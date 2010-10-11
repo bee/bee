@@ -21,6 +21,10 @@ case "$1" in
         shift
         beeversion $@
         ;;
+    list)
+        shift
+        bee-list $@
+        ;;
     *)
         echo "$1 is not a known option.."
         echo "possible options are:"

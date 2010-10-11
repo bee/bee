@@ -5,7 +5,7 @@ BINDIR=${PREFIX}/bin
 
 DESTDIR=
 
-SHELLS=bee bee-init bee-check bee-remove bee-install beesh
+SHELLS=bee bee-init bee-check bee-remove bee-install bee-list beesh
 PERLS=beefind.pl
 PROGRAMS=beeversion beesep
 
@@ -39,6 +39,9 @@ bee-remove: src/beeremove.sh
 
 bee-install: src/beeinstall.sh
 	cp src/beeinstall.sh bee-install
+
+bee-list: src/beelist.sh
+	cp src/beelist.sh bee-list
 
 beesh: src/beesh.sh
 	cp src/beesh.sh      beesh
