@@ -108,7 +108,7 @@ pkg_install() {
         fi
     done
     
-    avail=$(get_pkg_list_repository "${search}")
+    avail=$(bee-list -a "${search}")
     
     print_pkg_list ${avail}
 }
@@ -271,7 +271,7 @@ print_pkg_list() {
     for p in ${@} ; do
 	local pkgname=$(basename $(basename $(basename ${p} .tar.bz2) .iee) .bee)
 	
-	local installed=$(get_installed_versions ${pkgname})
+	local installed=$(bee-list -i ${pkgname})
 	
 	local status
 	for i in ${installed} ; do

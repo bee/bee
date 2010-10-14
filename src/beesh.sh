@@ -495,7 +495,6 @@ cd ${D}
 bee_pkg_pack
 
 if [ $OPT_INSTALL = "yes" ] ; then
-    unset bee_install
     echo "installing ${PF}.${PARCH}.."
-    bee_install ${OPT_FORCE:+-f} ${BEEPKGSTORE}/${PF}.${PARCH}.bee.tar.bz2
+    bee install ${OPT_FORCE:+-f} ${BEEPKGSTORE}/${PF}.${PARCH}.bee.tar.bz2
 fi
