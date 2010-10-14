@@ -191,9 +191,7 @@ do_install() {
     fi
     
     # create bee-filename
-    eval $(tar -xOPf ${file} META)
-    BEE="${PNF}-${PVF}-${PR}.bee"
-    unset PNF PVF PR PGRP
+    BEE=$(basename $(echo ${pkgname} | sed -e "s,\(.*\)-\(.*\)-\(.*\)\..*,\1-\2-\3.bee," - ))
     
 #    echo "would install ${file}"
 #    exit 0
