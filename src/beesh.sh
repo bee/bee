@@ -17,7 +17,7 @@ VERSION=0.2
 #### create_meta() ############################################################
 
 create_meta() {
-    echo "PNF=${PNF}"         >> ${D}/META
+    echo "PNF=${PNF}"       >> ${D}/META
     echo "PVF=${PVF}"       >> ${D}/META
     echo "PR=${PR}"         >> ${D}/META
     echo "PGRP=( ${PGRP} )" >> ${D}/META
@@ -76,10 +76,10 @@ bee_init_builddir() {
         if [ "${OPT_CLEANUP}" = "yes" ] ; then
             echo "#BEE# cleaning work-dir ${W} .."
             rm -fr ${W}
-	else
-	    echo "#BEE# error initializing build-dir ${W}"
-	    exit 1
-	fi
+        else
+            echo "#BEE# error initializing build-dir ${W}"
+            exit 1
+        fi
     fi
     mkdir -p ${S}
     mkdir -p ${B}
@@ -201,8 +201,8 @@ bee_unpack() {
     unset A[0]
     
     for s in ${A[@]} ; do
-	echo "#BEE# unpacking source ${s} .."
-	tar xof ${F}/${s} -C ${S}
+        echo "#BEE# unpacking source ${s} .."
+        tar xof ${F}/${s} -C ${S}
     done
 }
 
@@ -268,9 +268,9 @@ bee_pkg_pack() {
         mkdir -pv ${BEEPKGSTORE}
     fi 
 
-    echo "#BEE# ${BEEPKGSTORE}/${PF}.${PARCH}.iee.tar.bz2 contains .."
+    echo "#BEE# ${BEEPKGSTORE}/${PF}.${PARCH}.bee.tar.bz2 contains .."
 
-    tar cjvvf ${BEEPKGSTORE}/${PF}.${PARCH}.iee.tar.bz2 \
+    tar cjvvf ${BEEPKGSTORE}/${PF}.${PARCH}.bee.tar.bz2 \
         -T ${DUMP} \
         --transform="s,${D},," \
         --show-transformed-names \
@@ -298,7 +298,16 @@ mee_getsources() { bee_getsources ; }
 mee_unpack()     { bee_unpack;      }
 mee_patch()      { bee_patch;       }
 
-mee_configure()  { bee_configure;   }
+mee_configure()  {
+    case "${CONFIGURE_BEEHAVIOR}" in
+        none)
+            true
+            ;;
+        *)
+            bee_configure
+            ;;
+    esac
+}
 mee_build()      { bee_build;       }
 mee_install()    { bee_install ;    }
 
@@ -446,16 +455,12 @@ D=${W}/image
 : ${LOCALEDIR:=${DATAROOTDIR}/locale}
 
 
-if [ ${IGNORE_DATAROOTDIR} ] ; then
+
+if [ "${CONFIGURE_BEEHAVIOR}" == "compat" ] ; then
     unset DATAROOTDIR
-fi
-if [ ${IGNORE_LOCALEDIR} ] ; then
     unset LOCALEDIR
-fi
-if [ ${IGNORE_DOCDIR} ] ; then
     unset DOCDIR
 fi
-
 
 #define default configure
 : ${DEFCONFIG:="\
@@ -492,5 +497,5 @@ bee_pkg_pack
 if [ $OPT_INSTALL = "yes" ] ; then
     unset bee_install
     echo "installing ${PF}.${PARCH}.."
-    bee_install ${OPT_FORCE:+-f} ${BEEPKGSTORE}/${PF}.${PARCH}.iee.tar.bz2
+    bee_install ${OPT_FORCE:+-f} ${BEEPKGSTORE}/${PF}.${PARCH}.bee.tar.bz2
 fi

@@ -63,7 +63,7 @@ pkg_install_all() {
 ##
 ##
 
-#sub1-sub2-subn-name-V.V.V.V-R.A.iee.tar.bz2
+#sub1-sub2-subn-name-V.V.V.V-R.A.bee.tar.bz2
 
 get_fullversion_from_pkg() {
     echo $(echo $1 | sed -e 's,^\(.*\)-\(.*\)-\(.*\)\.\(.*\)$,\2-\3,' - )
@@ -101,9 +101,11 @@ pkg_install() {
     fi
     
     for e in "" ".$(arch)" ".noarch" ".any" ; do
-        if [ -f "${BEEPKGSTORE}/${search}${e}.iee.tar.bz2" ] ; then
-	    do_install "${BEEPKGSTORE}/${search}${e}.iee.tar.bz2"
-	fi
+        if [ -f "${BEEPKGSTORE}/${search}${e}.bee.tar.bz2" ] ; then
+            do_install "${BEEPKGSTORE}/${search}${e}.bee.tar.bz2"
+        elif [ -f "${BEEPKGSTORE}/${search}${e}.iee.tar.bz2" ] ; then
+            do_install "${BEEPKGSTORE}/${search}${e}.iee.tar.bz2"
+        fi
     done
     
     avail=$(get_pkg_list_repository "${search}")
@@ -182,7 +184,7 @@ check_installed() {
 ##
 do_install() {
     local file=${1}
-    local pkgname=$(basename $(basename $(basename ${file} .tar.gz) .tar.bz2) .iee)
+    local pkgname=$(basename $(basename $(basename $(basename ${file} .tar.gz) .tar.bz2) .iee) .bee)
     
     if [ "${OPT_F}" = "0" ] ; then
         check_installed ${pkgname}
@@ -222,10 +224,15 @@ get_pkg_list_repository() {
         arch="\.(any|noarch|$(arch))"
     fi
     
-    hits=$(find ${BEEPKGSTORE} -mindepth 1 \
-             | egrep "${arch}\.iee" \
-	     | egrep "${search}" \
-	     | sort)
+    for i in bee iee ; do
+        hits=$(find ${BEEPKGSTORE} -mindepth 1 \
+                 | egrep "${arch}\.${i}" \
+                 | egrep "${search}" \
+                 | sort)
+        if [ "${hits}" ] ; then
+            break;
+        fi
+     done
 
     echo ${hits}
 }
@@ -264,7 +271,7 @@ print_pkg_list() {
     fi
     
     for p in ${@} ; do
-	local pkgname=$(basename $(basename ${p} .tar.bz2) .iee)
+	local pkgname=$(basename $(basename $(basename ${p} .tar.bz2) .iee) .bee)
 	
 	local installed=$(get_installed_versions ${pkgname})
 	

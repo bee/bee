@@ -15,9 +15,21 @@ usage() {
 }
 
 initialize() {
+    # get arguments starting with '--'
+    while [ -n "${1}" ] ; do
+        if [ "${1:0:2}" == "--" ] ; then
+            DEFAULT_CONFIGURE_OPTIONS="${DEFAULT_CONFIGURE_OPTIONS:+${DEFAULT_CONFIGURE_OPTIONS} }${1}"
+        else
+            PP="${PP:+${PP} }${1}"
+        fi
+        shift
+    done
+
+    # set positional parameters to arguments not starting with '--'
+    set -- ${PP}
     pname=$1
     surl=$2
-    if [ -z ${surl} ] ; then
+    if [ -z "${surl}" ] ; then
         surl=${pname}
         pname=$(basename $(basename ${surl} .tar.bz2) .tar.gz)
         if [ ${pname} = ${surl} ] ; then
@@ -26,6 +38,7 @@ initialize() {
             pname=${pname}-0
         fi
     fi
+    
 
     if [ -e ${pname}.bee ] && [ "$OPT_FORCE" != "yes" ] ; then
         echo "${pname}.bee already exists .. use option -f to overwrite .."
@@ -33,22 +46,43 @@ initialize() {
     fi
 
     echo "creating ${pname}.bee with TEMPLATE='${TEMPLATE}' and SRCURL='${surl}'"
-
     if [ -e ${TEMPLATEPATH}${TEMPLATE} ] ; then
         cp ${TEMPLATEPATH}${TEMPLATE} ${pname}.bee
-        sed -e "s,SRCURL.*,SRCURL[0]=\"${surl}\"," -i ${pname}.bee
     else
         cat >${pname}.bee<<"EOT"
 #!/bin/env beesh
-SRCURL[0]="${surl}"
+@SRCURL@
+@DEFAULT_PREFIX_VARS@
+@CONFIGURE_BEEHAVIOR@
+mee_configure() {
+    bee_configure @DEFAULT_CONFIGURE_OPTIONS@
+}
 EOT
     fi
+    
+    sed -e "s,@SRCURL@,SRCURL[0]=\"${surl}\"," -i ${pname}.bee
+    sed -e "s,@DEFAULT_CONFIGURE_OPTIONS@,${DEFAULT_CONFIGURE_OPTIONS}," -i ${pname}.bee
+    
+    for i in prefix eprefix bindir sbindir libexecdir sysconfdir localstatedir sharedstatedir libdir includedir datarootdir datadir infodir mandir docdirlocaledir ; do
+        I=$(echo ${i} | tr a-z A-Z)
+        eval dir=\$OPT_${i}
+        DEFAULT_PREFIX_VARS="${DEFAULT_PREFIX_VARS:+${DEFAULT_PREFIX_VARS}}${dir:+${DEFAULT_PREFIX_VARS:+\n}}${dir:+${I}=${dir}}"
+        unset dir
+    done
+    sed -e "s,@DEFAULT_PREFIX_VARS@,${DEFAULT_PREFIX_VARS}," -i ${pname}.bee
+    
+    sed -e "s,@CONFIGURE_BEEHAVIOR@,CONFIGURE_BEEHAVIOR=${CONFIGURE_BEEHAVIOR}," -i ${pname}.bee
+
     chmod 755 ${pname}.bee
 }
 
 options=$(getopt -n beeinit \
                  -o ht:f \
                  --long help,template:,force \
+                 --long beehavior: \
+                 --long prefix:,eprefix:,bindir:,sbindir:,libexecdir:,sysconfdir: \
+                 --long localstatedir:,sharedstatedir:,libdir:,includedir: \
+                 --long datarootdir:,datadir:,infodir:,mandir:,docdir:,localedir: \
                  -- "$@")
 if [ $? != 0 ] ; then
   usage
@@ -74,6 +108,29 @@ while true ; do
         -f|--force)
             shift
             OPT_FORCE="yes"
+            ;;
+        --beehavior)
+            CONFIGURE_BEEHAVIOR=${2}
+            shift 2
+            ;;
+        --prefix|\
+        --eprefix|\
+        --bindir|\
+        --sbindir|\
+        --libexecdir|\
+        --sysconfdir|\
+        --localstatedir|\
+        --sharedstatedir|\
+        --libdir|\
+        --includedir|\
+        --datarootdir|\
+        --datadir|\
+        --infodir|\
+        --mandir|\
+        --docdir|\
+        --localedir)
+            eval OPT_${1:2}="${2}"
+            shift 2
             ;;
         *)
             shift

@@ -1,13 +1,19 @@
-
 PREFIX=/usr
 SBINDIR=${PREFIX}/sbin
 BINDIR=${PREFIX}/bin
+SYSCONFDIR=/etc
+
+BEEDIR=${SYSCONFDIR}/bee
+TEMPLATEDIR=${BEEDIR}/templates
 
 DESTDIR=
 
 SHELLS=bee bee-init bee-check bee-remove bee-install bee-list beesh
 PERLS=beefind.pl
 PROGRAMS=beeversion beesep
+
+TEMPLATES=default
+CONFIGS=skiplist defaults
 
 all: build
 
@@ -20,45 +26,54 @@ programs: $(PROGRAMS)
 shells: $(SHELLS)
 
 beesep: src/beesep/beesep.c
-	gcc -Wall -o beesep src/beesep/beesep.c
+	gcc -Wall -o $@ $^
 
 beeversion: src/beeversion/beeversion.c
-	gcc -Wall -o beeversion src/beeversion/beeversion.c
+	gcc -Wall -o $@ $^
 
 bee: src/bee.sh
-	cp src/bee.sh        bee
+	cp $< $@
 
 bee-init: src/beeinit.sh
-	cp src/beeinit.sh    bee-init
+	cp $< $@
 
 bee-check: src/beecheck.sh
-	cp src/beecheck.sh   bee-check
+	cp $< $@
 
 bee-remove: src/beeremove.sh
-	cp src/beeremove.sh  bee-remove
+	cp $< $@
 
 bee-install: src/beeinstall.sh
-	cp src/beeinstall.sh bee-install
+	cp $< $@
 
 bee-list: src/beelist.sh
-	cp src/beelist.sh bee-list
+	cp $< $@
 
 beesh: src/beesh.sh
-	cp src/beesh.sh      beesh
-	
+	cp $< $@
 
 beefind.pl: src/beefind.pl
-	cp src/beefind.pl    beefind.pl
+	cp $< $@
 
 clean:
 	rm -f $(SHELLS)
 	rm -f $(PERLS)
 	rm -f $(PROGRAMS)
-	
 
 install: build
 	@mkdir -vp ${DESTDIR}${BINDIR}
 	@for i in $(SHELLS) $(PERLS) $(PROGRAMS) ; do \
 	     echo "installing $(DESTDIR)$(BINDIR)/$${i}" ; \
 	     install -m 0755 $${i} ${DESTDIR}${BINDIR} ; \
+	 done
+
+install-config:
+	@mkdir -vp ${DESTDIR}${BEEDIR}
+	@for i in ${CONFIGS} ; do \
+	     echo "installing ${DESTDIR}${BEEDIR}/$${i}.sample" ; \
+	     install -vm 0660 conf/$${i} ${DESTDIR}${BEEDIR}/$${i}.sample; \
+	 done
+	@for t in ${TEMPLATES} ; do \
+	     echo "installing ${DESTDIR}${TEMPLATEDIR}/$${i}" ; \
+	     install -vm 0660 conf/templates/$${i} ${DESTDIR}${TEMPLATEDIR} ; \
 	 done

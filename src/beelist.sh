@@ -62,7 +62,7 @@ upgrades() {
     for i in "${a[@]}" ; do
         pn=$(beeversion --pkgname ${i})
         ${DEBUG} "${pn}" >&2
-        l=$(basename $(beeversion -max ${i} $(echo ${PKGSTORE}${pn}*)) | sed -e "s,\.bz2$,," -e "s,\.gz$,," -e "s,\.iee.tar$,,")
+        l=$(basename $(beeversion -max ${i} $(echo ${PKGSTORE}${pn}*)) | sed -e "s,\.bz2$,," -e "s,\.gz$,," -e "s,\.bee.tar$,," -e "s,\.iee.tar$,,")
         ${DEBUG} "${l}" >&2
         if [ "${i}" != "${l}" ] ; then
             echo "${l}"
@@ -132,7 +132,7 @@ pattern2list() {
     path=${1}
     pattern=${2}
     
-    echo $(find ${path} -mindepth 1 -maxdepth 1 -printf "%f\n" | sed -e "s@\.iee\.tar\..*\$@@" | egrep "${pattern}" | sort )
+    echo $(find ${path} -mindepth 1 -maxdepth 1 -printf "%f\n" | sed -e "s@\.iee\.tar\..*\$@@" -e "s@\.bee\.tar\..*\$@@" | egrep "${pattern}" | sort )
 }
 
 options=$(getopt -n beelist \

@@ -113,6 +113,10 @@ while true ; do
             ;;
         --)
             shift
+            if [ -z "${@}" ] ; then
+                usage
+                exit 1
+            fi
             pkg_remove_all "$@"
             break
             ;;

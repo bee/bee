@@ -234,7 +234,7 @@ get_pkg_list_installed() {
 ##
 ##
 
-#sub1-sub2-subn-name-V.V.V.V-R.A.iee.tar.bz2
+#sub1-sub2-subn-name-V.V.V.V-R.A.bee.tar.bz2
 
 get_fullversion_from_pkg() {
     echo $(echo $1 | sed -e 's,^\(.*\)-\(.*\)-\(.*\)\.\(.*\)$,\2-\3,' - )

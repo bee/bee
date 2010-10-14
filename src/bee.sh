@@ -1,5 +1,16 @@
 #!/bin/bash
 
+usage() {
+    echo "usage: $0 <option> <arguments>"
+    echo "possible options are:"
+    echo "  init"
+    echo "  install"
+    echo "  remove"
+    echo "  check"
+    echo "  version"
+}
+
+
 case "$1" in
     init)
         shift
@@ -26,12 +37,9 @@ case "$1" in
         bee-list $@
         ;;
     *)
-        echo "$1 is not a known option.."
-        echo "possible options are:"
-        echo " * init"
-        echo " * install"
-        echo " * remove"
-        echo " * check"
-        echo " * version"
+        if [ -n "${@}" ] ; then
+            echo "$1 is not a known option.."
+        fi
+        usage
         ;;
 esac
