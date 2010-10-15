@@ -263,6 +263,13 @@ bee_pkg_pack() {
     cp ${BEE} ${D}/BUILD
 
     create_meta
+    
+    if [ -n "${PA}" ] ; then
+        mkdir -pv ${D}/PATCHES
+    fi
+    for p in ${PA} ; do
+        cp ${F}/${p} ${D}/PATCHES/${p}
+    done
 
     if [ ! -d ${BEEPKGSTORE} ] ; then
         mkdir -pv ${BEEPKGSTORE}
@@ -280,7 +287,8 @@ bee_pkg_pack() {
         --transform="s,^/FILES$,FILES," \
         --transform="s,^/BUILD$,BUILD," \
         --transform="s,^/META$,META," \
-        ${D}/{FILES,BUILD,META}
+        --transform="s,^/PATCHES,PATCHES," \
+        ${D}/{FILES,BUILD,META} ${PA:+${D}/PATCHES} ${PA:+${D}/PATCHES/*}
 
     rm ${DUMP}
 
@@ -423,7 +431,7 @@ D=${W}/image
 
 ###############################################################################
 
-: ${BEESKIPLIST=/etc/bee/skiplist}
+: ${BEESKIPLIST:=/etc/bee/skiplist}
 
 #root dir for bee
 : ${BEESTORE:=/usr/src/bee/bees}

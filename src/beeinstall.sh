@@ -201,6 +201,7 @@ do_install() {
           --transform="s,FILES,${BEEMETADIR}/${pkgname}/FILES," \
           --transform="s,BUILD,${BEEMETADIR}/${pkgname}/${BEE}," \
           --transform="s,META,${BEEMETADIR}/${pkgname}/META," \
+          --transform="s,PATCHES,${BEEMETADIR}/${pkgname}/PATCHES," \
           --show-transformed-names
     exit $?
 }

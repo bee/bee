@@ -3,7 +3,7 @@ set -e
 
 VERSION=0.1
 
-: ${PKGSTORE:=/usr/src/bee/pkgs/}
+: ${BEEPKGSTORE:=/usr/src/bee/pkgs/}
 : ${BEEMETADIR:=/usr/share/bee/}
 : ${BEESTORE:=/usr/src/bee/bees/}
 
@@ -62,7 +62,7 @@ upgrades() {
     for i in "${a[@]}" ; do
         pn=$(beeversion --pkgname ${i})
         ${DEBUG} "${pn}" >&2
-        l=$(basename $(beeversion -max ${i} $(echo ${PKGSTORE}${pn}*)) | sed -e "s,\.bz2$,," -e "s,\.gz$,," -e "s,\.bee.tar$,," -e "s,\.iee.tar$,,")
+        l=$(basename $(beeversion -max ${i} $(echo ${BEEPKGSTORE}${pn}*)) | sed -e "s,\.bz2$,," -e "s,\.gz$,," -e "s,\.bee.tar$,," -e "s,\.iee.tar$,,")
         ${DEBUG} "${l}" >&2
         if [ "${i}" != "${l}" ] ; then
             echo "${l}"
@@ -100,7 +100,7 @@ get_matches() {
     cnt=0
     inst=($(pattern2list ${BEEMETADIR} ${pattern}))
     ${DEBUG} "inst .. ${inst[@]}" >&2
-    avail=($(pattern2list ${PKGSTORE} ${pattern}))
+    avail=($(pattern2list ${BEEPKGSTORE} ${pattern}))
     ${DEBUG} "avail .. ${avail[@]}" >&2
     while [ ${#filter} -gt ${cnt} ] ; do
         case "${filter:${cnt}:1}" in
