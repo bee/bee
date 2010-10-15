@@ -460,7 +460,7 @@ D=${W}/image
 
 # check IGNORE_DATAROOTDIR for compatibility with old bee-files
 if [ ${IGNORE_DATAROOTDIR} ] ; then
-    echo "IGNORE_DATAROOTDIR is deprecated! pleade use BEE_CONFIGURE='compat' instead."
+    echo "#BEE-WARNING# IGNORE_DATAROOTDIR is deprecated! pleade use BEE_CONFIGURE='compat' instead." >&2
     BEE_CONFIGURE='compat'
 fi
 
