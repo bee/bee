@@ -218,6 +218,10 @@ bee_patch() {
 #### bee_configure() ##########################################################
 
 bee_configure() {
+    if [ "${BEE_CONFIGURE}" == "none" ] ; then
+        return 0
+    fi
+    
     echo "#BEE# configuring .."
     echo "#BEE#   => ${S}/configure ${DEFCONFIG} $@"
     ${OPT_SILENT:+eval exec 1>/dev/null}
@@ -306,16 +310,7 @@ mee_getsources() { bee_getsources ; }
 mee_unpack()     { bee_unpack;      }
 mee_patch()      { bee_patch;       }
 
-mee_configure()  {
-    case "${CONFIGURE_BEEHAVIOR}" in
-        none)
-            true
-            ;;
-        *)
-            bee_configure
-            ;;
-    esac
-}
+mee_configure()  { bee_configure;   }
 mee_build()      { bee_build;       }
 mee_install()    { bee_install ;    }
 
@@ -463,8 +458,13 @@ D=${W}/image
 : ${LOCALEDIR:=${DATAROOTDIR}/locale}
 
 
+# check IGNORE_DATAROOTDIR for compatibility with old bee-files
+if [ ${IGNORE_DATAROOTDIR} ] ; then
+    echo "IGNORE_DATAROOTDIR is deprecated! pleade use BEE_CONFIGURE='compat' instead."
+    BEE_CONFIGURE='compat'
+fi
 
-if [ "${CONFIGURE_BEEHAVIOR}" == "compat" ] ; then
+if [ "${BEE_CONFIGURE}" == "compat" ] ; then
     unset DATAROOTDIR
     unset LOCALEDIR
     unset DOCDIR

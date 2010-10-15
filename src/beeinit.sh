@@ -53,7 +53,9 @@ initialize() {
 #!/bin/env beesh
 @SRCURL@
 @DEFAULT_PREFIX_VARS@
-@CONFIGURE_BEEHAVIOR@
+
+@BEE_CONFIGURE@
+
 mee_configure() {
     bee_configure @DEFAULT_CONFIGURE_OPTIONS@
 }
@@ -61,6 +63,7 @@ EOT
     fi
     
     sed -e "s,@SRCURL@,SRCURL[0]=\"${surl}\"," -i ${pname}.bee
+    
     sed -e "s,@DEFAULT_CONFIGURE_OPTIONS@,${DEFAULT_CONFIGURE_OPTIONS}," -i ${pname}.bee
     
     for i in prefix eprefix bindir sbindir libexecdir sysconfdir localstatedir sharedstatedir libdir includedir datarootdir datadir infodir mandir docdirlocaledir ; do
@@ -71,7 +74,11 @@ EOT
     done
     sed -e "s,@DEFAULT_PREFIX_VARS@,${DEFAULT_PREFIX_VARS}," -i ${pname}.bee
     
-    sed -e "s,@CONFIGURE_BEEHAVIOR@,CONFIGURE_BEEHAVIOR=${CONFIGURE_BEEHAVIOR}," -i ${pname}.bee
+    if [ "${CONFIGURE_BEEHAVIOR}" ] ; then
+        sed -e "s,@BEE_CONFIGURE@,BEE_CONFIGURE=${CONFIGURE_BEEHAVIOR}," -i ${pname}.bee
+    else
+        sed -e "s,@BEE_CONFIGURE@,# BEE_CONFIGURE=compat," -i ${pname}.bee
+    fi
 
     chmod 755 ${pname}.bee
 }
@@ -79,7 +86,7 @@ EOT
 options=$(getopt -n beeinit \
                  -o ht:f \
                  --long help,template:,force \
-                 --long beehavior: \
+                 --long configure: \
                  --long prefix:,eprefix:,bindir:,sbindir:,libexecdir:,sysconfdir: \
                  --long localstatedir:,sharedstatedir:,libdir:,includedir: \
                  --long datarootdir:,datadir:,infodir:,mandir:,docdir:,localedir: \
@@ -109,8 +116,15 @@ while true ; do
             shift
             OPT_FORCE="yes"
             ;;
-        --beehavior)
-            CONFIGURE_BEEHAVIOR=${2}
+        --configure)
+            case "${2}" in 
+                compat|none)
+                    CONFIGURE_BEEHAVIOR=${2}
+                    ;;
+                *)
+                    unset CONFIGURE_BEEHAVIOR
+                    ;;
+            esac
             shift 2
             ;;
         --prefix|\
