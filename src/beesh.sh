@@ -499,12 +499,6 @@ ${LOCALEDIR:+--localedir=${LOCALEDIR}} \
 ${DOCDIR:+--docdir=${DOCDIR}} \
 "}
 
-echo $BEEPKGSTORE
-echo $BEESTORE
-echo $BEESKIPLIST
-echo $BEEFAULTS
-exit
-
 bee_init_builddir
 mee_getsources
 mee_unpack

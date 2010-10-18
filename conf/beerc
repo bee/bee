@@ -23,5 +23,5 @@
 : ${BEEPKGSTORE:=/usr/src/bee/pkgs}
 
 # default skiplist
-: ${SKIPLIST=/etc/bee/skiplist}
+: ${BEESKIPLIST=/etc/bee/skiplist}
 
