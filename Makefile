@@ -13,7 +13,7 @@ PERLS=beefind.pl
 PROGRAMS=beeversion beesep
 
 TEMPLATES=default
-CONFIGS=skiplist defaults
+CONFIGS=skiplist beerc
 
 all: build
 

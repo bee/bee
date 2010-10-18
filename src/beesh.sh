@@ -373,8 +373,9 @@ if [ ! ${BEE:0:1} = "/" ] ; then
     BEE=${PWD}/$BEE
 fi
 
-PF=$(basename $BEE .bee)
 
+### define pkg variables
+PF=$(basename $BEE .bee)
 #parse pkg name
 # PF  = glibc-2.10.1_rc5-1 - full package name
 # PNF =                    - package full name
@@ -399,13 +400,23 @@ PR=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\3,' - )
 PVR=${PVF}-${PR}
 P=${PNF}-${PVF}
 
-: ${BEEFAULTS=/etc/bee/beerc}
 
+### load user defs
+: ${DOTBEERC:=${HOME}/.beerc}
+if [ -e ${DOTBEERC} ] ; then
+    . ${DOTBEERC}
+fi
+
+
+### load system defs
+: ${BEEFAULTS:=/etc/bee/beerc}
 if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
 
-: ${BEEROOT=/tmp/beeroot}
+
+### create build directory tree with built-in defs
+: ${BEEROOT:=/tmp/beeroot}
 
 #pkg root
 R=${BEEROOT}/${PNF}
@@ -415,7 +426,6 @@ F=${R}/files
 
 #workdir for current build
 W=${R}/${PF}
-
 S=${W}/source
 B=${W}/build
 D=${W}/image
@@ -437,7 +447,6 @@ D=${W}/image
 : ${PARCH:=${ARCH}}
 
 #define default directories
-
 : ${PREFIX:=/usr}
 : ${EPREFIX:=${PREFIX}}
 : ${BINDIR:=${EPREFIX}/bin}
@@ -458,6 +467,7 @@ D=${W}/image
 : ${LOCALEDIR:=${DATAROOTDIR}/locale}
 
 
+### create default configure line
 # check IGNORE_DATAROOTDIR for compatibility with old bee-files
 if [ ${IGNORE_DATAROOTDIR} ] ; then
     echo "#BEE-WARNING# IGNORE_DATAROOTDIR is deprecated! pleade use BEE_CONFIGURE='compat' instead." >&2
@@ -470,7 +480,6 @@ if [ "${BEE_CONFIGURE}" == "compat" ] ; then
     unset DOCDIR
 fi
 
-#define default configure
 : ${DEFCONFIG:="\
 --prefix=${PREFIX} \
 --exec-prefix=${EPREFIX} \
@@ -489,6 +498,12 @@ ${LOCALEDIR:+--localedir=${LOCALEDIR}} \
 --mandir=${MANDIR} \
 ${DOCDIR:+--docdir=${DOCDIR}} \
 "}
+
+echo $BEEPKGSTORE
+echo $BEESTORE
+echo $BEESKIPLIST
+echo $BEEFAULTS
+exit
 
 bee_init_builddir
 mee_getsources

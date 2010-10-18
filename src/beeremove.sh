@@ -6,8 +6,12 @@
 
 VERSION=0.1
 
-: ${BEEFAULTS=/etc/bee/beerc}
+: ${DOTBEERC:=${HOME}/.beerc}
+if [ -e ${DOTBEERC} ] ; then
+    . ${DOTBEERC}
+fi
 
+: ${BEEFAULTS:=/etc/bee/beerc}
 if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi

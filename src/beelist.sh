@@ -3,6 +3,16 @@ set -e
 
 VERSION=0.1
 
+: ${DOTBEERC:=${HOME}/.beerc}
+if [ -e ${DOTBEERC} ] ; then
+    . ${DOTBEERC}
+fi
+
+: ${BEEFAULTS:=/etc/bee/beerc}
+if [ -e ${BEEFAULTS} ] ; then
+    . ${BEEFAULTS}
+fi
+
 : ${BEEPKGSTORE:=/usr/src/bee/pkgs/}
 : ${BEEMETADIR:=/usr/share/bee/}
 : ${BEESTORE:=/usr/src/bee/bees/}
