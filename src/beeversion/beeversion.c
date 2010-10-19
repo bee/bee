@@ -127,17 +127,15 @@ int parse_version(char *s,  struct nr *v)
         v->pkgrevision = p+1;
         *p=0;
 
-        if(!*(v->pkgrevision)) {
+        if(!*(v->pkgrevision))
             return(p-s+1);
-        }
 
         if((p=strchr(v->pkgrevision, '.'))) {
             v->arch = p+1;
             *p=0;
 
-            if(!*(v->arch) || !*(v->pkgrevision)) {
+            if(!*(v->arch) || !*(v->pkgrevision))
                 return(p-s+1);
-            }
         }
 
         if((p=strrchr(s, '-'))) {
@@ -146,9 +144,8 @@ int parse_version(char *s,  struct nr *v)
 
             v->pkgname = s;
 
-            if(!*(v->pkgname) || *(v->pkgname) == '_') {
+            if(!*(v->pkgname) || *(v->pkgname) == '_')
                 return(1);
-            }
         } else {
             v->version = s;
         }
@@ -156,24 +153,21 @@ int parse_version(char *s,  struct nr *v)
         v->version = s;
     }
 
-    if(!*(v->version) || *(v->version) == '_') {
+    if(!*(v->version) || *(v->version) == '_')
         return(p-s+1);
-    }
 
     if((p=strchr(v->version, '_'))) {
         *p=0;
         v->extraversion=p+1;
-        if(!*(v->extraversion)) {
+        if(!*(v->extraversion))
             return(p-s+1);
-        }
     }
 
     if(v->pkgname && (p=strchr(v->pkgname, '_'))) {
         *p=0;
         v->subname=p+1;
-        if(!*(v->subname)) {
+        if(!*(v->subname))
             return(p-s+1);
-        }
     }
     
     parse_extra(v);
@@ -538,8 +532,7 @@ int main(int argc, char *argv[])
         {0, 0, 0, 0}
     };
     
-    while ((c = getopt_long_only(argc, argv, "PVFpavers", long_options, 
-    &option_index)) != -1) {
+    while ((c = getopt_long_only(argc, argv, "PVFpavers", long_options, &option_index)) != -1) {
     
         if( (c & TEST_TYPE_MASK) && ! (c & ~TEST_FULL_MASK)) {
             if(mode && mode == MODE_PARSE) {
@@ -588,6 +581,7 @@ int main(int argc, char *argv[])
             format[build_format++] = c;
             continue;
         }
+        
         if(c == OPT_FORMAT) {
             if(format) {
                 fprintf(stderr, "--%s ignored\n", long_options[option_index].name);
