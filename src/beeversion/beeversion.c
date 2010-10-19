@@ -214,7 +214,7 @@ char parse_extra(struct beeversion *v)
     return(1);
 }
 
-int parse_argument(char* text, int len, struct beeversion *versionsnummer)
+int parse_argument(char* text, struct beeversion *versionsnummer)
 {	
     int p;
     
@@ -434,7 +434,7 @@ int do_test(int argc, char *argv[], char test) {
         }
         
         for(i=0; i<2; i++) {
-            if(!parse_argument(argv[i], 0, &v[i]))
+            if(!parse_argument(argv[i], &v[i]))
                return(0);
         }
         
@@ -471,7 +471,7 @@ int do_test(int argc, char *argv[], char test) {
         }
         
         for(i=0;i<argc;i++) {
-            if(!parse_argument(argv[i], 0, va+i))
+            if(!parse_argument(argv[i], va+i))
                 return(0);
         }
         
@@ -508,7 +508,7 @@ int do_parse(int argc, char *argv[], char *format) {
         return(255);
     }
     
-    if(!parse_argument(argv[0], 0, &v))
+    if(!parse_argument(argv[0], &v))
         return(0);
     
     print_format(format, &v);
