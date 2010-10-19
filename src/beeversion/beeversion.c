@@ -430,8 +430,8 @@ int do_test(int argc, char *argv[], char test) {
     /* min / max */
     if((test & TEST_TYPE_MASK) == TEST_WITH_2_OR_MORE_ARGS) {
         
-        if(argc < 2) {
-            fprintf(stderr, "usage: beeversion -[min|max] <package1> <package2> [.. <packageN>]\n");
+        if(argc < 1) {
+            fprintf(stderr, "usage: beeversion -[min|max] <package1> [<package2> .. <packageN>]\n");
             return(255);
         }
         
