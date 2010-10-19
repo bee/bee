@@ -74,7 +74,7 @@ struct extra_version {
     size_t        length;
 };
 
-struct nr {
+struct beeversion {
     char *string;
     char *pkgname;
     char *subname;
@@ -86,8 +86,8 @@ struct nr {
     char *arch;
 };
 
-char cmp(struct nr *, struct nr *);
-char parse_extra(struct nr *);
+char compare_beeversions(struct beeversion *, struct beeversion *);
+char parse_extra(struct beeversion *);
 
 /*
 ** IN: s: pointer to versionstring..
@@ -99,7 +99,7 @@ char parse_extra(struct nr *);
 **         >0 error at position x
 **
 */
-int parse_version(char *s,  struct nr *v)
+int parse_version(char *s,  struct beeversion *v)
 {
     char *p;
     size_t len;
@@ -174,7 +174,7 @@ int parse_version(char *s,  struct nr *v)
     return(0);
 }
 
-char parse_extra(struct nr *v)
+char parse_extra(struct beeversion *v)
 {
     struct extra_version extra[] = {
         { "alpha", EXTRA_ALPHA, 5 },
@@ -214,7 +214,7 @@ char parse_extra(struct nr *v)
     return(1);
 }
 
-int parse_argument(char* text, int len, struct nr *versionsnummer)
+int parse_argument(char* text, int len, struct beeversion *versionsnummer)
 {	
     int p;
     
@@ -225,7 +225,7 @@ int parse_argument(char* text, int len, struct nr *versionsnummer)
     return(1);
 }
 
-char version_cmp(char *v1, char *v2) {
+char compare_version_strings(char *v1, char *v2) {
     char *a, *b;
     long long i,j;
     a = v1;
@@ -283,10 +283,10 @@ char version_cmp(char *v1, char *v2) {
     return(-1);
 }
 
-char cmp(struct nr *v1, struct nr *v2) {
+char compare_beeversions(struct beeversion *v1, struct beeversion *v2) {
     char ret;
 
-    ret = version_cmp(v1->version, v2->version);
+    ret = compare_version_strings(v1->version, v2->version);
     if(ret) return(ret);
     
     if(v1->extraversion_typ < v2->extraversion_typ)
@@ -295,14 +295,14 @@ char cmp(struct nr *v1, struct nr *v2) {
     if(v1->extraversion_typ > v2->extraversion_typ)
         return(1);
     
-    ret = version_cmp(v1->extraversion_nr, v2->extraversion_nr);
+    ret = compare_version_strings(v1->extraversion_nr, v2->extraversion_nr);
     if(ret) return(ret);
     
-    ret = version_cmp(v1->pkgrevision, v2->pkgrevision);
+    ret = compare_version_strings(v1->pkgrevision, v2->pkgrevision);
     return ret;
 }
 
-void print_format(char* s, struct nr* v)
+void print_format(char* s, struct beeversion* v)
 {
     char *p;
     
@@ -386,8 +386,8 @@ void print_format(char* s, struct nr* v)
 int do_test(int argc, char *argv[], char test) {
     int i;
     
-    struct nr v[2];
-    struct nr *a, *b, *tmp;
+    struct beeversion v[2];
+    struct beeversion *a, *b, *tmp;
     
     int ret;
     char t;
@@ -408,7 +408,7 @@ int do_test(int argc, char *argv[], char test) {
                return(0);
         }
         
-        ret = cmp(a, b);
+        ret = compare_beeversions(a, b);
         
         switch(t) {
             case T_LESS_THAN:
@@ -442,7 +442,7 @@ int do_test(int argc, char *argv[], char test) {
             if(!parse_argument(argv[i], 0, b))
                 return(0);
             
-            ret = cmp(a, b);
+            ret = compare_beeversions(a, b);
             
             if((t == T_MIN && ret > 0) || (t == T_MAX && ret < 0)) {
                 tmp = b;
@@ -461,7 +461,7 @@ int do_test(int argc, char *argv[], char test) {
 }
 
 int do_parse(int argc, char *argv[], char *format) {
-    struct nr v;
+    struct beeversion v;
     
     if(argc != 1) {
         fprintf(stderr, "usage: beeversion <package>\n"); 
