@@ -255,9 +255,10 @@ char compare_version_strings(char *v1, char *v2) {
                 return(-1);
             if(i>j)
                 return(1);
-                
-            fprintf(stderr, "YOU HIT A BUG! #001\n");
-            exit(254);
+            
+            /* numbers are equal but strings are not?           */
+            /* yes ->  leading zeros: atoll("01") == atoll("1") */
+            return(0);
         }
         /* a > ('.',alpha, 0) */
         return(1);
