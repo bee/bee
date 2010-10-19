@@ -188,24 +188,32 @@ check_installed() {
 ##
 do_install() {
     local file=${1}
-    local pkgname=$(basename $(basename $(basename $(basename ${file} .tar.gz) .tar.bz2) .iee) .bee)
+    local pkg=$(basename $(basename $(basename $(basename ${file} .tar.gz) .tar.bz2) .iee) .bee)
     
     if [ "${OPT_F}" = "0" ] ; then
-        check_installed ${pkgname}
+        v=$(get_fullversion_from_pkg ${pkg})
+        n=$(get_name_from_pkg ${pkg})
+        installed=$(bee-list -i ${n})
+        if [ -z "${installed}" ] ; then
+            pkg=$(beeversion -max $(bee-list -a ${n}))
+            echo "installing latest version: '${pkg}' .."
+        else
+                check_installed ${pkg}
+        fi
+        file=$(ls ${BEEPKGSTORE}/${pkg}*)
     fi
     
     # create bee-filename
-    BEE=$(basename $(echo ${pkgname} | sed -e "s,\(.*\)-\(.*\)-\(.*\)\..*,\1-\2-\3.bee," - ))
+    BEE=$(basename $(echo ${pkg} | sed -e "s,\(.*\)-\(.*\)-\(.*\)\..*,\1-\2-\3.bee," - ))
     
 #    echo "would install ${file}"
 #    exit 0
     
-#    mkdir -p ${BEEMETADIR}/${pkgname}
     tar -xvvPf ${file} \
-          --transform="s,FILES,${BEEMETADIR}/${pkgname}/FILES," \
-          --transform="s,BUILD,${BEEMETADIR}/${pkgname}/${BEE}," \
-          --transform="s,META,${BEEMETADIR}/${pkgname}/META," \
-          --transform="s,PATCHES,${BEEMETADIR}/${pkgname}/PATCHES," \
+          --transform="s,FILES,${BEEMETADIR}/${pkg}/FILES," \
+          --transform="s,BUILD,${BEEMETADIR}/${pkg}/${BEE}," \
+          --transform="s,META,${BEEMETADIR}/${pkg}/META," \
+          --transform="s,PATCHES,${BEEMETADIR}/${pkg}/PATCHES," \
           --show-transformed-names
     exit $?
 }
