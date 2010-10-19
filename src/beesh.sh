@@ -243,7 +243,7 @@ bee_build() {
 bee_install() {
     echo "#BEE# make install $@"
     ${OPT_SILENT:+eval exec 1>/dev/null}
-    make install DESTDIR=${D}
+    make install DESTDIR=${D} $@
     ${OPT_SILENT:+eval exec 1>&3}
 }
 
