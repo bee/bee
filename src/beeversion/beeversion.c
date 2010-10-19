@@ -86,7 +86,7 @@ struct beeversion {
     char *arch;
 };
 
-char compare_beeversions(struct beeversion *, struct beeversion *);
+int compare_beeversions(struct beeversion *, struct beeversion *);
 char parse_extra(struct beeversion *);
 
 /*
@@ -225,9 +225,10 @@ int parse_argument(char* text, int len, struct beeversion *versionsnummer)
     return(1);
 }
 
-char compare_version_strings(char *v1, char *v2) {
+int compare_version_strings(char *v1, char *v2) {
     char *a, *b;
     long long i,j;
+    
     a = v1;
     b = v2;
 
@@ -284,8 +285,36 @@ char compare_version_strings(char *v1, char *v2) {
     return(-1);
 }
 
-char compare_beeversions(struct beeversion *v1, struct beeversion *v2) {
-    char ret;
+
+int compare_beepackage_names(struct beeversion *v1, struct beeversion *v2) {
+    int ret;
+    
+    ret = strcmp(v1->pkgname, v2->pkgname);
+    
+    if(!ret)
+        ret = strcmp(v1->subname, v2->subname);
+    
+    return(ret);
+   
+}
+
+int compare_beepackages(struct beeversion *v1, struct beeversion *v2) {
+    int ret;
+    
+    ret = compare_beepackage_names(v1, v2);
+    
+    if(!ret)
+        ret = compare_beeversions(v1, v2);
+        
+    return(ret);
+}
+
+static int compare_beepackages_gen(const void *a, const void *b) {
+    return((int)compare_beepackages((struct beeversion *)a, (struct beeversion *)b));
+}
+
+int compare_beeversions(struct beeversion *v1, struct beeversion *v2) {
+    int ret;
 
     ret = compare_version_strings(v1->version, v2->version);
     if(ret) return(ret);
@@ -303,7 +332,7 @@ char compare_beeversions(struct beeversion *v1, struct beeversion *v2) {
     return ret;
 }
 
-void print_format(char* s, struct beeversion* v)
+void print_format(char* s, struct beeversion *v)
 {
     char *p;
     
@@ -388,7 +417,7 @@ int do_test(int argc, char *argv[], char test) {
     int i;
     
     struct beeversion v[2];
-    struct beeversion *a, *b, *tmp;
+    struct beeversion *a, *b, *va;
     
     int ret;
     char t;
@@ -436,23 +465,33 @@ int do_test(int argc, char *argv[], char test) {
             return(255);
         }
         
-        if(!parse_argument(argv[0], 0, a))
-            return(0);
-        
-        for(i=1; i<argc; i++) {
-            if(!parse_argument(argv[i], 0, b))
-                return(0);
-            
-            ret = compare_beeversions(a, b);
-            
-            if((t == T_MIN && ret > 0) || (t == T_MAX && ret < 0)) {
-                tmp = b;
-                b   = a;
-                a   = tmp;
-            }
+        if(!(va = calloc(sizeof(struct beeversion), argc))) {
+            perror("va=calloc()");
+            exit(255);
         }
         
+        for(i=0;i<argc;i++) {
+            if(!parse_argument(argv[i], 0, va+i))
+                return(0);
+        }
+        
+        qsort(va, argc, sizeof(struct beeversion), compare_beepackages_gen);
+        
+        for(a=va,i=1;i<argc;i++) {
+            b=va+i;
+            
+            /* a != b */
+            if(compare_beepackage_names(a, b)) {
+                print_format("%F\n", a);
+                a = b;
+            }
+            
+            if(t == T_MAX) 
+               a = b;
+        }
         print_format("%F\n", a);
+        
+        free(va);
         return(1);
     }
     
