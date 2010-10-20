@@ -25,7 +25,7 @@
 #include <ctype.h>
 
 #define BEE_VERSION_MAJOR    1
-#define BEE_VERSION_MINOR    0
+#define BEE_VERSION_MINOR    1
 #define BEE_VERSION_PATCHLVL 0
 
 
