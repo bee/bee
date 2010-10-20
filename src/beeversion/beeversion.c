@@ -101,7 +101,8 @@ char parse_extra(struct beeversion *);
 */
 int parse_version(char *s,  struct beeversion *v)
 {
-    char *p;
+    char   *p;
+    char   *version_or_revision;
     size_t len;
 
     if(! (v->string=strdup(s))) {
@@ -121,40 +122,53 @@ int parse_version(char *s,  struct beeversion *v)
     v->arch             = s+len;
     v->extraversion_typ = EXTRA_UNKNOWN;
     
-    /* p-v-r   v-r   v */
+    /* p-v-r   p-v   v */
 
     if((p=strrchr(s, '-'))) {
-        v->pkgrevision = p+1;
+        version_or_revision = p+1;
         *p=0;
-
-        if(!*(v->pkgrevision))
+        
+        /* check for empty version_or_revision */
+        if(!*version_or_revision)
             return(p-s+1);
 
-        if((p=strchr(v->pkgrevision, '.'))) {
-            v->arch = p+1;
-            *p=0;
+        /* first part ist pname (will be checked later) */
+        v->pkgname = s;
 
-            if(!*(v->arch) || !*(v->pkgrevision))
-                return(p-s+1);
-        }
-
+        /* if there is another dash  
+        **   revision is version_or_revision
+        **   version  is p+1
+        ** else
+        **   revision is empty
+        **   version  is version_or_revision
+        */
         if((p=strrchr(s, '-'))) {
-            v->version = p+1;
+            v->version     = p+1;
             *p=0;
 
-            v->pkgname = s;
+            if(!*(v->version) || *(v->version) == '_')
+                return(p-s+1);
+            
+            v->pkgrevision = version_or_revision;
+            
+            /* extract arch from pkgrevision */
+            if((p=strchr(v->pkgrevision, '.'))) {
+                v->arch = p+1;
+                *p=0;
 
-            if(!*(v->pkgname) || *(v->pkgname) == '_')
-                return(1);
+                if(!*(v->arch) || !*(v->pkgrevision))
+                    return(p-s+1);
+            }
         } else {
-            v->version = s;
+            v->version = version_or_revision;
         }
     } else {
         v->version = s;
     }
-
-    if(!*(v->version) || *(v->version) == '_')
-        return(p-s+1);
+    
+    /* check pname or version */
+    if(!*s || *s == '_')
+        return(1);
 
     if((p=strchr(v->version, '_'))) {
         *p=0;
