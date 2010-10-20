@@ -93,13 +93,11 @@ pkg_install() {
     search=${1}
     
     # install specific package
-    
     if [ -f "${search}" ] ; then
          do_install "${search}"
     fi
     
     # install package from repository
-    
     if [ -f "${BEEPKGSTORE}/${search}" ] ; then
          do_install "${BEEPKGSTORE}/${search}"
     fi
@@ -112,8 +110,21 @@ pkg_install() {
         fi
     done
     
-    avail=$(bee-list -a "${search}")
+    installed=$(bee-list -i ${search} | egrep "${search}\-\d*")
+    if [ -n "${installed}" ] ; then
+        installed=$(beeversion -max ${installed})
+    fi
+    avail=$(bee-list -a ${search} | egrep "${search}\-\d*")
+    if [ -n "${avail}" ] ; then
+        latest=$(beeversion -max ${avail})
+    fi
+    if [ -n "${latest}" ] ; then
+        if [ "${OPT_F}" = "1" ] || [ -z "${installed}" ] || beeversion ${installed} -lt ${latest} ; then
+            pkg_install ${latest}
+        fi
+    fi
     
+    avail=$(bee-list -a "${search}")
     print_pkg_list ${avail}
 }
 
@@ -191,16 +202,7 @@ do_install() {
     local pkg=$(basename $(basename $(basename $(basename ${file} .tar.gz) .tar.bz2) .iee) .bee)
     
     if [ "${OPT_F}" = "0" ] ; then
-        v=$(get_fullversion_from_pkg ${pkg})
-        n=$(get_name_from_pkg ${pkg})
-        installed=$(bee-list -i ${n})
-        if [ -z "${installed}" ] ; then
-            pkg=$(beeversion -max $(bee-list -a ${n}))
-            echo "installing latest version: '${pkg}' .."
-        else
-                check_installed ${pkg}
-        fi
-        file=$(ls ${BEEPKGSTORE}/${pkg}*)
+        check_installed ${pkg}
     fi
     
     # create bee-filename
