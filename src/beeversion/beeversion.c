@@ -71,6 +71,7 @@
 #define OPT_KEYVALUE 129
 #define OPT_VERSION  130
 #define OPT_HELP     131
+#define OPT_FILTER_PKGFULLNAME 132
 
 #define MODE_TEST   1
 #define MODE_PARSE  2
@@ -92,6 +93,8 @@ struct beeversion {
     char *pkgrevision;
     char *arch;
 };
+
+char *filter_pkgfullname;
 
 int compare_beeversions(struct beeversion *, struct beeversion *);
 char parse_extra(struct beeversion *);
@@ -387,8 +390,28 @@ int compare_beeversions(struct beeversion *v1, struct beeversion *v2) {
 void print_format(char* s, struct beeversion *v)
 {
     char *p;
+    size_t len;
     
     p=s;
+    
+    if(filter_pkgfullname) {
+    
+       len = strlen(v->pkgname);
+       
+       if(len > strlen(filter_pkgfullname))
+           return;
+       
+       if(strncmp(v->pkgname, filter_pkgfullname, len))
+           return;
+       
+       p = filter_pkgfullname+len;
+       
+       if((!*p && *(v->subname)) || (*p && *p++ != '_'))
+           return;
+       
+       if(strcmp(p, v->subname))
+           return;
+    }
     
     for(p=s; *p; p++) {
         if(*p == '%') {
@@ -621,6 +644,8 @@ int main(int argc, char *argv[])
         {"pkgrevision",     no_argument, 0, 'r'},
         {"pkgsubname",      no_argument, 0, 's'},
         
+        {"filter-pkgfullname", required_argument, 0, OPT_FILTER_PKGFULLNAME},
+        
         {"version",     no_argument, 0, OPT_VERSION},
         {"help",        no_argument, 0, OPT_HELP},
 
@@ -646,6 +671,10 @@ int main(int argc, char *argv[])
             continue;
         }
         
+        if(c == OPT_FILTER_PKGFULLNAME) {
+            filter_pkgfullname = optarg;
+            continue;
+        }
         
         if(mode && mode == MODE_TEST) {
             fprintf(stderr, "skipping parse-option --%s since already running in test mode\n",
@@ -723,6 +752,8 @@ int main(int argc, char *argv[])
     if(!mode || mode == MODE_PARSE) {
         if(!format)
             format = keyvalue;
+        
+        filter_pkgfullname = NULL;
         
         do_parse(argc-optind, argv+optind, format);
     }
