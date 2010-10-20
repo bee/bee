@@ -24,6 +24,11 @@
 #include <string.h>
 #include <ctype.h>
 
+#define BEE_VERSION_MAJOR    1
+#define BEE_VERSION_MINOR    0
+#define BEE_VERSION_PATCHLVL 0
+
+
 #define EXTRA_UNKNOWN 200
 #define EXTRA_ALPHA   1
 #define EXTRA_BETA    2
@@ -64,6 +69,8 @@
 
 #define OPT_FORMAT   128
 #define OPT_KEYVALUE 129
+#define OPT_VERSION  130
+#define OPT_HELP     131
 
 #define MODE_TEST   1
 #define MODE_PARSE  2
@@ -88,6 +95,37 @@ struct beeversion {
 
 int compare_beeversions(struct beeversion *, struct beeversion *);
 char parse_extra(struct beeversion *);
+
+void print_version(void) {
+    printf("beeversion v%d.%d.%d - "
+           "by Marius Tolzmann <tolzmann@molgen.mpg.de> 2010\n", 
+           BEE_VERSION_MAJOR, BEE_VERSION_MINOR, BEE_VERSION_PATCHLVL);
+}
+
+void print_full_usage(void) {
+
+    printf("usage:\n\n");
+    
+    
+    printf("   test: beeversion <packageA> -{lt|le|gt|ge|eq|ne} <packageB>\n");
+    printf(" filter: beeversion -{min|max} <package1> [.. <packageN>]\n");
+    printf("  parse: beeversion <package>\n\n");
+    
+    printf("         package := <pkgfullname>-<pkgfullversion>-<pkgrevision>\n");
+    printf("                  | <pkgfullname>-<pkgfullversion>\n");
+    printf("                  | <pkgfullversion>\n\n");
+    
+    printf("     pkgfullname := <pkgname>\n");
+    printf("                  | <pkgname>_<pkgsubname>\n\n");
+    
+    printf("  pkgfullversion := <pkgversion>\n");
+    printf("                  | <pkgversion>_<pkgextraversion>\n\n");
+    
+    printf("     pkgrevision := <pkgrevision>\n");
+    printf("                  | <pkgrevision>.<arch>\n\n");
+    
+}
+
 
 /*
 ** IN: s: pointer to versionstring..
@@ -582,6 +620,9 @@ int main(int argc, char *argv[])
         {"pkgextraversion", no_argument, 0, 'e'},
         {"pkgrevision",     no_argument, 0, 'r'},
         {"pkgsubname",      no_argument, 0, 's'},
+        
+        {"version",     no_argument, 0, OPT_VERSION},
+        {"help",        no_argument, 0, OPT_HELP},
 
         {0, 0, 0, 0}
     };
@@ -652,6 +693,19 @@ int main(int argc, char *argv[])
             }
             format = keyvalue;
             continue;
+        }
+        
+        if(c == OPT_HELP) {
+            printf("\n");
+            print_version();
+            printf("\n");
+            print_full_usage();
+            exit(0);
+        }
+        
+        if(c == OPT_VERSION) {
+            print_version();
+            exit(0);
         }
         
         if(opterr)
