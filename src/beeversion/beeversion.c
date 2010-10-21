@@ -699,7 +699,7 @@ int main(int argc, char *argv[])
         {0, 0, 0, 0}
     };
     
-    while ((c = getopt_long_only(argc, argv, "PVFpaversx", long_options, &option_index)) != -1) {
+    while ((c = getopt_long_only(argc, argv, "PAVFpaversx", long_options, &option_index)) != -1) {
     
         if( (c & TEST_TYPE_MASK) && ! (c & ~TEST_FULL_MASK)) {
             if(mode && mode == MODE_PARSE) {
