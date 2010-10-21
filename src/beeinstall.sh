@@ -190,6 +190,8 @@ do_install() {
     
 #    echo "would install ${file}"
 #    exit 0
+
+    echo "installing ${file} .."
     
     tar -xvvPf ${file} \
           --transform="s,FILES,${BEEMETADIR}/${pkg}/FILES," \
