@@ -26,7 +26,7 @@
 
 #define BEE_VERSION_MAJOR    1
 #define BEE_VERSION_MINOR    1
-#define BEE_VERSION_PATCHLVL 0
+#define BEE_VERSION_PATCHLVL 1
 
 
 #define EXTRA_UNKNOWN 200
@@ -111,8 +111,8 @@ void print_full_usage(void) {
     
     
     printf("   test: beeversion <packageA> -{lt|le|gt|ge|eq|ne} <packageB>\n");
-    printf(" filter: beeversion -{min|max} <package1> [.. <packageN>]\n");
-    printf("  parse: beeversion <package>\n\n");
+    printf(" filter: beeversion [filter-options] -{min|max} <package1> [.. <packageN>]\n");
+    printf("  parse: beeversion [parse-options] <package>\n\n");
     
     printf("         package := <pkgfullname>-<pkgfullversion>-<pkgrevision>\n");
     printf("                  | <pkgfullname>-<pkgfullversion>\n");
@@ -126,6 +126,10 @@ void print_full_usage(void) {
     
     printf("     pkgrevision := <pkgrevision>\n");
     printf("                  | <pkgrevision>.<arch>\n\n");
+    
+    printf("   filter-options:\n\n");
+
+    printf("      --filter-pkgfullname=<pkgfullname>\n\n");
     
 }
 
@@ -681,6 +685,7 @@ int main(int argc, char *argv[])
                       long_options[option_index].name);
             continue;
         }
+        
         mode = MODE_PARSE;
         
         /* define format */
