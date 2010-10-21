@@ -25,8 +25,8 @@
 #include <ctype.h>
 
 #define BEE_VERSION_MAJOR    1
-#define BEE_VERSION_MINOR    1
-#define BEE_VERSION_PATCHLVL 1
+#define BEE_VERSION_MINOR    2
+#define BEE_VERSION_PATCHLVL 0
 
 
 #define EXTRA_UNKNOWN 200
@@ -92,6 +92,7 @@ struct beeversion {
     char *extraversion_nr;
     char *pkgrevision;
     char *arch;
+    char *suffix;
 };
 
 char *filter_pkgfullname;
@@ -165,9 +166,14 @@ int parse_version(char *s,  struct beeversion *v)
     v->extraversion_nr  = s+len;
     v->pkgrevision      = s+len;
     v->arch             = s+len;
+    v->suffix           = s+len;
     v->extraversion_typ = EXTRA_UNKNOWN;
     
     /* p-v-r   p-v   v */
+    
+    if((p=strrchr(s,'/'))) {
+        s = p+1;
+    }
 
     if((p=strrchr(s, '-'))) {
         version_or_revision = p+1;
@@ -200,9 +206,27 @@ int parse_version(char *s,  struct beeversion *v)
             if((p=strchr(v->pkgrevision, '.'))) {
                 v->arch = p+1;
                 *p=0;
-
+                
                 if(!*(v->arch) || !*(v->pkgrevision))
                     return(p-s+1);
+                
+                
+                /* p-v-r.bee[.xxx] is special and has no arch */
+                if(!strncmp(v->arch, "bee", 3) 
+                   && (*(v->arch+3) == '.' || *(v->arch+3) == 0)) {
+                        v->suffix = v->arch;
+                        v->arch   = p;
+                }
+
+                if((p=strchr(v->arch, '.'))) {
+                    *p=0;
+                    
+                    v->suffix = p+1;
+                    
+                    if(!*(v->arch))
+                        return(p-s+1);
+                    
+                }
             }
         } else {
             v->version = version_or_revision;
@@ -427,6 +451,10 @@ void print_format(char* s, struct beeversion *v)
                     printf("%s", v->pkgname);
                     break;
                 case 's':
+                    if(*(v->suffix))
+                        printf(".%s", v->suffix);
+                    break;
+                case 'x':
                     printf("%s", v->subname);
                     break;
                 case 'v':
@@ -452,6 +480,7 @@ void print_format(char* s, struct beeversion *v)
                         printf("_%s", v->extraversion);
                     break;
                 case 'F':
+                case 'A':
                     if(*(v->pkgname)) {
                         printf("%s", v->pkgname);
                         if(*(v->subname))
@@ -465,7 +494,7 @@ void print_format(char* s, struct beeversion *v)
                         
                     if(*(v->pkgrevision)) {
                         printf("-%s", v->pkgrevision);
-                        if(*(v->arch))
+                        if(*p == 'A' && *(v->arch))
                             printf(".%s", v->arch);
                     }
                     break;
@@ -561,14 +590,14 @@ int do_test(int argc, char *argv[], char test) {
             
             /* a != b */
             if(compare_beepackage_names(a, b)) {
-                print_format("%F\n", a);
+                print_format("%A\n", a);
                 a = b;
             }
             
             if(t == T_MAX) 
                a = b;
         }
-        print_format("%F\n", a);
+        print_format("%A\n", a);
         
         free(va);
         return(1);
@@ -608,7 +637,17 @@ int main(int argc, char *argv[])
     
     char *keyvalue;
     
-    keyvalue = "PKGNAME=%p\nPKGSUBNAME=%s\nPKGVERSION=%v\nPKGEXTRAVERSION=%e\nPKGREVISION=%r\nPKGARCH=%a\nPKGFULLNAME=%P\nPKGFULLVERSION=%V\nPKGFULLPKG=%F\n";
+    keyvalue = "PKGNAME=%p\n"
+               "PKGEXTRANAME=%x\n"
+               "PKGVERSION=%v\n"
+               "PKGEXTRAVERSION=%e\n"
+               "PKGREVISION=%r\n"
+               "PKGARCH=%a\n"
+               "PKGFULLNAME=%P\n"
+               "PKGFULLVERSION=%V\n"
+               "PKGFULLPKG=%F\n"
+               "PKGALLPKG=%A\n"
+               "PKGSUFFIX=%s\n";
 
     struct option long_options[] = {
         /* tests  with 2 args */
@@ -640,13 +679,17 @@ int main(int argc, char *argv[])
         {"pkgfullname",    no_argument,  0, 'P'},
         {"pkgfullversion", no_argument,  0, 'V'},
         {"pkgfullpkg",     no_argument,  0, 'F'},
+        {"pkgallpkg",      no_argument,  0, 'A'},
 
         {"pkgname",         no_argument, 0, 'p'},
         {"pkgarch",         no_argument, 0, 'a'},
         {"pkgversion",      no_argument, 0, 'v'},
         {"pkgextraversion", no_argument, 0, 'e'},
         {"pkgrevision",     no_argument, 0, 'r'},
-        {"pkgsubname",      no_argument, 0, 's'},
+        {"pkgsuffix",       no_argument, 0, 's'},
+        
+        {"pkgextraname",    no_argument, 0, 'x'},
+        {"pkgsubname",      no_argument, 0, 'x'},
         
         {"filter-pkgfullname", required_argument, 0, OPT_FILTER_PKGFULLNAME},
         
@@ -656,7 +699,7 @@ int main(int argc, char *argv[])
         {0, 0, 0, 0}
     };
     
-    while ((c = getopt_long_only(argc, argv, "PVFpavers", long_options, &option_index)) != -1) {
+    while ((c = getopt_long_only(argc, argv, "PVFpaversx", long_options, &option_index)) != -1) {
     
         if( (c & TEST_TYPE_MASK) && ! (c & ~TEST_FULL_MASK)) {
             if(mode && mode == MODE_PARSE) {
