@@ -64,23 +64,6 @@ pkg_install_all() {
 }
 
 ###############################################################################
-##
-##
-
-#sub1-sub2-subn-name-V.V.V.V-R.A.bee.tar.bz2
-
-get_fullversion_from_pkg() {
-    echo $(echo $1 | sed -e 's,^\(.*\)-\(.*\)-\(.*\)\.\(.*\)$,\2-\3,' - )
-}
-
-###############################################################################
-##
-##
-get_name_from_pkg() {
-    echo $(echo $1 | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\1,' - )
-}
-
-###############################################################################
 ### pkg_install ###
 ##
 ## IN: search-pattern
@@ -141,11 +124,11 @@ pkg_install() {
 get_installed_versions() {
     local pkg=${1}
     
-    local pname=$(get_name_from_pkg ${pkg})
+    local pname=$(beeversion --pkgfullname ${pkg})
     local list
     
-    for i in $(get_pkg_list_installed "${pname}") ; do
-        local installed=$(get_name_from_pkg ${i})
+    for i in $(bee-list -i "${pname}") ; do
+        local installed=$(beeversion --pkgfullname ${i})
 	if [ "${installed}" = "${pname}" ] ; then
 	    list="${list:+${list} }${i}"
 	fi
@@ -172,13 +155,10 @@ check_installed() {
     
     if [ "${installed}" != "" ] ; then
         for i in ${installed} ; do
-	    local v=$(get_fullversion_from_pkg ${i})
-	    local n=$(get_name_from_pkg ${i})
-	    
 	    if [ ${i} = ${pkgname} ] ; then
-	        echo "[  already installed  ] ${n} - version ${v}"
+	        echo "[  already installed  ] ${i}"
 	    else
-	        echo "[alternative installed] ${n} - version ${v}"
+	        echo "[alternative installed] ${i}"
 	    fi
 	done
 	exit 2;
@@ -286,7 +266,7 @@ print_pkg_list() {
     for p in ${@} ; do
 	local pkgname=$(basename $(basename $(basename ${p} .tar.bz2) .iee) .bee)
 	
-	local installed=$(bee-list -i ${pkgname})
+	local installed=$(get_installed_versions ${pkgname})
 	
 	local status
 	for i in ${installed} ; do
