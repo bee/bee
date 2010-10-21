@@ -110,17 +110,17 @@ pkg_install() {
         fi
     done
     
-    installed=$(bee-list -i ${search} | egrep "${search}\-\d*")
+    installed=$(bee-list -i ${search})
     if [ -n "${installed}" ] ; then
-        installed=$(beeversion -max ${installed})
+        installed=$(beeversion -max --filter-pkgfullname=${search} ${installed})
     fi
-    avail=$(bee-list -a ${search} | egrep "${search}\-\d*")
+    avail=$(bee-list -a ${search})
     if [ -n "${avail}" ] ; then
-        latest=$(beeversion -max ${avail})
+        avail=$(beeversion -max --filter-pkgfullname=${search} ${avail})
     fi
-    if [ -n "${latest}" ] ; then
-        if [ "${OPT_F}" = "1" ] || [ -z "${installed}" ] || beeversion ${installed} -lt ${latest} ; then
-            pkg_install ${latest}
+    if [ -n "${avail}" ] ; then
+        if [ "${OPT_F}" = "1" ] || [ -z "${installed}" ] || beeversion ${avail} -gt ${installed} ; then
+            pkg_install ${avail}
         fi
     fi
     
