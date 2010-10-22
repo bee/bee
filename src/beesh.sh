@@ -17,10 +17,10 @@ VERSION=0.2
 #### create_meta() ############################################################
 
 create_meta() {
-    echo "PNF=${PNF}"       >> ${D}/META
-    echo "PVF=${PVF}"       >> ${D}/META
-    echo "PR=${PR}"         >> ${D}/META
-    echo "PGRP=( ${PGRP} )" >> ${D}/META
+    echo "PNF=${PKGFULLNAME}" >> ${D}/META
+    echo "PVF=${PKGFULLNAME}" >> ${D}/META
+    echo "PR=${PKGREVISION}"  >> ${D}/META
+    echo "PGRP=( ${PGRP} )"   >> ${D}/META
 }
 
 #### show_help() ##############################################################
@@ -279,9 +279,9 @@ bee_pkg_pack() {
         mkdir -pv ${BEEPKGSTORE}
     fi 
 
-    echo "#BEE# ${BEEPKGSTORE}/${PF}.${PARCH}.bee.tar.bz2 contains .."
+    echo "#BEE# ${BEEPKGSTORE}/${PKGFULLPKG}.${PARCH}.bee.tar.bz2 contains .."
 
-    tar cjvvf ${BEEPKGSTORE}/${PF}.${PARCH}.bee.tar.bz2 \
+    tar cjvvf ${BEEPKGSTORE}/${PKGFULLPKG}.${PARCH}.bee.tar.bz2 \
         -T ${DUMP} \
         --transform="s,${D},," \
         --show-transformed-names \
@@ -329,7 +329,7 @@ dump_variables() {
 
 OPTIONS=$(getopt -n bee-option-parser \
                  -o hifcs \
-                 --long help,install,force-install,cleanup,silent-build,dump: \
+                 --long help,install,force-install,cleanup,silent-build,debug: \
                  -- "$@")
 
 if [ $? != 0 ] ; then 
@@ -365,8 +365,8 @@ while true ; do
             OPT_SILENT="yes"
             shift
             ;;
-        --dump)
-            DUMP=$2
+        --debug)
+            DEBUG=$2
             shift 2
             ;;
         --) 
@@ -401,7 +401,7 @@ PS=${PKGEXTRAVERSION}
 PVF=${PKGFULLVERSION}
 PR=${PKGREVISION}
 
-P=${PNF}-${PVF}
+P=${PKGFULLNAME}-${PKGFULLVERSION}
 
 
 ### load user defs
@@ -422,13 +422,13 @@ fi
 : ${BEEROOT:=/tmp/beeroot}
 
 #pkg root
-R=${BEEROOT}/${PNF}
+R=${BEEROOT}/${PKGFULLNAME}
 
 #pkg files .tar .patch ..
 F=${R}/files
 
 #workdir for current build
-W=${R}/${PF}
+W=${R}/${PKGFULLPKG}
 S=${W}/source
 B=${W}/build
 D=${W}/image
@@ -455,7 +455,7 @@ D=${W}/image
 : ${BINDIR:=${EPREFIX}/bin}
 
 : ${SBINDIR:=${EPREFIX}/sbin}
-: ${LIBEXECDIR:=${EPREFIX}/lib/${PNF}}
+: ${LIBEXECDIR:=${EPREFIX}/lib/${PKGFULLNAME}}
 : ${SYSCONFDIR:=/etc}
 
 : ${LOCALSTATEDIR:=/var}
@@ -502,7 +502,7 @@ ${LOCALEDIR:+--localedir=${LOCALEDIR}} \
 ${DOCDIR:+--docdir=${DOCDIR}} \
 "}
 
-if [ "${DUMP}" = "variables" ] ; then
+if [ "${DEBUG}" = "variables" ] ; then
     dump_variables
 fi
 
@@ -519,6 +519,6 @@ cd ${D}
 bee_pkg_pack
 
 if [ "$OPT_INSTALL" = "yes" ] ; then
-    echo "installing ${PF}.${PARCH}.."
-    bee install ${OPT_FORCE:+-f} ${BEEPKGSTORE}/${PF}.${PARCH}.bee.tar.bz2
+    echo "installing ${PKGFULLPKG}.${PARCH}.."
+    bee install ${OPT_FORCE:+-f} ${BEEPKGSTORE}/${PKGFULLPKG}.${PARCH}.bee.tar.bz2
 fi
