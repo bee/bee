@@ -385,35 +385,22 @@ done
 ###############################################################################
 
 BEE=$1
-if [ ! ${BEE:0:1} = "/" ] ; then
+if [ "${BEE:0:1}" != "/" ] ; then
     BEE=${PWD}/$BEE
 fi
 
 
 ### define pkg variables
-PF=$(basename $BEE .bee)
-#parse pkg name
-# PF  = glibc-2.10.1_rc5-1 - full package name
-# PNF =                    - package full name
-# PN  = glibc              - package name
-# PNE =                    - package name extension
-# PVF = 2.10.1_rc5         - version unterversion
-# PV  = 2.10.1             - version
-# PS  = rc5                - unterversion
-# PR  = 1                  - revision
-# PVR = 2.10.1_rc5-1       - version-revision (full version)
-# P   = glibc-2.10.1_rc5   - package name (ohne revision)
-PNF=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\1,' - )
-PN=$(echo ${PNF} | sed -e 's,\(.*\)\(_.*\),\1,' - )
-PNE=$(echo ${PNF} | sed -e '/_/!d' - | sed -e 's,\(.*\)_\(.*\),\2,' - )
+eval $(beeversion ${BEE})
 
-PVF=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\2,' - )
-PV=$(echo ${PVF} | sed -e 's,\(.*\)\(_.*\),\1,' - )
-PS=$(echo ${PVF} | sed -e '/_/!d' - | sed -e 's,\(.*\)_\(.*\),\2,' - )
+PN=${PKGNAME}
+PNE=${PKGEXTRANAME}
+PNF=${PKGFULLNAME}
+PV=${PKGVERION}
+PS=${PKGEXTRAVERSION}
+PVF=${PKGFULLVERSION}
+PR=${PKGREVISION}
 
-PR=$(echo ${PF} | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\3,' - )
-
-PVR=${PVF}-${PR}
 P=${PNF}-${PVF}
 
 
@@ -445,19 +432,6 @@ W=${R}/${PF}
 S=${W}/source
 B=${W}/build
 D=${W}/image
-
-
-PKGNAME=${PN}
-PKGEXTRANAME=${PNE}
-PKGVERSION=${PV}
-PKGEXTRAVERSION=${PS}
-PKGREVISION=${PR}
-PKGARCH=
-PKGFULLNAME=${PNF}
-PKGFULLVERSION=${PVF}
-PKGFULLPKG=${PF}
-PKGALLPKG=${PKGFULLPKG}${PKGARCH+.}${PKGARCH}
-PKGSUFFIX=
 
 ###############################################################################
 
@@ -503,7 +477,7 @@ if [ ${IGNORE_DATAROOTDIR} ] ; then
     BEE_CONFIGURE='compat'
 fi
 
-if [ "${BEE_CONFIGURE}" == "compat" ] ; then
+if [ "${BEE_CONFIGURE}" = "compat" ] ; then
     unset DATAROOTDIR
     unset LOCALEDIR
     unset DOCDIR
@@ -528,7 +502,7 @@ ${LOCALEDIR:+--localedir=${LOCALEDIR}} \
 ${DOCDIR:+--docdir=${DOCDIR}} \
 "}
 
-if [ "${DUMP}" == "variables" ] ; then
+if [ "${DUMP}" = "variables" ] ; then
     dump_variables
 fi
 
@@ -544,7 +518,7 @@ mee_install
 cd ${D}
 bee_pkg_pack
 
-if [ $OPT_INSTALL = "yes" ] ; then
+if [ "$OPT_INSTALL" = "yes" ] ; then
     echo "installing ${PF}.${PARCH}.."
     bee install ${OPT_FORCE:+-f} ${BEEPKGSTORE}/${PF}.${PARCH}.bee.tar.bz2
 fi
