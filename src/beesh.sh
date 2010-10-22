@@ -8,7 +8,7 @@ exec 3<&1
 ARCH=$(arch)
 
 # Version
-VERSION=0.2
+VERSION=0.3
 
 ###############################################################################
 ###############################################################################
@@ -17,10 +17,9 @@ VERSION=0.2
 #### create_meta() ############################################################
 
 create_meta() {
-    echo "PNF=${PKGFULLNAME}"    >> ${D}/META
-    echo "PVF=${PKGFULLVERSION}" >> ${D}/META
-    echo "PR=${PKGREVISION}"     >> ${D}/META
-    echo "PGRP=( ${PGRP} )"      >> ${D}/META
+    echo >>${D}/META "BEEMETAFORMAT=1"
+    echo >>${D}/META "BEEPKG='${PKGALLPKG}'"
+    echo >>${D}/META "PGRP=( ${PGRP[@]} )"
 }
 
 #### show_help() ##############################################################
@@ -260,7 +259,7 @@ bee_pkg_pack() {
                --exclude='^/FILES$' ${exargs} \
                --cutroot=${D} ${D} > ${D}/FILES 2>/dev/null
 
-    DUMP=${TEMPDIR}/bee.$$.dump
+    DUMP=${BEETEMPDIR}/bee.$$.dump
 
     beefind.pl --dump ${D}/FILES | sed -e "s,^,${D}," - > ${DUMP}
 
@@ -279,9 +278,9 @@ bee_pkg_pack() {
         mkdir -pv ${BEEPKGSTORE}
     fi 
 
-    echo "#BEE# ${BEEPKGSTORE}/${PKGFULLPKG}.${PARCH}.bee.tar.bz2 contains .."
+    echo "#BEE# ${BEEPKGSTORE}/${PKGALLPKG}.bee.tar.bz2 contains .."
 
-    tar cjvvf ${BEEPKGSTORE}/${PKGFULLPKG}.${PARCH}.bee.tar.bz2 \
+    tar cjvvf ${BEEPKGSTORE}/${PKGALLPKG}.bee.tar.bz2 \
         -T ${DUMP} \
         --transform="s,${D},," \
         --show-transformed-names \
@@ -435,27 +434,33 @@ D=${W}/image
 
 ###############################################################################
 
+# clear PKGALLPKG since we can't trust PKGARCH in this state
+PKGALLPKG=
+
+# source file.bee 
 . ${BEE}
+
+# now set PKGARCH if set or changed by user via ARCH=.. and not given via file.arch.bee
+: ${PKGARCH:=${ARCH}}
+
+# since PKGARCH is now known reconstruct PKGALLPKG
+: ${PKGALLPKG:=${PKGFULLPKG}.${PKGARCH}}
 
 ###############################################################################
 
-: ${BEESKIPLIST:=/etc/bee/skiplist}
-
-#root dir for bee
+# set some beevariables..
+: ${BEESKIPLIST=/etc/bee/skiplist}
 : ${BEESTORE:=/usr/src/bee/bees}
 : ${BEEPKGSTORE:=/usr/src/bee/pkgs}
+: ${BEETEMPDIR:=/tmp}
 
-: ${TEMPDIR:=/tmp}
-
-: ${PARCH:=${ARCH}}
-
-#define default directories
+# define defaults for bee_configure
 : ${PREFIX:=/usr}
 : ${EPREFIX:=${PREFIX}}
 : ${BINDIR:=${EPREFIX}/bin}
 
 : ${SBINDIR:=${EPREFIX}/sbin}
-: ${LIBEXECDIR:=${EPREFIX}/lib/${PKGFULLNAME}}
+: ${LIBEXECDIR:=${EPREFIX}/lib/${PKGNAME}}
 : ${SYSCONFDIR:=/etc}
 
 : ${LOCALSTATEDIR:=/var}
@@ -468,7 +473,6 @@ D=${W}/image
 : ${MANDIR:=${DATAROOTDIR}/man}
 : ${DOCDIR:=${DATAROOTDIR}/doc/gtkhtml}
 : ${LOCALEDIR:=${DATAROOTDIR}/locale}
-
 
 ### create default configure line
 # check IGNORE_DATAROOTDIR for compatibility with old bee-files
@@ -506,19 +510,23 @@ if [ "${DEBUG}" = "variables" ] ; then
     dump_variables
 fi
 
+# in ${PWD}
 bee_init_builddir
 mee_getsources
 mee_unpack
+
 cd ${S}
 mee_patch
+
 cd ${B}
 mee_configure
 mee_build
 mee_install
+
 cd ${D}
 bee_pkg_pack
 
 if [ "$OPT_INSTALL" = "yes" ] ; then
-    echo "installing ${PKGFULLPKG}.${PARCH}.."
-    bee install ${OPT_FORCE:+-f} ${BEEPKGSTORE}/${PKGFULLPKG}.${PARCH}.bee.tar.bz2
+    echo "installing ${PKGALLPKG} .."
+    bee install ${OPT_FORCE:+-f} ${BEEPKGSTORE}/${PKGALLPKG}.bee.tar.bz2
 fi
