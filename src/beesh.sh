@@ -318,7 +318,19 @@ mee_install()    { bee_install ;    }
 ###############################################################################
 ###############################################################################
 
-OPTIONS=$(getopt -o hifcs --long help,install,force-install,cleanup,silent-build -n bee-option-parser -- "$@")
+dump_variables() {
+    for i in P{,N{,F,E},F,V{,E,F,R},S,R} ${!PKG*} ${!BEE*} ${!DEF*} ${!OPT*} ${!DOT*} R F W S B D ; do
+        eval echo "${i}="\$${i}
+    done
+    exit
+}
+
+###############################################################################
+
+OPTIONS=$(getopt -n bee-option-parser \
+                 -o hifcs \
+                 --long help,install,force-install,cleanup,silent-build,dump: \
+                 -- "$@")
 
 if [ $? != 0 ] ; then 
     echo "Terminating..." >&2
@@ -352,6 +364,10 @@ while true ; do
         -s|--silent-build)
             OPT_SILENT="yes"
             shift
+            ;;
+        --dump)
+            DUMP=$2
+            shift 2
             ;;
         --) 
 	    shift
@@ -430,6 +446,19 @@ S=${W}/source
 B=${W}/build
 D=${W}/image
 
+
+PKGNAME=${PN}
+PKGEXTRANAME=${PNE}
+PKGVERSION=${PV}
+PKGEXTRAVERSION=${PS}
+PKGREVISION=${PR}
+PKGARCH=
+PKGFULLNAME=${PNF}
+PKGFULLVERSION=${PVF}
+PKGFULLPKG=${PF}
+PKGALLPKG=${PKGFULLPKG}${PKGARCH+.}${PKGARCH}
+PKGSUFFIX=
+
 ###############################################################################
 
 . ${BEE}
@@ -498,6 +527,10 @@ ${LOCALEDIR:+--localedir=${LOCALEDIR}} \
 --mandir=${MANDIR} \
 ${DOCDIR:+--docdir=${DOCDIR}} \
 "}
+
+if [ "${DUMP}" == "variables" ] ; then
+    dump_variables
+fi
 
 bee_init_builddir
 mee_getsources
