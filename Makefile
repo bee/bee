@@ -8,7 +8,7 @@ TEMPLATEDIR=${BEEDIR}/templates
 
 DESTDIR=
 
-SHELLS=bee bee-init bee-check bee-remove bee-install bee-list beesh
+SHELLS=bee bee-init bee-check bee-remove bee-install bee-list bee-query beesh
 PERLS=beefind.pl
 PROGRAMS=beeversion beesep
 
@@ -47,6 +47,9 @@ bee-install: src/beeinstall.sh
 	cp $< $@
 
 bee-list: src/beelist.sh
+	cp $< $@
+
+bee-query: src/beequery.sh
 	cp $< $@
 
 beesh: src/beesh.sh

@@ -36,6 +36,10 @@ case "$1" in
         shift
         bee-list $@
         ;;
+    query)
+        shift
+        bee-query $@
+        ;;
     *)
         if [ -n "${@}" ] ; then
             echo "$1 is not a known option.."
