@@ -17,10 +17,10 @@ VERSION=0.2
 #### create_meta() ############################################################
 
 create_meta() {
-    echo "PNF=${PKGFULLNAME}" >> ${D}/META
-    echo "PVF=${PKGFULLNAME}" >> ${D}/META
-    echo "PR=${PKGREVISION}"  >> ${D}/META
-    echo "PGRP=( ${PGRP} )"   >> ${D}/META
+    echo "PNF=${PKGFULLNAME}"    >> ${D}/META
+    echo "PVF=${PKGFULLVERSION}" >> ${D}/META
+    echo "PR=${PKGREVISION}"     >> ${D}/META
+    echo "PGRP=( ${PGRP} )"      >> ${D}/META
 }
 
 #### show_help() ##############################################################
