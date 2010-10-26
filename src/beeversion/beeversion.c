@@ -24,10 +24,9 @@
 #include <string.h>
 #include <ctype.h>
 
-#define BEE_VERSION_MAJOR    1
-#define BEE_VERSION_MINOR    2
-#define BEE_VERSION_PATCHLVL 1
-
+#define BEEVERSION_MAJOR    1
+#define BEEVERSION_MINOR    3
+#define BEEVERSION_PATCHLVL 0
 
 #define EXTRA_UNKNOWN 200
 #define EXTRA_ALPHA   1
@@ -103,7 +102,7 @@ char parse_extra(struct beeversion *);
 void print_version(void) {
     printf("beeversion v%d.%d.%d - "
            "by Marius Tolzmann <tolzmann@molgen.mpg.de> 2010\n", 
-           BEE_VERSION_MAJOR, BEE_VERSION_MINOR, BEE_VERSION_PATCHLVL);
+           BEEVERSION_MAJOR, BEEVERSION_MINOR, BEEVERSION_PATCHLVL);
 }
 
 void print_full_usage(void) {
@@ -255,6 +254,28 @@ int parse_version(char *s,  struct beeversion *v)
     
     parse_extra(v);
     return(0);
+}
+
+void cut_and_print(char *string, char delimeter, char opt_short)
+{
+    char *p, *s;
+    
+    p = s = string;
+    
+    printf("%s", string);
+    
+    while((p=strchr(p, delimeter))) {
+        putchar(' ');
+        
+        while(s < p)
+            putchar(*(s++));
+        
+        p++;
+        
+        s = (opt_short) ? p : string;
+    }
+    
+    printf(" %s", s);
 }
 
 char parse_extra(struct beeversion *v)
@@ -502,6 +523,15 @@ void print_format(char* s, struct beeversion *v)
             continue;
         } /* if '%' */
         
+        if(*p == '@') {
+            switch(*(++p)) {
+                case 'v':
+                    cut_and_print(v->version, '.', 0);
+                    break;
+            }
+            continue;
+        } /* if '@' */
+        
         if(*p == '\\') {
             switch(*(++p)) {
                 case 'n':
@@ -639,7 +669,7 @@ int main(int argc, char *argv[])
     
     keyvalue = "PKGNAME=%p\n"
                "PKGEXTRANAME=%x\n"
-               "PKGVERSION=%v\n"
+               "PKGVERSION=( @v )\n"
                "PKGEXTRAVERSION=%e\n"
                "PKGREVISION=%r\n"
                "PKGARCH=%a\n"

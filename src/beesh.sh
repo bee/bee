@@ -178,7 +178,7 @@ bee_getsources() {
     fi
 
     if [ -z "${PATCHURL}" ] && [ -n "${PATCHES}" ] ; then
-        echo '#BEE# warning .. you are using obsolete variable $PATCHES .. please use $PATCHURL instead'
+        echo '#BEE# warning .. you are using obsolete variable ${PATCHES} .. please use ${PATCHURL} instead'
         PATCHURL=(${PATCHES[@]})
     fi
 
@@ -393,11 +393,8 @@ fi
 eval $(beeversion ${BEE})
 
 PN=${PKGNAME}
-PNE=${PKGEXTRANAME}
-PNF=${PKGFULLNAME}
-PV=${PKGVERION}
+PV=( ${PKGVERSION[@]} )
 PS=${PKGEXTRAVERSION}
-PVF=${PKGFULLVERSION}
 PR=${PKGREVISION}
 
 P=${PKGFULLNAME}-${PKGFULLVERSION}

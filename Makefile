@@ -10,7 +10,7 @@ DESTDIR=
 
 SHELLS=bee bee-init bee-check bee-remove bee-install bee-list bee-query beesh
 PERLS=beefind.pl
-PROGRAMS=beeversion beesep
+PROGRAMS=beeversion beesep beecut
 
 TEMPLATES=default
 CONFIGS=skiplist beerc
@@ -29,6 +29,9 @@ beesep: src/beesep/beesep.c
 	gcc -Wall -o $@ $^
 
 beeversion: src/beeversion/beeversion.c
+	gcc -Wall -o $@ $^
+
+beecut: src/beecut/beecut.c
 	gcc -Wall -o $@ $^
 
 bee: src/bee.sh
