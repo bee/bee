@@ -92,10 +92,13 @@ fetch_one_file() {
     url=$1
     file=${2:-$(basename ${url})}
     
-    if [ ${url:0:4} == "file" ] ; then
+    if [ "${url:0:8}" = "file:///" ] ; then
+        url=${url:7}
+    fi
+    
+    if [ "${url:0:1}" = "/" ] ; then
         echo "#BEE# copying file ${url}"
-        u=$(echo $url | sed -e 's,^file://,,' - )
-        cp -v ${u} ${F}/${file}
+        cp -v "${url}" "${F}/${file}"
     else
         if [ ${url:0:5} == "https" ] ; then
             nocheck="--no-check-certificate"
@@ -126,10 +129,13 @@ fetch_one_patch() {
     url=$1
     file=${2:-$(basename ${url})}
     
-    if [ ${url:0:4} == "file" ] ; then 
+    if [ "${url:0:8}" = "file:///" ] ; then
+        url=${url:7}
+    fi
+    
+    if [ "${url:0:1}" = "/" ] ; then
         echo "#BEE# copying patch ${url}"
-        u=$(echo $url | sed -e 's,^file://,,' - )
-        cp -v ${u} ${F}/${file}
+        cp -v "${url}" "${F}/${file}"
     else 
         if [ ${url:0:5} == "https" ] ; then
             nocheck="--no-check-certificate"
