@@ -194,10 +194,10 @@ do_install() {
     echo "installing ${file} .."
     
     tar -xvvPf ${file} \
-          --transform="s,FILES,${BEEMETADIR}/${pkg}/FILES," \
-          --transform="s,BUILD,${BEEMETADIR}/${pkg}/${BEE}," \
-          --transform="s,META,${BEEMETADIR}/${pkg}/META," \
-          --transform="s,PATCHES,${BEEMETADIR}/${pkg}/PATCHES," \
+          --transform="s,^FILES$,${BEEMETADIR}/${pkg}/FILES," \
+          --transform="s,^BUILD$,${BEEMETADIR}/${pkg}/${BEE}," \
+          --transform="s,^META$,${BEEMETADIR}/${pkg}/META," \
+          --transform="s,^PATCHES$,${BEEMETADIR}/${pkg}/PATCHES," \
           --show-transformed-names
     exit $?
 }
