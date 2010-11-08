@@ -93,13 +93,21 @@ pkg_install() {
         fi
     done
     
+    pkgname=$(beeversion --pkgname ${search})
+    pkgversion=$(beeversion --pkgversion ${search})
+    if [ -z "${pkgname}" ] ; then
+        pkgname=${pkgversion}
+        unset pkgversion
+    fi
+    
+    search=${pkgname}${pkgversion:+-${pkgversion}}
     installed=$(bee-list -i ${search})
     if [ -n "${installed}" ] ; then
-        installed=$(beeversion -max --filter-pkgfullname=${search} ${installed})
+        installed=$(beeversion -max --filter-pkgfullname=${pkgname} ${installed})
     fi
     avail=$(bee-list -a ${search})
     if [ -n "${avail}" ] ; then
-        avail=$(beeversion -max --filter-pkgfullname=${search} ${avail})
+        avail=$(beeversion -max --filter-pkgfullname=${pkgname} ${avail})
     fi
     if [ -n "${avail}" ] ; then
         if [ "${OPT_F}" = "1" ] || [ -z "${installed}" ] || beeversion ${avail} -gt ${installed} ; then
@@ -197,7 +205,7 @@ do_install() {
           --transform="s,^FILES$,${BEEMETADIR}/${pkg}/FILES," \
           --transform="s,^BUILD$,${BEEMETADIR}/${pkg}/${BEE}," \
           --transform="s,^META$,${BEEMETADIR}/${pkg}/META," \
-          --transform="s,^PATCHES$,${BEEMETADIR}/${pkg}/PATCHES," \
+          --transform="s,^PATCHES,${BEEMETADIR}/${pkg}/PATCHES," \
           --show-transformed-names
     exit $?
 }
