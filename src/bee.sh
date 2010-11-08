@@ -5,7 +5,7 @@ usage() {
     echo "possible options are:"
     echo "  init"
     echo "  install"
-    echo "  remove"
+    echo "  remove | rm"
     echo "  check"
     echo "  version"
 }
@@ -20,7 +20,7 @@ case "$1" in
         shift
         bee-install $@
         ;;
-    remove)
+    remove|rm)
         shift
         bee-remove $@
         ;;
@@ -41,7 +41,7 @@ case "$1" in
         bee-query $@
         ;;
     *)
-        if [ -n "${@}" ] ; then
+        if [ -n "${1}" ] ; then
             echo "$1 is not a known option.."
         fi
         usage

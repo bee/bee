@@ -116,7 +116,7 @@ while true ; do
             ;;
         --)
             shift
-            if [ -z "${@}" ] ; then
+            if [ -z "${1}" ] ; then
                 usage
                 exit 1
             fi
