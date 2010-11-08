@@ -155,7 +155,11 @@ do_check() {
         file=${file%%//*}
 
 	if [ ! -e "${file}" ] ; then
-	    echo "  [missing] <${md5}> ${file}"
+            if [ -L "${file}" ] ; then
+                echo "  [missing] <symlink destination ${symlink}> $file"
+            else
+                echo "  [missing] <${md5}> ${file}"
+            fi
 	    continue
 	fi
 	
