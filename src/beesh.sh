@@ -105,13 +105,15 @@ fetch_one_file() {
         else
             nocheck=""
         fi
-
+        
         if [ ! -s ${F}/${file} ] ; then
             rm -vf ${F}/${file}
         fi
+        
         echo "#BEE# fetching $url"
         wget \
             ${nocheck} \
+            --no-verbose \
             --output-document="${F}/${file}" \
             --no-clobber \
             "${url}" || true
@@ -119,40 +121,19 @@ fetch_one_file() {
         ls -ld "${F}/${file}"
     fi
 
-    A=(${A[@]} ${file})
+    FETCHED_FILE=${file}
 }
 
+fetch_one_archive() {
+    fetch_one_file $@
+    
+    A=(${A[@]} ${FETCHED_FILE})
+}
 
-# fetch_one_patch <url>  [filename]
-# fetch_one_patch <path>
 fetch_one_patch() {
-    url=$1
-    file=${2:-$(basename ${url})}
+    fetch_one_file $@
     
-    if [ "${url:0:8}" = "file:///" ] ; then
-        url=${url:7}
-    fi
-    
-    if [ "${url:0:1}" = "/" ] ; then
-        echo "#BEE# copying patch ${url}"
-        cp -v "${url}" "${F}/${file}"
-    else 
-        if [ ${url:0:5} == "https" ] ; then
-            nocheck="--no-check-certificate"
-        else
-            nocheck=""
-        fi
-        echo "#BEE# fetching patch ${url}"
-        wget \
-            ${nocheck} \
-            --output-document="${F}/${file}" \
-            --no-clobber \
-            "${url}" || true
-
-        ls -ld "${F}/${file}"
-    fi
-    
-    PA="${PA:+${PA} }${file}"
+    PA="${PA:+${PA} }${FETCHED_FILE}"
 }
 
 # bee_getsources
@@ -164,7 +145,6 @@ fetch_one_patch() {
 #    SRCURL[1]="<url> [filename]"
 
 bee_getsources() {
-
     mkdir -p "${F}"
 
     if [ -z ${SRCURL} ] ; then 
@@ -394,7 +374,6 @@ if [ "${BEE:0:1}" != "/" ] ; then
     BEE=${PWD}/$BEE
 fi
 
-
 ### define pkg variables
 eval $(beeversion ${BEE})
 
@@ -405,13 +384,11 @@ PR=${PKGREVISION}
 
 P=${PKGFULLNAME}-${PKGFULLVERSION}
 
-
 ### load user defs
 : ${DOTBEERC:=${HOME}/.beerc}
 if [ -e ${DOTBEERC} ] ; then
     . ${DOTBEERC}
 fi
-
 
 ### load system defs
 : ${BEEFAULTS:=/etc/bee/beerc}
@@ -419,21 +396,24 @@ if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
 
-
 ### create build directory tree with built-in defs
 : ${BEEROOT:=/tmp/beeroot}
 
 #pkg root
 R=${BEEROOT}/${PKGFULLNAME}
 
+BEEPKGROOT="${BEEROOT}/${PKGFULLNAME}"
+
 #pkg files .tar .patch ..
-F=${R}/files
+F=${BEEPKGROOT}/files
 
 #workdir for current build
-W=${R}/${PKGFULLPKG}
-S=${W}/source
-B=${W}/build
-D=${W}/image
+W=${BEEPKGROOT}/${PKGFULLPKG}
+BEEWORKDIR="${BEEPKGROOT}/${PKGFULLPKG}"
+
+S=${BEEWORKDIR}/source
+B=${BEEWORKDIR}/build
+D=${BEEWORKDIR}/image
 
 ###############################################################################
 
