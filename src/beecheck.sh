@@ -7,7 +7,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -154,12 +154,8 @@ do_check() {
 	symlink=${file#*//}
         file=${file%%//*}
 
-	if [ ! -e "${file}" ] ; then
-            if [ -L "${file}" ] ; then
-                echo "  [missing] <symlink destination ${symlink}> $file"
-            else
-                echo "  [missing] <${md5}> ${file}"
-            fi
+	if [ ! -e "${file}" ] && [ ! -h "${file}" ]; then
+            echo "  [missing] <${md5}> ${file}"
 	    continue
 	fi
 	
