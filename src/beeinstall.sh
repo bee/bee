@@ -34,6 +34,14 @@ fi
 : ${BEEMETADIR:=/usr/share/bee}
 : ${BEEPKGSTORE:=/usr/src/bee/pkgs}
 
+debug_msg() {
+    if [ "${DEBUG}" != "yes" ] ; then
+        return
+    fi
+    
+    echo "#DEBUG# ${@}" >&2
+}
+
 
 ##### usage ###################################################################
 usage() {
@@ -95,28 +103,30 @@ pkg_install() {
     
     a=($(beecut -d '-' ${search}))
     for ((i=${#a[*]};i>${#a[*]}-2;i--)) ; do
-        pattern=${a[$i-1]}
-        ${DEBUG} "#DEBUG# pattern .... ${pattern}"
-        avail=$(bee-list -a "${pattern}(\.|-)")
-        ${DEBUG} "#DEBUG# avail ...... ${avail}" >&2
+        pattern="${a[$i-1]}(\.|-|_)"
+        debug_msg "pattern .... ${pattern}"
+        
+        avail=$(bee-list -a "${pattern}")
+        debug_msg "avail ...... ${avail}"
+        
         if [ -n "${avail}" ] ;then
-            installed=$(bee-list -i "${pattern}(\.|-)")
-            ${DEBUG} "#DEBUG# installed .. ${installed}" >&2
+            installed=$(bee-list -i "${pattern}")
+            debug_msg "installed .. ${installed}"
             break
         fi
     done
 
     if [ -n "${avail}" ] ; then
         avail=$(beeversion -max ${avail})
-        ${DEBUG} "#DEBUG# max avail .. ${avail}" >&2
+        debug_msg "max avail .. ${avail}"
     fi
     if [ -n "${installed}" ] ; then
         installed=$(beeversion -max ${installed})
-        ${DEBUG} "#DEBUG# max installed .. ${installed}" >&2
+        debug_msg "max installed .. ${installed}"
     fi
     if [ -n "${avail}" ] ; then
         if [ "${OPT_F}" = "1" ] || [ -z "${installed}" ] || beeversion ${avail} -gt ${installed} ; then
-            ${DEBUG} "#DEBUG# pkg_install ${avail}" >&2
+            debug_msg "pkg_install ${avail}"
             pkg_install ${avail}
         fi
     fi
@@ -208,7 +218,8 @@ do_install() {
     TAR="${TAR} --transform=\"s,^META$,${BEEMETADIR}/${pkg}/META,\""
     TAR="${TAR} --transform=\"s,^PATCHES,${BEEMETADIR}/${pkg}/PATCHES,\""
     TAR="${TAR} --show-transformed-names"
-    ${DEBUG} "#DEBUG# performing '${TAR}'" >&2
+    
+    debug_msg "performing '${TAR}'"
     
     echo "${NOOP:+#NOOP# }installing ${file} .."
     eval $TAR
@@ -353,7 +364,7 @@ while true ; do
       ;;
     --debug)
         shift
-        DEBUG="echo"
+        DEBUG="yes"
         ;;
     --noop)
         shift
