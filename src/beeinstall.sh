@@ -93,24 +93,30 @@ pkg_install() {
         fi
     done
     
-    pkgname=$(beeversion --pkgname ${search})
-    pkgversion=$(beeversion --pkgversion ${search})
-    if [ -z "${pkgname}" ] ; then
-        pkgname=${pkgversion}
-        unset pkgversion
-    fi
-    
-    search=${pkgname}${pkgversion:+-${pkgversion}}
-    installed=$(bee-list -i ${search})
-    if [ -n "${installed}" ] ; then
-        installed=$(beeversion -max --filter-pkgfullname=${pkgname} ${installed})
-    fi
-    avail=$(bee-list -a ${search})
+    a=($(beecut -d '-' ${search}))
+    for ((i=${#a[*]};i>${#a[*]}-2;i--)) ; do
+        pattern=${a[$i-1]}
+        ${DEBUG} "#DEBUG# pattern .... ${pattern}"
+        avail=$(bee-list -a "${pattern}(\.|-)")
+        ${DEBUG} "#DEBUG# avail ...... ${avail}" >&2
+        if [ -n "${avail}" ] ;then
+            installed=$(bee-list -i "${pattern}(\.|-)")
+            ${DEBUG} "#DEBUG# installed .. ${installed}" >&2
+            break
+        fi
+    done
+
     if [ -n "${avail}" ] ; then
-        avail=$(beeversion -max --filter-pkgfullname=${pkgname} ${avail})
+        avail=$(beeversion -max ${avail})
+        ${DEBUG} "#DEBUG# max avail .. ${avail}" >&2
+    fi
+    if [ -n "${installed}" ] ; then
+        installed=$(beeversion -max ${installed})
+        ${DEBUG} "#DEBUG# max installed .. ${installed}" >&2
     fi
     if [ -n "${avail}" ] ; then
         if [ "${OPT_F}" = "1" ] || [ -z "${installed}" ] || beeversion ${avail} -gt ${installed} ; then
+            ${DEBUG} "#DEBUG# pkg_install ${avail}" >&2
             pkg_install ${avail}
         fi
     fi
@@ -196,17 +202,17 @@ do_install() {
     # create bee-filename
     BEE=$(basename $(echo ${pkg} | sed -e "s,\(.*\)-\(.*\)-\(.*\)\..*,\1-\2-\3.bee," - ))
     
-#    echo "would install ${file}"
-#    exit 0
-
-    echo "installing ${file} .."
+    TAR="tar -${NOOP:-x}vvPf ${file}"
+    TAR="${TAR} --transform=\"s,^FILES$,${BEEMETADIR}/${pkg}/FILES,\""
+    TAR="${TAR} --transform=\"s,^BUILD$,${BEEMETADIR}/${pkg}/${BEE},\""
+    TAR="${TAR} --transform=\"s,^META$,${BEEMETADIR}/${pkg}/META,\""
+    TAR="${TAR} --transform=\"s,^PATCHES,${BEEMETADIR}/${pkg}/PATCHES,\""
+    TAR="${TAR} --show-transformed-names"
+    ${DEBUG} "#DEBUG# performing '${TAR}'" >&2
     
-    tar -xvvPf ${file} \
-          --transform="s,^FILES$,${BEEMETADIR}/${pkg}/FILES," \
-          --transform="s,^BUILD$,${BEEMETADIR}/${pkg}/${BEE}," \
-          --transform="s,^META$,${BEEMETADIR}/${pkg}/META," \
-          --transform="s,^PATCHES,${BEEMETADIR}/${pkg}/PATCHES," \
-          --show-transformed-names
+    echo "${NOOP:+#NOOP# }installing ${file} .."
+    eval $TAR
+    
     exit $?
 }
 
@@ -310,6 +316,7 @@ print_pkg_list() {
 options=$(getopt -n bee_install \
                  -o iavfuh \
                  --long install,upgrade,verbose,all,force,help \
+                 --long debug,noop \
                  -- "$@")
 if [ $? != 0 ] ; then
   usage
@@ -319,6 +326,8 @@ eval set -- "${options}"
 
 declare -i OPT_A=0
 declare -i OPT_F=0
+
+DEBUG=":"
 
 while true ; do
   case "$1" in
@@ -342,6 +351,14 @@ while true ; do
     -i|--install)
       shift
       ;;
+    --debug)
+        shift
+        DEBUG="echo"
+        ;;
+    --noop)
+        shift
+        NOOP="t"
+        ;;
     *)
       shift
       if [ -z ${1} ] ; then
