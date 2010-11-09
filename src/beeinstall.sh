@@ -92,6 +92,12 @@ pkg_install() {
          do_install "${search}"
     fi
     
+    # if search is relative or absolute path to file -> exit
+    if [ "${search:0:2}" = "./" -o "$(dirname ${search})" != "." ] ; then
+        echo "${search}: no such File or Directory"
+        exit 1
+    fi
+    
     # install package from repository
     if [ -f "${BEEPKGSTORE}/${search}" ] ; then
          do_install "${BEEPKGSTORE}/${search}"
