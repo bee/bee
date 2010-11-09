@@ -24,6 +24,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <sys/utsname.h>
+
 #define BEEVERSION_MAJOR    1
 #define BEEVERSION_MINOR    3
 #define BEEVERSION_PATCHLVL 0
@@ -74,6 +76,10 @@
 
 #define MODE_TEST   1
 #define MODE_PARSE  2
+
+#define SUPPORTED_ARCHITECTURES \
+            "x86_64", "i686", "i386", "i486", "i586", \
+            "alpha", "arm", "m68k", "sparc", "mips", "ppc"
 
 struct extra_version {
     char         *string;
@@ -170,10 +176,44 @@ int parse_version(char *s,  struct beeversion *v)
     
     /* p-v-r   p-v   v */
     
+    /* extract basename */
     if((p=strrchr(s,'/'))) {
         s = p+1;
     }
-
+    
+    /* extract architecture if known.. */
+    
+    if((p=strrchr(s, '.')) && !strchr(++p, '-')) {
+        struct utsname unm;
+        char           *arch[] = { SUPPORTED_ARCHITECTURES, NULL };
+        char           **a;
+        
+        if(uname(&unm)) {
+             perror("uname");
+             exit(1);
+        }
+        
+        if(!strcmp(p, "bee")) {
+             /* ignore .bee suffix */
+             *(p-1) = 0;
+        } else {
+            if(!strcmp(p, unm.machine)) {
+                v->arch = p;
+                *(p-1)  = 0;
+            }
+        }
+        
+        for(a=arch; *(p-1) && *a; a++) {
+            if(strcmp(p, *a))
+                continue;
+                
+            v->arch = p;
+            *(p-1)  = 0;
+        }
+    }
+    
+    /* do split pkg */
+    
     if((p=strrchr(s, '-'))) {
         version_or_revision = p+1;
         *p=0;
@@ -184,6 +224,11 @@ int parse_version(char *s,  struct beeversion *v)
 
         /* first part ist pname (will be checked later) */
         v->pkgname = s;
+        
+        /* version_or_revision must start with a digit */
+        if(!isdigit(*version_or_revision)) {
+            return(p-s+1);
+        }
 
         /* if there is another dash  
         **   revision is version_or_revision
@@ -193,6 +238,27 @@ int parse_version(char *s,  struct beeversion *v)
         **   version  is version_or_revision
         */
         if((p=strrchr(s, '-'))) {
+            int  r_isdigit = 1;
+            char *r;
+            
+            /* check if revision matches ^[0-9]+$ */
+               
+            for(r=version_or_revision; *r; r++) {
+                if(!isdigit(*r)) {
+                    r_isdigit=0;
+                    break;
+                }
+            }
+            
+            if(!r_isdigit)
+                p = NULL;
+                
+                
+            if(r_isdigit && !isdigit(*(p+1)))
+                p = NULL;
+        }
+        
+        if(p) {
             v->version     = p+1;
             *p=0;
 
@@ -201,36 +267,13 @@ int parse_version(char *s,  struct beeversion *v)
             
             v->pkgrevision = version_or_revision;
             
-            /* extract arch from pkgrevision */
-            if((p=strchr(v->pkgrevision, '.'))) {
-                v->arch = p+1;
-                *p=0;
-                
-                if(!*(v->arch) || !*(v->pkgrevision))
-                    return(p-s+1);
-                
-                
-                /* p-v-r.bee[.xxx] is special and has no arch */
-                if(!strncmp(v->arch, "bee", 3) 
-                   && (*(v->arch+3) == '.' || *(v->arch+3) == 0)) {
-                        v->suffix = v->arch;
-                        v->arch   = p;
-                }
-
-                if((p=strchr(v->arch, '.'))) {
-                    *p=0;
-                    
-                    v->suffix = p+1;
-                    
-                    if(!*(v->arch))
-                        return(p-s+1);
-                    
-                }
-            }
         } else {
             v->version = version_or_revision;
         }
     } else {
+        if(!isdigit(*s)) {
+            return(1);
+        }
         v->version = s;
     }
     
