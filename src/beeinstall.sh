@@ -42,6 +42,10 @@ debug_msg() {
     echo "#DEBUG# ${@}" >&2
 }
 
+start_cmd() {
+    debug_msg "executing '${@}'"
+    ${@}
+}
 
 ##### usage ###################################################################
 usage() {
@@ -212,17 +216,18 @@ do_install() {
     # create bee-filename
     BEE=$(basename $(echo ${pkg} | sed -e "s,\(.*\)-\(.*\)-\(.*\)\..*,\1-\2-\3.bee," - ))
     
-    TAR="tar -${NOOP:-x}vvPf ${file}"
-    TAR="${TAR} --transform=\"s,^FILES$,${BEEMETADIR}/${pkg}/FILES,\""
-    TAR="${TAR} --transform=\"s,^BUILD$,${BEEMETADIR}/${pkg}/${BEE},\""
-    TAR="${TAR} --transform=\"s,^META$,${BEEMETADIR}/${pkg}/META,\""
-    TAR="${TAR} --transform=\"s,^PATCHES,${BEEMETADIR}/${pkg}/PATCHES,\""
-    TAR="${TAR} --show-transformed-names"
+    taraction="-x"
     
-    debug_msg "performing '${TAR}'"
+    [ "${NOOP}" = "yes" ] && taraction="-t"
     
-    echo "${NOOP:+#NOOP# }installing ${file} .."
-    eval $TAR
+    echo "installing ${file} .."
+    
+    start_cmd tar ${taraction} -vvPf ${file} \
+        --transform="s,^FILES$,${BEEMETADIR}/${pkg}/FILES," \
+        --transform="s,^BUILD$,${BEEMETADIR}/${pkg}/${BEE}," \
+        --transform="s,^META$,${BEEMETADIR}/${pkg}/META," \
+        --transform="s,^PATCHES/,${BEEMETADIR}/${pkg}/PATCHES/," \
+        --show-transformed-names
     
     exit $?
 }
@@ -368,7 +373,7 @@ while true ; do
         ;;
     --noop)
         shift
-        NOOP="t"
+        NOOP="yes"
         ;;
     *)
       shift
