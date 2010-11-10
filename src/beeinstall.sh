@@ -243,14 +243,19 @@ check_installed() {
 ##
 do_install() {
     local file=${1}
-    local pkg=$(basename $(basename $(basename $(basename ${file} .tar.gz) .tar.bz2) .iee) .bee)
+    local pkg=$(echo ${file} | 
+                  sed -e 's,\.tar,,g;s,\.bz2,,g;s,\.gz,,g' \
+                      -e 's,\.[bi]ee,,g' \
+                      -e 's,.*/,,')
+    debug_msg "do_install file=${file}"
+    debug_msg "do_install pkg=${pkg}"
     
     if [ "${OPT_F}" = "0" ] ; then
         check_installed ${pkg}
     fi
     
     # create bee-filename
-    BEE=$(basename $(echo ${pkg} | sed -e "s,\(.*\)-\(.*\)-\(.*\)\..*,\1-\2-\3.bee," - ))
+    BEE="$(beeversion ${pkg} --format="%F").bee"
     
     taraction="-x"
     
@@ -266,54 +271,6 @@ do_install() {
         --show-transformed-names
     
     exit $?
-}
-
-
-###############################################################################
-### get_pkg_list ###
-##
-## IN: 
-##
-##
-##
-get_pkg_list_repository() {
-    local search=${1}
-    
-    local hits arch
-    
-    if [ ${OPT_A} -le '1' ] ; then
-        arch="\.(any|noarch|$(arch))"
-    fi
-    
-    for i in bee iee ; do
-        hits=$(find ${BEEPKGSTORE} -mindepth 1 \
-                 | egrep "${arch}\.${i}" \
-                 | egrep "${search}" \
-                 | sort)
-        if [ "${hits}" ] ; then
-            break;
-        fi
-     done
-
-    echo ${hits}
-}
-
-###############################################################################
-### get_pkg_list_installed ###
-##
-## IN: 
-##
-##
-##
-get_pkg_list_installed() {
-    local search=${1}
-    
-    local hits arch
-    
-    hits=$(find ${BEEMETADIR} -maxdepth 1 -mindepth 1 -type d -printf "%f\n" \
-             | egrep "${search}")
-    
-    echo ${hits}
 }
 
 ###############################################################################
