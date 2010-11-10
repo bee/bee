@@ -75,6 +75,23 @@ pkg_install_all() {
     done
 }
 
+begins_with() {
+    string=${1}
+    substring=${2}
+    
+    length=${#substring}
+    
+    if [ ${#substring} -gt ${#string} ] ; then
+        return 1
+    fi
+    
+    if [ "${string:0:${length}}" = "${substring}" ] ; then
+        return 0
+    fi
+    
+    return 1
+}
+
 ###############################################################################
 ### pkg_install ###
 ##
@@ -111,38 +128,51 @@ pkg_install() {
         fi
     done
     
-    a=($(beecut -d '-' ${search}))
-    for ((i=${#a[*]};i>${#a[*]}-2;i--)) ; do
-        pattern="${a[$i-1]}(\.|-|_)"
-        debug_msg "pattern .... ${pattern}"
+    available=$(bee-list -a "${search}")
+    subsearch=( $(beecut -d '-' "${search}") )
+    nss=${#subsearch[*]}
+    
+    install_candidate=
+    
+    for i in $(seq $(($nss-1)) -1 1) ; do
+        debug_msg "checking subsearch $i: ${subsearch[$i]}"
         
-        avail=$(bee-list -a "${pattern}")
-        debug_msg "avail ...... ${avail}"
+        sss=${subsearch[$i]}
         
-        if [ -n "${avail}" ] ;then
-            installed=$(bee-list -i "${pattern}")
-            debug_msg "installed .. ${installed}"
+        found=
+        for a in ${available} ; do
+            p=$(beeversion --pkgfullname "${a}")
+            debug_msg "  against $p ($a)"
+            
+            if [ "${p}" = "${sss}" ] ; then
+                debug_msg "FOUND: pkgfullname(${p}): ${a}"
+                if [ "${p}" = "${search}" ] ; then
+                    debug_msg "  => INSTALL(max of ${a})"
+                    install_candidate="${install_candidate} ${a}"
+                elif begins_with "${a}" "${search}" ; then 
+                    debug_msg "  => MAY INSTALL(max of ${a})"
+                    install_candidate="${install_candidate} ${a}"
+                fi
+            elif begins_with "${p}" "${sss}" ; then
+                debug_msg "FOUND: submatch(${p}): ${a}"
+                install_match="${install_match} ${a}"
+            fi
+        done
+        
+        if [ -n "${install_candidate}" ] ; then
+            debug_msg "install candidates: ${install_candidate}"
+            to_bee_installed=$(beeversion -max ${install_candidate})
+            debug_msg "   => and the winner is:  ${to_bee_installed}"
+            pkg_install ${to_bee_installed}
+            break
+        fi
+        
+        if [ -n "${install_match}" ] ; then
+            debug_msg "matches: ${install_match}"
+            print_pkg_list $(bee-list -a "${search}")
             break
         fi
     done
-
-    if [ -n "${avail}" ] ; then
-        avail=$(beeversion -max ${avail})
-        debug_msg "max avail .. ${avail}"
-    fi
-    if [ -n "${installed}" ] ; then
-        installed=$(beeversion -max ${installed})
-        debug_msg "max installed .. ${installed}"
-    fi
-    if [ -n "${avail}" ] ; then
-        if [ "${OPT_F}" = "1" ] || [ -z "${installed}" ] || beeversion ${avail} -gt ${installed} ; then
-            debug_msg "pkg_install ${avail}"
-            pkg_install ${avail}
-        fi
-    fi
-    
-    avail=$(bee-list -a "${search}")
-    print_pkg_list ${avail}
 }
 
 
