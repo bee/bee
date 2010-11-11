@@ -81,7 +81,12 @@ bee_init_builddir() {
         fi
     fi
     mkdir -p ${S}
-    mkdir -p ${B}
+    if [ "${B}" == "${S}" ] ; then
+        B=${BEEWORKDIR}/build
+        ln -s source ${B}
+    else
+        mkdir -p ${B}
+    fi
     mkdir -p ${D}
 }
 
