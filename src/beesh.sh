@@ -152,7 +152,7 @@ bee_getsources() {
     fi
 
     for s in "${SRCURL[@]}" ; do
-        fetch_one_file ${s}
+        fetch_one_archive ${s}
     done
 
     if [ -z ${PATCHURL} ] ; then 
