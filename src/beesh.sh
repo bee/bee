@@ -188,11 +188,9 @@ bee_unpack() {
     echo "#BEE# unpacking source ${s} .."
     tar xof ${F}/${s} --strip-components 1 -C ${S}
     
-    unset A[0]
-    
-    for s in ${A[@]} ; do
+    for ((s=1;s<${#A[@]};s++)) ; do
         echo "#BEE# unpacking source ${s} .."
-        tar xof ${F}/${s} -C ${S}
+        tar xof ${F}/${A[${s}]} -C ${S}
     done
 }
 
@@ -294,6 +292,29 @@ bee_pkg_pack() {
 }
 
 
+bee_buildarchive() {
+    [ "${OPT_ARCHIVE_BUILD}" != "yes" ] && return
+    
+    if [ ! -d ${BEEBUILDSTORE} ] ; then
+        mkdir -p ${BEEBUILDSTORE}
+    fi
+    
+    echo "#BEE# ${BEEBUILDSTORE}/${PKGALLPKG}.beebuild.tar.bz2 contains .."
+    
+    for f in ${A[@]} ${PA} ; do 
+        FILES="${FILES:+${FILES} }${F}/${f}"
+    done
+    
+    tar -cjvvf ${BEEBUILDSTORE}/${PKGALLPKG}.beebuild.tar.bz2 \
+        --show-transformed-names \
+        --sparse \
+        --absolute-names \
+        ${S} ${B} ${FILES} ${BEESTORE}/$(basename ${BEE}) \
+        --transform="s,${BEEPKGROOT}/,," \
+        --transform="s,^files,${PKGFULLPKG}/files," \
+        --transform="s,^${BEESTORE},${PKGFULLPKG}/files,"
+}
+
 #### mee_*() ##################################################################
 
 mee_getsources() { bee_getsources ; }
@@ -318,8 +339,9 @@ dump_variables() {
 ###############################################################################
 
 OPTIONS=$(getopt -n bee-option-parser \
-                 -o hifcs \
+                 -o ahifcs \
                  --long help,install,force-install,cleanup,silent-build,debug: \
+                 --long archive-build \
                  -- "$@")
 
 if [ $? != 0 ] ; then 
@@ -329,8 +351,9 @@ fi
 
 eval set -- "${OPTIONS}"
 
-OPT_INSTALL="no" 
+OPT_INSTALL="no"
 OPT_CLEANUP="no"
+OPT_ARCHIVE_BUILD="no"
 
 while true ; do
     case "$1" in
@@ -353,6 +376,10 @@ while true ; do
 	    ;;
         -s|--silent-build)
             OPT_SILENT="yes"
+            shift
+            ;;
+        -a|--archive-build)
+            OPT_ARCHIVE_BUILD="yes"
             shift
             ;;
         --debug)
@@ -441,6 +468,7 @@ PKGALLPKG=
 : ${BEESTORE:=/usr/src/bee/bees}
 : ${BEEPKGSTORE:=/usr/src/bee/pkgs}
 : ${BEETEMPDIR:=/tmp}
+: ${BEEBUILDSTORE:=/usr/src/bee/build-archives}
 
 # define defaults for bee_configure
 : ${PREFIX:=/usr}
@@ -513,6 +541,8 @@ mee_install
 
 cd ${D}
 bee_pkg_pack
+
+bee_buildarchive
 
 if [ "$OPT_INSTALL" = "yes" ] ; then
     echo "installing ${PKGALLPKG} .."
