@@ -318,8 +318,8 @@ bee_archivebuild() {
         ${S} ${B} \
         ${bee_FETCHED_FILES[@]} \
         ${BEESTORE}/$(basename ${BEE}) \
-        --transform="s,${BEEPKGROOT}/,," \
-        --transform="s,^files,${PKGALLPKG}/files," \
+        --transform="s,^${BEEWORKDIR},${PKGALLPKG}," \
+        --transform="s,^${F},${PKGALLPKG}/files," \
         --transform="s,^${BEESTORE},${PKGALLPKG}/files,"
 }
 
