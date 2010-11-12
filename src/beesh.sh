@@ -182,7 +182,8 @@ bee_getsources() {
 #### bee_unpack() #############################################################
 
 bee_unpack() {
-    local bee_S=( $@ )
+    local bee_S
+    bee_S=( $@ )
     
     if [ -z ${bee_S[0]} ] ; then return ; fi
     
@@ -201,7 +202,8 @@ bee_unpack() {
 #### bee_patch() ##############################################################
 
 bee_patch() {
-    local bee_P=( $@ )
+    local bee_P
+    bee_P=( $@ )
     
     for p in ${bee_P[@]} ; do
         echo "#BEE# applying patch ${p} .."
@@ -346,7 +348,7 @@ dump_variables() {
 OPTIONS=$(getopt -n bee-option-parser \
                  -o hifcs \
                  --long help,install,force-install,cleanup,silent-build,debug: \
-                 --long archive-build, no-archive-build \
+                 --long archive-build,no-archive-build \
                  -- "$@")
 
 if [ $? != 0 ] ; then 
