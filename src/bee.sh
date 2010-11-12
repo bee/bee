@@ -5,7 +5,7 @@ usage() {
     echo "possible options are:"
     echo "  init"
     echo "  install"
-    echo "  remove | rm"
+    echo "  remove"
     echo "  check"
     echo "  version"
 }
@@ -20,7 +20,7 @@ case "$1" in
         shift
         bee-install $@
         ;;
-    remove|rm)
+    remove)
         shift
         bee-remove $@
         ;;
