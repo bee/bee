@@ -126,19 +126,20 @@ fetch_one_file() {
         ls -ld "${F}/${file}"
     fi
 
-    FETCHED_FILE=${file}
+    bee_FETCHED_FILE="${F}/${file}"
+    bee_FETCHED_FILES=( ${bee_FETCHED_FILES[@]} "${F}/${file}" )
 }
 
 fetch_one_archive() {
     fetch_one_file $@
     
-    A=(${A[@]} ${FETCHED_FILE})
+    bee_SOURCEFILES=( ${bee_SOURCEFILES[@]} ${bee_FETCHED_FILE} )
 }
 
 fetch_one_patch() {
     fetch_one_file $@
     
-    PA="${PA:+${PA} }${FETCHED_FILE}"
+    bee_PATCHEFILES=( ${bee_PATCHEFILES[@]} ${bee_FETCHED_FILE} )
 }
 
 # bee_getsources
@@ -181,25 +182,30 @@ bee_getsources() {
 #### bee_unpack() #############################################################
 
 bee_unpack() {
+    local bee_S=( $@ )
     
-    if [ -z ${A[0]} ] ; then return ; fi
+    if [ -z ${bee_S[0]} ] ; then return ; fi
     
-    s=${A[0]}
+    s=${bee_S[0]}
     echo "#BEE# unpacking source ${s} .."
-    tar xof ${F}/${s} --strip-components 1 -C ${S}
+    tar xof ${s} --strip-components 1 -C ${S}
     
-    for ((s=1;s<${#A[@]};s++)) ; do
+    unset bee_S[0]
+    
+    for s in ${bee_S[@]} ; do
         echo "#BEE# unpacking source ${s} .."
-        tar xof ${F}/${A[${s}]} -C ${S}
+        tar xof ${s} -C ${S}
     done
 }
 
 #### bee_patch() ##############################################################
 
 bee_patch() {
-    for p in ${PA} ; do
+    local bee_P=( $@ )
+    
+    for p in ${bee_P[@]} ; do
         echo "#BEE# applying patch ${p} .."
-        patch -Np1 -i ${F}/${p}
+        patch -Np1 -i ${p}
     done
 }
 
@@ -256,11 +262,11 @@ bee_pkg_pack() {
 
     create_meta
     
-    if [ -n "${PA}" ] ; then
+    if [ -n "${bee_PATCHFILES[0]}" ] ; then
         mkdir -pv ${D}/PATCHES
     fi
-    for p in ${PA} ; do
-        cp ${F}/${p} ${D}/PATCHES/${p}
+    for p in ${bee_PATCHFILES[@]} ; do
+        cp ${p} ${D}/PATCHES/${p}
     done
 
     if [ ! -d ${BEEPKGSTORE} ] ; then
@@ -280,7 +286,9 @@ bee_pkg_pack() {
         --transform="s,^/BUILD$,BUILD," \
         --transform="s,^/META$,META," \
         --transform="s,^/PATCHES,PATCHES," \
-        ${D}/{FILES,BUILD,META} ${PA:+${D}/PATCHES} ${PA:+${D}/PATCHES/*}
+        ${D}/{FILES,BUILD,META} \
+        ${bee_PATCHFILES:+${D}/PATCHES} \
+        ${bee_PATCHFILES:+${D}/PATCHES/*}
 
     rm ${DUMP}
 
@@ -292,7 +300,7 @@ bee_pkg_pack() {
 }
 
 
-bee_buildarchive() {
+bee_archivebuild() {
     [ "${OPT_ARCHIVE_BUILD}" != "yes" ] && return
     
     if [ ! -d ${BEEBUILDSTORE} ] ; then
@@ -301,29 +309,26 @@ bee_buildarchive() {
     
     echo "#BEE# ${BEEBUILDSTORE}/${PKGALLPKG}.beebuild.tar.bz2 contains .."
     
-    for f in ${A[@]} ${PA} ; do 
-        FILES="${FILES:+${FILES} }${F}/${f}"
-    done
-    
     tar -cjvvf ${BEEBUILDSTORE}/${PKGALLPKG}.beebuild.tar.bz2 \
         --show-transformed-names \
         --sparse \
         --absolute-names \
-        ${S} ${B} ${FILES} ${BEESTORE}/$(basename ${BEE}) \
+        ${S} ${B} \
+        ${bee_FETCHED_FILES[@]} \
+        ${BEESTORE}/$(basename ${BEE}) \
         --transform="s,${BEEPKGROOT}/,," \
-        --transform="s,^files,${PKGFULLPKG}/files," \
-        --transform="s,^${BEESTORE},${PKGFULLPKG}/files,"
+        --transform="s,^files,${PKGALLPKG}/files," \
+        --transform="s,^${BEESTORE},${PKGALLPKG}/files,"
 }
 
 #### mee_*() ##################################################################
 
-mee_getsources() { bee_getsources ; }
-mee_unpack()     { bee_unpack;      }
-mee_patch()      { bee_patch;       }
-
-mee_configure()  { bee_configure;   }
-mee_build()      { bee_build;       }
-mee_install()    { bee_install ;    }
+mee_getsources() { bee_getsources $@;  }
+mee_unpack()     { bee_unpack $@;      }
+mee_patch()      { bee_patch $@;       }
+mee_configure()  { bee_configure $@;   }
+mee_build()      { bee_build $@;       }
+mee_install()    { bee_install $@;     }
 
 ###############################################################################
 ###############################################################################
@@ -339,9 +344,9 @@ dump_variables() {
 ###############################################################################
 
 OPTIONS=$(getopt -n bee-option-parser \
-                 -o ahifcs \
+                 -o hifcs \
                  --long help,install,force-install,cleanup,silent-build,debug: \
-                 --long archive-build \
+                 --long archive-build, no-archive-build \
                  -- "$@")
 
 if [ $? != 0 ] ; then 
@@ -351,16 +356,16 @@ fi
 
 eval set -- "${OPTIONS}"
 
-OPT_INSTALL="no"
-OPT_CLEANUP="no"
-OPT_ARCHIVE_BUILD="no"
+: ${OPT_INSTALL:="no"}
+: ${OPT_CLEANUP:="no"}
+: ${OPT_ARCHIVE_BUILD:="yes"}
 
 while true ; do
     case "$1" in
         -h|--help)
-	    show_help
-	    exit 0
-	    ;;
+            show_help
+            exit 0
+            ;;
         -i|--install)
             OPT_INSTALL="yes"
             shift
@@ -371,14 +376,18 @@ while true ; do
             shift
             ;;
         -c|--cleanup) 
-	    OPT_CLEANUP="yes"
-	    shift 
-	    ;;
+            OPT_CLEANUP="yes"
+            shift 
+            ;;
         -s|--silent-build)
             OPT_SILENT="yes"
             shift
             ;;
-        -a|--archive-build)
+        --no-archive-build)
+            OPT_ARCHIVE_BUILD="no"
+            shift
+            ;;
+        --archive-build)
             OPT_ARCHIVE_BUILD="yes"
             shift
             ;;
@@ -387,13 +396,13 @@ while true ; do
             shift 2
             ;;
         --) 
-	    shift
-	    break
-	    ;;
+            shift
+            break
+            ;;
         *) 
-	    echo "Internal error!"
-	    exit 1
-	    ;;
+            echo "Internal error!"
+            exit 1
+            ;;
     esac
 done
 
@@ -529,10 +538,10 @@ fi
 # in ${PWD}
 bee_init_builddir
 mee_getsources
-mee_unpack
+mee_unpack ${bee_SOURCEFILES[@]}
 
 cd ${S}
-mee_patch
+mee_patch ${bee_PATCHFILES[@]}
 
 cd ${B}
 mee_configure
@@ -542,7 +551,8 @@ mee_install
 cd ${D}
 bee_pkg_pack
 
-bee_buildarchive
+cd ${BEEWORKDIR}
+bee_archivebuild
 
 if [ "$OPT_INSTALL" = "yes" ] ; then
     echo "installing ${PKGALLPKG} .."
