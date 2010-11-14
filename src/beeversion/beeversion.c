@@ -78,6 +78,7 @@
 #define MODE_PARSE  2
 
 #define SUPPORTED_ARCHITECTURES \
+            "noarch", "any", \
             "x86_64", "i686", "i386", "i486", "i586", \
             "alpha", "arm", "m68k", "sparc", "mips", "ppc"
 
