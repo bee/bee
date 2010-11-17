@@ -10,6 +10,12 @@ ARCH=$(arch)
 # Version
 VERSION=0.3
 
+start_cmd() {
+    ${OPT_SILENT:+eval exec 1>/dev/null}
+    ${@}
+    ${OPT_SILENT:+eval exec 1>&3}
+}
+
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -220,27 +226,21 @@ bee_configure() {
     
     echo "#BEE# configuring .."
     echo "#BEE#   => ${S}/configure ${DEFCONFIG} $@"
-    ${OPT_SILENT:+eval exec 1>/dev/null}
-    ${S}/configure ${DEFCONFIG} $@
-    ${OPT_SILENT:+eval exec 1>&3}
+    start_cmd ${S}/configure ${DEFCONFIG} $@
 }
 
 #### bee_build() ##############################################################
 
 bee_build() {
     echo "#BEE# make $@"
-    ${OPT_SILENT:+eval exec 1>/dev/null}
-    make $@
-    ${OPT_SILENT:+eval exec 1>&3}
+    start_cmd make $@
 }
 
 #### bee_install() ############################################################
 
 bee_install() {
     echo "#BEE# make install $@"
-    ${OPT_SILENT:+eval exec 1>/dev/null}
-    make install DESTDIR=${D} $@
-    ${OPT_SILENT:+eval exec 1>&3}
+    start_cmd make install DESTDIR=${D} $@
 }
 
 #### bee_pkg_pack() ###########################################################
