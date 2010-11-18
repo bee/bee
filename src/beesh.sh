@@ -338,9 +338,8 @@ mee_install()    { bee_install $@;     }
 
 dump_variables() {
     for i in P{,N{,F,E},F,V{,E,F,R},S,R} ${!PKG*} ${!BEE*} ${!DEF*} ${!OPT*} ${!DOT*} R F W S B D ; do
-        eval echo "${i}="\$${i}
+        eval echo "${i}=\${${i}}"
     done
-    exit
 }
 
 ###############################################################################
@@ -442,18 +441,13 @@ fi
 ### create build directory tree with built-in defs
 : ${BEEROOT:=/tmp/beeroot}
 
-#pkg root
-R=${BEEROOT}/${PKGFULLNAME}
-
-BEEPKGROOT="${BEEROOT}/${PKGFULLNAME}"
-
-#pkg files .tar .patch ..
-F=${BEEPKGROOT}/files
-
-#workdir for current build
-W=${BEEPKGROOT}/${PKGFULLPKG}
+BEEPKGROOT="${BEEROOT}/${PKGNAME}"
 BEEWORKDIR="${BEEPKGROOT}/${PKGFULLPKG}"
 
+R=${BEEPKGROOT}
+W=${BEEWORKDIR}
+
+F=${BEEPKGROOT}/files
 S=${BEEWORKDIR}/source
 B=${BEEWORKDIR}/build
 D=${BEEWORKDIR}/image
@@ -478,30 +472,29 @@ PKGALLPKG=
 : ${BEESKIPLIST=/etc/bee/skiplist}
 : ${BEESTORE:=/usr/src/bee/bees}
 : ${BEEPKGSTORE:=/usr/src/bee/pkgs}
-: ${BEETEMPDIR:=/tmp}
 : ${BEEBUILDSTORE:=/usr/src/bee/build-archives}
+: ${BEETEMPDIR:=/tmp}
 
 # define defaults for bee_configure
 : ${PREFIX:=/usr}
-: ${EPREFIX:=${PREFIX}}
-: ${BINDIR:=${EPREFIX}/bin}
+: ${EPREFIX:='${PREFIX}'}
+: ${BINDIR:='${EPREFIX}/bin'}
 
-: ${SBINDIR:=${EPREFIX}/sbin}
-: ${LIBEXECDIR:=${EPREFIX}/lib/${PKGNAME}}
-: ${SYSCONFDIR:=/etc}
+: ${SBINDIR:='${EPREFIX}/sbin'}
+: ${LIBEXECDIR:='${EPREFIX}/lib/${PKGNAME}'}
+: ${SYSCONFDIR:='/etc'}
 
-: ${LOCALSTATEDIR:=/var}
-: ${SHAREDSTATEDIR:=${LOCALSTATEDIR}}
-: ${LIBDIR:=${EPREFIX}/lib}
-: ${INCLUDEDIR:=${PREFIX}/include}
-: ${DATAROOTDIR:=${PREFIX}/share}
-: ${DATADIR:=${DATAROOTDIR}}
-: ${INFODIR:=${DATAROOTDIR}/info}
-: ${MANDIR:=${DATAROOTDIR}/man}
-: ${DOCDIR:=${DATAROOTDIR}/doc/gtkhtml}
-: ${LOCALEDIR:=${DATAROOTDIR}/locale}
+: ${LOCALSTATEDIR:='/var'}
+: ${SHAREDSTATEDIR:='${LOCALSTATEDIR}'}
+: ${LIBDIR:='${EPREFIX}/lib'}
+: ${INCLUDEDIR:='${PREFIX}/include'}
+: ${DATAROOTDIR:='${PREFIX}/share'}
+: ${DATADIR:='${DATAROOTDIR}'}
+: ${INFODIR:='${DATAROOTDIR}/info'}
+: ${MANDIR:='${DATAROOTDIR}/man'}
+: ${DOCDIR:='${DATAROOTDIR}/doc/gtkhtml'}
+: ${LOCALEDIR:='${DATAROOTDIR}/locale'}
 
-### create default configure line
 # check IGNORE_DATAROOTDIR for compatibility with old bee-files
 if [ ${IGNORE_DATAROOTDIR} ] ; then
     echo "#BEE-WARNING# IGNORE_DATAROOTDIR is deprecated! pleade use BEE_CONFIGURE='compat' instead." >&2
@@ -514,6 +507,7 @@ if [ "${BEE_CONFIGURE}" = "compat" ] ; then
     unset DOCDIR
 fi
 
+### create default configure line
 : ${DEFCONFIG:="\
 --prefix=${PREFIX} \
 --exec-prefix=${EPREFIX} \
@@ -530,12 +524,25 @@ ${DATAROOTDIR:+--datarootdir=${DATAROOTDIR}} \
 --infodir=${INFODIR} \
 ${LOCALEDIR:+--localedir=${LOCALEDIR}} \
 --mandir=${MANDIR} \
-${DOCDIR:+--docdir=${DOCDIR}} \
-"}
+${DOCDIR:+--docdir=${DOCDIR}}"}
 
-if [ "${DEBUG}" = "variables" ] ; then
-    dump_variables
-fi
+eval PREFIX=${PREFIX}
+eval EPREFIX=${EPREFIX}
+eval BINDIR=${BINDIR}
+eval SBINDIR=${SBINDIR}
+eval LIBDIR=${LIBDIR}
+eval SYSCONFDIR=${SYSCONFDIR}
+eval SHAREDSTATEDIR=${SHAREDSTATEDIR}
+eval LOCALSTATEDIR=${LOCALSTATEDIR}
+eval LIBEXECDIR=${LIBEXECDIR}
+eval INCLUDEDIR=${INCLUDEDIR}
+eval DATAROOTDIR=${DATAROOTDIR}
+eval DATADIR=${DATADIR}
+eval INFODIR=${INFODIR}
+eval LOCALEDIR=${LOCALEDIR}
+eval MANDIR=${MANDIR}
+eval DOCDIR=${DOCDIR}
+eval DEFCONFIG=\"${DEFCONFIG}\"
 
 # in ${PWD}
 bee_init_builddir

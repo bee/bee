@@ -1,23 +1,24 @@
-# default system dirs
+# default system dirs for bee_configure
 : ${PREFIX:=/usr}
-: ${EPREFIX:=${PREFIX}}
-: ${BINDIR:=${EPREFIX}/bin}
-: ${SBINDIR:=${EPREFIX}/sbin}
-: ${LIBEXECDIR:=${EPREFIX}/lib/${PNF}}
+: ${EPREFIX:='${PREFIX}'}
+: ${BINDIR:='${EPREFIX}/bin'}
+: ${SBINDIR:='${EPREFIX}/sbin'}
+: ${LIBEXECDIR:='${EPREFIX}/lib/${PKGNAME}'}
 : ${SYSCONFDIR:=/etc}
 : ${LOCALSTATEDIR:=/var}
-: ${SHAREDSTATEDIR:=${LOCALSTATEDIR}}
-: ${LIBDIR:=${EPREFIX}/lib}
-: ${INCLUDEDIR:=${PREFIX}/include}
-: ${DATAROOTDIR:=${PREFIX}/share}
-: ${DATADIR:=${DATAROOTDIR}}
-: ${INFODIR:=${DATAROOTDIR}/info}
-: ${MANDIR:=${DATAROOTDIR}/man}
-: ${DOCDIR:=${DATAROOTDIR}/doc/gtkhtml}
-: ${LOCALEDIR:=${DATAROOTDIR}/locale}
+: ${SHAREDSTATEDIR:='${LOCALSTATEDIR}'}
+: ${LIBDIR:='${EPREFIX}/lib'}
+: ${INCLUDEDIR:='${PREFIX}/include}'
+: ${DATAROOTDIR:='${PREFIX}/share}'
+: ${DATADIR:='${DATAROOTDIR}}'
+: ${INFODIR:='${DATAROOTDIR}/info}'
+: ${MANDIR:='${DATAROOTDIR}/man}'
+: ${DOCDIR:='${DATAROOTDIR}/doc/gtkhtml}'
+: ${LOCALEDIR:='${DATAROOTDIR}/locale}'
 
 
 # default bee dirs
+: ${BEETEMPDIR:=/tmp}
 : ${BEEROOT:=/tmp/beeroot}
 : ${BEESTORE:=/usr/src/bee/bees}
 : ${BEEPKGSTORE:=/usr/src/bee/pkgs}
