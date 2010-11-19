@@ -501,7 +501,7 @@ PKGALLPKG=
 : ${BEETEMPDIR:=/tmp}
 
 # define defaults for bee_configure
-: ${PREFIX:=/usr}
+: ${PREFIX:='/usr'}
 : ${EPREFIX:='${PREFIX}'}
 : ${BINDIR:='${EPREFIX}/bin'}
 
@@ -526,14 +526,8 @@ if [ ${IGNORE_DATAROOTDIR} ] ; then
     BEE_CONFIGURE='compat'
 fi
 
-if [ "${BEE_CONFIGURE}" = "compat" ] ; then
-    unset DATAROOTDIR
-    unset LOCALEDIR
-    unset DOCDIR
-fi
-
 ### create default configure line
-: ${DEFCONFIG:="\
+: ${DEFCONFIG:='\
 --prefix=${PREFIX} \
 --exec-prefix=${EPREFIX} \
 --bindir=${BINDIR} \
@@ -549,7 +543,7 @@ ${DATAROOTDIR:+--datarootdir=${DATAROOTDIR}} \
 --infodir=${INFODIR} \
 ${LOCALEDIR:+--localedir=${LOCALEDIR}} \
 --mandir=${MANDIR} \
-${DOCDIR:+--docdir=${DOCDIR}}"}
+${DOCDIR:+--docdir=${DOCDIR}}'}
 
 eval PREFIX=${PREFIX}
 eval EPREFIX=${EPREFIX}
@@ -567,7 +561,16 @@ eval INFODIR=${INFODIR}
 eval LOCALEDIR=${LOCALEDIR}
 eval MANDIR=${MANDIR}
 eval DOCDIR=${DOCDIR}
+
+if [ "${BEE_CONFIGURE}" = "compat" ] ; then
+    unset DATAROOTDIR
+    unset LOCALEDIR
+    unset DOCDIR
+fi
+
 eval DEFCONFIG=\"${DEFCONFIG}\"
+
+
 
 # in ${PWD}
 bee_init_builddir
