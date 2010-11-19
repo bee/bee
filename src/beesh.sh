@@ -570,8 +570,6 @@ fi
 
 eval DEFCONFIG=\"${DEFCONFIG}\"
 
-
-
 # in ${PWD}
 bee_init_builddir
 
