@@ -148,6 +148,22 @@ fetch_one_patch() {
     bee_PATCHEFILES=( ${bee_PATCHEFILES[@]} ${bee_FETCHED_FILE} )
 }
 
+bee_getsrcurl() {
+    local -a archives=( ${@} )
+    
+    for a in "${archives[@]}" ; do
+        fetch_one_archive ${a}
+    done
+}
+
+bee_getpatchurl() {
+    local -a patches=( ${@} )
+    
+    for p in "${patches[@]}" ; do
+        fetch_one_patch ${p}
+    done
+}
+
 # bee_getsources
 #    SRCURL[] = "<url> [filename]"
 # e.g.:
@@ -159,13 +175,11 @@ fetch_one_patch() {
 bee_getsources() {
     mkdir -p "${F}"
 
-    if [ -z ${SRCURL} ] ; then 
+    if [ -z "${SRCURL}" ] ; then 
         unset SRCURL
     fi
 
-    for s in "${SRCURL[@]}" ; do
-        fetch_one_archive ${s}
-    done
+    bee_run getsrcurl "${SRCURL[@]}"
 
     if [ -z ${PATCHURL} ] ; then 
         unset PATCHURL
@@ -180,27 +194,31 @@ bee_getsources() {
         PATCHURL=(${PATCHES[@]})
     fi
 
-    for p in "${PATCHURL[@]}" ; do
-        fetch_one_patch ${p}
-    done
+    bee_run getpatchurl "${PATCHURL[@]}"
 }
 
-#### bee_unpack() #############################################################
+#### bee_extract() #############################################################
 
-bee_unpack() {
+bee_extract() {
     local bee_S
     bee_S=( $@ )
+    
+    if is_func mee_unpack ; then
+        echo "#BEE-WARNING# function 'mee_unpack()' is obsolete .. use 'mee_extract()' instead .." >&2
+        bee_run unpack "${@}"
+        return
+    fi
     
     if [ -z ${bee_S[0]} ] ; then return ; fi
     
     s=${bee_S[0]}
-    echo "#BEE# unpacking source ${s} .."
+    echo "#BEE# extracting source ${s} .."
     tar xof ${s} --strip-components 1 -C ${S}
     
     unset bee_S[0]
     
     for s in ${bee_S[@]} ; do
-        echo "#BEE# unpacking source ${s} .."
+        echo "#BEE# extracting source ${s} .."
         tar xof ${s} -C ${S}
     done
 }
@@ -323,15 +341,6 @@ bee_archivebuild() {
         --transform="s,^${BEESTORE},${PKGALLPKG}/files,"
 }
 
-#### mee_*() ##################################################################
-
-mee_getsources() { bee_getsources $@;  }
-mee_unpack()     { bee_unpack $@;      }
-mee_patch()      { bee_patch $@;       }
-mee_configure()  { bee_configure $@;   }
-mee_build()      { bee_build $@;       }
-mee_install()    { bee_install $@;     }
-
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -340,6 +349,22 @@ dump_variables() {
     for i in P{,N{,F,E},F,V{,E,F,R},S,R} ${!PKG*} ${!BEE*} ${!DEF*} ${!OPT*} ${!DOT*} R F W S B D ; do
         eval echo "${i}=\${${i}}"
     done
+}
+
+is_func() {
+    [ "$(type -t ${1})" == "function" ]
+    return $?
+}
+
+bee_run() {
+    action=${1}
+    shift
+    
+    if is_func "mee_${action}" ; then
+        mee_${action} ${@}
+    else
+        bee_${action} ${@}
+    fi
 }
 
 ###############################################################################
@@ -546,18 +571,22 @@ eval DEFCONFIG=\"${DEFCONFIG}\"
 
 # in ${PWD}
 bee_init_builddir
-mee_getsources
-mee_unpack ${bee_SOURCEFILES[@]}
+
+bee_run getsources
+bee_run extract ${bee_SOURCEFILES[@]}
 
 cd ${S}
-mee_patch ${bee_PATCHFILES[@]}
+
+bee_run patch ${bee_PATCHFILES[@]}
 
 cd ${B}
-mee_configure
-mee_build
-mee_install
+
+bee_run configure
+bee_run build
+bee_run install
 
 cd ${D}
+
 bee_pkg_pack
 
 cd ${BEEWORKDIR}
