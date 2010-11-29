@@ -286,7 +286,7 @@ bee_pkg_pack() {
         mkdir -pv ${D}/PATCHES
     fi
     for p in ${bee_PATCHFILES[@]} ; do
-        cp ${p} ${D}/PATCHES/${p}
+        cp ${p} ${D}/PATCHES
     done
 
     if [ ! -d "${BEEPKGSTORE}" ] ; then
