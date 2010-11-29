@@ -149,7 +149,7 @@ fetch_one_patch() {
 }
 
 bee_getsrcurl() {
-    local -a archives=( ${@} )
+    local -a archives=( "${@}" )
     
     for a in "${archives[@]}" ; do
         fetch_one_archive ${a}
@@ -157,7 +157,7 @@ bee_getsrcurl() {
 }
 
 bee_getpatchurl() {
-    local -a patches=( ${@} )
+    local -a patches=( "${@}" )
     
     for p in "${patches[@]}" ; do
         fetch_one_patch ${p}
@@ -191,7 +191,7 @@ bee_getsources() {
 
     if [ -z "${PATCHURL}" ] && [ -n "${PATCHES}" ] ; then
         echo '#BEE# warning .. you are using obsolete variable ${PATCHES} .. please use ${PATCHURL} instead'
-        PATCHURL=(${PATCHES[@]})
+        PATCHURL=( "${PATCHES[@]}" )
     fi
 
     bee_run getpatchurl "${PATCHURL[@]}"
@@ -361,9 +361,9 @@ bee_run() {
     shift
     
     if is_func "mee_${action}" ; then
-        mee_${action} ${@}
+        mee_${action} "${@}"
     else
-        bee_${action} ${@}
+        bee_${action} "${@}"
     fi
 }
 
