@@ -77,7 +77,7 @@ show_help() {
 #### bee_init_builddir() ######################################################
 
 bee_init_builddir() {
-    if [ -d ${W} ] ; then 
+    if [ -d "${W}" ] ; then 
         if [ "${OPT_CLEANUP}" = "yes" ] ; then
             echo "#BEE# cleaning work-dir ${W} .."
             rm -fr ${W}
@@ -117,7 +117,7 @@ fetch_one_file() {
             nocheck=""
         fi
         
-        if [ ! -s ${F}/${file} ] ; then
+        if [ ! -s "${F}/${file}" ] ; then
             rm -vf ${F}/${file}
         fi
         
@@ -181,11 +181,11 @@ bee_getsources() {
 
     bee_run getsrcurl "${SRCURL[@]}"
 
-    if [ -z ${PATCHURL} ] ; then 
+    if [ -z "${PATCHURL}" ] ; then 
         unset PATCHURL
     fi
 
-    if [ -z ${PATCHES} ] ; then
+    if [ -z "{PATCHES}" ] ; then
         unset PATCHES
     fi
 
@@ -209,7 +209,7 @@ bee_extract() {
         return
     fi
     
-    if [ -z ${bee_S[0]} ] ; then return ; fi
+    if [ -z "${bee_S[0]}" ] ; then return ; fi
     
     s=${bee_S[0]}
     echo "#BEE# extracting source ${s} .."
@@ -289,7 +289,7 @@ bee_pkg_pack() {
         cp ${p} ${D}/PATCHES/${p}
     done
 
-    if [ ! -d ${BEEPKGSTORE} ] ; then
+    if [ ! -d "${BEEPKGSTORE}" ] ; then
         mkdir -pv ${BEEPKGSTORE}
     fi 
 
@@ -312,7 +312,7 @@ bee_pkg_pack() {
 
     rm ${DUMP}
 
-    if [ ! -d ${BEESTORE} ] ; then
+    if [ ! -d "${BEESTORE}" ] ; then
         mkdir -pv ${BEESTORE}
     fi 
 
@@ -323,7 +323,7 @@ bee_pkg_pack() {
 bee_archivebuild() {
     [ "${OPT_ARCHIVE_BUILD}" != "yes" ] && return
     
-    if [ ! -d ${BEEBUILDSTORE} ] ; then
+    if [ ! -d "${BEEBUILDSTORE}" ] ; then
         mkdir -p ${BEEBUILDSTORE}
     fi
     
@@ -595,7 +595,7 @@ bee_pkg_pack
 cd ${BEEWORKDIR}
 bee_archivebuild
 
-if [ "$OPT_INSTALL" = "yes" ] ; then
+if [ "${OPT_INSTALL}" = "yes" ] ; then
     echo "installing ${PKGALLPKG} .."
     bee install ${OPT_FORCE:+-f} ${BEEPKGSTORE}/${PKGALLPKG}.bee.tar.bz2
 fi
