@@ -527,22 +527,22 @@ if [ ${IGNORE_DATAROOTDIR} ] ; then
 fi
 
 ### create default configure line
-: ${DEFCONFIG:='\
---prefix=${PREFIX} \
---exec-prefix=${EPREFIX} \
---bindir=${BINDIR} \
---sbindir=${SBINDIR} \
---libexecdir=${LIBEXECDIR} \
---sysconfdir=${SYSCONFDIR} \
---sharedstatedir=${SHAREDSTATEDIR} \
---localstatedir=${LOCALSTATEDIR} \
---libdir=${LIBDIR} \
---includedir=${INCLUDEDIR} \
-${DATAROOTDIR:+--datarootdir=${DATAROOTDIR}} \
---datadir=${DATADIR} \
---infodir=${INFODIR} \
-${LOCALEDIR:+--localedir=${LOCALEDIR}} \
---mandir=${MANDIR} \
+: ${DEFCONFIG:='
+--prefix=${PREFIX}
+--exec-prefix=${EPREFIX}
+--bindir=${BINDIR}
+--sbindir=${SBINDIR}
+--libexecdir=${LIBEXECDIR}
+--sysconfdir=${SYSCONFDIR}
+--sharedstatedir=${SHAREDSTATEDIR}
+--localstatedir=${LOCALSTATEDIR}
+--libdir=${LIBDIR}
+--includedir=${INCLUDEDIR}
+${DATAROOTDIR:+--datarootdir=${DATAROOTDIR}}
+--datadir=${DATADIR}
+--infodir=${INFODIR}
+${LOCALEDIR:+--localedir=${LOCALEDIR}}
+--mandir=${MANDIR}
 ${DOCDIR:+--docdir=${DOCDIR}}'}
 
 eval PREFIX=${PREFIX}
