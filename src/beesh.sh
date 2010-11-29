@@ -190,7 +190,7 @@ bee_getsources() {
     fi
 
     if [ -z "${PATCHURL}" ] && [ -n "${PATCHES}" ] ; then
-        echo '#BEE# warning .. you are using obsolete variable ${PATCHES} .. please use ${PATCHURL} instead'
+        echo '#BEE# warning .. you are using deprecated variable ${PATCHES} .. please use ${PATCHURL} instead'
         PATCHURL=( "${PATCHES[@]}" )
     fi
 
@@ -204,7 +204,7 @@ bee_extract() {
     bee_S=( $@ )
     
     if is_func mee_unpack ; then
-        echo "#BEE-WARNING# function 'mee_unpack()' is obsolete .. use 'mee_extract()' instead .." >&2
+        echo "#BEE-WARNING# function 'mee_unpack()' is deprecated .. use 'mee_extract()' instead .." >&2
         bee_run unpack "${@}"
         return
     fi
