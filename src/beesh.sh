@@ -145,7 +145,7 @@ fetch_one_archive() {
 fetch_one_patch() {
     fetch_one_file $@
     
-    bee_PATCHEFILES=( ${bee_PATCHEFILES[@]} ${bee_FETCHED_FILE} )
+    bee_PATCHFILES=( ${bee_PATCHFILES[@]} ${bee_FETCHED_FILE} )
 }
 
 bee_getsrcurl() {
