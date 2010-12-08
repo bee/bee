@@ -8,7 +8,7 @@ exec 3<&1
 ARCH=$(arch)
 
 # Version
-VERSION=0.3
+VERSION=0.4
 
 start_cmd() {
     ${OPT_SILENT:+eval exec 1>/dev/null}
@@ -50,25 +50,35 @@ show_help() {
     echo ""
     echo "#!/bin/env beesh"
     echo "SRCURL=\"ftp://ftp.gmplib.org/pub/gmp-4.3.1/gmp-4.3.1.tar.bz2\""
+    echo ""
+    echo "# PATCHURL[0]="
+    echo ""
     echo "PGRP=( uncategorized )"
     echo ""
-    echo "IGNORE_DATAROOTDIR=1"
-    echo "IGNORE_LOCALEDIR=1"
-    echo "IGNORE_DOCDIR=1"
-    echo ""
-    echo "# PATCHURL=\"\""
+    echo "BEE_CONFIGURE=\"compat\""
     echo ""
     echo "# EXCLUDE=\"\""
     echo ""
-    echo "# mee_configure() {"
+    echo "BEEPASSES=1"
+    echo ""
+    echo "mee_configure() {"
+    echo "    bee_configure"
+    echo "}"
+    echo "# mee_configure2() {"
     echo "#     bee_configure"
     echo "# }"
     echo ""
-    echo "# mee_build() {"
+    echo "mee_build() {"
+    echo "    bee_build"
+    echo "}"
+    echo "# mee_build2() {"
     echo "#     bee_build"
     echo "# }"
     echo ""
-    echo "# mee_install() {"
+    echo "mee_install() {"
+    echo "    bee_install"
+    echo "}"
+    echo "# mee_install2() {"
     echo "#     bee_install"
     echo "# }"
 
@@ -360,7 +370,9 @@ bee_run() {
     action=${1}
     shift
     
-    if is_func "mee_${action}" ; then
+    if is_func "mee_${action}${bee_PASS}" ; then
+        mee_${action}${bee_PASS} "${@}"
+    elif is_func "mee_${action}" ; then
         mee_${action} "${@}"
     else
         bee_${action} "${@}"
@@ -570,24 +582,29 @@ fi
 
 eval DEFCONFIG=\"${DEFCONFIG}\"
 
-
+: ${BEEPASSES:=1}
+declare -i bee_PASS=1
 
 # in ${PWD}
 bee_init_builddir
 
-bee_run getsources
-bee_run extract ${bee_SOURCEFILES[@]}
+while [ ${bee_PASS} -le ${BEEPASSES} ] ; do
+    echo "#BEE# running PASS ${bee_PASS} of ${BEEPASSES} .."
+    bee_run getsources
+    bee_run extract ${bee_SOURCEFILES[@]}
 
-cd ${S}
+    cd ${S}
 
-bee_run patch ${bee_PATCHFILES[@]}
+    bee_run patch ${bee_PATCHFILES[@]}
 
-cd ${B}
+    cd ${B}
 
-bee_run configure
-bee_run build
-bee_run install
-
+    bee_run configure
+    bee_run build
+    bee_run install
+    
+    bee_PASS=${bee_PASS}+1
+done
 cd ${D}
 
 bee_pkg_pack
