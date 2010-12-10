@@ -239,6 +239,10 @@ bee_patch() {
     local bee_P
     bee_P=( $@ )
     
+    if [ ${#bee_P[@]} == 0 ] ; then
+        bee_P=( ${bee_PATCHFILES[@]} )
+    fi
+    
     for p in ${bee_P[@]} ; do
         echo "#BEE# applying patch ${p} .."
         patch -Np1 -i ${p}
