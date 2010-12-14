@@ -12,7 +12,7 @@ VERSION=0.4
 
 start_cmd() {
     ${OPT_SILENT:+eval exec 1>/dev/null}
-    ${@}
+    "${@}"
     ${OPT_SILENT:+eval exec 1>&3}
 }
 
@@ -258,7 +258,7 @@ bee_configure() {
     
     echo "#BEE# configuring .."
     echo "#BEE#   => ${S}/configure ${DEFCONFIG} $@"
-    start_cmd ${S}/configure ${DEFCONFIG} $@
+    start_cmd ${S}/configure ${DEFCONFIG} "$@"
 }
 
 #### bee_build() ##############################################################
