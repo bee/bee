@@ -77,10 +77,10 @@ install-config:
 	@mkdir -vp ${DESTDIR}${BEEDIR}
 	@for i in ${CONFIGS} ; do \
 	     echo "installing ${DESTDIR}${BEEDIR}/$${i}.sample" ; \
-	     install -vm 0660 conf/$${i} ${DESTDIR}${BEEDIR}/$${i}.sample; \
+	     install -vm 0644 conf/$${i} ${DESTDIR}${BEEDIR}/$${i}.sample; \
 	 done
 	@mkdir -vp ${DESTDIR}${TEMPLATEDIR}
 	@for t in ${TEMPLATES} ; do \
 	     echo "installing ${DESTDIR}${TEMPLATEDIR}/$${t}" ; \
-	     install -vm 0660 conf/templates/$${t} ${DESTDIR}${TEMPLATEDIR} ; \
+	     install -vm 0644 conf/templates/$${t} ${DESTDIR}${TEMPLATEDIR} ; \
 	 done
