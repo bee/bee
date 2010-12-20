@@ -46,7 +46,7 @@ initialize() {
     fi
 
     echo "creating ${pname}.bee with TEMPLATE='${TEMPLATE}' and SRCURL='${surl}'"
-    if [ -e ${TEMPLATEPATH}${TEMPLATE} ] ; then
+    if [ -r ${TEMPLATEPATH}${TEMPLATE} ] ; then
         cp ${TEMPLATEPATH}${TEMPLATE} ${pname}.bee
     else
         cat >${pname}.bee<<"EOT"
