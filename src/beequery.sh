@@ -48,22 +48,53 @@ query() {
     list=$@
     
     for f in "${list[@]}" ; do
-        do_query ${f}
+        # check if $f is pkg, list related files
+        # otherwise list pkg
+        base=$(basename $f)
+        if [ -d "${BEEMETADIR}/${base}" ] ; then
+            eval $(beeversion $base)
+            get_files "${PKGALLPKG}"
+        else
+            get_pkgs ${f}
+        fi
     done
 }
 
-do_query() {
-    file=$1
+get_files() {
+    pkg=${1}
     
-    for i in ${BEEMETADIR}/* ; do
-        if grep -q ${file} ${i}/FILES ; then
-            pkgs="${pkgs:+${pkgs} }${i}"
+    for s in "" "${BEEMETADIR}" ; do 
+        ff="${s}/${pkg}/FILES"
+        if [ -e "${ff}" ] ; then
+            for line in $(cat ${ff}) ; do
+                beefind2filename $line
+            done
         fi
     done
-    echo "'${file}' is related to .."
-    for p in ${pkgs} ; do
-        echo "  ${p}"
+}
+
+get_pkgs() {
+    f=$1
+    
+    for i in ${BEEMETADIR}/* ; do
+        if egrep -q "file=.*${f}" ${i}/FILES ; then
+            echo $(basename ${i})
+            for line in $(egrep "file=.*${f}" ${i}/FILES) ; do
+                echo "  $(beefind2filename $line)"
+            done
+        fi
     done
+}
+
+beefind2filename() {
+    line=$1
+    
+    OLDIFS=${IFS}
+    IFS=":"
+    eval $line
+    echo $file
+    unset md5 mode nlink uid gid size mtime file
+    IFS=${OLDIFS}
 }
 
 
