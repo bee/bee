@@ -31,8 +31,11 @@ if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
 
-: ${BEEMETADIR:=/usr/share/bee}
+: ${defaultBEEMETADIR:=/usr/share/bee}
+: ${BEEMETADIR:=${defaultBEEMETADIR}}
 : ${BEEPKGSTORE:=/usr/src/bee/pkgs}
+
+BEEMETAPATH=( $(for d in "${defaultBEEMETADIR}" "${BEEMETADIR}" ; do echo $d ; done | sort | uniq) )
 
 
 ##### usage ###################################################################
@@ -48,39 +51,48 @@ query() {
     list=$@
     
     for f in "${list[@]}" ; do
-        # check if $f is pkg, list related files
-        # otherwise list pkg
-        base=$(basename $f)
-        if [ -d "${BEEMETADIR}/${base}" ] ; then
-            eval $(beeversion $base)
-            get_files "${PKGALLPKG}"
-        else
-            get_pkgs ${f}
-        fi
+        local -i done=0
+        
+        # check if $f is pkg   --> list related files
+        # otherwise $f is file --> list pkg
+        pkgname=$(basename $f)
+        for metadir in "${BEEMETAPATH[@]}" ; do
+            if [ -d "${metadir}/${pkgname}" ] ; then
+                get_files "${metadir}/${pkgname}"
+                done=1
+            fi
+        done
+        
+        [ $done -eq 1 ] && exit $?
+        
+        for metadir in "${BEEMETAPATH[@]}" ; do
+            get_pkgs "${metadir}" "${f}"
+        done
+        
     done
 }
 
 get_files() {
     pkg=${1}
     
-    for s in "" "${BEEMETADIR}" ; do 
-        ff="${s}/${pkg}/FILES"
-        if [ -e "${ff}" ] ; then
-            for line in $(cat ${ff}) ; do
-                beefind2filename $line
-            done
-        fi
-    done
+    ff="${pkg}/FILES"
+    if [ -e "${ff}" ] ; then
+        for line in $(cat ${ff}) ; do
+            beefind2filename $line
+        done
+    fi
 }
 
 get_pkgs() {
-    f=$1
+    dir="${1}"
+    file="${2}"
     
-    for i in ${BEEMETADIR}/* ; do
-        if egrep -q "file=.*${f}" ${i}/FILES ; then
-            echo $(basename ${i})
-            for line in $(egrep "file=.*${f}" ${i}/FILES) ; do
-                echo "  $(beefind2filename $line)"
+    for pkg in ${dir}/* ; do
+        if [ -r "${pkg}/FILES" ] && egrep -q "file=.*${file}" ${pkg}/FILES ; then
+            echo $(basename ${pkg})
+            for line in $(egrep "file=.*${file}" ${pkg}/FILES) ; do
+                filename=$(beefind2filename $line)
+                [ "$(echo ${filename} | grep ${file})" != "" ] && echo "  ${filename}"
             done
         fi
     done
@@ -92,7 +104,7 @@ beefind2filename() {
     OLDIFS=${IFS}
     IFS=":"
     eval $line
-    echo $file
+    echo ${file%%//*}
     unset md5 mode nlink uid gid size mtime file
     IFS=${OLDIFS}
 }
