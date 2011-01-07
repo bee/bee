@@ -29,6 +29,13 @@ initialize() {
     set -- ${PP}
     pname=$1
     surl=$2
+    
+    # fix sourceforge urls
+    pname=$(echo $pname | sed "/sourceforge.*\/download$/s,/download$,,;/\/sourceforge/s,/sourceforge,/downloads.sourceforge,")
+    surl=$(echo $surl | sed "/sourceforge\/download$/s,/download$,,;/\/sourceforge/s,/sourceforge,/downloads.sourceforge,")
+    pname=$(echo $pname | sed "/sourceforge.*?/s,?.*,,")
+    surl=$(echo $surl | sed "/sourceforge.*?/s,?.*,,")
+    
     if [ -z "${surl}" ] ; then
         surl=${pname}
         pname=$(basename $(basename ${surl} .tar.bz2) .tar.gz)
@@ -38,7 +45,6 @@ initialize() {
             pname=${pname}-0
         fi
     fi
-    
 
     if [ -e ${pname}.bee ] && [ "$OPT_FORCE" != "yes" ] ; then
         echo "${pname}.bee already exists .. use option -f to overwrite .."
