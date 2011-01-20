@@ -34,13 +34,6 @@ fi
 : ${BEEMETADIR:=/usr/share/bee}
 : ${BEEPKGSTORE:=/usr/src/bee/pkgs}
 
-: ${MIMEDIR:=/usr/share/mime}
-: ${SCHEMADIR:=/usr/share/glib-2.0/schemas}
-: ${FONTSDIR:=/usr/share/fonts}
-for i in $(cat /etc/ld.so.conf) /lib /usr/lib ; do
-    LIBPATH="${LIBPATH:+${LIBPATH}|}${i}"
-done
-
 debug_msg() {
     if [ "${DEBUG}" != "yes" ] ; then
         return
@@ -270,58 +263,12 @@ do_install() {
     
     echo "installing ${file} .."
     
-    files=($(start_cmd tar ${taraction} -Pf ${file} \
-                  --transform="s,^FILES$,${BEEMETADIR}/${pkg}/FILES," \
-                  --transform="s,^BUILD$,${BEEMETADIR}/${pkg}/${BEE}," \
-                  --transform="s,^META$,${BEEMETADIR}/${pkg}/META," \
-                  --transform="s,^PATCHES,${BEEMETADIR}/${pkg}/PATCHES," \
-                  --show-transformed-names))
-    for f in ${files[@]} ; do
-        echo ${f}
-    done
-    
-    [ "${NOOP}" == "yes" ] && exit $?
-
-    local -i update_mime=0 update_schemas=0 update_fonts=0 update_libs=0
-    local -a fonts_dir
-    for f in ${files[@]} ; do
-        if echo ${f} | egrep -q "${MIMEDIR}" ; then
-            update_mime=$update_mime+1
-            continue
-        fi
-        if echo ${f} | egrep -q "${SCHEMADIR}" ; then
-            update_schemas=$update_schemas+1
-            continue
-        fi
-        if echo ${f} | egrep -q "${FONTSDIR}" && [ -f ${f} ]; then
-            update_fonts=$update_fonts+1
-            fonts_dir=( ${fonts_dir[@]} $(dirname ${f}))
-            continue
-        fi
-        if echo ${f} | egrep "${LIBPATH}" | egrep -q "\.so\." ; then
-            libs_dir=( ${libs_dir[@]} $(dirname ${f}))
-            update_libs=$update_libs+1
-            continue
-        fi
-    done
-
-    debug_msg echo "mime=$update_mime schemas=$update_schemas fonts=$update_fonts libs=$update_libs"
-    if [ $update_mime -gt 0 ] ; then
-        start_cmd update_mime_database ${MIMEDIR}
-    fi
-    if [ $update_schemas -gt 0 ] ; then
-        start_cmd glib-compile-schemas ${SCHEMADIR}
-    fi
-    if [ $update_fonts -gt 0 ] ; then
-        fonts_dir=($(for fd in ${fonts_dir[@]} ; do echo $fd ; done | sort | uniq))
-        for fd in ${fonts_dir[@]} ; do
-            start_cmd mkfontdir   ${fd}
-            start_cmd mkfontscale ${fd}
-        done
-    fi
-    if [ $update_libs -gt 0 ] ; then
-        start_cmd ldconfig
-    fi
+    start_cmd tar ${taraction} -vvPf ${file} \
+        --transform="s,^FILES$,${BEEMETADIR}/${pkg}/FILES," \
+        --transform="s,^BUILD$,${BEEMETADIR}/${pkg}/${BEE}," \
+        --transform="s,^META$,${BEEMETADIR}/${pkg}/META," \
+        --transform="s,^PATCHES,${BEEMETADIR}/${pkg}/PATCHES," \
+        --show-transformed-names
     
     exit $?
 }
