@@ -877,7 +877,7 @@ int main(int argc, char *argv[])
         
         filter_pkgfullname = NULL;
         
-        do_parse(argc-optind, argv+optind, format);
+        return(!do_parse(argc-optind, argv+optind, format));
     }
         
     return(0);
