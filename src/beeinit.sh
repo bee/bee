@@ -40,8 +40,9 @@ initialize() {
     
     if [ -z "${surl}" ] ; then
         surl=${pname}
-        pname=$(basename ${pname} .tar.bz2)
-        pname=$(basename ${pname} .tar.gz)
+        pname=$(basename ${pname} .bz2)
+        pname=$(basename ${pname} .gz)
+        pname=$(basename ${pname} .tar)
         pname=$(basename ${pname} .tgz)
         pname=$(basename ${pname} .tbz2)
         pname=$(basename ${pname} .zip)
@@ -53,62 +54,99 @@ initialize() {
             pname=${pname}-0
         fi
     fi
+    
+    beefile="${pname}.bee"
 
-    if [ -e "${pname}.bee" ] && [ "$OPT_FORCE" != "yes" ] ; then
-        echo "${pname}.bee already exists .. use option -f to overwrite .."
+    if [ -e ${beefile} ] && [ "$OPT_FORCE" != "yes" ] ; then
+        echo "${beefile} already exists .. use option -f to overwrite .."
         exit 1
     fi
 
-    echo "creating ${pname}.bee with TEMPLATE='${TEMPLATE}' and SRCURL='${surl}'"
+    
     if [ -r ${BEE_TEMPLATEDIR}/${TEMPLATE} ] ; then
+        echo "creating ${beefile} with TEMPLATE='${TEMPLATE}' and SRCURL='${surl}'"
         cp ${BEE_TEMPLATEDIR}/${TEMPLATE} ${pname}.bee
     else
-        cat >${pname}.bee<<"EOT"
-#!/bin/env beesh
-@SRCURL@
-@DEFAULT_PREFIX_VARS@
-
-@BEE_CONFIGURE@
-
-mee_configure() {
-    bee_configure @DEFAULT_CONFIGURE_OPTIONS@
-}
-EOT
+        echo "creating ${beefile} with SRCURL='${surl}'"
+        cat >${pname}.bee <<-"EOT"
+	#!/bin/env beesh
+	
+	@SRCURL@
+	
+	PATCHURL[0]=""
+	
+	@BEE_CONFIGURE@
+	
+	# EXCLUDE=""
+	
+	@DEFAULT_PREFIX_VARS@
+	
+	mee_extract() {
+		bee_extract ${@}
+	}
+	
+	mee_patch() {
+		bee_patch ${@}
+	}
+	
+	mee_configure() {
+		bee_configure @DEFAULT_CONFIGURE_OPTIONS@
+	}
+	
+	mee_build() {
+		bee_build
+	}
+	
+	mee_install() {
+		bee_install
+	}
+	EOT
     fi
     
-    sed -e "s,@SRCURL@,SRCURL[0]=\"${surl}\"," -i ${pname}.bee
+    sed -e "s,@SRCURL@,SRCURL[0]=\"${surl}\"," \
+        -i ${beefile}
     
-    sed -e "s,@DEFAULT_CONFIGURE_OPTIONS@,${DEFAULT_CONFIGURE_OPTIONS}," -i ${pname}.bee
+    sed -e "s,@DEFAULT_CONFIGURE_OPTIONS@,${DEFAULT_CONFIGURE_OPTIONS}," \
+        -i ${beefile}
     
-    for i in prefix eprefix bindir sbindir libexecdir sysconfdir localstatedir sharedstatedir libdir includedir datarootdir datadir infodir mandir docdirlocaledir ; do
-        I=$(echo ${i} | tr a-z A-Z)
+    for i in prefix eprefix bindir sbindir libexecdir sysconfdir \
+              localstatedir sharedstatedir libdir includedir datarootdir \
+              datadir infodir mandir docdirlocaledir ; do
+        I=$(tr a-z A-Z <<<"${i}")
         eval dir=\$OPT_${i}
         DEFAULT_PREFIX_VARS="${DEFAULT_PREFIX_VARS:+${DEFAULT_PREFIX_VARS}}${dir:+${DEFAULT_PREFIX_VARS:+\n}}${dir:+${I}=${dir}}"
         unset dir
     done
-    sed -e "s,@DEFAULT_PREFIX_VARS@,${DEFAULT_PREFIX_VARS}," -i ${pname}.bee
+    
+    sed -e "s,@DEFAULT_PREFIX_VARS@,${DEFAULT_PREFIX_VARS}," \
+        -i ${beefile}
     
     if [ "${CONFIGURE_BEEHAVIOR}" ] ; then
-        sed -e "s,@BEE_CONFIGURE@,BEE_CONFIGURE=${CONFIGURE_BEEHAVIOR}," -i ${pname}.bee
+        sed -e "s,@BEE_CONFIGURE@,BEE_CONFIGURE=${CONFIGURE_BEEHAVIOR}," \
+            -i ${beefile}
     else
-        sed -e "s,@BEE_CONFIGURE@,# BEE_CONFIGURE=compat," -i ${pname}.bee
+        sed -e "s,@BEE_CONFIGURE@,# BEE_CONFIGURE=compat," \
+            -i ${beefile}
     fi
 
-    chmod 755 ${pname}.bee
+    chmod 755 ${beefile}
 }
 
 options=$(getopt -n beeinit \
                  -o ht:f \
                  --long help,template:,force \
                  --long configure: \
-                 --long prefix:,eprefix:,bindir:,sbindir:,libexecdir:,sysconfdir: \
-                 --long localstatedir:,sharedstatedir:,libdir:,includedir: \
-                 --long datarootdir:,datadir:,infodir:,mandir:,docdir:,localedir: \
+                 --long prefix:,eprefix:,bindir:,sbindir:,libexecdir: \
+                 --long sysconfdir:,localstatedir:,sharedstatedir: \
+                 --long libdir:,includedir:,datarootdir:,datadir: \
+                 --long infodir:,mandir:,docdir:,localedir: \
                  -- "$@")
+
 if [ $? != 0 ] ; then
   usage
   exit 1
 fi
+
 eval set -- "${options}"
 
 while true ; do
@@ -117,19 +155,23 @@ while true ; do
             usage
             exit 0
             ;;
+            
         -t|--template)
-            shift
-            TEMPLATE=$1
+            TEMPLATE=${2}
+            shift 2
+            
             if [ ! -e ${BEE_TEMPLATEDIR}/${TEMPLATE} ] ; then
                 echo "ignoring non-existant template '${BEE_TEMPLATEDIR}/${TEMPLATE}' .."
                 unset TEMPLATE
             fi
-            shift
             ;;
+            
         -f|--force)
             shift
+            
             OPT_FORCE="yes"
             ;;
+            
         --configure)
             case "${2}" in 
                 compat|none)
@@ -141,6 +183,7 @@ while true ; do
             esac
             shift 2
             ;;
+            
         --prefix|\
         --eprefix|\
         --bindir|\
@@ -160,12 +203,14 @@ while true ; do
             eval OPT_${1:2}="${2}"
             shift 2
             ;;
+            
         *)
             shift
             if [ -z ${1} ] ; then
                  usage
                  exit 1
             fi
+            
             : ${TEMPLATE:=default}
             initialize ${@}
             exit 0;
