@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
-: ${TEMPLATEPATH:=/etc/bee/templates/}
+BEE_SYSCONFDIR=/etc/bee
+
+: ${BEE_TEMPLATEDIR:=${BEE_SYSCONFDIR}/templates}
 
 usage() {
     echo "usage.."
@@ -31,14 +33,20 @@ initialize() {
     surl=$2
     
     # fix sourceforge urls
-    pname=$(echo $pname | sed "/sourceforge.*\/download$/s,/download$,,;/\/sourceforge/s,/sourceforge,/downloads.sourceforge,")
-    surl=$(echo $surl | sed "/sourceforge\/download$/s,/download$,,;/\/sourceforge/s,/sourceforge,/downloads.sourceforge,")
-    pname=$(echo $pname | sed "/sourceforge.*?/s,?.*,,")
-    surl=$(echo $surl | sed "/sourceforge.*?/s,?.*,,")
+    #pname=$(echo $pname | sed "/sourceforge.*\/download$/s,/download$,,;/\/sourceforge/s,/sourceforge,/downloads.sourceforge,")
+    #surl=$(echo $surl | sed "/sourceforge\/download$/s,/download$,,;/\/sourceforge/s,/sourceforge,/downloads.sourceforge,")
+    #pname=$(echo $pname | sed "/sourceforge.*?/s,?.*,,")
+    #surl=$(echo $surl | sed "/sourceforge.*?/s,?.*,,")
     
     if [ -z "${surl}" ] ; then
         surl=${pname}
-        pname=$(basename $(basename ${surl} .tar.bz2) .tar.gz)
+        pname=$(basename ${pname} .tar.bz2)
+        pname=$(basename ${pname} .tar.gz)
+        pname=$(basename ${pname} .tgz)
+        pname=$(basename ${pname} .tbz2)
+        pname=$(basename ${pname} .zip)
+        pname=$(basename ${pname} .bee)
+        
         if [ ${pname} = ${surl} ] ; then
             surl=""
         else
@@ -46,14 +54,14 @@ initialize() {
         fi
     fi
 
-    if [ -e ${pname}.bee ] && [ "$OPT_FORCE" != "yes" ] ; then
+    if [ -e "${pname}.bee" ] && [ "$OPT_FORCE" != "yes" ] ; then
         echo "${pname}.bee already exists .. use option -f to overwrite .."
         exit 1
     fi
 
     echo "creating ${pname}.bee with TEMPLATE='${TEMPLATE}' and SRCURL='${surl}'"
-    if [ -r ${TEMPLATEPATH}${TEMPLATE} ] ; then
-        cp ${TEMPLATEPATH}${TEMPLATE} ${pname}.bee
+    if [ -r ${BEE_TEMPLATEDIR}/${TEMPLATE} ] ; then
+        cp ${BEE_TEMPLATEDIR}/${TEMPLATE} ${pname}.bee
     else
         cat >${pname}.bee<<"EOT"
 #!/bin/env beesh
@@ -112,8 +120,8 @@ while true ; do
         -t|--template)
             shift
             TEMPLATE=$1
-            if [ ! -e ${TEMPLATEAPTH}${TEMPLATE} ] ; then
-                echo "ignoring non-existant template '${TEMPLATEPATH}${TEMPLATE}' .."
+            if [ ! -e ${BEE_TEMPLATEDIR}/${TEMPLATE} ] ; then
+                echo "ignoring non-existant template '${BEE_TEMPLATEDIR}/${TEMPLATE}' .."
                 unset TEMPLATE
             fi
             shift

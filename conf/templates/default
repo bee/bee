@@ -4,42 +4,28 @@
 
 PATCHURL[0]=""
 
-PGRP=( uncategorized )
-
-@DEFAULT_PREFIX_VARS@
-
 @BEE_CONFIGURE@
 
 # EXCLUDE=""
 
-# BEE_CONFIGURE="compat"
+@DEFAULT_PREFIX_VARS@
 
-BEEPASSES=1
+mee_extract() {
+    bee_extract ${@}
+}
 
 mee_patch() {
-    bee_patch
+    bee_patch ${@}
 }
-# mee_patch2() {
-#     bee_patch
-# }
 
 mee_configure() {
     bee_configure @DEFAULT_CONFIGURE_OPTIONS@
 }
-# mee_configure2() {
-#     bee_configure @DEFAULT_CONFIGURE_OPTIONS@
-# }
 
 mee_build() {
     bee_build
 }
-# mee_build2() {
-#     bee_build
-# }
 
 mee_install() {
     bee_install
 }
-# mee_install2() {
-#     bee_install
-# }

@@ -1,4 +1,38 @@
-# default system dirs for bee_configure
+# this file is part of teh bee package management software
+# by Marius Tolzmann and Tobias Dreyer 2010-2011
+# {tolzmann,dreyer}@molgen.mpg.de
+
+# installation defaults.. no need to adjust..
+# BEE_SYSCONFDIR=/etc/bee
+# BEE_DATADIR=/usr/share
+
+# temporary directories..
+#
+# BEE_TMP_TMPDIR
+#   - directory for temporary (small) files
+: ${BEE_TMP_TMPDIR:=/tmp}
+
+# BEE_TMP_BUILDROOT
+#   - directory to locally store temporary build environment
+#     the source, build and image directories are created here..
+: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
+
+# BEE_SKIPLIST
+#   - when packaging skip files matching expressions in this file
+: ${BEE_SKIPLIST=${BEE_SYSCONFDIR}/skiplist}
+
+# BEE_METADIR
+#   - installation directory of data about currently intsalled packages
+: ${BEE_METADIR=${BEE_DATADIR}/bee}
+
+# BEE_REPOSITORY_*
+#   - directories to store packages, bee-files and build-archives to
+: ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
+: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
+: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
+: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
+
+# DEFAULT CONFIGURE SETTINGS
 : ${PREFIX:=/usr}
 : ${EPREFIX:='${PREFIX}'}
 : ${BINDIR:='${EPREFIX}/bin'}
@@ -8,21 +42,10 @@
 : ${LOCALSTATEDIR:=/var}
 : ${SHAREDSTATEDIR:='${LOCALSTATEDIR}'}
 : ${LIBDIR:='${EPREFIX}/lib'}
-: ${INCLUDEDIR:='${PREFIX}/include}'
-: ${DATAROOTDIR:='${PREFIX}/share}'
-: ${DATADIR:='${DATAROOTDIR}}'
-: ${INFODIR:='${DATAROOTDIR}/info}'
-: ${MANDIR:='${DATAROOTDIR}/man}'
-: ${DOCDIR:='${DATAROOTDIR}/doc/gtkhtml}'
-: ${LOCALEDIR:='${DATAROOTDIR}/locale}'
-
-
-# default bee dirs
-: ${BEETEMPDIR:=/tmp}
-: ${BEEROOT:=/tmp/beeroot}
-: ${BEESTORE:=/usr/src/bee/bees}
-: ${BEEPKGSTORE:=/usr/src/bee/pkgs}
-
-# default skiplist
-: ${BEESKIPLIST=/etc/bee/skiplist}
-
+: ${INCLUDEDIR:='${PREFIX}/include'}
+: ${DATAROOTDIR:='${PREFIX}/share'}
+: ${DATADIR:='${DATAROOTDIR}'}
+: ${INFODIR:='${DATAROOTDIR}/info'}
+: ${MANDIR:='${DATAROOTDIR}/man'}
+: ${DOCDIR:='${DATAROOTDIR}/doc/gtkhtml'}
+: ${LOCALEDIR:='${DATAROOTDIR}/locale'}
