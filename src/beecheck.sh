@@ -21,24 +21,41 @@
 
 BEESEP=beesep
 
-
 ###############################################################################
 ###############################################################################
 ###############################################################################
 
 VERSION=0.1
 
+BEE_SYSCONFDIR=/etc/bee
+BEE_DATADIR=/usr/share
+
 : ${DOTBEERC:=${HOME}/.beerc}
 if [ -e ${DOTBEERC} ] ; then
     . ${DOTBEERC}
 fi
 
-: ${BEEFAULTS:=/etc/bee/beerc}
+: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
 if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
 
-: ${BEEMETADIR:=/usr/share/bee}
+: ${BEE_METADIR=${BEE_DATADIR}/bee}
+: ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
+
+: ${BEE_TMP_TMPDIR:=/tmp}
+: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
+
+: ${BEE_SKIPLIST=${BEE_SYSCONFDIR}/skiplist}
+
+# copy file.bee to ${BEE_REPOSITORY_BEEDIR} after successfull build
+: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
+
+# directory where (new) bee-pkgs are stored
+: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
+
+# directory where copies of the source+build directories are stored
+: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
 
 ###############################################################################
 ##
@@ -109,7 +126,7 @@ pkg_check() {
 ##
 do_check_deps() {
     local pkg=${1}
-    local filesfile=${BEEMETADIR}/${pkg}/FILES
+    local filesfile=${BEE_METADIR}/${pkg}/FILES
     
     for line in $(cat ${filesfile}) ; do 
 	local IFS=":"
@@ -143,7 +160,7 @@ do_check_deps() {
 do_check() {
     local pkg=${1}
     
-    local filesfile=${BEEMETADIR}/${pkg}/FILES
+    local filesfile=${BEE_METADIR}/${pkg}/FILES
     
     echo "checking ${pkg} .."
     
@@ -228,7 +245,7 @@ get_pkg_list_installed() {
     
     local hits arch
     
-    hits=$(find ${BEEMETADIR} -maxdepth 1 -mindepth 1 -type d -printf "%f\n" \
+    hits=$(find ${BEE_METADIR} -maxdepth 1 -mindepth 1 -type d -printf "%f\n" \
              | egrep "${search}" | sort)
     
     echo ${hits}

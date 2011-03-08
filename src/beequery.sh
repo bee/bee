@@ -21,18 +21,35 @@
 
 VERSION=0.1
 
+BEE_SYSCONFDIR=/etc/bee
+BEE_DATADIR=/usr/share
+
 : ${DOTBEERC:=${HOME}/.beerc}
 if [ -e ${DOTBEERC} ] ; then
     . ${DOTBEERC}
 fi
 
-: ${BEEFAULTS:=/etc/bee/beerc}
+: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
 if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
 
-: ${BEEMETADIR:=/usr/share/bee}
-: ${BEEPKGSTORE:=/usr/src/bee/pkgs}
+: ${BEE_METADIR=${BEE_DATADIR}/bee}
+: ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
+
+: ${BEE_TMP_TMPDIR:=/tmp}
+: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
+
+: ${BEE_SKIPLIST=${BEE_SYSCONFDIR}/skiplist}
+
+# copy file.bee to ${BEE_REPOSITORY_BEEDIR} after successfull build
+: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
+
+# directory where (new) bee-pkgs are stored
+: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
+
+# directory where copies of the source+build directories are stored
+: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
 
 
 ##### usage ###################################################################
@@ -51,7 +68,7 @@ query() {
         # check if $f is pkg, list related files
         # otherwise list pkg
         base=$(basename $f)
-        if [ -d "${BEEMETADIR}/${base}" ] ; then
+        if [ -d "${BEE_METADIR}/${base}" ] ; then
             eval $(beeversion $base)
             get_files "${PKGALLPKG}"
         else
@@ -63,7 +80,7 @@ query() {
 get_files() {
     pkg=${1}
     
-    for s in "" "${BEEMETADIR}" ; do 
+    for s in "" "${BEE_METADIR}" ; do 
         ff="${s}/${pkg}/FILES"
         if [ -e "${ff}" ] ; then
             for line in $(cat ${ff}) ; do
@@ -76,7 +93,7 @@ get_files() {
 get_pkgs() {
     f=$1
     
-    for i in ${BEEMETADIR}/* ; do
+    for i in ${BEE_METADIR}/* ; do
         if egrep -q "file=.*${f}" ${i}/FILES ; then
             echo $(basename ${i})
             for line in $(egrep "file=.*${f}" ${i}/FILES) ; do

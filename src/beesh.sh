@@ -10,6 +10,36 @@ ARCH=$(arch)
 # Version
 VERSION=0.4
 
+BEE_SYSCONFDIR=/etc/bee
+BEE_DATADIR=/usr/share
+
+: ${DOTBEERC:=${HOME}/.beerc}
+if [ -e ${DOTBEERC} ] ; then
+    . ${DOTBEERC}
+fi
+
+: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
+if [ -e ${BEEFAULTS} ] ; then
+    . ${BEEFAULTS}
+fi
+
+: ${BEE_METADIR=${BEE_DATADIR}/bee}
+: ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
+
+: ${BEE_TMP_TMPDIR:=/tmp}
+: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
+
+: ${BEE_SKIPLIST=${BEE_SYSCONFDIR}/skiplist}
+
+# copy file.bee to ${BEE_REPOSITORY_BEEDIR} after successfull build
+: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
+
+# directory where (new) bee-pkgs are stored
+: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
+
+# directory where copies of the source+build directories are stored
+: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
+
 start_cmd() {
     ${OPT_SILENT:+eval exec 1>/dev/null}
     "${@}"
@@ -278,17 +308,17 @@ bee_install() {
 #### bee_pkg_pack() ###########################################################
 
 # $EXCLUDE is read from .bee file
-# $BEESKIPLIST is found in $BEEFAULTS
+# $BEE_SKIPLIST is found in $BEEFAULTS
 bee_pkg_pack() {
     for e in ${EXCLUDE} ; do
         exargs="${exargs} --exclude=${e}";
     done
 
-    beefind.pl ${BEESKIPLIST:+--excludelist=${BEESKIPLIST}} \
+    beefind.pl ${BEE_SKIPLIST:+--excludelist=${BEE_SKIPLIST}} \
                --exclude='^/FILES$' ${exargs} \
                --cutroot=${D} ${D} > ${D}/FILES 2>/dev/null
 
-    DUMP=${BEETEMPDIR}/bee.$$.dump
+    DUMP=${BEE_TMP_TMPDIR}/bee.$$.dump
 
     beefind.pl --dump ${D}/FILES | sed -e "s,^,${D}," - > ${DUMP}
 
@@ -303,13 +333,13 @@ bee_pkg_pack() {
         cp ${p} ${D}/PATCHES
     done
 
-    if [ ! -d "${BEEPKGSTORE}" ] ; then
-        mkdir -pv ${BEEPKGSTORE}
+    if [ ! -d "${BEE_REPOSITORY_PKGDIR}" ] ; then
+        mkdir -pv ${BEE_REPOSITORY_PKGDIR}
     fi 
 
-    echo "#BEE# ${BEEPKGSTORE}/${PKGALLPKG}.bee.tar.bz2 contains .."
+    echo "#BEE# ${BEE_REPOSITORY_PKGDIR}/${PKGALLPKG}.bee.tar.bz2 contains .."
 
-    tar cjvvf ${BEEPKGSTORE}/${PKGALLPKG}.bee.tar.bz2 \
+    tar cjvvf ${BEE_REPOSITORY_PKGDIR}/${PKGALLPKG}.bee.tar.bz2 \
         -T ${DUMP} \
         --transform="s,${D},," \
         --show-transformed-names \
@@ -326,33 +356,33 @@ bee_pkg_pack() {
 
     rm ${DUMP}
 
-    if [ ! -d "${BEESTORE}" ] ; then
-        mkdir -pv ${BEESTORE}
+    if [ ! -d "${BEE_REPOSITORY_BEEDIR}" ] ; then
+        mkdir -pv ${BEE_REPOSITORY_BEEDIR}
     fi 
 
-    cp -v ${BEE} ${BEESTORE}
+    cp -v ${BEE} ${BEE_REPOSITORY_BEEDIR}
 }
 
 
 bee_archivebuild() {
     [ "${OPT_ARCHIVE_BUILD}" != "yes" ] && return
     
-    if [ ! -d "${BEEBUILDSTORE}" ] ; then
-        mkdir -p ${BEEBUILDSTORE}
+    if [ ! -d "${BEE_REPOSITORY_BUILDARCHIVEDIR}" ] ; then
+        mkdir -p ${BEE_REPOSITORY_BUILDARCHIVEDIR}
     fi
     
-    echo "#BEE# ${BEEBUILDSTORE}/${PKGALLPKG}.beebuild.tar.bz2 contains .."
+    echo "#BEE# ${BEE_REPOSITORY_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2 contains .."
     
-    tar -cjvvf ${BEEBUILDSTORE}/${PKGALLPKG}.beebuild.tar.bz2 \
+    tar -cjvvf ${BEE_REPOSITORY_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2 \
         --show-transformed-names \
         --sparse \
         --absolute-names \
         ${S} ${B} \
         ${bee_FETCHED_FILES[@]} \
-        ${BEESTORE}/$(basename ${BEE}) \
+        ${BEE_REPOSITORY_BEEDIR}/$(basename ${BEE}) \
         --transform="s,^${BEEWORKDIR},${PKGALLPKG}," \
         --transform="s,^${F},${PKGALLPKG}/files," \
-        --transform="s,^${BEESTORE},${PKGALLPKG}/files,"
+        --transform="s,^${BEE_REPOSITORY_BEEDIR},${PKGALLPKG}/files,"
 }
 
 ###############################################################################
@@ -467,22 +497,7 @@ PR=${PKGREVISION}
 
 P=${PKGFULLNAME}-${PKGFULLVERSION}
 
-### load user defs
-: ${DOTBEERC:=${HOME}/.beerc}
-if [ -e ${DOTBEERC} ] ; then
-    . ${DOTBEERC}
-fi
-
-### load system defs
-: ${BEEFAULTS:=/etc/bee/beerc}
-if [ -e ${BEEFAULTS} ] ; then
-    . ${BEEFAULTS}
-fi
-
-### create build directory tree with built-in defs
-: ${BEEROOT:=/tmp/beeroot}
-
-BEEPKGROOT="${BEEROOT}/${PKGNAME}"
+BEEPKGROOT="${BEE_TMP_BUILDROOT}/${PKGNAME}"
 BEEWORKDIR="${BEEPKGROOT}/${PKGFULLPKG}"
 
 R=${BEEPKGROOT}
@@ -508,13 +523,6 @@ PKGALLPKG=
 : ${PKGALLPKG:=${PKGFULLPKG}.${PKGARCH}}
 
 ###############################################################################
-
-# set some beevariables..
-: ${BEESKIPLIST=/etc/bee/skiplist}
-: ${BEESTORE:=/usr/src/bee/bees}
-: ${BEEPKGSTORE:=/usr/src/bee/pkgs}
-: ${BEEBUILDSTORE:=/usr/src/bee/build-archives}
-: ${BEETEMPDIR:=/tmp}
 
 # define defaults for bee_configure
 : ${PREFIX:='/usr'}
@@ -618,5 +626,5 @@ bee_archivebuild
 
 if [ "${OPT_INSTALL}" = "yes" ] ; then
     echo "installing ${PKGALLPKG} .."
-    bee install ${OPT_FORCE:+-f} ${BEEPKGSTORE}/${PKGALLPKG}.bee.tar.bz2
+    bee install ${OPT_FORCE:+-f} ${BEE_REPOSITORY_PKGDIR}/${PKGALLPKG}.bee.tar.bz2
 fi

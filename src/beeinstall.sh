@@ -21,18 +21,38 @@
 
 VERSION=0.1
 
+BEE_SYSCONFDIR=/etc/bee
+BEE_DATADIR=/usr/share
+
 : ${DOTBEERC:=${HOME}/.beerc}
 if [ -e ${DOTBEERC} ] ; then
     . ${DOTBEERC}
 fi
 
-: ${BEEFAULTS:=/etc/bee/beerc}
+: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
 if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
 
-: ${BEEMETADIR:=/usr/share/bee}
-: ${BEEPKGSTORE:=/usr/src/bee/pkgs}
+: ${BEE_METADIR=${BEE_DATADIR}/bee}
+: ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
+
+: ${BEE_TMP_TMPDIR:=/tmp}
+: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
+
+: ${BEE_SKIPLIST=${BEE_SYSCONFDIR}/skiplist}
+
+# copy file.bee to ${BEE_REPOSITORY_BEEDIR} after successfull build
+: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
+
+# directory where (new) bee-pkgs are stored
+: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
+
+# directory where copies of the source+build directories are stored
+: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
+
+
+
 
 debug_msg() {
     if [ "${DEBUG}" != "yes" ] ; then
@@ -116,15 +136,15 @@ pkg_install() {
     fi
     
     # install package from repository
-    if [ -f "${BEEPKGSTORE}/${search}" ] ; then
-         do_install "${BEEPKGSTORE}/${search}"
+    if [ -f "${BEE_REPOSITORY_PKGDIR}/${search}" ] ; then
+         do_install "${BEE_REPOSITORY_PKGDIR}/${search}"
     fi
     
     for e in "" ".$(arch)" ".noarch" ".any" ; do
-        if [ -f "${BEEPKGSTORE}/${search}${e}.bee.tar.bz2" ] ; then
-            do_install "${BEEPKGSTORE}/${search}${e}.bee.tar.bz2"
-        elif [ -f "${BEEPKGSTORE}/${search}${e}.iee.tar.bz2" ] ; then
-            do_install "${BEEPKGSTORE}/${search}${e}.iee.tar.bz2"
+        if [ -f "${BEE_REPOSITORY_PKGDIR}/${search}${e}.bee.tar.bz2" ] ; then
+            do_install "${BEE_REPOSITORY_PKGDIR}/${search}${e}.bee.tar.bz2"
+        elif [ -f "${BEE_REPOSITORY_PKGDIR}/${search}${e}.iee.tar.bz2" ] ; then
+            do_install "${BEE_REPOSITORY_PKGDIR}/${search}${e}.iee.tar.bz2"
         fi
     done
     
@@ -264,10 +284,10 @@ do_install() {
     echo "installing ${file} .."
     
     start_cmd tar ${taraction} -vvPf ${file} \
-        --transform="s,^FILES$,${BEEMETADIR}/${pkg}/FILES," \
-        --transform="s,^BUILD$,${BEEMETADIR}/${pkg}/${BEE}," \
-        --transform="s,^META$,${BEEMETADIR}/${pkg}/META," \
-        --transform="s,^PATCHES,${BEEMETADIR}/${pkg}/PATCHES," \
+        --transform="s,^FILES$,${BEE_METADIR}/${pkg}/FILES," \
+        --transform="s,^BUILD$,${BEE_METADIR}/${pkg}/${BEE}," \
+        --transform="s,^META$,${BEE_METADIR}/${pkg}/META," \
+        --transform="s,^PATCHES,${BEE_METADIR}/${pkg}/PATCHES," \
         --show-transformed-names
     
     exit $?

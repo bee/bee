@@ -6,17 +6,35 @@
 
 VERSION=0.1
 
+BEE_SYSCONFDIR=/etc/bee
+BEE_DATADIR=/usr/share
+
 : ${DOTBEERC:=${HOME}/.beerc}
 if [ -e ${DOTBEERC} ] ; then
     . ${DOTBEERC}
 fi
 
-: ${BEEFAULTS:=/etc/bee/beerc}
+: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
 if [ -e ${BEEFAULTS} ] ; then
     . ${BEEFAULTS}
 fi
 
-: ${BEEMETADIR:=/usr/share/bee}
+: ${BEE_METADIR=${BEE_DATADIR}/bee}
+: ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
+
+: ${BEE_TMP_TMPDIR:=/tmp}
+: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
+
+: ${BEE_SKIPLIST=${BEE_SYSCONFDIR}/skiplist}
+
+# copy file.bee to ${BEE_REPOSITORY_BEEDIR} after successfull build
+: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
+
+# directory where (new) bee-pkgs are stored
+: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
+
+# directory where copies of the source+build directories are stored
+: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
 
 pkg_remove_all() {
     for pkg in ${@} ; do
@@ -33,15 +51,15 @@ pkg_remove() {
         exit
     fi
     
-    # pattern is a pkg in BEEMETADIR
-    if [ -d ${BEEMETADIR}/${search} ] ; then
-        do_remove ${BEEMETADIR}/${search}
+    # pattern is a pkg in BEE_METADIR
+    if [ -d ${BEE_METADIR}/${search} ] ; then
+        do_remove ${BEE_METADIR}/${search}
         exit
     fi
     
     # pattern is no installed pkg
     # show all pkgs that match pattern
-    PKGS=$(find ${BEEMETADIR} -mindepth 1 -maxdepth 1 -iregex "${BEEMETADIR}.*${search}.*")
+    PKGS=$(find ${BEE_METADIR} -mindepth 1 -maxdepth 1 -iregex "${BEE_METADIR}.*${search}.*")
     echo "${search} matches following packages .."
     for p in ${PKGS} ; do
         [ -d $p ] && echo " -> $(basename $p)"
@@ -57,7 +75,7 @@ do_remove() {
     for f in $FILES ; do
         # test for other pkg
         s=$(echo $f | sed -e "s,[\`|&^$.+?(){}],\\\&,g" -e "s,\[,\\\&,g" -e "s,\],\\\&,g")
-        RELPKG=$(egrep "file=$s(|//.*)$" ${BEEMETADIR}/*/FILES)
+        RELPKG=$(egrep "file=$s(|//.*)$" ${BEE_METADIR}/*/FILES)
         if [ 1 -eq $(echo $RELPKG | wc -w) ] ; then
             #check for directories
             if [ -d $f ] ; then
