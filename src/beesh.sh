@@ -40,7 +40,32 @@ fi
 # directory where copies of the source+build directories are stored
 : ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
 
+COLOR_NORMAL="\\033[0;39m\\033[0;22m"
+COLOR_GREEN="\\033[0;32m"
+COLOR_YELLOW="\\033[0;33m"
+COLOR_RED="\\033[0;31m"
+COLOR_CYAN="\\033[0;36m"
+COLOR_BLUE="\\033[0;34m"
+COLOR_PURPLE="\\033[0;35m"
+
+COLOR_BRACKET=${COLOR_PURPLE}
+COLOR_BRCONTENT=${COLOR_YELLOW}
+COLOR_INFO=${COLOR_GREEN}
+
+print_info() {
+    echo -e ${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${COLOR_INFO}${@}${COLOR_NORMAL}
+}
+
+log_enter() {
+    print_info "===> entering ${@} .."
+}
+
+log_leave() {
+    print_info "<=== leaving ${@} .."
+}
+
 start_cmd() {
+    print_info "executing ${@}"
     ${OPT_SILENT:+eval exec 1>/dev/null}
     "${@}"
     ${OPT_SILENT:+eval exec 1>&3}
@@ -119,10 +144,10 @@ show_help() {
 bee_init_builddir() {
     if [ -d "${W}" ] ; then 
         if [ "${OPT_CLEANUP}" = "yes" ] ; then
-            echo "#BEE# cleaning work-dir ${W} .."
+            print_info "cleaning work-dir ${W} .."
             rm -fr ${W}
         else
-            echo "#BEE# error initializing build-dir ${W}"
+            print_info "error initializing build-dir ${W}"
             exit 1
         fi
     fi
@@ -148,7 +173,7 @@ fetch_one_file() {
     fi
     
     if [ "${url:0:1}" = "/" ] ; then
-        echo "#BEE# copying file ${url}"
+        print_info "copying file ${url}"
         cp -v "${url}" "${F}/${file}"
     else
         if [ ${url:0:5} == "https" ] ; then
@@ -161,7 +186,7 @@ fetch_one_file() {
             rm -vf ${F}/${file}
         fi
         
-        echo "#BEE# fetching $url"
+        print_info "fetching $url"
         wget \
             ${nocheck} \
             --no-verbose \
@@ -230,7 +255,7 @@ bee_getsources() {
     fi
 
     if [ -z "${PATCHURL}" ] && [ -n "${PATCHES}" ] ; then
-        echo '#BEE# warning .. you are using deprecated variable ${PATCHES} .. please use ${PATCHURL} instead'
+        print_info 'warning .. you are using deprecated variable ${PATCHES} .. please use ${PATCHURL} instead'
         PATCHURL=( "${PATCHES[@]}" )
     fi
 
@@ -243,8 +268,10 @@ bee_extract() {
     local bee_S
     bee_S=( $@ )
     
+    log_enter "bee_extract()"
+
     if is_func mee_unpack ; then
-        echo "#BEE-WARNING# function 'mee_unpack()' is deprecated .. use 'mee_extract()' instead .." >&2
+        print_info "#BEE-WARNING# function 'mee_unpack()' is deprecated .. use 'mee_extract()' instead .." >&2
         bee_run unpack "${@}"
         return
     fi
@@ -252,15 +279,18 @@ bee_extract() {
     if [ -z "${bee_S[0]}" ] ; then return ; fi
     
     s=${bee_S[0]}
-    echo "#BEE# extracting source ${s} .."
+    print_info " -> extracting main source ${s} .."
     tar xof ${s} --strip-components 1 -C ${S}
     
     unset bee_S[0]
     
     for s in ${bee_S[@]} ; do
-        echo "#BEE# extracting source ${s} .."
+        print_info " -> extracting additional source ${s} .."
         tar xof ${s} -C ${S}
     done
+    
+    print_info " -> all sources extracted to: ${S} .."
+    log_leave "bee_extract()"
 }
 
 #### bee_patch() ##############################################################
@@ -269,40 +299,54 @@ bee_patch() {
     local bee_P
     bee_P=( $@ )
     
+    log_enter "bee_patch()"
+    
     if [ ${#bee_P[@]} == 0 ] ; then
         bee_P=( ${bee_PATCHFILES[@]} )
     fi
     
     for p in ${bee_P[@]} ; do
-        echo "#BEE# applying patch ${p} .."
+        print_info "applying patch ${p} .."
         patch -Np1 -i ${p}
     done
+    log_leave "bee_patch()"
 }
 
 #### bee_configure() ##########################################################
 
 bee_configure() {
+
+    log_enter "bee_configure()"
+    
     if [ "${BEE_CONFIGURE}" == "none" ] ; then
+        print_info "skipping bee_configure .. (BEE_CONFIGURE=none)"
         return 0
     fi
     
-    echo "#BEE# configuring .."
-    echo "#BEE#   => ${S}/configure ${DEFCONFIG} $@"
     start_cmd ${S}/configure ${DEFCONFIG} "$@"
+    
+    log_leave "bee_configure()"
 }
 
 #### bee_build() ##############################################################
 
 bee_build() {
-    echo "#BEE# make $@"
+    log_enter "bee_build()"
+    
     start_cmd make $@
+    
+    log_leave "bee_build()"
 }
 
 #### bee_install() ############################################################
 
 bee_install() {
-    echo "#BEE# make install $@"
+    log_enter "bee_install()"
+    
+    print_info " -> installing files to ${D}"
     start_cmd make install DESTDIR=${D} $@
+    
+    log_leave "bee_install()"
 }
 
 #### bee_pkg_pack() ###########################################################
@@ -310,6 +354,8 @@ bee_install() {
 # $EXCLUDE is read from .bee file
 # $BEE_SKIPLIST is found in $BEEFAULTS
 bee_pkg_pack() {
+    log_enter "bee_pkg_pack()"
+    
     for e in ${EXCLUDE} ; do
         exargs="${exargs} --exclude=${e}";
     done
@@ -337,7 +383,7 @@ bee_pkg_pack() {
         mkdir -pv ${BEE_REPOSITORY_PKGDIR}
     fi 
 
-    echo "#BEE# ${BEE_REPOSITORY_PKGDIR}/${PKGALLPKG}.bee.tar.bz2 contains .."
+    print_info "${BEE_REPOSITORY_PKGDIR}/${PKGALLPKG}.bee.tar.bz2 contains .."
 
     tar cjvvf ${BEE_REPOSITORY_PKGDIR}/${PKGALLPKG}.bee.tar.bz2 \
         -T ${DUMP} \
@@ -361,17 +407,22 @@ bee_pkg_pack() {
     fi 
 
     cp -v ${BEE} ${BEE_REPOSITORY_BEEDIR}
+    
+    log_leave "bee_pkg_pack()"
 }
 
 
 bee_archivebuild() {
+    log_enter "bee_archivebuild()"
+    
     [ "${OPT_ARCHIVE_BUILD}" != "yes" ] && return
+    
     
     if [ ! -d "${BEE_REPOSITORY_BUILDARCHIVEDIR}" ] ; then
         mkdir -p ${BEE_REPOSITORY_BUILDARCHIVEDIR}
     fi
     
-    echo "#BEE# ${BEE_REPOSITORY_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2 contains .."
+    print_info "saving ${BEE_REPOSITORY_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2 .."
     
     tar -cjvvf ${BEE_REPOSITORY_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2 \
         --show-transformed-names \
@@ -383,6 +434,8 @@ bee_archivebuild() {
         --transform="s,^${BEEWORKDIR},${PKGALLPKG}," \
         --transform="s,^${F},${PKGALLPKG}/files," \
         --transform="s,^${BEE_REPOSITORY_BEEDIR},${PKGALLPKG}/files,"
+
+    log_leave "bee_archivebuild()"
 }
 
 ###############################################################################
@@ -405,9 +458,13 @@ bee_run() {
     shift
     
     if is_func "mee_${action}${bee_PASS}" ; then
+        log_enter "mee_${action}${bee_PASS}()"
         mee_${action}${bee_PASS} "${@}"
+        log_leave "mee_${action}${bee_PASS}()"
     elif is_func "mee_${action}" ; then
+        log_enter "mee_${action}()"
         mee_${action} "${@}"
+        log_leave "mee_${action}()"
     else
         bee_${action} "${@}"
     fi
@@ -422,7 +479,7 @@ OPTIONS=$(getopt -n bee-option-parser \
                  -- "$@")
 
 if [ $? != 0 ] ; then 
-    echo "Terminating..." >&2
+    print_info "Terminating..." >&2
     exit 1
 fi
 
@@ -472,7 +529,7 @@ while true ; do
             break
             ;;
         *) 
-            echo "Internal error!"
+            print_info "Internal error!"
             exit 1
             ;;
     esac
@@ -601,7 +658,7 @@ declare -i bee_PASS=1
 bee_init_builddir
 
 while [ ${bee_PASS} -le ${BEEPASSES} ] ; do
-    echo "#BEE# running PASS ${bee_PASS} of ${BEEPASSES} .."
+    print_info "running PASS ${bee_PASS} of ${BEEPASSES} .."
     bee_run getsources
     bee_run extract ${bee_SOURCEFILES[@]}
 
@@ -625,6 +682,6 @@ cd ${BEEWORKDIR}
 bee_archivebuild
 
 if [ "${OPT_INSTALL}" = "yes" ] ; then
-    echo "installing ${PKGALLPKG} .."
+    print_info "installing ${PKGALLPKG} .."
     bee install ${OPT_FORCE:+-f} ${BEE_REPOSITORY_PKGDIR}/${PKGALLPKG}.bee.tar.bz2
 fi
