@@ -57,15 +57,15 @@ print_info() {
 }
 
 log_enter() {
-    print_info "===> entering ${@} .."
+    print_info ">>>> entering ${@} .."
 }
 
 log_leave() {
-    print_info "<=== leaving ${@} .."
+    print_info "<<<< leaving ${@} .."
 }
 
 start_cmd() {
-    print_info "executing ${@}"
+    print_info "${COLOR_CYAN}${@}"
     ${OPT_SILENT:+eval exec 1>/dev/null}
     "${@}"
     ${OPT_SILENT:+eval exec 1>&3}
@@ -142,23 +142,36 @@ show_help() {
 #### bee_init_builddir() ######################################################
 
 bee_init_builddir() {
+    
+    print_info "==> initializing build environment .."
+    
     if [ -d "${W}" ] ; then 
         if [ "${OPT_CLEANUP}" = "yes" ] ; then
-            print_info "cleaning work-dir ${W} .."
+            print_info " -> cleaning work dir ${W} .."
             rm -fr ${W}
         else
             print_info "error initializing build-dir ${W}"
             exit 1
         fi
     fi
+    
+    print_info " -> creating source dir ${S}"
+    
     mkdir -p ${S}
+    
+    
     if [ "${B}" == "${S}" ] ; then
         B=${BEEWORKDIR}/build
+        print_info " -> B=S linking build dir ${B} to source dir"
         ln -s source ${B}
     else
+        print_info " -> creating build dir ${B}"
         mkdir -p ${B}
     fi
+    
+    print_info " -> creating image dir ${D}"
     mkdir -p ${D}
+    echo
 }
 
 #### bee_getsources() #########################################################
@@ -273,10 +286,14 @@ bee_extract() {
     if is_func mee_unpack ; then
         print_info "#BEE-WARNING# function 'mee_unpack()' is deprecated .. use 'mee_extract()' instead .." >&2
         bee_run unpack "${@}"
+        log_leave "bee_extract()"
         return
     fi
     
-    if [ -z "${bee_S[0]}" ] ; then return ; fi
+    if [ -z "${bee_S[0]}" ] ; then 
+        log_leave "bee_extract()"
+        return 
+    fi
     
     s=${bee_S[0]}
     print_info " -> extracting main source ${s} .."
@@ -319,7 +336,8 @@ bee_configure() {
     log_enter "bee_configure()"
     
     if [ "${BEE_CONFIGURE}" == "none" ] ; then
-        print_info "skipping bee_configure .. (BEE_CONFIGURE=none)"
+        print_info " -- skipping bee_configure .. (BEE_CONFIGURE=none)"
+        log_leave "bee_configure()"
         return 0
     fi
     
@@ -382,10 +400,14 @@ bee_pkg_pack() {
     if [ ! -d "${BEE_REPOSITORY_PKGDIR}" ] ; then
         mkdir -pv ${BEE_REPOSITORY_PKGDIR}
     fi 
+    
+    pkgname=${PKGALLPKG}.bee.tar.bz2
+    pkgfile=${BEE_REPOSITORY_PKGDIR}/${pkgname}
+    
+    print_info " -> creating package ${pkgname} .."
+    print_info "${COLOR_CYAN}${pkgfile}"
 
-    print_info "${BEE_REPOSITORY_PKGDIR}/${PKGALLPKG}.bee.tar.bz2 contains .."
-
-    tar cjvvf ${BEE_REPOSITORY_PKGDIR}/${PKGALLPKG}.bee.tar.bz2 \
+    tar cjvvf ${pkgfile} \
         -T ${DUMP} \
         --transform="s,${D},," \
         --show-transformed-names \
@@ -401,6 +423,12 @@ bee_pkg_pack() {
         ${bee_PATCHFILES:+${D}/PATCHES/*}
 
     rm ${DUMP}
+    
+    beefilename=$(basename ${BEE})
+    beefiledest=${BEE_REPOSITORY_BEEDIR}/${beefilename}
+    
+    print_info "-> saving bee-file ${beefilename} .."
+    print_info "${COLOR_CYAN}${beefiledest}"
 
     if [ ! -d "${BEE_REPOSITORY_BEEDIR}" ] ; then
         mkdir -pv ${BEE_REPOSITORY_BEEDIR}
@@ -413,18 +441,20 @@ bee_pkg_pack() {
 
 
 bee_archivebuild() {
+    [ "${OPT_ARCHIVE_BUILD}" != "yes" ] && return
+
     log_enter "bee_archivebuild()"
     
-    [ "${OPT_ARCHIVE_BUILD}" != "yes" ] && return
-    
-    
     if [ ! -d "${BEE_REPOSITORY_BUILDARCHIVEDIR}" ] ; then
-        mkdir -p ${BEE_REPOSITORY_BUILDARCHIVEDIR}
+        mkdir -pv ${BEE_REPOSITORY_BUILDARCHIVEDIR}
     fi
     
-    print_info "saving ${BEE_REPOSITORY_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2 .."
+    archive="${BEE_REPOSITORY_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2"
     
-    tar -cjvvf ${BEE_REPOSITORY_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2 \
+    print_info " -> saving build environment.."
+    print_info "${COLOR_CYAN}${archive}"
+    
+    tar -cjf ${archive} \
         --show-transformed-names \
         --sparse \
         --absolute-names \
@@ -654,24 +684,36 @@ eval DEFCONFIG=\"${DEFCONFIG}\"
 : ${BEEPASSES:=1}
 declare -i bee_PASS=1
 
+echo -e "${COLOR_CYAN}BEE - mariux package management "
+echo -e "  by Marius Tolzmann und Tobias Dreyer {tolzmann,dreyer}@molgen.mpg.de"
+echo -e "${COLOR_NORMAL}"
+
 # in ${PWD}
 bee_init_builddir
 
+print_info "==> building ${PKGALLPKG} ..\n"
+
 while [ ${bee_PASS} -le ${BEEPASSES} ] ; do
     print_info "running PASS ${bee_PASS} of ${BEEPASSES} .."
+    echo
     bee_run getsources
+    echo
     bee_run extract ${bee_SOURCEFILES[@]}
-
+    echo
+    print_info "changing dir to source: ${S}"
     cd ${S}
-
+    echo
     bee_run patch ${bee_PATCHFILES[@]}
-
+    echo
+    print_info "changing dir to build: ${B}"
     cd ${B}
-
+    echo
     bee_run configure
+    echo
     bee_run build
+    echo
     bee_run install
-    
+    echo
     bee_PASS=${bee_PASS}+1
 done
 cd ${D}
@@ -680,6 +722,21 @@ bee_pkg_pack
 
 cd ${BEEWORKDIR}
 bee_archivebuild
+
+echo
+print_info "==================================================================="
+print_info "build summary:"
+print_info ""
+print_info "source directory: ${COLOR_NORMAL}${S}"
+print_info " build directory: ${COLOR_NORMAL}${B}"
+print_info " image directory: ${COLOR_NORMAL}${D}"
+print_info ""
+print_info "     bee-file: ${COLOR_NORMAL}${beefiledest}"
+print_info "     pkg-file: ${COLOR_NORMAL}${pkgfile}"
+print_info "build-archive: ${COLOR_NORMAL}${archive}"
+print_info "==================================================================="
+echo
+
 
 if [ "${OPT_INSTALL}" = "yes" ] ; then
     print_info "installing ${PKGALLPKG} .."
