@@ -51,9 +51,14 @@ COLOR_PURPLE="\\033[0;35m"
 COLOR_BRACKET=${COLOR_PURPLE}
 COLOR_BRCONTENT=${COLOR_YELLOW}
 COLOR_INFO=${COLOR_GREEN}
+COLOR_ERROR=${COLOR_RED}
 
 print_info() {
     echo -e ${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${COLOR_INFO}${@}${COLOR_NORMAL}
+}
+
+print_error() {
+    echo -e ${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${COLOR_ERROR}${@}${COLOR_NORMAL}
 }
 
 log_enter() {
@@ -139,6 +144,35 @@ show_help() {
 
 }
 
+check_repositories() {
+    r=0
+    print_info "==> checking repositories .."
+    
+    mkdir -pv ${BEE_REPOSITORY_BEEDIR}
+    mkdir -pv ${BEE_REPOSITORY_PKGDIR}
+    mkdir -pv ${BEE_REPOSITORY_BUILDARCHIVEDIR}
+    
+    if [ ! -w ${BEE_REPOSITORY_BEEDIR} ] ; then
+        print_error " !! ${BEE_REPOSITORY_BEEDIR} not writable"
+        r=1
+    fi
+    
+    if [ ! -w ${BEE_REPOSITORY_PKGDIR} ] ; then
+        print_error " !! ${BEE_REPOSITORY_PKGDIR} not writable"
+        r=1
+    fi
+    
+    if [ ! -w ${BEE_REPOSITORY_BUILDARCHIVEDIR} ] ; then
+        print_error " !! ${BEE_REPOSITORY_BEEDIR} not writable"
+        r=1
+    fi
+    
+    if [ "$r"  != "0" ] ; then 
+        exit 1
+    fi
+}
+
+
 #### bee_init_builddir() ######################################################
 
 bee_init_builddir() {
@@ -150,7 +184,7 @@ bee_init_builddir() {
             print_info " -> cleaning work dir ${W} .."
             rm -fr ${W}
         else
-            print_info "error initializing build-dir ${W}"
+            print_error "error initializing build-dir ${W}"
             exit 1
         fi
     fi
@@ -268,7 +302,7 @@ bee_getsources() {
     fi
 
     if [ -z "${PATCHURL}" ] && [ -n "${PATCHES}" ] ; then
-        print_info 'warning .. you are using deprecated variable ${PATCHES} .. please use ${PATCHURL} instead'
+        print_error 'warning .. you are using deprecated variable ${PATCHES} .. please use ${PATCHURL} instead'
         PATCHURL=( "${PATCHES[@]}" )
     fi
 
@@ -284,7 +318,7 @@ bee_extract() {
     log_enter "bee_extract()"
 
     if is_func mee_unpack ; then
-        print_info "#BEE-WARNING# function 'mee_unpack()' is deprecated .. use 'mee_extract()' instead .." >&2
+        print_error "#BEE-WARNING# function 'mee_unpack()' is deprecated .. use 'mee_extract()' instead .." >&2
         bee_run unpack "${@}"
         log_leave "bee_extract()"
         return
@@ -559,7 +593,7 @@ while true ; do
             break
             ;;
         *) 
-            print_info "Internal error!"
+            print_error "Internal error!"
             exit 1
             ;;
     esac
@@ -633,7 +667,7 @@ PKGALLPKG=
 
 # check IGNORE_DATAROOTDIR for compatibility with old bee-files
 if [ ${IGNORE_DATAROOTDIR} ] ; then
-    echo "#BEE-WARNING# IGNORE_DATAROOTDIR is deprecated! pleade use BEE_CONFIGURE='compat' instead." >&2
+    print_error "IGNORE_DATAROOTDIR is deprecated! pleade use BEE_CONFIGURE='compat' instead." >&2
     BEE_CONFIGURE='compat'
 fi
 
@@ -690,6 +724,8 @@ echo -e "${COLOR_NORMAL}"
 
 # in ${PWD}
 bee_init_builddir
+
+check_repositories
 
 print_info "==> building ${PKGALLPKG} ..\n"
 
