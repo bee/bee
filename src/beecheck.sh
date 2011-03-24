@@ -77,10 +77,10 @@ pkg_check_all() {
 ##
 ##
 pkg_check_deps() {
-    installed=$(get_installed_versions ${1})
+    installed=$(bee-list --installed --exact ${1})
     
     if [ ! "${installed}" -a $OPT_F -gt 0 ] ; then
-        installed=$(get_pkg_list_installed ${1})
+        installed=$(bee-list --installed "${1}")
     fi
    
     if [ "${installed}" ] ; then
@@ -95,10 +95,10 @@ pkg_check_deps() {
 ##
 ##
 pkg_check() {
-    installed=$(get_installed_versions ${1})
+    installed=$(bee-list --installed --exact ${1})
     
     if [ ! "${installed}" -a $OPT_F -gt 0 ] ; then
-        installed=$(get_pkg_list_installed ${1})
+        installed=$(bee-list --installed "${1}")
     fi
     
     if [ "${installed}" ] ; then
@@ -108,7 +108,7 @@ pkg_check() {
         return 0
     fi
     
-    installed=$(get_pkg_list_installed ${1})
+    installed=$(bee-list --installed "${1}")
     
     if [ "${installed}" ] ; then
         echo "packages matching '${1}':"
@@ -220,52 +220,24 @@ do_check() {
 get_installed_versions() {
     local pkg=${1}
     
-    local pname=$(get_name_from_pkg ${pkg})
     local list
+    local pname=$(beeversion --pkgfullname ${pkg})
     
-    for i in $(get_pkg_list_installed "${pname}") ; do
-        local installed=$(get_name_from_pkg ${i})
+    if [ $? ] ; then
+       echo "ERRRRRRRRR"
+       exit 1
+    fi
+    
+    
+    
+    for i in $(bee-list --installed "${pname}") ; do
+        local installed=$(beeversion --pkgfullname ${i})
         if [ "${installed}" = "${pname}" ] ; then
             list="${list:+${list} }${i}"
         fi
     done
         
     echo "${list}"
-}
-
-###############################################################################
-### get_pkg_list_installed ###
-##
-## IN: 
-##
-##
-##
-get_pkg_list_installed() {
-    local search=${1}
-    
-    local hits arch
-    
-    hits=$(find ${BEE_METADIR} -maxdepth 1 -mindepth 1 -type d -printf "%f\n" \
-             | egrep "${search}" | sort)
-    
-    echo ${hits}
-}
-
-###############################################################################
-##
-##
-
-#sub1-sub2-subn-name-V.V.V.V-R.A.bee.tar.bz2
-
-get_fullversion_from_pkg() {
-    echo $(echo $1 | sed -e 's,^\(.*\)-\(.*\)-\(.*\)\.\(.*\)$,\2-\3,' - )
-}
-
-###############################################################################
-##
-##
-get_name_from_pkg() {
-    echo $(echo $1 | sed -e 's,^\(.*\)-\(.*\)-\(.*\)$,\1,' - )
 }
 
 ##### usage ###################################################################
