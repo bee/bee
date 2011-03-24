@@ -213,9 +213,9 @@ get_installed_versions() {
     
     for i in $(bee-list -i "${pname}") ; do
         local installed=$(beeversion --pkgfullname ${i})
-	if [ "${installed}" = "${pname}" ] ; then
-	    list="${list:+${list} }${i}"
-	fi
+        if [ "${installed}" = "${pname}" ] ; then
+            list="${list:+${list} }${i}"
+        fi
     done
         
     echo "${list}"
@@ -239,13 +239,13 @@ check_installed() {
     
     if [ "${installed}" != "" ] ; then
         for i in ${installed} ; do
-	    if [ ${i} = ${pkgname} ] ; then
-	        echo "[  already installed  ] ${i}"
-	    else
-	        echo "[alternative installed] ${i}"
-	    fi
-	done
-	exit 2;
+            if [ ${i} = ${pkgname} ] ; then
+                echo "[  already installed  ] ${i}"
+            else
+                echo "[alternative installed] ${i}"
+            fi
+        done
+        exit 2;
     fi
 }
 
@@ -305,35 +305,34 @@ print_pkg_list() {
     
     if [ ! "${1}" ] ; then
         echo "no matching packages found in repository.."
-	exit 4
+        exit 4
     fi
     
     for p in ${@} ; do
-	local pkgname=$(basename $(basename $(basename ${p} .tar.bz2) .iee) .bee)
-	
-	local installed=$(get_installed_versions ${pkgname})
-	
-	local status
-	for i in ${installed} ; do
-	    if [ ${i} = ${pkgname} ] ; then
-	        status="*"
-	    else
-	        status=${status:--}
-	    fi
-	done
-	status=${status:- }
-	if [ "${status}" = " " -o ${OPT_A} -gt 0 ] ; then
-	    echo " [${status}] ${pkgname}"
-	    f=$f+1
-	fi
-	unset status
+        local pkgname=$(basename $(basename $(basename ${p} .tar.bz2) .iee) .bee)
+        local installed=$(get_installed_versions ${pkgname})
+        
+        local status
+        for i in ${installed} ; do
+            if [ ${i} = ${pkgname} ] ; then
+                status="*"
+            else
+                status=${status:--}
+            fi
+        done
+        status=${status:- }
+        if [ "${status}" = " " -o ${OPT_A} -gt 0 ] ; then
+            echo " [${status}] ${pkgname}"
+            f=$f+1
+        fi
+        unset status
     done
     
     echo "${f} of ${#} packages displayed matching search criteria."
     
     if [ ${f} -eq 0 ] ; then
         echo "no new packages found in repository. try -v to list already installed packages."
-	exit 5
+        exit 5
     fi
 }
 
@@ -392,7 +391,7 @@ while true ; do
       shift
       if [ -z ${1} ] ; then
            usage
-	   exit 1
+           exit 1
       fi
       pkg_install_all ${@}
       exit 0;
