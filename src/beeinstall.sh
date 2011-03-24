@@ -148,7 +148,7 @@ pkg_install() {
         fi
     done
     
-    available=$(bee-list -a "${search}")
+    available=$(bee-list --available "${search}")
     subsearch=( $(beecut -d '-' "${search}") )
     nss=${#subsearch[*]}
     

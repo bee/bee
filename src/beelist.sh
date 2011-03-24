@@ -116,7 +116,7 @@ list_beepackages() {
     # if more then one pattern is given all pattern have to match (AND)
     thegrep=""
     for p in ${@} ; do
-        thegrep="${thegrep} | grep -E -e '${p}' "
+        thegrep="${thegrep} | grep -i -E -e '${p}' "
     done
     
     if [ "${mode}" = "available" ] ; then
