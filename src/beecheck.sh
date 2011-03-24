@@ -25,7 +25,7 @@ BEESEP=beesep
 ###############################################################################
 ###############################################################################
 
-VERSION=0.1
+VERSION=0.2
 
 BEE_SYSCONFDIR=/etc/bee
 BEE_DATADIR=/usr/share
@@ -210,7 +210,7 @@ do_check() {
 
 ##### usage ###################################################################
 usage() {
-    echo "bee-check v${VERSION} 2009-2010"
+    echo "bee-check v${VERSION} 2009-2011"
     echo ""
     echo "  by Tobias Dreyer and Marius Tolzmann <{dreyer,tolzmann}@molgen.mpg.de>"
     echo ""
