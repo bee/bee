@@ -1,7 +1,31 @@
 #!/bin/bash
-set -e
+#
+# bee-list 2009-2011
+#   by Marius Tolzmann and Tobias Dreyer {tolzmann,dreyer}@molgen.mpg.de
+#     Max Planck Institute for Molecular Gentics Berlin Dahlem
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+#
 
-VERSION=0.1
+VERSION=1.0
+
+#
+# BUGS TO FIX/FEATURES TO ADD: 
+#   - lists are alpha-num sorted and not as pkg-versions ..
+#   - check for grep -P support and use it..
 
 BEE_SYSCONFDIR=/etc/bee
 BEE_DATADIR=/usr/share
@@ -35,141 +59,95 @@ fi
 
 ARCH=$(arch)
 
+#
+# print usage information
+#
 usage() {
-    echo "bee-list v${VERSION} 2009-2010"
-    echo
-    echo "Usage: $0 [action] [options] <pattern>"
-    echo
-    echo "action .."
-    echo "    -a | --available          list available pkgs matching pattern"
-    echo "    -i | --installed          list installed pkgs matching pattern"
-    echo "    -b | --bees               list beefiles matching pattern"
-    echo
-    echo "options .."
-    echo "    -l [timestamp|version]    filter list for latest pkg"
+    cat <<-EOF
+	bee-list v${VERSION} 2009-2011
+	  by Marius Tolzmann and Tobias Dreyer {tolzmann,dreyer}@molgen.mpg.de
+	     Max Planck Institute for Molecular Gentics Berlin Dahlem
+	
+	usage: $0 [action] [pattern list]
+	
+	available actions:
+	    -i | --installed (default) list installed pkgs matching pattern list
+	    -a | --available           list available pkgs matching pattern list
+	
+	EOF
 }
 
-intersection() {
-    a=(${1})
-    b=(${2})
+#
+# lists installed packages 
+#   RETURNS a sorted list of installed packages
+#
+list_installed() {
+    find ${BEE_METADIR} -mindepth 1 -maxdepth 1 -printf "%f\n" \
+        | sort
+}
+
+#
+# lists available packages
+#   RETURNS a sorted list of packages available in ${BEE_REPOSITORY_PKGDIR}
+#   or in any directory in ${BEE_REPOSITORY_PKGPATH}
+#
+list_available() {
+    # preapre for repository pathes..
+    : ${BEE_REPOSITORY_PKGPATH:=${BEE_REPOSITORY_PKGDIR}}
     
-    for i in "${a[@]}" "${b[@]}" ; do
-        echo $i
-    done | sort | uniq -d
-}
-
-unionset() {
-    a=(${1})
-    b=(${2})
+    # replace all ':' with ' ' in BEE_REPOSITORY_PKGPATH
+    path=${BEE_REPOSITORY_PKGPATH//:/ }
     
-    for i in "${a[@]}" "${b[@]}" ; do
-        echo $i
-    done | sort | uniq
+    find ${path} -mindepth 1 -maxdepth 1 -printf "%f\n" \
+        | sed -e "s@\.iee\.tar\..*\$@@" \
+              -e "s@\.bee\.tar\..*\$@@" \
+        | sort 
 }
 
-without() {
-    a=(${1})
-    b=(${2})
-    ${DEBUG} "${a[@]}" >&2
-    for i in "${b[@]}" ; do
-        ${DEBUG} "i $i" >&2
-        pn=$(beeversion --pkgname ${i})
-        a=($(echo "${a[*]}" | sed -e  "s@${pn}[^[:blank:]]*@@g"))
-        ${DEBUG} "${a[@]}" >&2
-    done
-    
-    echo "${a[@]}"
-}
-
-upgrades() {
-    a=(${1})
-    b=(${2})
-    
-    for i in "${a[@]}" ; do
-        pn=$(beeversion --pkgname ${i})
-        ${DEBUG} "${pn}" >&2
-        l=$(basename $(beeversion -max ${i} $(echo ${BEE_REPOSITORY_PKGDIR}${pn}*)) | sed -e "s,\.bz2$,," -e "s,\.gz$,," -e "s,\.bee.tar$,," -e "s,\.iee.tar$,,")
-        ${DEBUG} "${l}" >&2
-        if [ "${i}" != "${l}" ] ; then
-            echo "${l}"
-        fi
-    done
-}
-
-get_view() {
-    filter=${1}
+#
+# list bee packages
+#   ARGUMENTS are $mode (installed|available) and a list of $patterns
+#   RETURNS a list of $mode packages matching all given $patterns
+#
+list_beepackages() {
+    mode=${1}
     shift
-    list=(${@})
     
-    if [ -z "${list[*]}" ] ; then
-        list=""
+    # if more then one pattern is given all pattern have to match (AND)
+    thegrep=""
+    for p in ${@} ; do
+        thegrep="${thegrep} | grep -E -e '${p}' "
+    done
+    
+    if [ "${mode}" = "available" ] ; then
+        list_cmd="list_available"
+    else
+        list_cmd="list_installed"
     fi
     
-    for p in "${list[@]}" ; do
-        matches=($(get_matches ${filter} ${p}))
-        for m in "${matches[@]}" ; do
-            if [ $(echo ${view} | egrep -c ${m}) -eq 0 ] ; then
-                view="${view:+${view} }${m}"
-            fi
-        done
-    done
-    
-    for v in ${view} ; do
-        echo "${v}"
-    done
+    # execute the search and display results..
+    eval ${list_cmd} ${thegrep}
 }
 
-get_matches() {
-    filter=${1}
-    pattern=${2}
-    
-    cnt=0
-    inst=($(pattern2list ${BEE_METADIR} ${pattern}))
-    ${DEBUG} "inst .. ${inst[@]}" >&2
-    avail=($(pattern2list ${BEE_REPOSITORY_PKGDIR} ${pattern}))
-    ${DEBUG} "avail .. ${avail[@]}" >&2
-    while [ ${#filter} -gt ${cnt} ] ; do
-        case "${filter:${cnt}:1}" in
-            a)
-                list=(${avail[@]})
-                ;;
-            i)
-                list=(${inst[@]})
-                ;;
-            u)
-                list=($(upgrades "${inst[*]}" "${avail[*]}"))
-                ;;
-            n)
-                list=($(without "${avail[*]}" "${inst[*]}"))
-                ;;
-        esac
-        cnt=$((${cnt}+1))
-    done
-    
-    #debug output
-    for m in "${list[@]}" ; do
-        ${DEBUG} "list .. $m" >&2
-    done
-    
-    echo "${list[@]}"
-}
 
-pattern2list() {
-    path=${1}
-    pattern=${2}
-    
-    echo $(find ${path} -mindepth 1 -maxdepth 1 -printf "%f\n" | sed -e "s@\.iee\.tar\..*\$@@" -e "s@\.bee\.tar\..*\$@@" | egrep "${pattern}" | sort )
-}
+################################################################################
+################################################################################
+################################################################################
 
 options=$(getopt -n beelist \
-                 -o aiunh \
-                 --long available,installed,upgrades,not-installed,help,debug \
+                 -o aih \
+                 --long available \
+                 --long installed \
+                 --long help \
+                 --long debug \
                  -- "$@")
 if [ $? != 0 ] ; then
   usage
   exit 1
 fi
 eval set -- "${options}"
+
+filter=""
 
 DEBUG=":"
 while true ; do
@@ -180,19 +158,11 @@ while true ; do
             ;;
         -a|--available)
             shift
-            filter="a"
+            filter="available"
             ;;
         -i|--installed)
             shift
-            filter="i"
-            ;;
-        -u|--upgrades)
-            shift
-            filter="u"
-            ;;
-        -n|--not-installed)
-            shift
-            filter="n"
+            filter="installed"
             ;;
         --debug)
             shift
@@ -200,12 +170,10 @@ while true ; do
             ;;
         --)
             shift
-            if [ ! ${filter} ] ; then
-                usage
-                exit 1
-            fi
-            get_view ${filter} ${@}
-            exit 0;
+            break
             ;;
     esac
 done
+
+list_beepackages "${filter}" ${@}
+
