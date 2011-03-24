@@ -134,10 +134,11 @@ list_beepackages() {
 ################################################################################
 ################################################################################
 
-options=$(getopt -n beelist \
+options=$(getopt -n bee-list \
                  -o aih \
                  --long available \
                  --long installed \
+		 --long exact \
                  --long help \
                  --long debug \
                  -- "$@")
@@ -148,6 +149,8 @@ fi
 eval set -- "${options}"
 
 filter=""
+
+OPT_EXACT="no"
 
 DEBUG=":"
 while true ; do
@@ -164,6 +167,10 @@ while true ; do
             shift
             filter="installed"
             ;;
+        --exact)
+            shift
+            OPT_EXACT="yes"
+            ;;
         --debug)
             shift
             DEBUG="echo"
@@ -175,5 +182,29 @@ while true ; do
     esac
 done
 
+
+if [ "${OPT_EXACT}" = "yes" ] ; then
+    if [ ! -z ${2} ] ; then
+        echo >&2 "argument error: --exact only takes one package at a time .."
+        exit 1
+    fi
+
+    for p in $(list_beepackages "${filter}" ${1}) ; do
+        pname=$(beeversion --pkgfullname "${p}")
+        pfull=$(beeversion --pkgfullpkg  "${p}")
+        if [ "${1}" = "${pname}"  ] ; then
+            echo "${p}"
+        fi
+        if [ "${1}" = "${pfull}"  ] ; then
+            echo "${p}"
+        fi
+        if [ "${1}" = "${p}" ] ; then
+            echo "${p}"
+        fi
+    done
+    exit 0
+fi
+
+# mach et einfach.. (just do it)
 list_beepackages "${filter}" ${@}
 
