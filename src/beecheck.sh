@@ -208,38 +208,6 @@ do_check() {
     
 }
 
-###############################################################################
-### get_installed_versions ###
-##
-## IN: full_packagename
-##
-## OUT: list of installed packages matching pkgname(full_packagename)
-##
-## DESCRIPTION: ...
-##
-get_installed_versions() {
-    local pkg=${1}
-    
-    local list
-    local pname=$(beeversion --pkgfullname ${pkg})
-    
-    if [ $? ] ; then
-       echo "ERRRRRRRRR"
-       exit 1
-    fi
-    
-    
-    
-    for i in $(bee-list --installed "${pname}") ; do
-        local installed=$(beeversion --pkgfullname ${i})
-        if [ "${installed}" = "${pname}" ] ; then
-            list="${list:+${list} }${i}"
-        fi
-    done
-        
-    echo "${list}"
-}
-
 ##### usage ###################################################################
 usage() {
     echo "bee-check v${VERSION} 2009-2010"
