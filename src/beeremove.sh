@@ -48,13 +48,13 @@ pkg_remove() {
     # pattern is absolute path to pkg
     if [ -d ${search} ] ; then
         do_remove "${search}"
-        exit
+        return
     fi
     
     # pattern is a pkg in BEE_METADIR
     if [ -d ${BEE_METADIR}/${search} ] ; then
         do_remove ${BEE_METADIR}/${search}
-        exit
+        return
     fi
     
     # pattern is no installed pkg
