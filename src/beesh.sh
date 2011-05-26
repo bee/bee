@@ -36,36 +36,6 @@ else
     COLOR_ERROR="**ERROR** "
 fi
 
-BEE_SYSCONFDIR=/etc/bee
-BEE_DATADIR=/usr/share
-
-: ${DOTBEERC:=${HOME}/.beerc}
-if [ -e ${DOTBEERC} ] ; then
-    . ${DOTBEERC}
-fi
-
-: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
-if [ -e ${BEEFAULTS} ] ; then
-    . ${BEEFAULTS}
-fi
-
-: ${BEE_METADIR=${BEE_DATADIR}/bee}
-: ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
-
-: ${BEE_TMP_TMPDIR:=/tmp}
-: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
-
-: ${BEE_SKIPLIST=${BEE_SYSCONFDIR}/skiplist}
-
-# copy file.bee to ${BEE_REPOSITORY_BEEDIR} after successfull build
-: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
-
-# directory where (new) bee-pkgs are stored
-: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
-
-# directory where copies of the source+build directories are stored
-: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
-
 print_info() {
     echo -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${COLOR_INFO}${@}${COLOR_NORMAL}"
 }
@@ -73,6 +43,91 @@ print_info() {
 print_error() {
     echo -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${COLOR_ERROR}${@}${COLOR_NORMAL}"
 }
+
+###############################################################################
+###############################################################################
+###############################################################################
+
+IFS_save=${IFS}   # while loading config
+IFS=":${IFS}"     # add ':' to IFS
+
+BEE_SYSCONFDIR=/etc/bee
+
+# default XDG data dir to write data to
+BEE_XDG_DATADIR=/usr/share
+BEE_DATADIR=${BEE_XDG_DATADIR}
+
+# XDG defaults defined in xdg base spec
+: ${XDG_CONFIG_HOME:=${HOME}/.config}
+: ${XDG_CONFIG_DIRS:=/etc/xdg}
+: ${XDG_DATA_HOME:=${HOME}/.local/share}
+: ${XDG_DATA_DIRS:=/usr/local/share:/usr/share}
+
+# handle deprecated config locations (warn for now)
+: ${DOTBEERC:=${HOME}/.beerc}
+if [ -r ${DOTBEERC} ] ; then
+    print_error \
+        "ERROR: support for ~/.beerc is" \
+        " deprecated please move it to" \
+	" ${XDG_CONFIG_HOME}/bee/beerc"
+    exit 1
+fi
+
+: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
+if [ -r ${BEEFAULTS} ] ; then
+    print_error \
+        "WARNING: support for \${BEEFAULTS} (${BEEFAULTS}) is" \
+        ' deprecated please move it to one of' \
+	' ${XDG_CONFIG_DIRS}/bee/beerc'
+    #exit 1
+fi
+
+for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} /etc ; do
+    xdgbeerc="${dir}/bee/beerc"
+    print_info "checking config file ${xdgbeerc}"
+    if [ -r ${xdgbeerc} ] ; then
+        print_info "  -> loading ${xdgbeerc}"
+	. ${xdgbeerc}
+    fi
+done
+
+# bee default values based on uid
+#   - root gets system defaults..
+#   - other get XDG_*_HOME defaults..
+if [ ${UID} -eq 0 ] ; then  # ROOT
+    : ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
+    : ${BEE_METADIR=${BEE_XDG_DATADIR}/bee}
+else # USER
+    : ${BEE_REPOSITORY_PREFIX=${XDG_DATA_HOME}/beeroot}
+    : ${BEE_METADIR=${XDG_DATA_HOME}/beemeta}
+fi
+
+for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} /etc ; do
+    xdgskiplist="${dir}/bee/skiplist"
+    print_info "checking skiplist file ${xdgskiplist}"
+    if [ -r "${xdgskiplist}" ] ; then
+	: ${BEE_SKIPLIST=${xdgskiplist}}
+    fi
+done
+
+: ${BEE_TMP_TMPDIR:=/tmp}
+: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
+
+: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
+: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
+: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
+
+print_info "  BEE_SKIPLIST           ${BEE_SKIPLIST}"
+print_info "  BEE_REPOSITORY_PREFIX  ${BEE_REPOSITORY_PREFIX}"
+print_info "  BEE_METADIR            ${BEE_METADIR}"
+print_info "  BEE_TMP_TMPDIR         ${BEE_TMP_TMPDIR}"
+print_info "  BEE_TMP_BUILDROOT      ${BEE_TMP_BUILDROOT}"
+
+IFS=${IFS_save} # reset IFS
+
+###############################################################################
+###############################################################################
+###############################################################################
 
 log_enter() {
     print_info ">>>> entering ${@} .."
