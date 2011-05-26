@@ -608,6 +608,11 @@ if [ "${BEE:0:1}" != "/" ] ; then
     BEE=${PWD}/$BEE
 fi
 
+if [ ! -f ${BEE} ] ; then
+    print_error "${BEE}: No such File."
+    exit 1
+fi
+
 ### define pkg variables
 eval $(beeversion ${BEE})
 
