@@ -1,9 +1,17 @@
 #!/bin/bash
 set -e
 
-BEE_SYSCONFDIR=/etc/bee
+if [ -z ${BEE_VERSION} ] ; then
+    echo >&2 "BEE-ERROR: please call $0 from bee .."
+    exit 1
+fi
 
+VERSION=${BEE_VERSION}
+
+
+# XXXXXXXXX FIX THIS WITH XDG GEDOENS!
 : ${BEE_TEMPLATEDIR:=${BEE_SYSCONFDIR}/templates}
+# XXXXXXXXX FIX THIS WITH XDG GEDOENS!
 
 usage() {
     echo "usage.."

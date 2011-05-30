@@ -19,40 +19,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-VERSION=0.1
-
-BEE_SYSCONFDIR=/etc/bee
-BEE_DATADIR=/usr/share
-
-: ${DOTBEERC:=${HOME}/.beerc}
-if [ -e ${DOTBEERC} ] ; then
-    . ${DOTBEERC}
+if [ -z ${BEE_VERSION} ] ; then
+    echo >&2 "BEE-ERROR: please call $0 from bee .."
+    exit 1
 fi
 
-: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
-if [ -e ${BEEFAULTS} ] ; then
-    . ${BEEFAULTS}
-fi
-
-: ${BEE_METADIR=${BEE_DATADIR}/bee}
-: ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
-
-: ${BEE_TMP_TMPDIR:=/tmp}
-: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
-
-: ${BEE_SKIPLIST=${BEE_SYSCONFDIR}/skiplist}
-
-# copy file.bee to ${BEE_REPOSITORY_BEEDIR} after successfull build
-: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
-
-# directory where (new) bee-pkgs are stored
-: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
-
-# directory where copies of the source+build directories are stored
-: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
-
-
-
+VERSION=${BEE_VERSION}
 
 debug_msg() {
     if [ "${DEBUG}" != "yes" ] ; then
@@ -148,7 +120,7 @@ pkg_install() {
         fi
     done
     
-    available=$(bee-list --available "${search}")
+    available=$(${BEE_LIBEXECDIR}/bee-list --available "${search}")
     subsearch=( $(beecut -d '-' "${search}") )
     nss=${#subsearch[*]}
     
@@ -189,7 +161,7 @@ pkg_install() {
         
         if [ -n "${install_match}" ] ; then
             debug_msg "matches: ${install_match}"
-            print_pkg_list $(bee-list -a "${search}")
+            print_pkg_list $(${BEE_LIBEXECDIR}/bee-list -a "${search}")
             break
         fi
     done
@@ -211,7 +183,7 @@ get_installed_versions() {
     local pname=$(beeversion --pkgfullname ${pkg})
     local list
     
-    for i in $(bee-list -i "${pname}") ; do
+    for i in $(${BEE_LIBEXECDIR}/bee-list -i "${pname}") ; do
         local installed=$(beeversion --pkgfullname ${i})
         if [ "${installed}" = "${pname}" ] ; then
             list="${list:+${list} }${i}"

@@ -1,6 +1,8 @@
 PREFIX=/usr
+EPREFIX=${PREFIX}
 SBINDIR=${PREFIX}/sbin
 BINDIR=${PREFIX}/bin
+LIBEXECDIR=${EPREFIX}/lib/bee
 SYSCONFDIR=/etc
 
 BEEDIR=${SYSCONFDIR}/bee
@@ -8,7 +10,8 @@ TEMPLATEDIR=${BEEDIR}/templates
 
 DESTDIR=
 
-SHELLS=bee bee-init bee-check bee-remove bee-install bee-list bee-query beesh
+SHELLS=bee beesh
+TOOLS=bee-init bee-check bee-remove bee-install bee-list bee-query
 PERLS=beefind.pl
 PROGRAMS=beeversion beesep beecut
 
@@ -17,13 +20,15 @@ CONFIGS=skiplist beerc
 
 all: build
 
-build: shells perls programs
+build: shells tools perls programs
 
 perls: $(PERLS)
 
 programs: $(PROGRAMS)
 
 shells: $(SHELLS)
+
+tools: $(TOOLS)
 
 beesep: src/beesep/beesep.c
 	gcc -Wall -o $@ $^
@@ -63,6 +68,7 @@ beefind.pl: src/beefind.pl
 
 clean:
 	rm -f $(SHELLS)
+	rm -f $(TOOLS)
 	rm -f $(PERLS)
 	rm -f $(PROGRAMS)
 
@@ -71,6 +77,11 @@ install: build
 	@for i in $(SHELLS) $(PERLS) $(PROGRAMS) ; do \
 	     echo "installing $(DESTDIR)$(BINDIR)/$${i}" ; \
 	     install -m 0755 $${i} ${DESTDIR}${BINDIR} ; \
+	 done
+	@mkdir -vp ${DESTDIR}${LIBEXECDIR}
+	@for i in $(TOOLS) ; do \
+	     echo "installing $(DESTDIR)$(LIBEXECDIR)/$${i}" ; \
+	     install -m 0755 $${i} ${DESTDIR}${LIBEXECDIR} ; \
 	 done
 
 install-config:

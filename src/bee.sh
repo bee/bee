@@ -1,8 +1,10 @@
 #!/bin/bash
 
+BEE_VERSION=0.4
 BEE_SYSCONFDIR=/etc
 BEE_DATADIR=/usr/share
 BEE_LIBEXECDIR=/usr/lib/bee
+BEE_ROOT_REPOSITORY_PREFIX=/usr/src/bee
 
 # XDG defaults as defined in xdg base directory specification
 : ${XDG_CONFIG_HOME:=${HOME}/.config}
@@ -90,22 +92,14 @@ function init_config() {
 
     # bee default values based on uid
     #   - root gets system defaults..
-    #   - other get XDG_*_HOME defaults..
+    #   - other users get XDG_*_HOME defaults..
     if [ ${UID} -eq 0 ] ; then # ROOT
-	: ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
+	: ${BEE_REPOSITORY_PREFIX=$BEE_ROOT_REPOSITORY_PREFIX}
 	: ${BEE_METADIR=${BEE_XDG_DATADIR}/bee}
     else # USER
 	: ${BEE_REPOSITORY_PREFIX=${XDG_DATA_HOME}/beeroot}
 	: ${BEE_METADIR=${XDG_DATA_HOME}/beemeta}
     fi
-
-#    for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} ; do
-#	xdgskiplist="${dir}/bee/skiplist"
-#	print_info "checking skiplist file ${xdgskiplist}"
-#	if [ -r "${xdgskiplist}" ] ; then
-#	    : ${BEE_SKIPLIST=${xdgskiplist}}
-#	fi
-#    done
 
     : ${BEE_TMP_TMPDIR:=/tmp}
     : ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
@@ -120,7 +114,6 @@ function init_config() {
     print_info "  BEE_TMP_TMPDIR         ${BEE_TMP_TMPDIR}"
     print_info "  BEE_TMP_BUILDROOT      ${BEE_TMP_BUILDROOT}"
 
-#    export BEE_SKIPLIST
     export BEE_REPOSITORY_PREFIX
     export BEE_REPOSITORY_BEEDIR
     export BEE_REPOSITORY_PKGDIR
@@ -132,6 +125,8 @@ function init_config() {
     export BEE_SYSCONFDIR
     export BEE_DATADIR
     export BEE_LIBEXECDIR
+
+    export BEE_VERSION
 
     export XDG_CONFIG_HOME
     export XDG_CONFIG_DIRS
@@ -149,44 +144,24 @@ usage() {
     echo "  install"
     echo "  remove"
     echo "  check"
-    echo "  version"
 }
 
 init_config
 
-case "$1" in
-    init)
-        shift
-        bee-init $@
-        ;;
-    install)
-        shift
-        bee-install $@
-        ;;
-    remove)
-        shift
-        bee-remove $@
-        ;;
-    check)
-        shift
-        bee-check $@
-        ;;
-    version)
-        shift
-        beeversion $@
-        ;;
-    list)
-        shift
-        bee-list $@
-        ;;
-    query)
-        shift
-        bee-query $@
-        ;;
-    *)
-        if [ -n "${1}" ] ; then
-            echo "$1 is not a known option.."
-        fi
-        usage
-        ;;
-esac
+cmd=${BEE_LIBEXECDIR}/bee-${1}
+
+if [ -x "${cmd}" ] ; then
+    shift
+    exec ${cmd} ${@}
+    exit 1
+fi
+
+usage
+
+#
+# path{append,prepend,remove}() taken from /etc/profile
+#   Written for Beyond Linux From Scratch
+#   by James Robertson <jameswrobertson@earthlink.net>
+#   modifications by Dagmar d'Surreal <rivyqntzne@pbzpnfg.arg>
+#   http://archive.linuxfromscratch.org/blfs-museum/6.2.0/
+#        BLFS-6.2.0-nochunks.html.gz#postlfs-config-profile

@@ -20,42 +20,17 @@
 # MA 02110-1301, USA.
 #
 
-VERSION=1.0
+if [ -z ${BEE_VERSION} ] ; then
+    echo >&2 "BEE-ERROR: please call $0 from bee .."
+    exit 1
+fi
+
+VERSION=${BEE_VERSION}
 
 #
 # BUGS TO FIX/FEATURES TO ADD: 
 #   - lists are alpha-num sorted and not as pkg-versions ..
 #   - check for grep -P support and use it..
-
-BEE_SYSCONFDIR=/etc/bee
-BEE_DATADIR=/usr/share
-
-: ${DOTBEERC:=${HOME}/.beerc}
-if [ -e ${DOTBEERC} ] ; then
-    . ${DOTBEERC}
-fi
-
-: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
-if [ -e ${BEEFAULTS} ] ; then
-    . ${BEEFAULTS}
-fi
-
-: ${BEE_METADIR=${BEE_DATADIR}/bee}
-: ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
-
-: ${BEE_TMP_TMPDIR:=/tmp}
-: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
-
-: ${BEE_SKIPLIST=${BEE_SYSCONFDIR}/skiplist}
-
-# copy file.bee to ${BEE_REPOSITORY_BEEDIR} after successfull build
-: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
-
-# directory where (new) bee-pkgs are stored
-: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
-
-# directory where copies of the source+build directories are stored
-: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
 
 ARCH=$(arch)
 
