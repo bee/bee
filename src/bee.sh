@@ -1,9 +1,11 @@
 #!/bin/bash
 
 BEE_VERSION=0.4
+
 BEE_SYSCONFDIR=/etc
 BEE_DATADIR=/usr/share
 BEE_LIBEXECDIR=/usr/lib/bee
+
 BEE_ROOT_REPOSITORY_PREFIX=/usr/src/bee
 
 # XDG defaults as defined in xdg base directory specification
@@ -37,21 +39,26 @@ function pathappend() {
     export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
 }
 
-print_msg() {
+function print_msg() {
     echo -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${@}"
 }
 
-print_info() {
+function print_info() {
     print_msg "${COLOR_INFO}${@}${COLOR_NORMAL}"
 }
 
-print_error() {
+function print_error() {
     print_msg "${COLOR_ERROR}${@}${COLOR_NORMAL}"
 }
 
-###############################################################################
-###############################################################################
-###############################################################################
+function usage() {
+    echo "usage: $0 <option> <arguments>"
+    echo "possible options are:"
+    echo "  init"
+    echo "  install"
+    echo "  remove"
+    echo "  check"
+}
 
 function init_config() {
     local IFS=":${IFS}"     # add ':' to IFS
@@ -133,18 +140,6 @@ function init_config() {
     export XDG_DATA_HOME
     export XDG_DATA_DIRS
 }
-###############################################################################
-###############################################################################
-###############################################################################
-
-usage() {
-    echo "usage: $0 <option> <arguments>"
-    echo "possible options are:"
-    echo "  init"
-    echo "  install"
-    echo "  remove"
-    echo "  check"
-}
 
 init_config
 
@@ -158,10 +153,11 @@ fi
 
 usage
 
-#
+###############################################################################
 # path{append,prepend,remove}() taken from /etc/profile
 #   Written for Beyond Linux From Scratch
 #   by James Robertson <jameswrobertson@earthlink.net>
 #   modifications by Dagmar d'Surreal <rivyqntzne@pbzpnfg.arg>
 #   http://archive.linuxfromscratch.org/blfs-museum/6.2.0/
 #        BLFS-6.2.0-nochunks.html.gz#postlfs-config-profile
+###############################################################################
