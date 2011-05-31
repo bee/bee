@@ -152,6 +152,7 @@ if [ -x "${cmd}" ] ; then
 fi
 
 usage
+exit 1
 
 ###############################################################################
 # path{append,prepend,remove}() taken from /etc/profile
