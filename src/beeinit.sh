@@ -52,14 +52,21 @@ initialize() {
 	    pname=${surl}
 	fi
 
-        pname=$(basename ${pname} .bz2)
-        pname=$(basename ${pname} .gz)
-        pname=$(basename ${pname} .tar)
-        pname=$(basename ${pname} .tgz)
-        pname=$(basename ${pname} .tbz2)
-        pname=$(basename ${pname} .zip)
-        pname=$(basename ${pname} .bee)
-        
+        # start auto packagename generation with surl basename
+        pname=${surl##*/}
+
+        # strip some known and some special suffixes
+        pname=${pname%.gz}
+        pname=${pname%.bz2}
+        pname=${pname%.zip}
+
+        pname=${pname%.tgz}
+        pname=${pname%.tbz2}
+
+        pname=${pname%.tar}
+
+        pname=${pname%.bee}
+
         if [ ${pname} = ${surl} ] ; then
             surl=""
         else
