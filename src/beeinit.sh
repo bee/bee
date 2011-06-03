@@ -65,6 +65,11 @@ initialize() {
 
         pname=${pname%.tar}
 
+        pname=${pname%.src}
+        pname=${pname%-src}
+        pname=${pname%.source}
+        pname=${pname%-source}
+
         pname=${pname%.bee}
 
         if [ ${pname} = ${surl} ] ; then
