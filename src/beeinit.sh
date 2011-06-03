@@ -32,14 +32,26 @@ initialize() {
     pname=$1
     surl=$2
     
-    # fix sourceforge urls
-    #pname=$(echo $pname | sed "/sourceforge.*\/download$/s,/download$,,;/\/sourceforge/s,/sourceforge,/downloads.sourceforge,")
-    #surl=$(echo $surl | sed "/sourceforge\/download$/s,/download$,,;/\/sourceforge/s,/sourceforge,/downloads.sourceforge,")
-    #pname=$(echo $pname | sed "/sourceforge.*?/s,?.*,,")
-    #surl=$(echo $surl | sed "/sourceforge.*?/s,?.*,,")
-    
     if [ -z "${surl}" ] ; then
         surl=${pname}
+
+	# fix sourceforge urls for automatic pkgname generation
+	if [[ $surl = *://sourceforge.net/*/files/*/download ]] ; then
+	    # strip /files directory
+	    surl=${surl/\/files\///}
+
+	    # rename directory /projects to /project
+	    surl=${surl/\/projects\///project/}
+
+            # replace hostname sourceforge.net -> downloads.sourceforge.net
+            surl=${surl/\/\/sourceforge.net\////downloads.sourceforge.net/}
+
+	    # strip /download basename
+	    surl=${surl%/download}
+
+	    pname=${surl}
+	fi
+
         pname=$(basename ${pname} .bz2)
         pname=$(basename ${pname} .gz)
         pname=$(basename ${pname} .tar)
