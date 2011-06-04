@@ -32,22 +32,46 @@ initialize() {
     pname=$1
     surl=$2
     
-    # fix sourceforge urls
-    #pname=$(echo $pname | sed "/sourceforge.*\/download$/s,/download$,,;/\/sourceforge/s,/sourceforge,/downloads.sourceforge,")
-    #surl=$(echo $surl | sed "/sourceforge\/download$/s,/download$,,;/\/sourceforge/s,/sourceforge,/downloads.sourceforge,")
-    #pname=$(echo $pname | sed "/sourceforge.*?/s,?.*,,")
-    #surl=$(echo $surl | sed "/sourceforge.*?/s,?.*,,")
-    
     if [ -z "${surl}" ] ; then
         surl=${pname}
-        pname=$(basename ${pname} .bz2)
-        pname=$(basename ${pname} .gz)
-        pname=$(basename ${pname} .tar)
-        pname=$(basename ${pname} .tgz)
-        pname=$(basename ${pname} .tbz2)
-        pname=$(basename ${pname} .zip)
-        pname=$(basename ${pname} .bee)
-        
+
+	# fix sourceforge urls for automatic pkgname generation
+	if [[ $surl = *://sourceforge.net/*/files/*/download ]] ; then
+	    # strip /files directory
+	    surl=${surl/\/files\///}
+
+	    # rename directory /projects to /project
+	    surl=${surl/\/projects\///project/}
+
+            # replace hostname sourceforge.net -> downloads.sourceforge.net
+            surl=${surl/\/\/sourceforge.net\////downloads.sourceforge.net/}
+
+	    # strip /download basename
+	    surl=${surl%/download}
+
+	    pname=${surl}
+	fi
+
+        # start auto packagename generation with surl basename
+        pname=${surl##*/}
+
+        # strip some known and some special suffixes
+        pname=${pname%.gz}
+        pname=${pname%.bz2}
+        pname=${pname%.zip}
+
+        pname=${pname%.tgz}
+        pname=${pname%.tbz2}
+
+        pname=${pname%.tar}
+
+        pname=${pname%.src}
+        pname=${pname%-src}
+        pname=${pname%.source}
+        pname=${pname%-source}
+
+        pname=${pname%.bee}
+
         if [ ${pname} = ${surl} ] ; then
             surl=""
         else
