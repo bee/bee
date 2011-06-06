@@ -15,19 +15,19 @@ pkg_remove_all() {
 
 pkg_remove() {
     search=$1
-    
+
     # pattern is absolute path to pkg
     if [ -d ${search} ] ; then
         do_remove "${search}"
         return
     fi
-    
+
     # pattern is a pkg in BEE_METADIR
     if [ -d ${BEE_METADIR}/${search} ] ; then
         do_remove ${BEE_METADIR}/${search}
         return
     fi
-    
+
     # pattern is no installed pkg
     # show all pkgs that match pattern
     PKGS=$(find ${BEE_METADIR} -mindepth 1 -maxdepth 1 -iregex "${BEE_METADIR}.*${search}.*")
@@ -39,9 +39,9 @@ pkg_remove() {
 
 do_remove() {
     pkg=$1
-    
+
     FILES=$(beefind.pl --dump ${pkg}/FILES)
-    
+
     # removing files
     for f in $FILES ; do
         # test for other pkg
@@ -58,17 +58,17 @@ do_remove() {
           echo "cannot remove $f .. is related to other pkgs"
         fi
     done
-    
+
     #removing directories
     for d in $DIR ; do
         if [ -z "$(ls $d)" ] ; then
             ${NOOP:+echo} rmdir -v $d
         fi
     done
-    
+
     # create bee-filename
     BEE=$(basename $(echo ${pkg} | sed -e "s,\(.*\)-\(.*\)-\(.*\)\..*,\1-\2-\3.bee," - ))
-    
+
     #cleaning up meta directory
     if [ -f ${pkg}/FILES ] ; then
         ${NOOP:+echo} rm -vfr ${pkg}

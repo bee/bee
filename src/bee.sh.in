@@ -72,40 +72,40 @@ function init_config() {
         print_error \
             "ERROR: support for ~/.beerc is" \
             " deprecated please move it to" \
-	    " ${XDG_CONFIG_HOME}/bee/beerc"
+            " ${XDG_CONFIG_HOME}/bee/beerc"
         exit 1
     fi
 
     : ${BEEFAULTS:=${BEE_SYSCONFDIR}/bee/beerc}
     if [ -r ${BEEFAULTS} ] ; then
-	print_error \
+        print_error \
             "WARNING: support for \${BEEFAULTS} (${BEEFAULTS}) is" \
             ' deprecated please move it to one of' \
-	    ' ${XDG_CONFIG_DIRS}/bee/beerc'
-	# just warn for now
+            ' ${XDG_CONFIG_DIRS}/bee/beerc'
+        # just warn for now
     fi
 
     pathappend "${BEE_XDG_DATADIR}" XDG_DATA_DIRS
     pathappend "${BEE_SYSCONFDIR}"  XDG_CONFIG_DIRS
 
     for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} ; do
-	xdgbeerc="${dir}/bee/beerc"
-	print_info "checking config file ${xdgbeerc}"
-	if [ -r ${xdgbeerc} ] ; then
+        xdgbeerc="${dir}/bee/beerc"
+        print_info "checking config file ${xdgbeerc}"
+        if [ -r ${xdgbeerc} ] ; then
             print_info "  -> loading ${xdgbeerc}"
-	    . ${xdgbeerc}
-	fi
+            . ${xdgbeerc}
+        fi
     done
 
     # bee default values based on uid
     #   - root gets system defaults..
     #   - other users get XDG_*_HOME defaults..
     if [ ${UID} -eq 0 ] ; then # ROOT
-	: ${BEE_REPOSITORY_PREFIX=$BEE_ROOT_REPOSITORY_PREFIX}
-	: ${BEE_METADIR=${BEE_XDG_DATADIR}/bee}
+        : ${BEE_REPOSITORY_PREFIX=$BEE_ROOT_REPOSITORY_PREFIX}
+        : ${BEE_METADIR=${BEE_XDG_DATADIR}/bee}
     else # USER
-	: ${BEE_REPOSITORY_PREFIX=${XDG_DATA_HOME}/beeroot}
-	: ${BEE_METADIR=${XDG_DATA_HOME}/beemeta}
+        : ${BEE_REPOSITORY_PREFIX=${XDG_DATA_HOME}/beeroot}
+        : ${BEE_METADIR=${XDG_DATA_HOME}/beemeta}
     fi
 
     : ${BEE_TMP_TMPDIR:=/tmp}

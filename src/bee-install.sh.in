@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # bee-install - install a bee-pkg
-# Copyright (C) 2009-2010 
+# Copyright (C) 2009-2010
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
 #       Marius Tolzmann <tolzmann@molgen.mpg.de>
 #
@@ -30,7 +30,7 @@ debug_msg() {
     if [ "${DEBUG}" != "yes" ] ; then
         return
     fi
-    
+
     echo "#DEBUG# ${@}" >&2
 }
 
@@ -70,17 +70,17 @@ pkg_install_all() {
 begins_with() {
     string=${1}
     substring=${2}
-    
+
     length=${#substring}
-    
+
     if [ ${#substring} -gt ${#string} ] ; then
         return 1
     fi
-    
+
     if [ "${string:0:${length}}" = "${substring}" ] ; then
         return 0
     fi
-    
+
     return 1
 }
 
@@ -95,23 +95,23 @@ begins_with() {
 ##
 pkg_install() {
     search=${1}
-    
+
     # install specific package
     if [ -f "${search}" ] ; then
          do_install "${search}"
     fi
-    
+
     # if search is relative or absolute path to file -> exit
     if [ "${search:0:2}" = "./" -o "$(dirname ${search})" != "." ] ; then
         echo "${search}: no such File or Directory"
         exit 1
     fi
-    
+
     # install package from repository
     if [ -f "${BEE_REPOSITORY_PKGDIR}/${search}" ] ; then
          do_install "${BEE_REPOSITORY_PKGDIR}/${search}"
     fi
-    
+
     for e in "" ".$(arch)" ".noarch" ".any" ; do
         if [ -f "${BEE_REPOSITORY_PKGDIR}/${search}${e}.bee.tar.bz2" ] ; then
             do_install "${BEE_REPOSITORY_PKGDIR}/${search}${e}.bee.tar.bz2"
@@ -119,29 +119,29 @@ pkg_install() {
             do_install "${BEE_REPOSITORY_PKGDIR}/${search}${e}.iee.tar.bz2"
         fi
     done
-    
+
     available=$(${BEE_LIBEXECDIR}/bee-list --available "${search}")
     subsearch=( $(beecut -d '-' "${search}") )
     nss=${#subsearch[*]}
-    
+
     install_candidate=
-    
+
     for i in $(seq $(($nss-1)) -1 1) ; do
         debug_msg "checking subsearch $i: ${subsearch[$i]}"
-        
+
         sss=${subsearch[$i]}
-        
+
         found=
         for a in ${available} ; do
             p=$(beeversion --pkgfullname "${a}")
             debug_msg "  against $p ($a)"
-            
+
             if [ "${p}" = "${sss}" ] ; then
                 debug_msg "FOUND: pkgfullname(${p}): ${a}"
                 if [ "${p}" = "${search}" ] ; then
                     debug_msg "  => INSTALL(max of ${a})"
                     install_candidate="${install_candidate} ${a}"
-                elif begins_with "${a}" "${search}" ; then 
+                elif begins_with "${a}" "${search}" ; then
                     debug_msg "  => MAY INSTALL(max of ${a})"
                     install_candidate="${install_candidate} ${a}"
                 fi
@@ -150,7 +150,7 @@ pkg_install() {
                 install_match="${install_match} ${a}"
             fi
         done
-        
+
         if [ -n "${install_candidate}" ] ; then
             debug_msg "install candidates: ${install_candidate}"
             to_bee_installed=$(beeversion -max ${install_candidate})
@@ -158,7 +158,7 @@ pkg_install() {
             pkg_install ${to_bee_installed}
             break
         fi
-        
+
         if [ -n "${install_match}" ] ; then
             debug_msg "matches: ${install_match}"
             print_pkg_list $(${BEE_LIBEXECDIR}/bee-list -a "${search}")
@@ -179,17 +179,17 @@ pkg_install() {
 ##
 get_installed_versions() {
     local pkg=${1}
-    
+
     local pname=$(beeversion --pkgfullname ${pkg})
     local list
-    
+
     for i in $(${BEE_LIBEXECDIR}/bee-list -i "${pname}") ; do
         local installed=$(beeversion --pkgfullname ${i})
         if [ "${installed}" = "${pname}" ] ; then
             list="${list:+${list} }${i}"
         fi
     done
-        
+
     echo "${list}"
 }
 
@@ -206,9 +206,9 @@ get_installed_versions() {
 ##
 check_installed() {
     local pkgname=${1}
-    
+
     local installed=$(get_installed_versions ${pkgname})
-    
+
     if [ "${installed}" != "" ] ; then
         for i in ${installed} ; do
             if [ ${i} = ${pkgname} ] ; then
@@ -235,33 +235,33 @@ check_installed() {
 ##
 do_install() {
     local file=${1}
-    local pkg=$(echo ${file} | 
+    local pkg=$(echo ${file} |
                   sed -e 's,\.tar,,g;s,\.bz2,,g;s,\.gz,,g' \
                       -e 's,\.[bi]ee,,g' \
                       -e 's,.*/,,')
     debug_msg "do_install file=${file}"
     debug_msg "do_install pkg=${pkg}"
-    
+
     if [ "${OPT_F}" = "0" ] ; then
         check_installed ${pkg}
     fi
-    
+
     # create bee-filename
     BEE="$(beeversion ${pkg} --format="%F").bee"
-    
+
     taraction="-x"
-    
+
     [ "${NOOP}" = "yes" ] && taraction="-t"
-    
+
     echo "installing ${file} .."
-    
+
     start_cmd tar ${taraction} -vvPf ${file} \
         --transform="s,^FILES$,${BEE_METADIR}/${pkg}/FILES," \
         --transform="s,^BUILD$,${BEE_METADIR}/${pkg}/${BEE}," \
         --transform="s,^META$,${BEE_METADIR}/${pkg}/META," \
         --transform="s,^PATCHES,${BEE_METADIR}/${pkg}/PATCHES," \
         --show-transformed-names
-    
+
     exit $?
 }
 
@@ -274,16 +274,16 @@ do_install() {
 ##
 print_pkg_list() {
     local -i f=0
-    
+
     if [ ! "${1}" ] ; then
         echo "no matching packages found in repository.."
         exit 4
     fi
-    
+
     for p in ${@} ; do
         local pkgname=$(basename $(basename $(basename ${p} .tar.bz2) .iee) .bee)
         local installed=$(get_installed_versions ${pkgname})
-        
+
         local status
         for i in ${installed} ; do
             if [ ${i} = ${pkgname} ] ; then
@@ -299,9 +299,9 @@ print_pkg_list() {
         fi
         unset status
     done
-    
+
     echo "${f} of ${#} packages displayed matching search criteria."
-    
+
     if [ ${f} -eq 0 ] ; then
         echo "no new packages found in repository. try -v to list already installed packages."
         exit 5
@@ -343,7 +343,7 @@ while true ; do
       shift
       pkg_upgrade $@
       exit 0
-      ;;    
+      ;;
     -h|--help)
       usage
       exit 0

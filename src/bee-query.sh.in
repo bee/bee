@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # bee-query - query bee metadata
-# Copyright (C) 2009-2010 
+# Copyright (C) 2009-2010
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
 #       Marius Tolzmann <tolzmann@molgen.mpg.de>
 #
@@ -37,7 +37,7 @@ usage() {
 
 query() {
     list=$@
-    
+
     for f in "${list[@]}" ; do
         # check if $f is pkg, list related files
         # otherwise list pkg
@@ -53,8 +53,8 @@ query() {
 
 get_files() {
     pkg=${1}
-    
-    for s in "" "${BEE_METADIR}" ; do 
+
+    for s in "" "${BEE_METADIR}" ; do
         ff="${s}/${pkg}/FILES"
         if [ -e "${ff}" ] ; then
             for line in $(cat ${ff}) ; do
@@ -66,7 +66,7 @@ get_files() {
 
 get_pkgs() {
     f=$1
-    
+
     for i in ${BEE_METADIR}/* ; do
         if egrep -q "file=.*${f}" ${i}/FILES ; then
             echo $(basename ${i})
@@ -79,7 +79,7 @@ get_pkgs() {
 
 beefind2filename() {
     line=$1
-    
+
     OLDIFS=${IFS}
     IFS=":"
     eval $line

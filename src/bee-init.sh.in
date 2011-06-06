@@ -39,26 +39,26 @@ initialize() {
     set -- ${PP}
     pname=$1
     surl=$2
-    
+
     if [ -z "${surl}" ] ; then
         surl=${pname}
 
-	# fix sourceforge urls for automatic pkgname generation
-	if [[ $surl = *://sourceforge.net/*/files/*/download ]] ; then
-	    # strip /files directory
-	    surl=${surl/\/files\///}
+        # fix sourceforge urls for automatic pkgname generation
+        if [[ $surl = *://sourceforge.net/*/files/*/download ]] ; then
+            # strip /files directory
+            surl=${surl/\/files\///}
 
-	    # rename directory /projects to /project
-	    surl=${surl/\/projects\///project/}
+            # rename directory /projects to /project
+            surl=${surl/\/projects\///project/}
 
             # replace hostname sourceforge.net -> downloads.sourceforge.net
             surl=${surl/\/\/sourceforge.net\////downloads.sourceforge.net/}
 
-	    # strip /download basename
-	    surl=${surl%/download}
+            # strip /download basename
+            surl=${surl%/download}
 
-	    pname=${surl}
-	fi
+            pname=${surl}
+        fi
 
         # start auto packagename generation with surl basename
         pname=${surl##*/}
@@ -86,7 +86,7 @@ initialize() {
             pname=${pname}-0
         fi
     fi
-    
+
     beefile="${pname}.bee"
 
     if [ -e ${beefile} ] && [ "$OPT_FORCE" != "yes" ] ; then
@@ -94,7 +94,7 @@ initialize() {
         exit 1
     fi
 
-    
+
     if [ -r ${BEE_TEMPLATEDIR}/${TEMPLATE} ] ; then
         echo "creating ${beefile} with TEMPLATE='${TEMPLATE}' and SRCURL='${surl}'"
         cp ${BEE_TEMPLATEDIR}/${TEMPLATE} ${pname}.bee
@@ -102,45 +102,45 @@ initialize() {
         echo "creating ${beefile} with SRCURL='${surl}'"
         cat >${pname}.bee <<-"EOT"
 	#!/bin/env beesh
-	
+
 	@SRCURL@
-	
+
 	PATCHURL[0]=""
-	
+
 	@BEE_CONFIGURE@
-	
+
 	# EXCLUDE=""
-	
+
 	@DEFAULT_PREFIX_VARS@
-	
+
 	mee_extract() {
-		bee_extract ${@}
+	        bee_extract ${@}
 	}
-	
+
 	mee_patch() {
-		bee_patch ${@}
+	        bee_patch ${@}
 	}
-	
+
 	mee_configure() {
-		bee_configure @DEFAULT_CONFIGURE_OPTIONS@
+	        bee_configure @DEFAULT_CONFIGURE_OPTIONS@
 	}
-	
+
 	mee_build() {
-		bee_build
+	        bee_build
 	}
-	
+
 	mee_install() {
-		bee_install
+	        bee_install
 	}
 	EOT
     fi
-    
+
     sed -e "s,@SRCURL@,SRCURL[0]=\"${surl}\"," \
         -i ${beefile}
-    
+
     sed -e "s,@DEFAULT_CONFIGURE_OPTIONS@,${DEFAULT_CONFIGURE_OPTIONS}," \
         -i ${beefile}
-    
+
     for i in prefix eprefix bindir sbindir libexecdir sysconfdir \
               localstatedir sharedstatedir libdir includedir datarootdir \
               datadir infodir mandir docdirlocaledir ; do
@@ -149,10 +149,10 @@ initialize() {
         DEFAULT_PREFIX_VARS="${DEFAULT_PREFIX_VARS:+${DEFAULT_PREFIX_VARS}}${dir:+${DEFAULT_PREFIX_VARS:+\n}}${dir:+${I}=${dir}}"
         unset dir
     done
-    
+
     sed -e "s,@DEFAULT_PREFIX_VARS@,${DEFAULT_PREFIX_VARS}," \
         -i ${beefile}
-    
+
     if [ "${CONFIGURE_BEEHAVIOR}" ] ; then
         sed -e "s,@BEE_CONFIGURE@,BEE_CONFIGURE=${CONFIGURE_BEEHAVIOR}," \
             -i ${beefile}
@@ -187,25 +187,25 @@ while true ; do
             usage
             exit 0
             ;;
-            
+
         -t|--template)
             TEMPLATE=${2}
             shift 2
-            
+
             if [ ! -e ${BEE_TEMPLATEDIR}/${TEMPLATE} ] ; then
                 echo "ignoring non-existant template '${BEE_TEMPLATEDIR}/${TEMPLATE}' .."
                 unset TEMPLATE
             fi
             ;;
-            
+
         -f|--force)
             shift
-            
+
             OPT_FORCE="yes"
             ;;
-            
+
         --configure)
-            case "${2}" in 
+            case "${2}" in
                 compat|none)
                     CONFIGURE_BEEHAVIOR=${2}
                     ;;
@@ -215,7 +215,7 @@ while true ; do
             esac
             shift 2
             ;;
-            
+
         --prefix|\
         --eprefix|\
         --bindir|\
@@ -235,14 +235,14 @@ while true ; do
             eval OPT_${1:2}="${2}"
             shift 2
             ;;
-            
+
         *)
             shift
             if [ -z ${1} ] ; then
                  usage
                  exit 1
             fi
-            
+
             : ${TEMPLATE:=default}
             initialize ${@}
             exit 0;
