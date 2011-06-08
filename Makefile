@@ -50,7 +50,9 @@ clean:
 	rm -f $(PERLS)
 	rm -f $(PROGRAMS)
 
-install: build
+install: install-core install-config
+
+install-core: build
 	@mkdir -vp ${DESTDIR}${BINDIR}
 	@for i in $(SHELLS) ; do \
 	     install -v -m 0755 $${i}.sh ${DESTDIR}${BINDIR}/$${i} ; \
