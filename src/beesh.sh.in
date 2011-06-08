@@ -202,28 +202,17 @@ show_help() {
     echo ""
     echo "# EXCLUDE=\"\""
     echo ""
-    echo "BEEPASSES=1"
-    echo ""
     echo "mee_configure() {"
     echo "    bee_configure"
     echo "}"
-    echo "# mee_configure2() {"
-    echo "#     bee_configure"
-    echo "# }"
     echo ""
     echo "mee_build() {"
     echo "    bee_build"
     echo "}"
-    echo "# mee_build2() {"
-    echo "#     bee_build"
-    echo "# }"
     echo ""
     echo "mee_install() {"
     echo "    bee_install"
     echo "}"
-    echo "# mee_install2() {"
-    echo "#     bee_install"
-    echo "# }"
 
 }
 
@@ -374,7 +363,7 @@ bee_getsources() {
         unset SRCURL
     fi
 
-    bee_run getsrcurl "${SRCURL[@]}"
+    bee_getsrcurl "${SRCURL[@]}"
 
     if [ -z "${PATCHURL}" ] ; then
         unset PATCHURL
@@ -389,7 +378,7 @@ bee_getsources() {
         PATCHURL=( "${PATCHES[@]}" )
     fi
 
-    bee_run getpatchurl "${PATCHURL[@]}"
+    bee_getpatchurl "${PATCHURL[@]}"
 }
 
 #### bee_extract() #############################################################
@@ -402,7 +391,7 @@ bee_extract() {
 
     if is_func mee_unpack ; then
         print_error "#BEE-WARNING# function 'mee_unpack()' is deprecated .. use 'mee_extract()' instead .." >&2
-        bee_run unpack "${@}"
+        mee_unpack "${@}"
         log_leave "bee_extract()"
         return
     fi
@@ -604,16 +593,17 @@ bee_run() {
     action=${1}
     shift
 
-    if is_func "mee_${action}${bee_PASS}" ; then
-        log_enter "mee_${action}${bee_PASS}()"
-        mee_${action}${bee_PASS} "${@}"
-        log_leave "mee_${action}${bee_PASS}()"
-    elif is_func "mee_${action}" ; then
+    if is_func "mee_${action}" ; then
         log_enter "mee_${action}()"
         mee_${action} "${@}"
         log_leave "mee_${action}()"
-    else
+    elif is_func "bee_${action}" ; then
+        log_enter "bee_${action}()"
         bee_${action} "${@}"
+        log_leave "bee_${action}()"
+    else
+        print_error "don't know how to run '${action}'"
+        exit
     fi
 }
 
@@ -803,43 +793,37 @@ fi
 
 eval DEFCONFIG=\"${DEFCONFIG}\"
 
-: ${BEEPASSES:=1}
-declare -i bee_PASS=1
-
 echo -e "${COLOR_CYAN}BEE - mariux package management "
 echo -e "  by Marius Tolzmann und Tobias Dreyer {tolzmann,dreyer}@molgen.mpg.de"
 echo -e "${COLOR_NORMAL}"
 
 # in ${PWD}
+
+print_info "current working directory: ${PWD}"
+
 bee_init_builddir
 
 check_repositories
 
 print_info "==> building ${PKGALLPKG} ..\n"
 
-while [ ${bee_PASS} -le ${BEEPASSES} ] ; do
-    print_info "running PASS ${bee_PASS} of ${BEEPASSES} .."
-    echo
-    bee_run getsources
-    echo
-    bee_run extract ${bee_SOURCEFILES[@]}
-    echo
-    print_info "changing dir to source: ${S}"
-    cd ${S}
-    echo
-    bee_run patch ${bee_PATCHFILES[@]}
-    echo
-    print_info "changing dir to build: ${B}"
-    cd ${B}
-    echo
-    bee_run configure
-    echo
-    bee_run build
-    echo
-    bee_run install
-    echo
-    bee_PASS=${bee_PASS}+1
-done
+bee_run getsources
+
+bee_run extract ${bee_SOURCEFILES[@]}
+
+print_info "changing to source directory: ${S}"
+cd ${S}
+
+bee_run patch ${bee_PATCHFILES[@]}
+
+print_info "changing to build directory: ${B}"
+cd ${B}
+
+bee_run configure
+bee_run build
+bee_run install
+
+print_info "changing to image directory: ${D}"
 cd ${D}
 
 bee_pkg_pack
