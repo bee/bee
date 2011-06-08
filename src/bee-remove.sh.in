@@ -30,10 +30,10 @@ pkg_remove() {
 
     # pattern is no installed pkg
     # show all pkgs that match pattern
-    PKGS=$(find ${BEE_METADIR} -mindepth 1 -maxdepth 1 -iregex "${BEE_METADIR}.*${search}.*")
+    PKGS=$(${BEE_LIBEXECDIR}/bee-list -i ${search})
     echo "${search} matches following packages .."
     for p in ${PKGS} ; do
-        [ -d $p ] && echo " -> $(basename $p)"
+        [ -d $p ] && echo " -> ${p}"
     done
 }
 

@@ -57,6 +57,9 @@ usage() {
 #   RETURNS a sorted list of installed packages
 #
 list_installed() {
+    if [ ! -r ${BEE_METADIR} ] ; then
+        return
+    fi
     find ${BEE_METADIR} -mindepth 1 -maxdepth 1 -printf "%f\n" \
         | sort
 }
@@ -67,13 +70,25 @@ list_installed() {
 #   or in any directory in ${BEE_REPOSITORY_PKGPATH}
 #
 list_available() {
+    local IFS=":${IFS}"
     # preapre for repository pathes..
     : ${BEE_REPOSITORY_PKGPATH:=${BEE_REPOSITORY_PKGDIR}}
 
     # replace all ':' with ' ' in BEE_REPOSITORY_PKGPATH
     path=${BEE_REPOSITORY_PKGPATH//:/ }
 
-    find ${path} -mindepth 1 -maxdepth 1 -printf "%f\n" \
+    search=""
+    for p in $path ; do
+        if [ -r ${p} ] ; then
+            search="${search} ${p}"
+        fi
+    done
+
+    if [ -z ${search} ] ; then
+        return
+    fi
+
+    find ${search} -mindepth 1 -maxdepth 1 -printf "%f\n" \
         | sed -e "s@\.iee\.tar\..*\$@@" \
               -e "s@\.bee\.tar\..*\$@@" \
         | sort
