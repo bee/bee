@@ -20,7 +20,7 @@ function usage() {
 }
 
 function print_msg() {
-    echo -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${@}"
+    echo >&2 -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${@}"
 }
 
 function print_info() {
@@ -40,7 +40,6 @@ function create_beefile_from_template {
         for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} ; do
             xdgtemplate="${dir}/bee/templates/${tmpl}"
 
-            print_info "checking template file ${xdgtemplate} (${XDG_CONFIG_DIRS})"
             if [ -r "${xdgtemplate}" ] ; then
                 : ${BEE_TEMPLATE=${xdgtemplate}}
             fi
@@ -52,7 +51,7 @@ function create_beefile_from_template {
         exit 1
     fi
 
-    echo "creating ${beefile} with from template '${BEE_TEMPLATE}'"
+    echo "creating ${beefile} from template '${BEE_TEMPLATE}'"
     cp ${BEE_TEMPLATE} ${beefile}
 }
 
