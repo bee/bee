@@ -6,7 +6,9 @@ LIBEXECDIR=${EPREFIX}/lib/bee
 SYSCONFDIR=/etc
 
 BEEDIR=${SYSCONFDIR}/xdg/bee
+
 TEMPLATEDIR=${BEEDIR}/templates
+MAGICDIR=${BEEDIR}/beesh.d
 
 DESTDIR=
 
@@ -16,6 +18,7 @@ PERLS=beefind.pl
 PROGRAMS=beeversion beesep beecut
 
 TEMPLATES=fallback
+MAGIX=configure make
 CONFIGS=skiplist beerc
 
 .SUFFIXES: .in .sh .sh.in
@@ -74,4 +77,8 @@ install-config:
 	@mkdir -vp ${DESTDIR}${TEMPLATEDIR}
 	@for t in ${TEMPLATES} ; do \
 	     install -v -m 0644 conf/templates/$${t} ${DESTDIR}${TEMPLATEDIR} ; \
+	 done
+	@mkdir -vp ${DESTDIR}${MAGICDIR}
+	@for t in ${MAGIX} ; do \
+	     install -v -m 0644 conf/beesh.d/$${t}.sh ${DESTDIR}${MAGICDIR}/$${t}.sh ; \
 	 done
