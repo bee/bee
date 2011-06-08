@@ -5,7 +5,7 @@ BINDIR=${PREFIX}/bin
 LIBEXECDIR=${EPREFIX}/lib/bee
 SYSCONFDIR=/etc
 
-BEEDIR=${SYSCONFDIR}/bee
+BEEDIR=${SYSCONFDIR}/xdg/bee
 TEMPLATEDIR=${BEEDIR}/templates
 
 DESTDIR=
@@ -15,7 +15,7 @@ TOOLS=bee-init bee-check bee-remove bee-install bee-list bee-query
 PERLS=beefind.pl
 PROGRAMS=beeversion beesep beecut
 
-TEMPLATES=default
+TEMPLATES=fallback
 CONFIGS=skiplist beerc
 
 .SUFFIXES: .in .sh .sh.in

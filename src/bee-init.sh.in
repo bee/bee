@@ -8,11 +8,6 @@ fi
 
 VERSION=${BEE_VERSION}
 
-
-# XXXXXXXXX FIX THIS WITH XDG GEDOENS!
-: ${BEE_TEMPLATEDIR:=${BEE_SYSCONFDIR}/templates}
-# XXXXXXXXX FIX THIS WITH XDG GEDOENS!
-
 function usage() {
     echo "usage.."
     echo "$0 [options] <url>"
@@ -22,6 +17,43 @@ function usage() {
     echo "  -h                .. show this help"
     echo "  -t [xorg|default] .. specify template used for beefile"
     echo "  -f                .. force overwriting of beefile"
+}
+
+function print_msg() {
+    echo -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${@}"
+}
+
+function print_info() {
+    print_msg "${COLOR_INFO}${@}${COLOR_NORMAL}"
+}
+
+function print_error() {
+    print_msg "${COLOR_ERROR}${@}${COLOR_NORMAL}"
+}
+
+function create_beefile_from_template {
+    beefile=$1
+    templates=( $2 default fallback )
+    local IFS=":${IFS}"
+
+    for tmpl in ${templates[@]} ; do
+        for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} ; do
+            xdgtemplate="${dir}/bee/templates/${tmpl}"
+
+            print_info "checking template file ${xdgtemplate} (${XDG_CONFIG_DIRS})"
+            if [ -r "${xdgtemplate}" ] ; then
+                : ${BEE_TEMPLATE=${xdgtemplate}}
+            fi
+        done
+    done
+
+    if [ ! -r ${BEE_TEMPLATE} ] ; then
+        print_error "no valid template found .."
+        exit 1
+    fi
+
+    echo "creating ${beefile} with from template '${BEE_TEMPLATE}'"
+    cp ${BEE_TEMPLATE} ${beefile}
 }
 
 function initialize() {
@@ -94,46 +126,7 @@ function initialize() {
         exit 1
     fi
 
-
-    if [ -r ${BEE_TEMPLATEDIR}/${TEMPLATE} ] ; then
-        echo "creating ${beefile} with TEMPLATE='${TEMPLATE}' and SRCURL='${surl}'"
-        cp ${BEE_TEMPLATEDIR}/${TEMPLATE} ${pname}.bee
-    else
-        echo "creating ${beefile} with SRCURL='${surl}'"
-        cat >${pname}.bee <<-"EOT"
-	#!/bin/env beesh
-
-	@SRCURL@
-
-	PATCHURL[0]=""
-
-	@BEE_CONFIGURE@
-
-	# EXCLUDE=""
-
-	@DEFAULT_PREFIX_VARS@
-
-	mee_extract() {
-	        bee_extract ${@}
-	}
-
-	mee_patch() {
-	        bee_patch ${@}
-	}
-
-	mee_configure() {
-	        bee_configure @DEFAULT_CONFIGURE_OPTIONS@
-	}
-
-	mee_build() {
-	        bee_build
-	}
-
-	mee_install() {
-	        bee_install
-	}
-	EOT
-    fi
+    create_beefile_from_template ${beefile} ${TEMPLATE}
 
     sed -e "s,@SRCURL@,SRCURL[0]=\"${surl}\"," \
         -i ${beefile}
@@ -191,11 +184,6 @@ while true ; do
         -t|--template)
             TEMPLATE=${2}
             shift 2
-
-            if [ ! -e ${BEE_TEMPLATEDIR}/${TEMPLATE} ] ; then
-                echo "ignoring non-existant template '${BEE_TEMPLATEDIR}/${TEMPLATE}' .."
-                unset TEMPLATE
-            fi
             ;;
 
         -f|--force)
