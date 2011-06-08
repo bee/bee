@@ -789,6 +789,7 @@ BEE_BUILDTYPE=""
 
 load_buildmagic configure
 load_buildmagic make
+load_buildmagic python-module
 
 print_info "changing to build directory: ${B}"
 cd ${B}
