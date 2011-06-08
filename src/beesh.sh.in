@@ -51,10 +51,11 @@ print_error() {
 IFS_save=${IFS}   # while loading config
 IFS=":${IFS}"     # add ':' to IFS
 
-BEE_SYSCONFDIR=/etc/bee
+: ${BEE_SYSCONFDIR:=/etc/bee}
 
 # default XDG data dir to write data to
-BEE_XDG_DATADIR=/usr/share
+: ${BEE_XDG_DATADIR:=/usr/share}
+
 BEE_DATADIR=${BEE_XDG_DATADIR}
 
 # XDG defaults defined in xdg base spec

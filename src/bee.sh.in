@@ -2,11 +2,11 @@
 
 BEE_VERSION=0.4
 
-BEE_SYSCONFDIR=/etc
-BEE_DATADIR=/usr/share
-BEE_LIBEXECDIR=/usr/lib/bee
+: ${BEE_SYSCONFDIR:=/etc}
+: ${BEE_DATADIR:=/usr/share}
+: ${BEE_LIBEXECDIR:=/usr/lib/bee}
 
-BEE_ROOT_REPOSITORY_PREFIX=/usr/src/bee
+: ${BEE_ROOT_REPOSITORY_PREFIX:=/usr/src/bee}
 
 # XDG defaults as defined in xdg base directory specification
 : ${XDG_CONFIG_HOME:=${HOME}/.config}
