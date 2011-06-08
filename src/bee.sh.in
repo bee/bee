@@ -40,7 +40,7 @@ function pathappend() {
 }
 
 function print_msg() {
-    echo -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${@}"
+    echo >&2 -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${@}"
 }
 
 function print_info() {
@@ -76,15 +76,6 @@ function init_config() {
         exit 1
     fi
 
-    : ${BEEFAULTS:=${BEE_SYSCONFDIR}/bee/beerc}
-    if [ -r ${BEEFAULTS} ] ; then
-        print_error \
-            "WARNING: support for \${BEEFAULTS} (${BEEFAULTS}) is" \
-            ' deprecated please move it to one of' \
-            ' ${XDG_CONFIG_DIRS}/bee/beerc'
-        # just warn for now
-    fi
-
     pathappend "${BEE_XDG_DATADIR}" XDG_DATA_DIRS
     pathappend "${BEE_SYSCONFDIR}"  XDG_CONFIG_DIRS
 
@@ -98,17 +89,11 @@ function init_config() {
     done
 
     if [ -r ${BEE_USER_CONFIG_FILE} ] ; then
-        print_info "loading user config from '${BEE_USER_CONFIG_FILE}'"
         . ${BEE_USER_CONFIG_FILE}
-    else
-        print_info "user config not found (${BEE_USER_CONFIG_FILE})"
     fi
 
     if [ -r ${BEE_CONFIG_FILE} ] ; then
-        print_info "loading system config from ${BEE_CONFIG_FILE}"
         . ${BEE_CONFIG_FILE}
-    else
-        print_info "no system config found in ${BEE_CONFIG_FILE}"
     fi
 
     # bee default values based on uid
@@ -128,11 +113,6 @@ function init_config() {
     : ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
     : ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
     : ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
-
-    print_info "  BEE_REPOSITORY_PREFIX  ${BEE_REPOSITORY_PREFIX}"
-    print_info "  BEE_METADIR            ${BEE_METADIR}"
-    print_info "  BEE_TMP_TMPDIR         ${BEE_TMP_TMPDIR}"
-    print_info "  BEE_TMP_BUILDROOT      ${BEE_TMP_BUILDROOT}"
 
     export BEE_REPOSITORY_PREFIX
     export BEE_REPOSITORY_BEEDIR
