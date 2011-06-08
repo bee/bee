@@ -13,7 +13,7 @@ VERSION=${BEE_VERSION}
 : ${BEE_TEMPLATEDIR:=${BEE_SYSCONFDIR}/templates}
 # XXXXXXXXX FIX THIS WITH XDG GEDOENS!
 
-usage() {
+function usage() {
     echo "usage.."
     echo "$0 [options] <url>"
     echo "$0 [options] <pkgname> [url]"
@@ -24,7 +24,7 @@ usage() {
     echo "  -f                .. force overwriting of beefile"
 }
 
-initialize() {
+function initialize() {
     # get arguments starting with '--'
     while [ -n "${1}" ] ; do
         if [ "${1:0:2}" == "--" ] ; then
