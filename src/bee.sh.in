@@ -88,14 +88,28 @@ function init_config() {
     pathappend "${BEE_XDG_DATADIR}" XDG_DATA_DIRS
     pathappend "${BEE_SYSCONFDIR}"  XDG_CONFIG_DIRS
 
-    for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} ; do
+    : ${BEE_USER_CONFIG_FILE:=${XDG_CONFIG_HOME}/bee/beerc}
+
+    for dir in ${XDG_CONFIG_DIRS} ; do
         xdgbeerc="${dir}/bee/beerc"
-        print_info "checking config file ${xdgbeerc}"
         if [ -r ${xdgbeerc} ] ; then
-            print_info "  -> loading ${xdgbeerc}"
-            . ${xdgbeerc}
+            : ${BEE_CONFIG_FILE:=${xdgbeerc}}
         fi
     done
+
+    if [ -r ${BEE_USER_CONFIG_FILE} ] ; then
+        print_info "loading user config from '${BEE_USER_CONFIG_FILE}'"
+        . ${BEE_USER_CONFIG_FILE}
+    else
+        print_info "user config not found (${BEE_USER_CONFIG_FILE})"
+    fi
+
+    if [ -r ${BEE_CONFIG_FILE} ] ; then
+        print_info "loading system config from ${BEE_CONFIG_FILE}"
+        . ${BEE_CONFIG_FILE}
+    else
+        print_info "no system config found in ${BEE_CONFIG_FILE}"
+    fi
 
     # bee default values based on uid
     #   - root gets system defaults..
