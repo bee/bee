@@ -129,7 +129,6 @@ function init_config() {
     : ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
     : ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
 
-    print_info "  BEE_SKIPLIST           ${BEE_SKIPLIST}"
     print_info "  BEE_REPOSITORY_PREFIX  ${BEE_REPOSITORY_PREFIX}"
     print_info "  BEE_METADIR            ${BEE_METADIR}"
     print_info "  BEE_TMP_TMPDIR         ${BEE_TMP_TMPDIR}"
