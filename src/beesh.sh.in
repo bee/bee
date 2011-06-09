@@ -244,6 +244,9 @@ check_repositories() {
     fi
 }
 
+function build_in_sourcedir() {
+   B=${S}
+}
 
 #### bee_init_builddir() ######################################################
 
@@ -438,39 +441,19 @@ bee_patch() {
 #### bee_configure() ##########################################################
 
 bee_configure() {
-
-    log_enter "bee_configure()"
-
-    if [ "${BEE_CONFIGURE}" == "none" ] ; then
-        print_info " -- skipping bee_configure .. (BEE_CONFIGURE=none)"
-        log_leave "bee_configure()"
-        return 0
-    fi
-
-    start_cmd ${S}/configure ${DEFCONFIG} "$@"
-
-    log_leave "bee_configure()"
+    print_info "action 'configure' not defined: skipping.."
 }
 
 #### bee_build() ##############################################################
 
 bee_build() {
-    log_enter "bee_build()"
-
-    start_cmd make $@
-
-    log_leave "bee_build()"
+    print_info "action 'build' not defined: skipping.."
 }
 
 #### bee_install() ############################################################
 
 bee_install() {
-    log_enter "bee_install()"
-
-    print_info " -> installing files to ${D}"
-    start_cmd make install DESTDIR=${D} $@
-
-    log_leave "bee_install()"
+    print_info "action 'install' not defined: skipping.."
 }
 
 #### bee_pkg_pack() ###########################################################
@@ -572,6 +555,24 @@ bee_archivebuild() {
         --transform="s,^${BEE_REPOSITORY_BEEDIR},${PKGALLPKG}/files,"
 
     log_leave "bee_archivebuild()"
+}
+
+function load_buildmagic() {
+    local oIFS=${IFS}
+    local IFS=":${IFS}"
+    local magic=$1
+
+    for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} ; do
+        if [ ! -z "${BEE_BUILDTYPE}" ] ; then
+            return
+        fi
+        local IFS=${oIFS}
+        xdgmagic="${dir}/bee/beesh.d/${magic}.sh"
+        if [ -r "${xdgmagic}" ] ; then
+            print_info "loading magic from ${xdgmagic}"
+            . ${xdgmagic}
+        fi
+    done
 }
 
 ###############################################################################
@@ -743,30 +744,6 @@ PKGALLPKG=
 : ${DOCDIR:='${DATAROOTDIR}/doc/gtkhtml'}
 : ${LOCALEDIR:='${DATAROOTDIR}/locale'}
 
-# check IGNORE_DATAROOTDIR for compatibility with old bee-files
-if [ ${IGNORE_DATAROOTDIR} ] ; then
-    print_error "IGNORE_DATAROOTDIR is deprecated! pleade use BEE_CONFIGURE='compat' instead." >&2
-    BEE_CONFIGURE='compat'
-fi
-
-### create default configure line
-: ${DEFCONFIG:='
---prefix=${PREFIX}
---exec-prefix=${EPREFIX}
---bindir=${BINDIR}
---sbindir=${SBINDIR}
---libexecdir=${LIBEXECDIR}
---sysconfdir=${SYSCONFDIR}
---sharedstatedir=${SHAREDSTATEDIR}
---localstatedir=${LOCALSTATEDIR}
---libdir=${LIBDIR}
---includedir=${INCLUDEDIR}
-${DATAROOTDIR:+--datarootdir=${DATAROOTDIR}}
---datadir=${DATADIR}
---infodir=${INFODIR}
-${LOCALEDIR:+--localedir=${LOCALEDIR}}
---mandir=${MANDIR}
-${DOCDIR:+--docdir=${DOCDIR}}'}
 
 eval PREFIX=${PREFIX}
 eval EPREFIX=${EPREFIX}
@@ -784,14 +761,6 @@ eval INFODIR=${INFODIR}
 eval LOCALEDIR=${LOCALEDIR}
 eval MANDIR=${MANDIR}
 eval DOCDIR=${DOCDIR}
-
-if [ "${BEE_CONFIGURE}" = "compat" ] ; then
-    unset DATAROOTDIR
-    unset LOCALEDIR
-    unset DOCDIR
-fi
-
-eval DEFCONFIG=\"${DEFCONFIG}\"
 
 echo -e "${COLOR_CYAN}BEE - mariux package management "
 echo -e "  by Marius Tolzmann und Tobias Dreyer {tolzmann,dreyer}@molgen.mpg.de"
@@ -815,6 +784,15 @@ print_info "changing to source directory: ${S}"
 cd ${S}
 
 bee_run patch ${bee_PATCHFILES[@]}
+
+BEE_BUILDTYPE=""
+
+load_buildmagic cmake
+load_buildmagic configure
+load_buildmagic perl-module
+load_buildmagic perl-module-makemaker
+load_buildmagic make
+load_buildmagic python-module
 
 print_info "changing to build directory: ${B}"
 cd ${B}
