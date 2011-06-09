@@ -788,6 +788,7 @@ bee_run patch ${bee_PATCHFILES[@]}
 BEE_BUILDTYPE=""
 
 load_buildmagic configure
+load_buildmagic cmake
 load_buildmagic make
 load_buildmagic python-module
 
