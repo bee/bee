@@ -18,7 +18,7 @@ PERLS=beefind.pl
 PROGRAMS=beeversion beesep beecut
 
 TEMPLATES=fallback
-MAGIX=configure cmake make python-module
+MAGIX=configure cmake perl-module make python-module
 CONFIGS=skiplist beerc
 
 .SUFFIXES: .in .sh .sh.in
