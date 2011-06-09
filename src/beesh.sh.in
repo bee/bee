@@ -36,36 +36,6 @@ else
     COLOR_ERROR="**ERROR** "
 fi
 
-BEE_SYSCONFDIR=/etc/bee
-BEE_DATADIR=/usr/share
-
-: ${DOTBEERC:=${HOME}/.beerc}
-if [ -e ${DOTBEERC} ] ; then
-    . ${DOTBEERC}
-fi
-
-: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
-if [ -e ${BEEFAULTS} ] ; then
-    . ${BEEFAULTS}
-fi
-
-: ${BEE_METADIR=${BEE_DATADIR}/bee}
-: ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
-
-: ${BEE_TMP_TMPDIR:=/tmp}
-: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
-
-: ${BEE_SKIPLIST=${BEE_SYSCONFDIR}/skiplist}
-
-# copy file.bee to ${BEE_REPOSITORY_BEEDIR} after successfull build
-: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
-
-# directory where (new) bee-pkgs are stored
-: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
-
-# directory where copies of the source+build directories are stored
-: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
-
 print_info() {
     echo -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${COLOR_INFO}${@}${COLOR_NORMAL}"
 }
@@ -73,6 +43,106 @@ print_info() {
 print_error() {
     echo -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${COLOR_ERROR}${@}${COLOR_NORMAL}"
 }
+
+###############################################################################
+###############################################################################
+###############################################################################
+
+IFS_save=${IFS}   # while loading config
+IFS=":${IFS}"     # add ':' to IFS
+
+: ${BEE_SYSCONFDIR:=/etc/bee}
+
+# default XDG data dir to write data to
+: ${BEE_XDG_DATADIR:=/usr/share}
+
+BEE_DATADIR=${BEE_XDG_DATADIR}
+
+# XDG defaults defined in xdg base spec
+: ${XDG_CONFIG_HOME:=${HOME}/.config}
+: ${XDG_CONFIG_DIRS:=/etc/xdg}
+: ${XDG_DATA_HOME:=${HOME}/.local/share}
+: ${XDG_DATA_DIRS:=/usr/local/share:/usr/share}
+
+# handle deprecated config locations (warn for now)
+: ${DOTBEERC:=${HOME}/.beerc}
+if [ -r ${DOTBEERC} ] ; then
+    print_error \
+        "ERROR: support for ~/.beerc is" \
+        " deprecated please move it to" \
+        " ${XDG_CONFIG_HOME}/bee/beerc"
+    exit 1
+fi
+
+: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
+if [ -r ${BEEFAULTS} ] ; then
+    print_error \
+        "WARNING: support for \${BEEFAULTS} (${BEEFAULTS}) is" \
+        ' deprecated please move it to one of' \
+        ' ${XDG_CONFIG_DIRS}/bee/beerc'
+    #exit 1
+fi
+
+: ${BEE_USER_CONFIG_FILE:=${XDG_CONFIG_HOME}/bee/beerc}
+
+for dir in ${XDG_CONFIG_DIRS} /etc ; do
+    xdgbeerc="${dir}/bee/beerc"
+    if [ -r ${xdgbeerc} ] ; then
+        : ${BEE_CONFIG_FILE:=${xdgbeerc}}
+    fi
+done
+
+if [ -r ${BEE_USER_CONFIG_FILE} ] ; then
+    print_info "loading user config from '${BEE_USER_CONFIG_FILE}'"
+    . ${BEE_USER_CONFIG_FILE}
+else
+    print_info "user config not found (${BEE_USER_CONFIG_FILE})"
+fi
+
+if [ -r ${BEE_CONFIG_FILE} ] ; then
+    print_info "loading system config from ${BEE_CONFIG_FILE}"
+    . ${BEE_CONFIG_FILE}
+else
+    print_info "no system config found in ${BEE_CONFIG_FILE}"
+fi
+
+# bee default values based on uid
+#   - root gets system defaults..
+#   - other get XDG_*_HOME defaults..
+if [ ${UID} -eq 0 ] ; then  # ROOT
+    : ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
+    : ${BEE_METADIR=${BEE_XDG_DATADIR}/bee}
+else # USER
+    : ${BEE_REPOSITORY_PREFIX=${XDG_DATA_HOME}/beeroot}
+    : ${BEE_METADIR=${XDG_DATA_HOME}/beemeta}
+fi
+
+for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} /etc ; do
+    xdgskiplist="${dir}/bee/skiplist"
+    print_info "checking skiplist file ${xdgskiplist}"
+    if [ -r "${xdgskiplist}" ] ; then
+        : ${BEE_SKIPLIST=${xdgskiplist}}
+    fi
+done
+
+: ${BEE_TMP_TMPDIR:=/tmp}
+: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
+
+: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
+: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
+: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
+
+print_info "  BEE_SKIPLIST           ${BEE_SKIPLIST}"
+print_info "  BEE_REPOSITORY_PREFIX  ${BEE_REPOSITORY_PREFIX}"
+print_info "  BEE_METADIR            ${BEE_METADIR}"
+print_info "  BEE_TMP_TMPDIR         ${BEE_TMP_TMPDIR}"
+print_info "  BEE_TMP_BUILDROOT      ${BEE_TMP_BUILDROOT}"
+
+IFS=${IFS_save} # reset IFS
+
+###############################################################################
+###############################################################################
+###############################################################################
 
 log_enter() {
     print_info ">>>> entering ${@} .."
@@ -160,27 +230,27 @@ show_help() {
 check_repositories() {
     r=0
     print_info "==> checking repositories .."
-    
+
     mkdir -pv ${BEE_REPOSITORY_BEEDIR}
     mkdir -pv ${BEE_REPOSITORY_PKGDIR}
     mkdir -pv ${BEE_REPOSITORY_BUILDARCHIVEDIR}
-    
+
     if [ ! -w ${BEE_REPOSITORY_BEEDIR} ] ; then
         print_error " !! ${BEE_REPOSITORY_BEEDIR} not writable"
         r=1
     fi
-    
+
     if [ ! -w ${BEE_REPOSITORY_PKGDIR} ] ; then
         print_error " !! ${BEE_REPOSITORY_PKGDIR} not writable"
         r=1
     fi
-    
+
     if [ ! -w ${BEE_REPOSITORY_BUILDARCHIVEDIR} ] ; then
         print_error " !! ${BEE_REPOSITORY_BEEDIR} not writable"
         r=1
     fi
-    
-    if [ "$r"  != "0" ] ; then 
+
+    if [ "$r"  != "0" ] ; then
         exit 1
     fi
 }
@@ -189,10 +259,10 @@ check_repositories() {
 #### bee_init_builddir() ######################################################
 
 bee_init_builddir() {
-    
+
     print_info "==> initializing build environment .."
-    
-    if [ -d "${W}" ] ; then 
+
+    if [ -d "${W}" ] ; then
         if [ "${OPT_CLEANUP}" = "yes" ] ; then
             print_info " -> cleaning work dir ${W} .."
             rm -fr ${W}
@@ -201,12 +271,12 @@ bee_init_builddir() {
             exit 1
         fi
     fi
-    
+
     print_info " -> creating source dir ${S}"
-    
+
     mkdir -p ${S}
-    
-    
+
+
     if [ "${B}" == "${S}" ] ; then
         B=${BEEWORKDIR}/build
         print_info " -> B=S linking build dir ${B} to source dir"
@@ -215,7 +285,7 @@ bee_init_builddir() {
         print_info " -> creating build dir ${B}"
         mkdir -p ${B}
     fi
-    
+
     print_info " -> creating image dir ${D}"
     mkdir -p ${D}
     echo
@@ -227,11 +297,11 @@ bee_init_builddir() {
 fetch_one_file() {
     url=$1
     file=${2:-$(basename ${url})}
-    
+
     if [ "${url:0:8}" = "file:///" ] ; then
         url=${url:7}
     fi
-    
+
     if [ "${url:0:1}" = "/" ] ; then
         print_info "copying file ${url}"
         cp -v "${url}" "${F}/${file}"
@@ -241,11 +311,11 @@ fetch_one_file() {
         else
             nocheck=""
         fi
-        
+
         if [ ! -s "${F}/${file}" ] ; then
             rm -vf ${F}/${file}
         fi
-        
+
         print_info "fetching $url"
         wget \
             ${nocheck} \
@@ -263,19 +333,19 @@ fetch_one_file() {
 
 fetch_one_archive() {
     fetch_one_file $@
-    
+
     bee_SOURCEFILES=( ${bee_SOURCEFILES[@]} ${bee_FETCHED_FILE} )
 }
 
 fetch_one_patch() {
     fetch_one_file $@
-    
+
     bee_PATCHFILES=( ${bee_PATCHFILES[@]} ${bee_FETCHED_FILE} )
 }
 
 bee_getsrcurl() {
     local -a archives=( "${@}" )
-    
+
     for a in "${archives[@]}" ; do
         fetch_one_archive ${a}
     done
@@ -283,7 +353,7 @@ bee_getsrcurl() {
 
 bee_getpatchurl() {
     local -a patches=( "${@}" )
-    
+
     for p in "${patches[@]}" ; do
         fetch_one_patch ${p}
     done
@@ -300,13 +370,13 @@ bee_getpatchurl() {
 bee_getsources() {
     mkdir -p "${F}"
 
-    if [ -z "${SRCURL}" ] ; then 
+    if [ -z "${SRCURL}" ] ; then
         unset SRCURL
     fi
 
     bee_run getsrcurl "${SRCURL[@]}"
 
-    if [ -z "${PATCHURL}" ] ; then 
+    if [ -z "${PATCHURL}" ] ; then
         unset PATCHURL
     fi
 
@@ -327,7 +397,7 @@ bee_getsources() {
 bee_extract() {
     local bee_S
     bee_S=( $@ )
-    
+
     log_enter "bee_extract()"
 
     if is_func mee_unpack ; then
@@ -336,23 +406,23 @@ bee_extract() {
         log_leave "bee_extract()"
         return
     fi
-    
-    if [ -z "${bee_S[0]}" ] ; then 
+
+    if [ -z "${bee_S[0]}" ] ; then
         log_leave "bee_extract()"
-        return 
+        return
     fi
-    
+
     s=${bee_S[0]}
     print_info " -> extracting main source ${s} .."
     tar xof ${s} --strip-components 1 -C ${S}
-    
+
     unset bee_S[0]
-    
+
     for s in ${bee_S[@]} ; do
         print_info " -> extracting additional source ${s} .."
         tar xof ${s} -C ${S}
     done
-    
+
     print_info " -> all sources extracted to: ${S} .."
     log_leave "bee_extract()"
 }
@@ -362,13 +432,13 @@ bee_extract() {
 bee_patch() {
     local bee_P
     bee_P=( $@ )
-    
+
     log_enter "bee_patch()"
-    
+
     if [ ${#bee_P[@]} == 0 ] ; then
         bee_P=( ${bee_PATCHFILES[@]} )
     fi
-    
+
     for p in ${bee_P[@]} ; do
         print_info "applying patch ${p} .."
         patch -Np1 -i ${p}
@@ -381,15 +451,15 @@ bee_patch() {
 bee_configure() {
 
     log_enter "bee_configure()"
-    
+
     if [ "${BEE_CONFIGURE}" == "none" ] ; then
         print_info " -- skipping bee_configure .. (BEE_CONFIGURE=none)"
         log_leave "bee_configure()"
         return 0
     fi
-    
+
     start_cmd ${S}/configure ${DEFCONFIG} "$@"
-    
+
     log_leave "bee_configure()"
 }
 
@@ -397,9 +467,9 @@ bee_configure() {
 
 bee_build() {
     log_enter "bee_build()"
-    
+
     start_cmd make $@
-    
+
     log_leave "bee_build()"
 }
 
@@ -407,10 +477,10 @@ bee_build() {
 
 bee_install() {
     log_enter "bee_install()"
-    
+
     print_info " -> installing files to ${D}"
     start_cmd make install DESTDIR=${D} $@
-    
+
     log_leave "bee_install()"
 }
 
@@ -420,7 +490,7 @@ bee_install() {
 # $BEE_SKIPLIST is found in $BEEFAULTS
 bee_pkg_pack() {
     log_enter "bee_pkg_pack()"
-    
+
     for e in ${EXCLUDE} ; do
         exargs="${exargs} --exclude=${e}";
     done
@@ -436,7 +506,7 @@ bee_pkg_pack() {
     cp ${BEE} ${D}/BUILD
 
     create_meta
-    
+
     if [ -n "${bee_PATCHFILES[0]}" ] ; then
         mkdir -pv ${D}/PATCHES
     fi
@@ -446,11 +516,11 @@ bee_pkg_pack() {
 
     if [ ! -d "${BEE_REPOSITORY_PKGDIR}" ] ; then
         mkdir -pv ${BEE_REPOSITORY_PKGDIR}
-    fi 
-    
+    fi
+
     pkgname=${PKGALLPKG}.bee.tar.bz2
     pkgfile=${BEE_REPOSITORY_PKGDIR}/${pkgname}
-    
+
     print_info " -> creating package ${pkgname} .."
     print_info "${COLOR_CYAN}${pkgfile}"
 
@@ -470,19 +540,19 @@ bee_pkg_pack() {
         ${bee_PATCHFILES:+${D}/PATCHES/*}
 
     rm ${DUMP}
-    
+
     beefilename=$(basename ${BEE})
     beefiledest=${BEE_REPOSITORY_BEEDIR}/${beefilename}
-    
+
     print_info "-> saving bee-file ${beefilename} .."
     print_info "${COLOR_CYAN}${beefiledest}"
 
     if [ ! -d "${BEE_REPOSITORY_BEEDIR}" ] ; then
         mkdir -pv ${BEE_REPOSITORY_BEEDIR}
-    fi 
+    fi
 
     cp -v ${BEE} ${BEE_REPOSITORY_BEEDIR}
-    
+
     log_leave "bee_pkg_pack()"
 }
 
@@ -491,16 +561,16 @@ bee_archivebuild() {
     [ "${OPT_ARCHIVE_BUILD}" != "yes" ] && return
 
     log_enter "bee_archivebuild()"
-    
+
     if [ ! -d "${BEE_REPOSITORY_BUILDARCHIVEDIR}" ] ; then
         mkdir -pv ${BEE_REPOSITORY_BUILDARCHIVEDIR}
     fi
-    
+
     archive="${BEE_REPOSITORY_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2"
-    
+
     print_info " -> saving build environment.."
     print_info "${COLOR_CYAN}${archive}"
-    
+
     tar -cjf ${archive} \
         --show-transformed-names \
         --sparse \
@@ -533,7 +603,7 @@ is_func() {
 bee_run() {
     action=${1}
     shift
-    
+
     if is_func "mee_${action}${bee_PASS}" ; then
         log_enter "mee_${action}${bee_PASS}()"
         mee_${action}${bee_PASS} "${@}"
@@ -555,7 +625,7 @@ OPTIONS=$(getopt -n bee-option-parser \
                  --long archive-build,no-archive-build \
                  -- "$@")
 
-if [ $? != 0 ] ; then 
+if [ $? != 0 ] ; then
     print_info "Terminating..." >&2
     exit 1
 fi
@@ -581,9 +651,9 @@ while true ; do
             OPT_FORCE="yes"
             shift
             ;;
-        -c|--cleanup) 
+        -c|--cleanup)
             OPT_CLEANUP="yes"
-            shift 
+            shift
             ;;
         -s|--silent-build)
             OPT_SILENT="yes"
@@ -601,11 +671,11 @@ while true ; do
             DEBUG=$2
             shift 2
             ;;
-        --) 
+        --)
             shift
             break
             ;;
-        *) 
+        *)
             print_error "Internal error!"
             exit 1
             ;;
@@ -652,7 +722,7 @@ D=${BEEWORKDIR}/image
 # clear PKGALLPKG since we can't trust PKGARCH in this state
 PKGALLPKG=
 
-# source file.bee 
+# source file.bee
 . ${BEE}
 
 # now set PKGARCH if set or changed by user via ARCH=.. and not given via file.arch.bee

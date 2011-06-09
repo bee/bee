@@ -1,19 +1,24 @@
 PREFIX=/usr
+EPREFIX=${PREFIX}
 SBINDIR=${PREFIX}/sbin
 BINDIR=${PREFIX}/bin
+LIBEXECDIR=${EPREFIX}/lib/bee
 SYSCONFDIR=/etc
 
-BEEDIR=${SYSCONFDIR}/bee
+BEEDIR=${SYSCONFDIR}/xdg/bee
 TEMPLATEDIR=${BEEDIR}/templates
 
 DESTDIR=
 
-SHELLS=bee bee-init bee-check bee-remove bee-install bee-list bee-query beesh
+SHELLS=bee beesh
+TOOLS=bee-init bee-check bee-remove bee-install bee-list bee-query
 PERLS=beefind.pl
 PROGRAMS=beeversion beesep beecut
 
-TEMPLATES=default
+TEMPLATES=fallback
 CONFIGS=skiplist beerc
+
+.SUFFIXES: .in .sh .sh.in
 
 all: build
 
@@ -23,7 +28,7 @@ perls: $(PERLS)
 
 programs: $(PROGRAMS)
 
-shells: $(SHELLS)
+shells: $(addsuffix .sh,$(SHELLS) $(TOOLS))
 
 beesep: src/beesep/beesep.c
 	gcc -Wall -o $@ $^
@@ -34,53 +39,37 @@ beeversion: src/beeversion/beeversion.c
 beecut: src/beecut/beecut.c
 	gcc -Wall -o $@ $^
 
-bee: src/bee.sh
+%.sh: src/%.sh.in
 	cp $< $@
-
-bee-init: src/beeinit.sh
-	cp $< $@
-
-bee-check: src/beecheck.sh
-	cp $< $@
-
-bee-remove: src/beeremove.sh
-	cp $< $@
-
-bee-install: src/beeinstall.sh
-	cp $< $@
-
-bee-list: src/beelist.sh
-	cp $< $@
-
-bee-query: src/beequery.sh
-	cp $< $@
-
-beesh: src/beesh.sh
-	cp $< $@
-
+	
 beefind.pl: src/beefind.pl
 	cp $< $@
 
 clean:
-	rm -f $(SHELLS)
+	rm -f $(addsuffix .sh,$(SHELLS) $(TOOLS))
 	rm -f $(PERLS)
 	rm -f $(PROGRAMS)
 
 install: build
 	@mkdir -vp ${DESTDIR}${BINDIR}
-	@for i in $(SHELLS) $(PERLS) $(PROGRAMS) ; do \
-	     echo "installing $(DESTDIR)$(BINDIR)/$${i}" ; \
-	     install -m 0755 $${i} ${DESTDIR}${BINDIR} ; \
+	@for i in $(SHELLS) ; do \
+	     install -v -m 0755 $${i}.sh ${DESTDIR}${BINDIR}/$${i} ; \
+	 done
+	
+	@for i in $(PERLS) $(PROGRAMS) ; do \
+	     install -v -m 0755 $${i} ${DESTDIR}${BINDIR} ; \
+	 done
+	@mkdir -vp ${DESTDIR}${LIBEXECDIR}
+	@for i in $(TOOLS) ; do \
+	     install -v -m 0755 $${i}.sh ${DESTDIR}${LIBEXECDIR}/$${i} ; \
 	 done
 
 install-config:
 	@mkdir -vp ${DESTDIR}${BEEDIR}
 	@for i in ${CONFIGS} ; do \
-	     echo "installing ${DESTDIR}${BEEDIR}/$${i}.sample" ; \
-	     install -vm 0644 conf/$${i} ${DESTDIR}${BEEDIR}/$${i}.sample; \
+	     install -v -m 0644 conf/$${i} ${DESTDIR}${BEEDIR}/$${i}.sample; \
 	 done
 	@mkdir -vp ${DESTDIR}${TEMPLATEDIR}
 	@for t in ${TEMPLATES} ; do \
-	     echo "installing ${DESTDIR}${TEMPLATEDIR}/$${t}" ; \
-	     install -vm 0644 conf/templates/$${t} ${DESTDIR}${TEMPLATEDIR} ; \
+	     install -v -m 0644 conf/templates/$${t} ${DESTDIR}${TEMPLATEDIR} ; \
 	 done

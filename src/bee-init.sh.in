@@ -1,11 +1,14 @@
 #!/bin/bash
 set -e
 
-BEE_SYSCONFDIR=/etc/bee
+if [ -z ${BEE_VERSION} ] ; then
+    echo >&2 "BEE-ERROR: please call $0 from bee .."
+    exit 1
+fi
 
-: ${BEE_TEMPLATEDIR:=${BEE_SYSCONFDIR}/templates}
+VERSION=${BEE_VERSION}
 
-usage() {
+function usage() {
     echo "usage.."
     echo "$0 [options] <url>"
     echo "$0 [options] <pkgname> [url]"
@@ -16,7 +19,43 @@ usage() {
     echo "  -f                .. force overwriting of beefile"
 }
 
-initialize() {
+function print_msg() {
+    echo >&2 -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${@}"
+}
+
+function print_info() {
+    print_msg "${COLOR_INFO}${@}${COLOR_NORMAL}"
+}
+
+function print_error() {
+    print_msg "${COLOR_ERROR}${@}${COLOR_NORMAL}"
+}
+
+function create_beefile_from_template {
+    beefile=$1
+    templates=( $2 default fallback )
+    local IFS=":${IFS}"
+
+    for tmpl in ${templates[@]} ; do
+        for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} ; do
+            xdgtemplate="${dir}/bee/templates/${tmpl}"
+
+            if [ -r "${xdgtemplate}" ] ; then
+                : ${BEE_TEMPLATE=${xdgtemplate}}
+            fi
+        done
+    done
+
+    if [ ! -r ${BEE_TEMPLATE} ] ; then
+        print_error "no valid template found .."
+        exit 1
+    fi
+
+    echo "creating ${beefile} from template '${BEE_TEMPLATE}'"
+    cp ${BEE_TEMPLATE} ${beefile}
+}
+
+function initialize() {
     # get arguments starting with '--'
     while [ -n "${1}" ] ; do
         if [ "${1:0:2}" == "--" ] ; then
@@ -31,26 +70,26 @@ initialize() {
     set -- ${PP}
     pname=$1
     surl=$2
-    
+
     if [ -z "${surl}" ] ; then
         surl=${pname}
 
-	# fix sourceforge urls for automatic pkgname generation
-	if [[ $surl = *://sourceforge.net/*/files/*/download ]] ; then
-	    # strip /files directory
-	    surl=${surl/\/files\///}
+        # fix sourceforge urls for automatic pkgname generation
+        if [[ $surl = *://sourceforge.net/*/files/*/download ]] ; then
+            # strip /files directory
+            surl=${surl/\/files\///}
 
-	    # rename directory /projects to /project
-	    surl=${surl/\/projects\///project/}
+            # rename directory /projects to /project
+            surl=${surl/\/projects\///project/}
 
             # replace hostname sourceforge.net -> downloads.sourceforge.net
             surl=${surl/\/\/sourceforge.net\////downloads.sourceforge.net/}
 
-	    # strip /download basename
-	    surl=${surl%/download}
+            # strip /download basename
+            surl=${surl%/download}
 
-	    pname=${surl}
-	fi
+            pname=${surl}
+        fi
 
         # start auto packagename generation with surl basename
         pname=${surl##*/}
@@ -78,7 +117,7 @@ initialize() {
             pname=${pname}-0
         fi
     fi
-    
+
     beefile="${pname}.bee"
 
     if [ -e ${beefile} ] && [ "$OPT_FORCE" != "yes" ] ; then
@@ -86,53 +125,14 @@ initialize() {
         exit 1
     fi
 
-    
-    if [ -r ${BEE_TEMPLATEDIR}/${TEMPLATE} ] ; then
-        echo "creating ${beefile} with TEMPLATE='${TEMPLATE}' and SRCURL='${surl}'"
-        cp ${BEE_TEMPLATEDIR}/${TEMPLATE} ${pname}.bee
-    else
-        echo "creating ${beefile} with SRCURL='${surl}'"
-        cat >${pname}.bee <<-"EOT"
-	#!/bin/env beesh
-	
-	@SRCURL@
-	
-	PATCHURL[0]=""
-	
-	@BEE_CONFIGURE@
-	
-	# EXCLUDE=""
-	
-	@DEFAULT_PREFIX_VARS@
-	
-	mee_extract() {
-		bee_extract ${@}
-	}
-	
-	mee_patch() {
-		bee_patch ${@}
-	}
-	
-	mee_configure() {
-		bee_configure @DEFAULT_CONFIGURE_OPTIONS@
-	}
-	
-	mee_build() {
-		bee_build
-	}
-	
-	mee_install() {
-		bee_install
-	}
-	EOT
-    fi
-    
+    create_beefile_from_template ${beefile} ${TEMPLATE}
+
     sed -e "s,@SRCURL@,SRCURL[0]=\"${surl}\"," \
         -i ${beefile}
-    
+
     sed -e "s,@DEFAULT_CONFIGURE_OPTIONS@,${DEFAULT_CONFIGURE_OPTIONS}," \
         -i ${beefile}
-    
+
     for i in prefix eprefix bindir sbindir libexecdir sysconfdir \
               localstatedir sharedstatedir libdir includedir datarootdir \
               datadir infodir mandir docdirlocaledir ; do
@@ -141,10 +141,10 @@ initialize() {
         DEFAULT_PREFIX_VARS="${DEFAULT_PREFIX_VARS:+${DEFAULT_PREFIX_VARS}}${dir:+${DEFAULT_PREFIX_VARS:+\n}}${dir:+${I}=${dir}}"
         unset dir
     done
-    
+
     sed -e "s,@DEFAULT_PREFIX_VARS@,${DEFAULT_PREFIX_VARS}," \
         -i ${beefile}
-    
+
     if [ "${CONFIGURE_BEEHAVIOR}" ] ; then
         sed -e "s,@BEE_CONFIGURE@,BEE_CONFIGURE=${CONFIGURE_BEEHAVIOR}," \
             -i ${beefile}
@@ -179,25 +179,20 @@ while true ; do
             usage
             exit 0
             ;;
-            
+
         -t|--template)
             TEMPLATE=${2}
             shift 2
-            
-            if [ ! -e ${BEE_TEMPLATEDIR}/${TEMPLATE} ] ; then
-                echo "ignoring non-existant template '${BEE_TEMPLATEDIR}/${TEMPLATE}' .."
-                unset TEMPLATE
-            fi
             ;;
-            
+
         -f|--force)
             shift
-            
+
             OPT_FORCE="yes"
             ;;
-            
+
         --configure)
-            case "${2}" in 
+            case "${2}" in
                 compat|none)
                     CONFIGURE_BEEHAVIOR=${2}
                     ;;
@@ -207,7 +202,7 @@ while true ; do
             esac
             shift 2
             ;;
-            
+
         --prefix|\
         --eprefix|\
         --bindir|\
@@ -227,14 +222,14 @@ while true ; do
             eval OPT_${1:2}="${2}"
             shift 2
             ;;
-            
+
         *)
             shift
             if [ -z ${1} ] ; then
                  usage
                  exit 1
             fi
-            
+
             : ${TEMPLATE:=default}
             initialize ${@}
             exit 0;

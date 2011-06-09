@@ -25,37 +25,12 @@ BEESEP=beesep
 ###############################################################################
 ###############################################################################
 
-VERSION=0.2
-
-BEE_SYSCONFDIR=/etc/bee
-BEE_DATADIR=/usr/share
-
-: ${DOTBEERC:=${HOME}/.beerc}
-if [ -e ${DOTBEERC} ] ; then
-    . ${DOTBEERC}
+if [ -z ${BEE_VERSION} ] ; then
+    echo >&2 "BEE-ERROR: please call $0 from bee .."
+    exit 1
 fi
 
-: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
-if [ -e ${BEEFAULTS} ] ; then
-    . ${BEEFAULTS}
-fi
-
-: ${BEE_METADIR=${BEE_DATADIR}/bee}
-: ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
-
-: ${BEE_TMP_TMPDIR:=/tmp}
-: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
-
-: ${BEE_SKIPLIST=${BEE_SYSCONFDIR}/skiplist}
-
-# copy file.bee to ${BEE_REPOSITORY_BEEDIR} after successfull build
-: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
-
-# directory where (new) bee-pkgs are stored
-: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
-
-# directory where copies of the source+build directories are stored
-: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
+VERSION=${BEE_VERSION}
 
 ###############################################################################
 ##
@@ -77,12 +52,12 @@ pkg_check_all() {
 ##
 ##
 pkg_check_deps() {
-    installed=$(bee-list --installed --exact ${1})
-    
+    installed=$(${BEE_LIBEXECDIR}/bee-list --installed --exact ${1})
+
     if [ ! "${installed}" -a $OPT_F -gt 0 ] ; then
-        installed=$(bee-list --installed "${1}")
+        installed=$(${BEE_LIBEXECDIR}/bee-list --installed "${1}")
     fi
-   
+
     if [ "${installed}" ] ; then
         for i in ${installed} ; do
             do_check_deps "${i}"
@@ -95,29 +70,29 @@ pkg_check_deps() {
 ##
 ##
 pkg_check() {
-    installed=$(bee-list --installed --exact ${1})
-    
+    installed=$(${BEE_LIBEXECDIR}/bee-list --installed --exact ${1})
+
     if [ ! "${installed}" -a $OPT_F -gt 0 ] ; then
-        installed=$(bee-list --installed "${1}")
+        installed=$(${BEE_LIBEXECDIR}/bee-list --installed "${1}")
     fi
-    
+
     if [ "${installed}" ] ; then
         for i in ${installed} ; do
             do_check "${i}"
         done
         return 0
     fi
-    
-    installed=$(bee-list --installed "${1}")
-    
+
+    installed=$(${BEE_LIBEXECDIR}/bee-list --installed "${1}")
+
     if [ "${installed}" ] ; then
         echo "packages matching '${1}':"
         for i in ${installed} ; do
             echo " [*] ${i}"
         done
     fi
-    
-    
+
+
 }
 
 
@@ -127,8 +102,8 @@ pkg_check() {
 do_check_deps() {
     local pkg=${1}
     local filesfile=${BEE_METADIR}/${pkg}/FILES
-    
-    for line in $(cat ${filesfile}) ; do 
+
+    for line in $(cat ${filesfile}) ; do
         local IFS=":"
 
         for ff in ${line} ; do
@@ -139,19 +114,19 @@ do_check_deps() {
         # save and strip possible symbolic link destination..
         symlink=${file#*//}
         file=${file%%//*}
-        
+
         if [ ! -f "${file}" -o -h ${file} ] ; then
              continue
         fi
-        
+
 #       echo ${file}
-        
+
         readelf -d ${file} 2>/dev/null | egrep "(NEEDED|SONAME)"
-        
+
     done \
       | sed -e 's,.*Shared library: \[\(.*\)\].*,needs \1,' \
             -e 's,.*Library soname: \[\(.*\)\].*,provides \1,' \
-      | sort -u 
+      | sort -u
 }
 
 ###############################################################################
@@ -159,12 +134,12 @@ do_check_deps() {
 ##
 do_check() {
     local pkg=${1}
-    
+
     local filesfile=${BEE_METADIR}/${pkg}/FILES
-    
+
     echo "checking ${pkg} .."
-    
-    for line in $(cat ${filesfile}) ; do 
+
+    for line in $(cat ${filesfile}) ; do
         eval $(${BEESEP} ${line})
 
         # save and strip possible symbolic link destination..
@@ -175,11 +150,11 @@ do_check() {
             echo "  [missing] <${md5}> ${file}"
             continue
         fi
-        
+
         if [ "${md5}" = "link" ] ; then
             if [ ! -h "${file}" ] ; then
                 echo "  [changed] <was symlink to ${symlink}> ${file}"
-            else 
+            else
                 sdest=$(readlink ${file})
                 if [ "${sdest}"  != "${symlink}" ] ; then
                     echo "  [changed] <symlink desitination '${symlink}' != '${sdest}'> ${file}"
@@ -188,16 +163,16 @@ do_check() {
             fi
             continue
         fi
-        
+
         if [ "${md5}" = "directory" ] ; then
             if [ ! -d "${file}" ] ; then
                 echo "  [changed] <was directory> ${file}"
             fi
             continue
         fi
-        
+
         # regular file - check md5sum..
-        
+
         md5now=$(md5sum ${file} | sed -e 's,^\([a-z0-9]*\).*$,\1,')
 
         if [ "${md5}" != "${md5now}" ] ; then
@@ -205,7 +180,7 @@ do_check() {
             continue
         fi
     done
-    
+
 }
 
 ##### usage ###################################################################
@@ -256,7 +231,7 @@ while true ; do
       shift 2;
       pkg_check_deps ${@}
       exit 0
-      ;;  
+      ;;
     -h|--help)
       usage
       exit 0

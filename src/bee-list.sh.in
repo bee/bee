@@ -8,54 +8,29 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 #
 
-VERSION=1.0
+if [ -z ${BEE_VERSION} ] ; then
+    echo >&2 "BEE-ERROR: please call $0 from bee .."
+    exit 1
+fi
+
+VERSION=${BEE_VERSION}
 
 #
-# BUGS TO FIX/FEATURES TO ADD: 
+# BUGS TO FIX/FEATURES TO ADD:
 #   - lists are alpha-num sorted and not as pkg-versions ..
 #   - check for grep -P support and use it..
-
-BEE_SYSCONFDIR=/etc/bee
-BEE_DATADIR=/usr/share
-
-: ${DOTBEERC:=${HOME}/.beerc}
-if [ -e ${DOTBEERC} ] ; then
-    . ${DOTBEERC}
-fi
-
-: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
-if [ -e ${BEEFAULTS} ] ; then
-    . ${BEEFAULTS}
-fi
-
-: ${BEE_METADIR=${BEE_DATADIR}/bee}
-: ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
-
-: ${BEE_TMP_TMPDIR:=/tmp}
-: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
-
-: ${BEE_SKIPLIST=${BEE_SYSCONFDIR}/skiplist}
-
-# copy file.bee to ${BEE_REPOSITORY_BEEDIR} after successfull build
-: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
-
-# directory where (new) bee-pkgs are stored
-: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
-
-# directory where copies of the source+build directories are stored
-: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
 
 ARCH=$(arch)
 
@@ -67,21 +42,24 @@ usage() {
 	bee-list v${VERSION} 2009-2011
 	  by Marius Tolzmann and Tobias Dreyer {tolzmann,dreyer}@molgen.mpg.de
 	     Max Planck Institute for Molecular Gentics Berlin Dahlem
-	
+
 	usage: $0 [action] [pattern list]
-	
+
 	available actions:
 	    -i | --installed (default) list installed pkgs matching pattern list
 	    -a | --available           list available pkgs matching pattern list
-	
+
 	EOF
 }
 
 #
-# lists installed packages 
+# lists installed packages
 #   RETURNS a sorted list of installed packages
 #
 list_installed() {
+    if [ ! -r ${BEE_METADIR} ] ; then
+        return
+    fi
     find ${BEE_METADIR} -mindepth 1 -maxdepth 1 -printf "%f\n" \
         | sort
 }
@@ -92,16 +70,28 @@ list_installed() {
 #   or in any directory in ${BEE_REPOSITORY_PKGPATH}
 #
 list_available() {
+    local IFS=":${IFS}"
     # preapre for repository pathes..
     : ${BEE_REPOSITORY_PKGPATH:=${BEE_REPOSITORY_PKGDIR}}
-    
+
     # replace all ':' with ' ' in BEE_REPOSITORY_PKGPATH
     path=${BEE_REPOSITORY_PKGPATH//:/ }
-    
-    find ${path} -mindepth 1 -maxdepth 1 -printf "%f\n" \
+
+    search=""
+    for p in $path ; do
+        if [ -r ${p} ] ; then
+            search="${search} ${p}"
+        fi
+    done
+
+    if [ -z ${search} ] ; then
+        return
+    fi
+
+    find ${search} -mindepth 1 -maxdepth 1 -printf "%f\n" \
         | sed -e "s@\.iee\.tar\..*\$@@" \
               -e "s@\.bee\.tar\..*\$@@" \
-        | sort 
+        | sort
 }
 
 #
@@ -112,19 +102,19 @@ list_available() {
 list_beepackages() {
     mode=${1}
     shift
-    
+
     # if more then one pattern is given all pattern have to match (AND)
     thegrep=""
     for p in ${@} ; do
         thegrep="${thegrep} | grep -i -E -e '${p}' "
     done
-    
+
     if [ "${mode}" = "available" ] ; then
         list_cmd="list_available"
     else
         list_cmd="list_installed"
     fi
-    
+
     # execute the search and display results..
     eval ${list_cmd} ${thegrep}
 }
@@ -138,7 +128,7 @@ options=$(getopt -n bee-list \
                  -o aih \
                  --long available \
                  --long installed \
-		 --long exact \
+                 --long exact \
                  --long help \
                  --long debug \
                  -- "$@")
