@@ -790,6 +790,7 @@ BEE_BUILDTYPE=""
 load_buildmagic configure
 load_buildmagic cmake
 load_buildmagic perl-module
+load_buildmagic perl-module-makemaker
 load_buildmagic make
 load_buildmagic python-module
 
