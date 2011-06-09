@@ -10,22 +10,22 @@ PATCHURL[0]=""
 
 @DEFAULT_PREFIX_VARS@
 
-mee_extract() {
-    bee_extract ${@}
-}
+#mee_extract() {
+#    bee_extract ${@}
+#}
 
-mee_patch() {
-    bee_patch ${@}
-}
+#mee_patch() {
+#    bee_patch ${@}
+#}
 
-mee_configure() {
-    bee_configure @DEFAULT_CONFIGURE_OPTIONS@
-}
+#mee_configure() {
+#    bee_configure @DEFAULT_CONFIGURE_OPTIONS@
+#}
 
-mee_build() {
-    bee_build
-}
+#mee_build() {
+#    bee_build
+#}
 
-mee_install() {
-    bee_install
-}
+#mee_install() {
+#    bee_install
+#}
