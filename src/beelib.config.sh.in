@@ -1,9 +1,5 @@
 #!/bin/bash
 
-: ${BEE_SYSCONFDIR:=/etc}
-: ${BEE_DATADIR:=/usr/share}
-: ${BEE_LIBEXECDIR:=/usr/lib/bee}
-
 function config_init_colors() {
     if [ -t 1 ] ; then
         COLOR_NORMAL="\\033[0;39m\\033[0;22m"

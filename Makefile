@@ -2,6 +2,7 @@ PREFIX=/usr
 EPREFIX=${PREFIX}
 SBINDIR=${PREFIX}/sbin
 BINDIR=${PREFIX}/bin
+DATADIR=${PREFIX}/share
 LIBEXECDIR=${EPREFIX}/lib/bee
 SYSCONFDIR=/etc
 
@@ -45,7 +46,14 @@ beecut: src/beecut/beecut.c
 	gcc -Wall -o $@ $^
 
 %.sh: src/%.sh.in
-	cp $< $@
+	sed -e 's,@PREFIX@,$(PREFIX),g' \
+	    -e 's,@EPREFIX@,$(EPREFIX),g' \
+	    -e 's,@BINDIR@,$(BINDIR),g' \
+	    -e 's,@SBINDIR@,$(SBINDIR),g' \
+	    -e 's,@SYSCONFDIR@,$(SYSCONFDIR),g' \
+	    -e 's,@LIBEXECDIR@,$(LIBEXECDIR),g' \
+	    -e 's,@DATADIR@,$(DATADIR),g' \
+	    $< > $@
 	
 beefind.pl: src/beefind.pl
 	cp $< $@
