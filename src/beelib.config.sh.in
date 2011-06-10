@@ -1,0 +1,182 @@
+#!/bin/bash
+
+: ${BEE_SYSCONFDIR:=/etc}
+: ${BEE_DATADIR:=/usr/share}
+: ${BEE_LIBEXECDIR:=/usr/lib/bee}
+
+function config_init_colors() {
+    if [ -t 1 ] ; then
+        COLOR_NORMAL="\\033[0;39m\\033[0;22m"
+        COLOR_GREEN="\\033[0;32m"
+        COLOR_YELLOW="\\033[0;33m"
+        COLOR_RED="\\033[0;31m"
+        COLOR_CYAN="\\033[0;36m"
+        COLOR_BLUE="\\033[0;34m"
+        COLOR_PURPLE="\\033[0;35m"
+        COLOR_BRACKET=${COLOR_PURPLE}
+        COLOR_BRCONTENT=${COLOR_YELLOW}
+        COLOR_INFO=${COLOR_GREEN}
+        COLOR_ERROR=${COLOR_RED}
+    else
+        COLOR_NORMAL=""
+        COLOR_GREEN=""
+        COLOR_YELLOW=""
+        COLOR_RED=""
+        COLOR_CYAN=""
+        COLOR_BLUE=""
+        COLOR_PURPLE=""
+        COLOR_BRACKET=""
+        COLOR_BRCONTENT=""
+        COLOR_INFO="**INFO** "
+        COLOR_ERROR="**ERROR** "
+    fi
+}
+
+function config_init_base_config() {
+    : ${BEE_ROOT_REPOSITORY_PREFIX:=/usr/src/bee}
+    : ${BEE_XDG_DATADIR:=${BEE_DATADIR}}
+
+    # XDG defaults defined in xdg base spec
+    : ${XDG_CONFIG_HOME:=${HOME}/.config}
+    : ${XDG_CONFIG_DIRS:=/etc/xdg:${BEE_SYSCONFDIR}/xdg:${BEE_SYSCONFDIR}}
+    : ${XDG_DATA_HOME:=${HOME}/.local/share}
+    : ${XDG_DATA_DIRS:=/usr/local/share:/usr/share}
+
+    # always append bee special dirs to XDG search path
+    XDG_CONFIG_DIRS=${XDG_CONFIG_DIRS}:${BEE_SYSCONFDIR}/xdg:${BEE_SYSCONFDIR}
+    XDG_DATA_DIRS=${XDG_DATA_DIRS}:${BEE_XDG_DATADIR}
+}
+
+function config_handle_deprecated_config() {
+    : ${DOTBEERC:=${HOME}/.beerc}
+    if [ -r ${DOTBEERC} ] ; then
+        print_error \
+            "ERROR: support for ~/.beerc is" \
+            " deprecated please move it to" \
+            " ${XDG_CONFIG_HOME}/bee/beerc"
+        exit 1
+    fi
+
+    : ${BEEFAULTS:=${BEE_SYSCONFDIR}/bee/beerc}
+    if [ -r ${BEEFAULTS} ] ; then
+        print_error \
+            "WARNING: support for \${BEEFAULTS} (${BEEFAULTS}) is" \
+            ' deprecated please move it to one of' \
+            ' ${XDG_CONFIG_DIRS}/bee/beerc'
+        #exit 1
+    fi
+}
+
+# load config: (bee/beerc)
+#
+# merge:
+#   - $ENV              (already set or not)
+#   - user config       (BEE_USER_CONFIG_FILE)
+#   - system config     (BEE_CONFIG_FILE)
+#   - built-in defaults (see below)
+#
+
+function config_load_user_config() {
+    : ${BEE_USER_CONFIG_FILE:=${XDG_CONFIG_HOME}/bee/beerc}
+
+    # load user config
+    if [ -r "${BEE_USER_CONFIG_FILE}" ] ; then
+        print_info "loading user config from '${BEE_USER_CONFIG_FILE}'"
+        . ${BEE_USER_CONFIG_FILE}
+    else
+        print_info "user config not found (${BEE_USER_CONFIG_FILE})"
+    fi
+}
+
+function config_load_system_config() {
+    local IFS=":${IFS}"
+
+    if [ ! -z "${BEE_CONFIG_FILE}" -a -r "${BEE_CONFIG_FILE}" ] ; then
+        return
+    fi
+
+    BEE_CONFIG_FILE=""
+    # system config - search and take *first* readable
+    for dir in ${XDG_CONFIG_DIRS} ; do
+        xdgbeerc="${dir}/bee/beerc"
+        if [ -r "${xdgbeerc}" ] ; then
+            : ${BEE_CONFIG_FILE:=${xdgbeerc}}
+        fi
+    done
+
+    if [ -r ${BEE_CONFIG_FILE} ] ; then
+        print_info "loading system config from ${BEE_CONFIG_FILE}"
+        . ${BEE_CONFIG_FILE}
+    else
+        print_info "no system config found in ${BEE_CONFIG_FILE}"
+    fi
+}
+
+function config_set_skiplist() {
+    local IFS=":${IFS}"
+
+    if [ ! -z "${BEE_SKIPLIST}" -a -r "${BEE_SKIPLIST}" ] ; then
+        return
+    fi
+
+    BEE_SKIPLIST=""
+
+    # skiplist - search in user and system config - take *first* readable
+    for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} ; do
+        xdgskiplist="${dir}/bee/skiplist"
+        print_info "checking skiplist file ${xdgskiplist}"
+        if [ -r "${xdgskiplist}" ] ; then
+            : ${BEE_SKIPLIST:=${xdgskiplist}}
+            return
+        fi
+    done
+}
+
+function config_verify_builtin_config() {
+    # set built-in default values based on uid
+    #   - root gets system defaults..
+    #   - other get XDG_*_HOME defaults..
+    if [ ${UID} -eq 0 ] ; then  # root
+        : ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
+        : ${BEE_METADIR=${BEE_XDG_DATADIR}/bee}
+    else # user
+        : ${BEE_REPOSITORY_PREFIX=${XDG_DATA_HOME}/beeroot}
+        : ${BEE_METADIR=${XDG_DATA_HOME}/beemeta}
+    fi
+
+    : ${BEE_TMP_TMPDIR:=/tmp}
+    : ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
+
+    : ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
+    : ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
+    : ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
+}
+
+function config_init() {
+    config_init_base_config
+    config_handle_deprecated_config
+    config_load_user_config
+    config_load_system_config
+    config_verify_builtin_config
+}
+
+function config_export() {
+    export BEE_REPOSITORY_PREFIX
+    export BEE_REPOSITORY_BEEDIR
+    export BEE_REPOSITORY_PKGDIR
+    export BEE_REPOSITORY_BUILDARCHIVEDIR
+    export BEE_METADIR
+    export BEE_TMP_TMPDIR
+    export BEE_TMP_BUILDROOT
+
+    export BEE_SYSCONFDIR
+    export BEE_DATADIR
+    export BEE_LIBEXECDIR
+
+    export BEE_VERSION
+
+    export XDG_CONFIG_HOME
+    export XDG_CONFIG_DIRS
+    export XDG_DATA_HOME
+    export XDG_DATA_DIRS
+}

@@ -7,37 +7,18 @@ ARCH=$(arch)
 # Version
 VERSION=1.0_rc1
 
-if [ -t 1 ] ; then
-    COLOR_NORMAL="\\033[0;39m\\033[0;22m"
-    COLOR_GREEN="\\033[0;32m"
-    COLOR_YELLOW="\\033[0;33m"
-    COLOR_RED="\\033[0;31m"
-    COLOR_CYAN="\\033[0;36m"
-    COLOR_BLUE="\\033[0;34m"
-    COLOR_PURPLE="\\033[0;35m"
-    COLOR_BRACKET=${COLOR_PURPLE}
-    COLOR_BRCONTENT=${COLOR_YELLOW}
-    COLOR_INFO=${COLOR_GREEN}
-    COLOR_ERROR=${COLOR_RED}
-else
-    COLOR_NORMAL=""
-    COLOR_GREEN=""
-    COLOR_YELLOW=""
-    COLOR_RED=""
-    COLOR_CYAN=""
-    COLOR_BLUE=""
-    COLOR_PURPLE=""
-    COLOR_BRACKET=""
-    COLOR_BRCONTENT=""
-    COLOR_INFO="**INFO** "
-    COLOR_ERROR="**ERROR** "
-fi
+: ${BEE_SYSCONFDIR:=/etc}
+: ${BEE_DATADIR:=/usr/share}
+: ${BEE_LIBEXECDIR:=/usr/lib/bee}
 
-print_info() {
+# load libs
+. ${BEE_LIBEXECDIR}/beelib.config.sh
+
+function print_info() {
     echo -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${COLOR_INFO}${@}${COLOR_NORMAL}"
 }
 
-print_error() {
+function print_error() {
     echo -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${COLOR_ERROR}${@}${COLOR_NORMAL}"
 }
 
@@ -45,111 +26,15 @@ print_error() {
 ###############################################################################
 ###############################################################################
 
-IFS_save=${IFS}   # while loading config
-IFS=":${IFS}"     # add ':' to IFS
-
-: ${BEE_SYSCONFDIR:=/etc/bee}
-
-# default XDG data dir to write data to
-: ${BEE_XDG_DATADIR:=/usr/share}
-
-BEE_DATADIR=${BEE_XDG_DATADIR}
-
-# XDG defaults defined in xdg base spec
-: ${XDG_CONFIG_HOME:=${HOME}/.config}
-: ${XDG_CONFIG_DIRS:=/etc/xdg}
-: ${XDG_DATA_HOME:=${HOME}/.local/share}
-: ${XDG_DATA_DIRS:=/usr/local/share:/usr/share}
-
-# handle deprecated config locations (warn for now)
-: ${DOTBEERC:=${HOME}/.beerc}
-if [ -r ${DOTBEERC} ] ; then
-    print_error \
-        "ERROR: support for ~/.beerc is" \
-        " deprecated please move it to" \
-        " ${XDG_CONFIG_HOME}/bee/beerc"
-    exit 1
-fi
-
-: ${BEEFAULTS:=${BEE_SYSCONFDIR}/beerc}
-if [ -r ${BEEFAULTS} ] ; then
-    print_error \
-        "WARNING: support for \${BEEFAULTS} (${BEEFAULTS}) is" \
-        ' deprecated please move it to one of' \
-        ' ${XDG_CONFIG_DIRS}/bee/beerc'
-    #exit 1
-fi
-
-: ${BEE_USER_CONFIG_FILE:=${XDG_CONFIG_HOME}/bee/beerc}
-
-for dir in ${XDG_CONFIG_DIRS} /etc ; do
-    xdgbeerc="${dir}/bee/beerc"
-    if [ -r ${xdgbeerc} ] ; then
-        : ${BEE_CONFIG_FILE:=${xdgbeerc}}
-    fi
-done
-
-if [ -r ${BEE_USER_CONFIG_FILE} ] ; then
-    print_info "loading user config from '${BEE_USER_CONFIG_FILE}'"
-    . ${BEE_USER_CONFIG_FILE}
-else
-    print_info "user config not found (${BEE_USER_CONFIG_FILE})"
-fi
-
-if [ -r ${BEE_CONFIG_FILE} ] ; then
-    print_info "loading system config from ${BEE_CONFIG_FILE}"
-    . ${BEE_CONFIG_FILE}
-else
-    print_info "no system config found in ${BEE_CONFIG_FILE}"
-fi
-
-# bee default values based on uid
-#   - root gets system defaults..
-#   - other get XDG_*_HOME defaults..
-if [ ${UID} -eq 0 ] ; then  # ROOT
-    : ${BEE_REPOSITORY_PREFIX=/usr/src/bee}
-    : ${BEE_METADIR=${BEE_XDG_DATADIR}/bee}
-else # USER
-    : ${BEE_REPOSITORY_PREFIX=${XDG_DATA_HOME}/beeroot}
-    : ${BEE_METADIR=${XDG_DATA_HOME}/beemeta}
-fi
-
-for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} /etc ; do
-    xdgskiplist="${dir}/bee/skiplist"
-    print_info "checking skiplist file ${xdgskiplist}"
-    if [ -r "${xdgskiplist}" ] ; then
-        : ${BEE_SKIPLIST=${xdgskiplist}}
-    fi
-done
-
-: ${BEE_TMP_TMPDIR:=/tmp}
-: ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
-
-: ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
-: ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
-: ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
-
-print_info "  BEE_SKIPLIST           ${BEE_SKIPLIST}"
-print_info "  BEE_REPOSITORY_PREFIX  ${BEE_REPOSITORY_PREFIX}"
-print_info "  BEE_METADIR            ${BEE_METADIR}"
-print_info "  BEE_TMP_TMPDIR         ${BEE_TMP_TMPDIR}"
-print_info "  BEE_TMP_BUILDROOT      ${BEE_TMP_BUILDROOT}"
-
-IFS=${IFS_save} # reset IFS
-
-###############################################################################
-###############################################################################
-###############################################################################
-
-log_enter() {
-    print_info ">>>> entering ${@} .."
+function log_enter() {
+    print_info "=> entering ${@} .."
 }
 
-log_leave() {
-    print_info "<<<< leaving ${@} .."
+function log_leave() {
+    print_info "<= leaving ${@} .."
 }
 
-start_cmd() {
+function start_cmd() {
     print_info "${COLOR_CYAN}${@}"
     "${@}"
 }
@@ -160,7 +45,7 @@ start_cmd() {
 
 #### create_meta() ############################################################
 
-create_meta() {
+function create_meta() {
     echo >>${D}/META "BEEMETAFORMAT=1"
     echo >>${D}/META "BEEPKG='${PKGALLPKG}'"
     echo >>${D}/META "PGRP=( ${PGRP[@]} )"
@@ -168,7 +53,7 @@ create_meta() {
 
 #### show_help() ##############################################################
 
-show_help() {
+function show_help() {
     echo " beesh v${VERSION} 2009-2010"
     echo ""
     echo "  by Tobias Dreyer and Marius Tolzmann <{dreyer,tolzmann}@molgen.mpg.de>"
@@ -211,7 +96,7 @@ show_help() {
 
 }
 
-check_repositories() {
+function check_repositories() {
     r=0
     print_info "==> checking repositories .."
 
@@ -245,7 +130,7 @@ function build_in_sourcedir() {
 
 #### bee_init_builddir() ######################################################
 
-bee_init_builddir() {
+function bee_init_builddir() {
 
     print_info "==> initializing build environment .."
 
@@ -281,7 +166,7 @@ bee_init_builddir() {
 #### bee_getsources() #########################################################
 # fetch_one_file <url> [filename]
 
-fetch_one_file() {
+function fetch_one_file() {
     url=$1
     file=${2:-$(basename ${url})}
 
@@ -318,19 +203,19 @@ fetch_one_file() {
     bee_FETCHED_FILES=( ${bee_FETCHED_FILES[@]} "${F}/${file}" )
 }
 
-fetch_one_archive() {
+function fetch_one_archive() {
     fetch_one_file $@
 
     bee_SOURCEFILES=( ${bee_SOURCEFILES[@]} ${bee_FETCHED_FILE} )
 }
 
-fetch_one_patch() {
+function fetch_one_patch() {
     fetch_one_file $@
 
     bee_PATCHFILES=( ${bee_PATCHFILES[@]} ${bee_FETCHED_FILE} )
 }
 
-bee_getsrcurl() {
+function bee_getsrcurl() {
     local -a archives=( "${@}" )
 
     for a in "${archives[@]}" ; do
@@ -338,7 +223,7 @@ bee_getsrcurl() {
     done
 }
 
-bee_getpatchurl() {
+function bee_getpatchurl() {
     local -a patches=( "${@}" )
 
     for p in "${patches[@]}" ; do
@@ -354,7 +239,7 @@ bee_getpatchurl() {
 #    SRCURL[0]="<url> [filename]"
 #    SRCURL[1]="<url> [filename]"
 
-bee_getsources() {
+function bee_getsources() {
     mkdir -p "${F}"
 
     if [ -z "${SRCURL}" ] ; then
@@ -381,7 +266,7 @@ bee_getsources() {
 
 #### bee_extract() #############################################################
 
-bee_extract() {
+function bee_extract() {
     local bee_S
     bee_S=( $@ )
 
@@ -416,7 +301,7 @@ bee_extract() {
 
 #### bee_patch() ##############################################################
 
-bee_patch() {
+function bee_patch() {
     local bee_P
     bee_P=( $@ )
 
@@ -435,19 +320,19 @@ bee_patch() {
 
 #### bee_configure() ##########################################################
 
-bee_configure() {
+function bee_configure() {
     print_info "action 'configure' not defined: skipping.."
 }
 
 #### bee_build() ##############################################################
 
-bee_build() {
+function bee_build() {
     print_info "action 'build' not defined: skipping.."
 }
 
 #### bee_install() ############################################################
 
-bee_install() {
+function bee_install() {
     print_info "action 'install' not defined: skipping.."
 }
 
@@ -455,7 +340,7 @@ bee_install() {
 
 # $EXCLUDE is read from .bee file
 # $BEE_SKIPLIST is found in $BEEFAULTS
-bee_pkg_pack() {
+function bee_pkg_pack() {
     log_enter "bee_pkg_pack()"
 
     for e in ${EXCLUDE} ; do
@@ -524,7 +409,7 @@ bee_pkg_pack() {
 }
 
 
-bee_archivebuild() {
+function bee_archivebuild() {
     [ "${OPT_ARCHIVE_BUILD}" != "yes" ] && return
 
     log_enter "bee_archivebuild()"
@@ -574,18 +459,18 @@ function load_buildmagic() {
 ###############################################################################
 ###############################################################################
 
-dump_variables() {
+function dump_variables() {
     for i in P{,N{,F,E},F,V{,E,F,R},S,R} ${!PKG*} ${!BEE*} ${!DEF*} ${!OPT*} ${!DOT*} R F W S B D ; do
         eval echo "${i}=\${${i}}"
     done
 }
 
-is_func() {
+function is_func() {
     [ "$(type -t ${1})" == "function" ]
     return $?
 }
 
-bee_run() {
+function bee_run() {
     action=${1}
     shift
 
@@ -602,6 +487,22 @@ bee_run() {
         exit
     fi
 }
+
+config_init_colors
+
+echo -e "${COLOR_CYAN}BEE - mariux package management "
+echo -e "  by Marius Tolzmann und Tobias Dreyer {tolzmann,dreyer}@molgen.mpg.de"
+echo -e "${COLOR_NORMAL}"
+
+config_init
+
+config_set_skiplist
+
+print_info "  BEE_SKIPLIST           ${BEE_SKIPLIST}"
+print_info "  BEE_REPOSITORY_PREFIX  ${BEE_REPOSITORY_PREFIX}"
+print_info "  BEE_METADIR            ${BEE_METADIR}"
+print_info "  BEE_TMP_TMPDIR         ${BEE_TMP_TMPDIR}"
+print_info "  BEE_TMP_BUILDROOT      ${BEE_TMP_BUILDROOT}"
 
 ###############################################################################
 
@@ -753,9 +654,6 @@ eval LOCALEDIR=${LOCALEDIR}
 eval MANDIR=${MANDIR}
 eval DOCDIR=${DOCDIR}
 
-echo -e "${COLOR_CYAN}BEE - mariux package management "
-echo -e "  by Marius Tolzmann und Tobias Dreyer {tolzmann,dreyer}@molgen.mpg.de"
-echo -e "${COLOR_NORMAL}"
 
 # in ${PWD}
 

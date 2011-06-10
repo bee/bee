@@ -20,6 +20,8 @@ PROGRAMS=beeversion beesep beecut
 TEMPLATES=fallback
 MAGIX=configure cmake perl-module perl-module-makemaker make python-module 
 CONFIGS=skiplist beerc
+BEELIB=beelib.config
+
 
 .SUFFIXES: .in .sh .sh.in
 
@@ -31,7 +33,7 @@ perls: $(PERLS)
 
 programs: $(PROGRAMS)
 
-shells: $(addsuffix .sh,$(SHELLS) $(TOOLS))
+shells: $(addsuffix .sh,$(SHELLS) $(TOOLS) $(BEELIB))
 
 beesep: src/beesep/beesep.c
 	gcc -Wall -o $@ $^
@@ -67,6 +69,9 @@ install-core: build
 	@mkdir -vp ${DESTDIR}${LIBEXECDIR}
 	@for i in $(TOOLS) ; do \
 	     install -v -m 0755 $${i}.sh ${DESTDIR}${LIBEXECDIR}/$${i} ; \
+	 done
+	@for i in $(BEELIB) ; do \
+	     install -v -m 0755 $${i}.sh ${DESTDIR}${LIBEXECDIR}/$${i}.sh ; \
 	 done
 
 install-config:
