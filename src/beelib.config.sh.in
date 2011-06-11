@@ -34,7 +34,7 @@ function config_init_base_config() {
 
     # XDG defaults defined in xdg base spec
     : ${XDG_CONFIG_HOME:=${HOME}/.config}
-    : ${XDG_CONFIG_DIRS:=/etc/xdg:${BEE_SYSCONFDIR}/xdg:${BEE_SYSCONFDIR}}
+    : ${XDG_CONFIG_DIRS:=/etc/xdg}
     : ${XDG_DATA_HOME:=${HOME}/.local/share}
     : ${XDG_DATA_DIRS:=/usr/local/share:/usr/share}
 
