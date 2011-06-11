@@ -52,10 +52,10 @@ pkg_check_all() {
 ##
 ##
 pkg_check_deps() {
-    installed=$(${BEE_LIBEXECDIR}/bee-list --installed --exact ${1})
+    installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --exact ${1})
 
     if [ ! "${installed}" -a $OPT_F -gt 0 ] ; then
-        installed=$(${BEE_LIBEXECDIR}/bee-list --installed "${1}")
+        installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed "${1}")
     fi
 
     if [ "${installed}" ] ; then
@@ -70,10 +70,10 @@ pkg_check_deps() {
 ##
 ##
 pkg_check() {
-    installed=$(${BEE_LIBEXECDIR}/bee-list --installed --exact ${1})
+    installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --exact ${1})
 
     if [ ! "${installed}" -a $OPT_F -gt 0 ] ; then
-        installed=$(${BEE_LIBEXECDIR}/bee-list --installed "${1}")
+        installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed "${1}")
     fi
 
     if [ "${installed}" ] ; then
@@ -83,7 +83,7 @@ pkg_check() {
         return 0
     fi
 
-    installed=$(${BEE_LIBEXECDIR}/bee-list --installed "${1}")
+    installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed "${1}")
 
     if [ "${installed}" ] ; then
         echo "packages matching '${1}':"

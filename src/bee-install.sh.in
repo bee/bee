@@ -120,7 +120,7 @@ pkg_install() {
         fi
     done
 
-    available=$(${BEE_LIBEXECDIR}/bee-list --available "${search}")
+    available=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --available "${search}")
     subsearch=( $(beecut -d '-' "${search}") )
     nss=${#subsearch[*]}
 
@@ -161,7 +161,7 @@ pkg_install() {
 
         if [ -n "${install_match}" ] ; then
             debug_msg "matches: ${install_match}"
-            print_pkg_list $(${BEE_LIBEXECDIR}/bee-list -a "${search}")
+            print_pkg_list $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list -a "${search}")
             break
         fi
     done
@@ -183,7 +183,7 @@ get_installed_versions() {
     local pname=$(beeversion --pkgfullname ${pkg})
     local list
 
-    for i in $(${BEE_LIBEXECDIR}/bee-list -i "${pname}") ; do
+    for i in $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list -i "${pname}") ; do
         local installed=$(beeversion --pkgfullname ${i})
         if [ "${installed}" = "${pname}" ] ; then
             list="${list:+${list} }${i}"

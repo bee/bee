@@ -41,6 +41,10 @@ function config_init_base_config() {
     # always append bee special dirs to XDG search path
     XDG_CONFIG_DIRS=${XDG_CONFIG_DIRS}:${BEE_SYSCONFDIR}/xdg:${BEE_SYSCONFDIR}
     XDG_DATA_DIRS=${XDG_DATA_DIRS}:${BEE_XDG_DATADIR}
+
+    # append bee installed defaults to config search path
+    : ${BEE_CONFIG_DIR:=${BEE_DEFCONFDIR}}
+    XDG_CONFIG_DIRS=${XDG_CONFIG_DIRS}:${BEE_CONFIG_DIR}
 }
 
 function config_handle_deprecated_config() {

@@ -1,97 +1,132 @@
-PREFIX=/usr
-EPREFIX=${PREFIX}
-SBINDIR=${PREFIX}/sbin
-BINDIR=${PREFIX}/bin
-DATADIR=${PREFIX}/share
-LIBEXECDIR=${EPREFIX}/lib/bee
-SYSCONFDIR=/etc
+PREFIX     = /usr
+EPREFIX    = ${PREFIX}
+SBINDIR    = ${EPREFIX}/sbin
+BINDIR     = ${EPREFIX}/bin
+LIBDIR     = ${EPREFIX}/lib
+LIBEXECDIR = ${EPREFIX}/libexec
+DATADIR    = ${PREFIX}/share
 
-BEEDIR=${SYSCONFDIR}/xdg/bee
+# set sysconfdir /etc if prefix /usr
+ifeq (${PREFIX},/usr)
+SYSCONFDIR = /etc
+else
+SYSCONFDIR = ${PREFIX}/etc
+endif
 
-TEMPLATEDIR=${BEEDIR}/templates
-MAGICDIR=${BEEDIR}/beesh.d
+# strip /bee from LIBEXECDIR if set
+ifeq ($(notdir ${LIBEXECDIR}),bee)
+override LIBEXECDIR := $(patsubst %/,%,$(dir ${LIBEXECDIR}))
+endif
+
+# default condif directory
+DEFCONFDIR=${SYSCONFDIR}/defaults
 
 DESTDIR=
 
-SHELLS=bee beesh
-TOOLS=bee-init bee-check bee-remove bee-install bee-list bee-query
-PERLS=beefind.pl
-PROGRAMS=beeversion beesep beecut
+PROGRAMS_C=beeversion beesep beecut
+PROGRAMS_SHELL=bee beesh
+PROGRAMS_PERL=beefind.pl
 
-TEMPLATES=fallback
-MAGIX=configure cmake perl-module perl-module-makemaker make python-module 
-CONFIGS=skiplist beerc
-BEELIB=beelib.config
+HELPER_BEE_SHELL=bee-init bee-check bee-remove bee-install bee-list bee-query
 
+LIBRARY_SHELL=beelib.config
 
-.SUFFIXES: .in .sh .sh.in
+HELPER_BEESH_SHELL=configure cmake perl-module perl-module-makemaker make python-module
+
+CONFIG_TEMPLATES=fallback
+CONFIG_FILES=skiplist beerc
+
+.SUFFIXES: .in .sh .sh.in .pl
 
 all: build
 
-build: shells perls programs
+build: shellscripts perlscripts cprograms
 
-perls: $(PERLS)
+SHELLSCRIPTS=$(PROGRAMS_SHELL) $(HELPER_BEE_SHELL) $(LIBRARY_SHELL)
 
-programs: $(PROGRAMS)
-
-shells: $(addsuffix .sh,$(SHELLS) $(TOOLS) $(BEELIB))
+shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS))
+perlscripts:  $(PROGRAMS_PERL)
+cprograms:    $(PROGRAMS_C)
 
 beesep: src/beesep/beesep.c
-	gcc -Wall -o $@ $^
+	@echo "building $@ .."
+	@gcc -Wall -o $@ $^
 
 beeversion: src/beeversion/beeversion.c
-	gcc -Wall -o $@ $^
+	@echo "building $@ .."
+	@gcc -Wall -o $@ $^
 
 beecut: src/beecut/beecut.c
-	gcc -Wall -o $@ $^
+	@echo "building $@ .."
+	@gcc -Wall -o $@ $^
 
 %.sh: src/%.sh.in
-	sed -e 's,@PREFIX@,$(PREFIX),g' \
-	    -e 's,@EPREFIX@,$(EPREFIX),g' \
-	    -e 's,@BINDIR@,$(BINDIR),g' \
-	    -e 's,@SBINDIR@,$(SBINDIR),g' \
-	    -e 's,@SYSCONFDIR@,$(SYSCONFDIR),g' \
-	    -e 's,@LIBEXECDIR@,$(LIBEXECDIR),g' \
-	    -e 's,@DATADIR@,$(DATADIR),g' \
+	@echo "creating $@ .."
+	@sed \
+	    -e 's,@PREFIX@,${PREFIX},g' \
+	    -e 's,@EPREFIX@,${EPREFIX},g' \
+	    -e 's,@BINDIR@,${BINDIR},g' \
+	    -e 's,@SBINDIR@,${SBINDIR},g' \
+	    -e 's,@LIBDIR@,${LIBDIR},g' \
+	    -e 's,@SYSCONFDIR@,${SYSCONFDIR},g' \
+	    -e 's,@DEFCONFDIR@,${DEFCONFDIR},g' \
+	    -e 's,@LIBEXECDIR@,${LIBEXECDIR},g' \
+	    -e 's,@DATADIR@,${DATADIR},g' \
 	    $< > $@
-	
-beefind.pl: src/beefind.pl
-	cp $< $@
+
+%.pl: src/%.pl
+	@echo "creating $@ .."
+	@cp $< $@
 
 clean:
-	rm -f $(addsuffix .sh,$(SHELLS) $(TOOLS))
-	rm -f $(PERLS)
-	rm -f $(PROGRAMS)
+	@rm -vf $(addsuffix .sh,${SHELLSCRIPTS})
+	@rm -vf ${PROGRAMS_PERL}
+	@rm -vf ${PROGRAMS_C}
 
 install: install-core install-config
 
 install-core: build
-	@mkdir -vp ${DESTDIR}${BINDIR}
-	@for i in $(SHELLS) ; do \
-	     install -v -m 0755 $${i}.sh ${DESTDIR}${BINDIR}/$${i} ; \
+	@mkdir -p ${DESTDIR}${BINDIR}
+
+	@for i in ${PROGRAMS_SHELL} ; do \
+	     echo "installing ${DESTDIR}${BINDIR}/$${i}" ; \
+	     install -m 0755 $${i}.sh ${DESTDIR}${BINDIR}/$${i} ; \
 	 done
-	
-	@for i in $(PERLS) $(PROGRAMS) ; do \
-	     install -v -m 0755 $${i} ${DESTDIR}${BINDIR} ; \
+
+	@for i in ${PROGRAMS_PERL} ${PROGRAMS_C} ; do \
+	     echo "installing ${DESTDIR}${BINDIR}/$${i}" ; \
+	     install -m 0755 $${i} ${DESTDIR}${BINDIR}/$${i} ; \
 	 done
-	@mkdir -vp ${DESTDIR}${LIBEXECDIR}
-	@for i in $(TOOLS) ; do \
-	     install -v -m 0755 $${i}.sh ${DESTDIR}${LIBEXECDIR}/$${i} ; \
+
+	@mkdir -p ${DESTDIR}${LIBEXECDIR}/bee/bee.d
+
+	@for i in ${HELPER_BEE_SHELL} ; do \
+	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/bee.d/$${i}" ; \
+	     install -m 0755 $${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/bee.d/$${i} ; \
 	 done
-	@for i in $(BEELIB) ; do \
-	     install -v -m 0755 $${i}.sh ${DESTDIR}${LIBEXECDIR}/$${i}.sh ; \
+
+	@for i in ${LIBRARY_SHELL} ; do \
+	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/$${i}.sh" ; \
+	     install -m 0755 $${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/$${i}.sh ; \
+	 done
+
+	@mkdir -p ${DESTDIR}${LIBEXECDIR}/bee/beesh.d
+	@for i in ${HELPER_BEESH_SHELL} ; do \
+	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/$${i}.sh" ; \
+	     install -m 0644 conf/beesh.d/$${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/$${i}.sh ; \
 	 done
 
 install-config:
-	@mkdir -vp ${DESTDIR}${BEEDIR}
-	@for i in ${CONFIGS} ; do \
-	     install -v -m 0644 conf/$${i} ${DESTDIR}${BEEDIR}/$${i}.sample; \
+	@mkdir -p ${DESTDIR}${DEFCONFDIR}/bee
+
+	@for i in ${CONFIG_FILES} ; do \
+	     echo "installing ${DESTDIR}${DEFCONFDIR}/bee/$${i}" ; \
+	     install -m 0444 conf/$${i} ${DESTDIR}${DEFCONFDIR}/bee/$${i}; \
 	 done
-	@mkdir -vp ${DESTDIR}${TEMPLATEDIR}
-	@for t in ${TEMPLATES} ; do \
-	     install -v -m 0644 conf/templates/$${t} ${DESTDIR}${TEMPLATEDIR} ; \
-	 done
-	@mkdir -vp ${DESTDIR}${MAGICDIR}
-	@for t in ${MAGIX} ; do \
-	     install -v -m 0644 conf/beesh.d/$${t}.sh ${DESTDIR}${MAGICDIR}/$${t}.sh ; \
+
+	@mkdir -p ${DESTDIR}${DEFCONFDIR}/bee/templates
+
+	@for i in ${CONFIG_TEMPLATES} ; do \
+	     echo "installing ${DESTDIR}${DEFCONFDIR}/bee/templates/$${i}" ; \
+	     install -m 0444 conf/templates/$${i} ${DESTDIR}${DEFCONFDIR}/bee/templates/$${i} ; \
 	 done
