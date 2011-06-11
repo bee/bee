@@ -120,7 +120,6 @@ function config_set_skiplist() {
     # skiplist - search in user and system config - take *first* readable
     for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} ; do
         xdgskiplist="${dir}/bee/skiplist"
-        print_info "checking skiplist file ${xdgskiplist}"
         if [ -r "${xdgskiplist}" ] ; then
             : ${BEE_SKIPLIST:=${xdgskiplist}}
             return

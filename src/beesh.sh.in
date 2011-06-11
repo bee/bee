@@ -93,7 +93,6 @@ function show_help() {
     echo "mee_install() {"
     echo "    bee_install"
     echo "}"
-
 }
 
 function check_repositories() {
@@ -160,7 +159,6 @@ function bee_init_builddir() {
 
     print_info " -> creating image dir ${D}"
     mkdir -p ${D}
-    echo
 }
 
 #### bee_getsources() #########################################################
@@ -654,7 +652,7 @@ bee_init_builddir
 
 check_repositories
 
-print_info "==> building ${PKGALLPKG} ..\n"
+print_info "==> building ${PKGALLPKG} .."
 
 bee_run getsources
 
