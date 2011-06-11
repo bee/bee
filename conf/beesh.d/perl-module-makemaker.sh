@@ -1,6 +1,5 @@
 
 if [ ! -r ${S}/Makefile.PL ] ; then
-    echo "no Makefile.PL script found.."
     return
 fi
 

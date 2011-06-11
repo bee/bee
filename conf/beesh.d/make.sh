@@ -1,7 +1,6 @@
 
 
 if [ ! -r ${S}/Makefile ] ; then
-    echo "no Makefile found.."
     return
 fi
 

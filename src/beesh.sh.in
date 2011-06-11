@@ -426,16 +426,24 @@ function load_buildmagic() {
     local IFS=":${IFS}"
     local magic=$1
 
+    if [ ! -z "${BEE_BUILDTYPE}" ] ; then
+        return
+    fi
+
     for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} ; do
-        if [ ! -z "${BEE_BUILDTYPE}" ] ; then
-            return
-        fi
         local IFS=${oIFS}
         xdgmagic="${dir}/bee/beesh.d/${magic}.sh"
         if [ -r "${xdgmagic}" ] ; then
             . ${xdgmagic}
+            if [ ! -z "${BEE_BUILDTYPE}" ] ; then
+                break
+            fi
         fi
     done
+
+    if [ ! -z "${BEE_BUILDTYPE}" ] ; then
+        print_info "using magic buildtype '${BEE_BUILDTYPE}' from '${xdgmagic}' .."
+    fi
 }
 
 ###############################################################################

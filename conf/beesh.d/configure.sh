@@ -1,6 +1,5 @@
 
 if [ ! -x ${S}/configure ] ; then
-    echo "no configure script found.."
     return
 fi
 

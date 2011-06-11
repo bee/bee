@@ -1,6 +1,5 @@
 
 if [ ! -r ${S}/Build.PL ] ; then
-    echo "no Build.PL script found.."
     return
 fi
 

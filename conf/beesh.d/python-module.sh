@@ -1,6 +1,5 @@
 
 if [ ! -r ${S}/setup.py ] ; then
-    echo "no setup.py python-script found.."
     return
 fi
 

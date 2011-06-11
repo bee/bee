@@ -1,6 +1,5 @@
 
 if [ ! -r ${S}/CMakeLists.txt ] ; then
-    echo "no configure script found.."
     return
 fi
 
