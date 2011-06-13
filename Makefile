@@ -19,7 +19,7 @@ override LIBEXECDIR := $(patsubst %/,%,$(dir ${LIBEXECDIR}))
 endif
 
 # default condif directory
-DEFCONFDIR=${SYSCONFDIR}/defaults
+DEFCONFDIR=${SYSCONFDIR}/default
 
 DESTDIR=
 
