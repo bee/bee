@@ -5,12 +5,16 @@ BINDIR     = ${EPREFIX}/bin
 LIBDIR     = ${EPREFIX}/lib
 LIBEXECDIR = ${EPREFIX}/libexec
 DATADIR    = ${PREFIX}/share
+SYSCONFDIR = ${PREFIX}/etc
 
 # set sysconfdir /etc if prefix /usr
 ifeq (${PREFIX},/usr)
-SYSCONFDIR = /etc
-else
-SYSCONFDIR = ${PREFIX}/etc
+    SYSCONFDIR = /etc
+endif
+
+# set sysconfdir /etc if prefix /usr/local
+ifeq (${PREFIX},/usr/local)
+    SYSCONFDIR = /etc
 endif
 
 # strip /bee from LIBEXECDIR if set
