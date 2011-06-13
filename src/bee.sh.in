@@ -32,15 +32,36 @@ function usage() {
     echo "  check"
 }
 
+function search_tool_cmd {
+    local IFS=":${IFS}"
+    local tool=${1}
+
+    if [ -z "${tool}" ] ; then
+        return
+    fi
+
+    CMD=
+
+    for dir in ${XDG_CONFIG_HOME} ${XDG_CONFIG_DIRS} ${BEE_LIBEXECDIR} ; do
+        cmd="${dir}/bee/bee.d/bee-${tool}"
+        if [ -x "${cmd}" ] ; then
+            CMD=${cmd}
+            return
+        fi
+    done
+}
+
+TOOL=${1}
+
 config_init
 
 config_export
 
-cmd=${BEE_LIBEXECDIR}/bee/bee.d/bee-${1}
+search_tool_cmd ${TOOL}
 
-if [ -x "${cmd}" ] ; then
+if [ ! -z  "${CMD}" ] ; then
     shift
-    exec ${cmd} ${@}
+    exec ${CMD} ${@}
     exit 1
 fi
 
