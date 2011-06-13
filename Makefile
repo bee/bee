@@ -19,10 +19,10 @@ endif
 
 # strip /bee from LIBEXECDIR if set
 ifeq ($(notdir ${LIBEXECDIR}),bee)
-override LIBEXECDIR := $(patsubst %/,%,$(dir ${LIBEXECDIR}))
+    override LIBEXECDIR := $(patsubst %/,%,$(dir ${LIBEXECDIR}))
 endif
 
-# default condif directory
+# default config directory
 DEFCONFDIR=${SYSCONFDIR}/default
 
 DESTDIR=
