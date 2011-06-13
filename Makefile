@@ -1,3 +1,5 @@
+BEE_VERSION = 1.0_rc3
+
 PREFIX     = /usr
 EPREFIX    = ${PREFIX}
 SBINDIR    = ${EPREFIX}/sbin
@@ -75,6 +77,7 @@ beecut: src/beecut/beecut.c
 	    -e 's,@SYSCONFDIR@,${SYSCONFDIR},g' \
 	    -e 's,@DEFCONFDIR@,${DEFCONFDIR},g' \
 	    -e 's,@LIBEXECDIR@,${LIBEXECDIR},g' \
+	    -e 's,@BEE_VERSION@,${BEE_VERSION},g' \
 	    -e 's,@DATADIR@,${DATADIR},g' \
 	    $< > $@
 
