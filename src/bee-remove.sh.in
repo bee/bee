@@ -30,11 +30,8 @@ pkg_remove() {
 
     # pattern is no installed pkg
     # show all pkgs that match pattern
-    PKGS=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list -i ${search})
     echo "${search} matches following packages .."
-    for p in ${PKGS} ; do
-        [ -d $p ] && echo " -> ${p}"
-    done
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-list -i "${search}"
 }
 
 do_remove() {
