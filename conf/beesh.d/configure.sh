@@ -36,23 +36,22 @@ if [ "${BEE_CONFIGURE}" = "compat" ] ; then
     unset DOCDIR
 fi
 
-### create default configure line
-: ${DEFCONFIG:='
---prefix=${PREFIX}
---exec-prefix=${EPREFIX}
---bindir=${BINDIR}
---sbindir=${SBINDIR}
---libexecdir=${LIBEXECDIR}
---sysconfdir=${SYSCONFDIR}
---sharedstatedir=${SHAREDSTATEDIR}
---localstatedir=${LOCALSTATEDIR}
---libdir=${LIBDIR}
---includedir=${INCLUDEDIR}
-${DATAROOTDIR:+--datarootdir=${DATAROOTDIR}}
---datadir=${DATADIR}
---infodir=${INFODIR}
-${LOCALEDIR:+--localedir=${LOCALEDIR}}
---mandir=${MANDIR}
-${DOCDIR:+--docdir=${DOCDIR}}'}
+# expand variables
+for var in prefix eprefix bindir sbindir libexecdir sysconfdir \
+           sharedstatedir localstatedir libdir includedir \
+           datarootdir datadir infodir localedir mandir docdir ; do
+    eval eval ${var^^}=\${${var^^}}
+done
 
+# create default configure options
+if [ -z "${DEFCONFIG}" ] ; then
+    for var in prefix bindir sbindir libexecdir sysconfdir \
+               sharedstatedir localstatedir libdir includedir \
+               datarootdir datadir infodir localedir mandir docdir ; do
+        DEFCONFIG="${DEFCONFIG} \${${var^^}:+--${var,,}=\${${var^^}}}"
+    done
+    DEFCONFIG="${DEFCONFIG} \${EPREFIX:+--exec-prefix=\${EPREFIX}}"
+fi
+
+# expand default confidure options
 eval DEFCONFIG=\"${DEFCONFIG}\"

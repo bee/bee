@@ -607,47 +607,6 @@ PKGALLPKG=
 
 ###############################################################################
 
-# define defaults for bee_configure
-: ${PREFIX:='/usr'}
-: ${EPREFIX:='${PREFIX}'}
-: ${BINDIR:='${EPREFIX}/bin'}
-
-: ${SBINDIR:='${EPREFIX}/sbin'}
-: ${LIBEXECDIR:='${EPREFIX}/lib/${PKGNAME}'}
-: ${SYSCONFDIR:='/etc'}
-
-: ${LOCALSTATEDIR:='/var'}
-: ${SHAREDSTATEDIR:='${LOCALSTATEDIR}'}
-: ${LIBDIR:='${EPREFIX}/lib'}
-: ${INCLUDEDIR:='${PREFIX}/include'}
-: ${DATAROOTDIR:='${PREFIX}/share'}
-: ${DATADIR:='${DATAROOTDIR}'}
-: ${INFODIR:='${DATAROOTDIR}/info'}
-: ${MANDIR:='${DATAROOTDIR}/man'}
-: ${DOCDIR:='${DATAROOTDIR}/doc/gtkhtml'}
-: ${LOCALEDIR:='${DATAROOTDIR}/locale'}
-
-
-eval PREFIX=${PREFIX}
-eval EPREFIX=${EPREFIX}
-eval BINDIR=${BINDIR}
-eval SBINDIR=${SBINDIR}
-eval LIBDIR=${LIBDIR}
-eval SYSCONFDIR=${SYSCONFDIR}
-eval LOCALSTATEDIR=${LOCALSTATEDIR}
-eval SHAREDSTATEDIR=${SHAREDSTATEDIR}
-eval LIBEXECDIR=${LIBEXECDIR}
-eval INCLUDEDIR=${INCLUDEDIR}
-eval DATAROOTDIR=${DATAROOTDIR}
-eval DATADIR=${DATADIR}
-eval INFODIR=${INFODIR}
-eval LOCALEDIR=${LOCALEDIR}
-eval MANDIR=${MANDIR}
-eval DOCDIR=${DOCDIR}
-
-
-# in ${PWD}
-
 print_info "current working directory: ${PWD}"
 
 bee_init_builddir
