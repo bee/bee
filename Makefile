@@ -120,7 +120,7 @@ install-core: build
 	@mkdir -p ${DESTDIR}${LIBEXECDIR}/bee/beesh.d
 	@for i in ${HELPER_BEESH_SHELL} ; do \
 	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/$${i}.sh" ; \
-	     install -m 0644 conf/beesh.d/$${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/$${i}.sh ; \
+	     install -m 0644 src/beesh.d/$${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/$${i}.sh ; \
 	 done
 
 install-config:
