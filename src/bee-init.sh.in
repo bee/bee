@@ -31,6 +31,33 @@ function print_error() {
     print_msg "${COLOR_ERROR}${@}${COLOR_NORMAL}"
 }
 
+function bee_versionify() {
+    local -i i
+    beefile=$1
+
+    if [ "${OPT_VERSIONIFY}" != "no" ] ; then
+        return
+    fi
+
+    eval $(beeversion ${beefile} 2>/dev/null)
+
+    if [ -z "${PKGREVISION}" ] ; then
+        return
+    fi
+
+    i=${#PKGVERSION[@]}-2
+
+    rules="-e 's,${PKGVERSION},\${PKGVERSION},g'"
+
+    while [ $i -gt 1 ] ; do
+       rules="${rules} -e 's,${PKGVERSION[$i]},\${PKGVERSION[$i]},g'"
+
+       i=i-1
+    done
+
+    eval sed -i ${rules} ${beefile}
+}
+
 function create_beefile_from_template {
     beefile=$1
     templates=( $2 default fallback )
@@ -153,11 +180,14 @@ function initialize() {
             -i ${beefile}
     fi
 
+    bee_versionify ${beefile}
+
     chmod 755 ${beefile}
 }
 
 options=$(getopt -n beeinit \
                  -o ht:f \
+                 --long disable-versionify \
                  --long help,template:,force \
                  --long configure: \
                  --long prefix:,eprefix:,bindir:,sbindir:,libexecdir: \
@@ -170,6 +200,8 @@ if [ $? != 0 ] ; then
   usage
   exit 1
 fi
+
+OPT_VERSIONIFY="yes"
 
 eval set -- "${options}"
 
@@ -189,6 +221,11 @@ while true ; do
             shift
 
             OPT_FORCE="yes"
+            ;;
+
+        --disable-versionify)
+            shift
+            OPT_VERSIONIFY="no"
             ;;
 
         --configure)
