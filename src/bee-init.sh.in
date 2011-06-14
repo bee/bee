@@ -35,7 +35,7 @@ function bee_versionify() {
     local -i i
     beefile=$1
 
-    if [ "${OPT_VERSIONIFY}" != "no" ] ; then
+    if [ "${OPT_VERSIONIFY}" != "yes" ] ; then
         return
     fi
 
