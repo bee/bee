@@ -1,2 +1,3 @@
 for release 1.0:
+    - beesh: add all prefix variables to autoexclude while packaging
     - search and fix bugs
