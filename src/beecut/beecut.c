@@ -24,7 +24,7 @@
 #include <ctype.h>
 
 #define BEECUT_MAJOR    0
-#define BEECUT_MINOR    1
+#define BEECUT_MINOR    2
 #define BEECUT_PATCHLVL 0
 
 #define OPT_DELIMETER 'd'
@@ -59,7 +59,8 @@ void cut_and_print(char *string, char delimeter, char opt_short)
     printf("%s", string);
     
     while((p=strchr(p, delimeter))) {
-        putchar(' ');
+        if(s < p) /* only print space if we have something to print */
+            putchar(' ');
         
         while(s < p)
             putchar(*(s++));
