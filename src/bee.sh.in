@@ -36,6 +36,8 @@ function usage() {
 	  install
 	  remove
 	  check
+	  query
+	  list
 
 	EOF
 }
