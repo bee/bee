@@ -268,7 +268,7 @@ function bee_getsources() {
 
 function bee_extract() {
     local bee_S
-    bee_S=( $@ )
+    bee_S=( "$@" )
 
     if is_func mee_unpack ; then
         print_error "#BEE-WARNING# function 'mee_unpack()' is deprecated .. use 'mee_extract()' instead .." >&2
@@ -298,7 +298,7 @@ function bee_extract() {
 
 function bee_patch() {
     local bee_P
-    bee_P=( $@ )
+    bee_P=( "$@" )
 
     if [ ${#bee_P[@]} == 0 ] ; then
         bee_P=( ${bee_PATCHFILES[@]} )
