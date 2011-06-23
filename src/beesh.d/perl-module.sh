@@ -14,14 +14,14 @@ build_in_sourcedir
 bee_configure() {
     start_cmd ${PERL} Build.PL \
         --destdir ${D} \
-        ${@}
+        "${@}"
 }
 
 #### bee_build() ##############################################################
 
 bee_build() {
     start_cmd ./Build \
-        ${@}
+        "${@}"
 }
 
 #### bee_install() ############################################################
@@ -29,5 +29,5 @@ bee_build() {
 bee_install() {
     start_cmd ./Build \
         install \
-        ${@}
+        "${@}"
 }

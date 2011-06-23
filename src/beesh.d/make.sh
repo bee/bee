@@ -10,13 +10,13 @@ build_in_sourcedir
 #### bee_build() ##############################################################
 
 bee_build() {
-    start_cmd make ${DEFCONFIG} $@
+    start_cmd make ${DEFCONFIG} "$@"
 }
 
 #### bee_install() ############################################################
 
 bee_install() {
-    start_cmd make install ${DEFCONFIG} DESTDIR=${D} $@
+    start_cmd make install ${DEFCONFIG} DESTDIR=${D} "$@"
 }
 
 if [ -z "${DEFCONFIG}" ] ; then

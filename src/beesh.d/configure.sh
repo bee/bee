@@ -8,19 +8,19 @@ BEE_BUILDTYPE=configure
 #### bee_configure() ##########################################################
 
 bee_configure() {
-    start_cmd ${S}/configure ${DEFCONFIG} $@
+    start_cmd ${S}/configure ${DEFCONFIG} "$@"
 }
 
 #### bee_build() ##############################################################
 
 bee_build() {
-    start_cmd make $@
+    start_cmd make "$@"
 }
 
 #### bee_install() ############################################################
 
 bee_install() {
-    start_cmd make install DESTDIR=${D} $@
+    start_cmd make install DESTDIR=${D} "$@"
 }
 
 

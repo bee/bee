@@ -10,19 +10,19 @@ BEE_BUILDTYPE=cmake
 bee_configure() {
     start_cmd cmake \
         -DCMAKE_INSTALL_PREFIX=${PREFIX} \
-        ${@} \
+        "${@}" \
         ${S}
 }
 
 #### bee_build() ##############################################################
 
 bee_build() {
-    start_cmd make ${@}
+    start_cmd make "${@}"
 }
 
 #### bee_install() ############################################################
 
 bee_install() {
-    start_cmd make install DESTDIR=${D} ${@}
+    start_cmd make install DESTDIR=${D} "${@}"
 }
 
