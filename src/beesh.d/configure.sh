@@ -36,13 +36,6 @@ if [ "${BEE_CONFIGURE}" = "compat" ] ; then
     unset DOCDIR
 fi
 
-# expand variables
-for var in prefix eprefix bindir sbindir libexecdir sysconfdir \
-           sharedstatedir localstatedir libdir includedir \
-           datarootdir datadir infodir localedir mandir docdir ; do
-    eval eval ${var^^}=\${${var^^}}
-done
-
 # create default configure options
 if [ -z "${DEFCONFIG}" ] ; then
     for var in prefix bindir sbindir libexecdir sysconfdir \

@@ -605,6 +605,13 @@ PKGALLPKG=
 # since PKGARCH is now known reconstruct PKGALLPKG
 : ${PKGALLPKG:=${PKGFULLPKG}.${PKGARCH}}
 
+# expand variables
+for var in prefix eprefix bindir sbindir libexecdir sysconfdir \
+           sharedstatedir localstatedir libdir includedir \
+           datarootdir datadir infodir localedir mandir docdir ; do
+    eval eval ${var^^}=\${${var^^}}
+done
+
 ###############################################################################
 
 print_info "current working directory: ${PWD}"
