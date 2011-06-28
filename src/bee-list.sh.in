@@ -43,7 +43,7 @@ usage() {
 	  by Marius Tolzmann and Tobias Dreyer {tolzmann,dreyer}@molgen.mpg.de
 	     Max Planck Institute for Molecular Gentics Berlin Dahlem
 
-	usage: $0 [action] [pattern list]
+	usage: bee list [action] [pattern list]
 
 	available actions:
 	    -i | --installed (default) list installed pkgs matching pattern list

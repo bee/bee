@@ -184,7 +184,7 @@ usage() {
     echo ""
     echo "  by Tobias Dreyer and Marius Tolzmann <{dreyer,tolzmann}@molgen.mpg.de>"
     echo ""
-    echo " Usage: $0 [action] [options] <pkg>"
+    echo " Usage: bee check [action] [options] <pkg>"
     echo ""
     echo " action:"
     echo "   -d | --deps"

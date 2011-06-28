@@ -32,7 +32,7 @@ usage() {
     echo ""
     echo "  by Tobias Dreyer and Marius Tolzmann <{dreyer,tolzmann}@molgen.mpg.de>"
     echo ""
-    echo " Usage: $0 <file> [ <file> .. ]"
+    echo " Usage: bee query <file> [ <file> .. ]"
 }
 
 query() {

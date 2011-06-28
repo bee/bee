@@ -10,8 +10,8 @@ VERSION=${BEE_VERSION}
 
 function usage() {
     echo "usage.."
-    echo "$0 [options] <url>"
-    echo "$0 [options] <pkgname> [url]"
+    echo "bee init [options] <url>"
+    echo "bee init [options] <pkgname> [url]"
     echo
     echo "options.."
     echo "  -h                .. show this help"

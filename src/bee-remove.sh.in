@@ -73,7 +73,7 @@ do_remove() {
 }
 
 usage() {
-    echo "usage: $0 <option> <package>"
+    echo "usage: bee remove <option> <package>"
     echo
     echo "options:"
     echo "    -h --help .. prints this"
