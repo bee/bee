@@ -45,12 +45,7 @@ usage() {
     echo ""
     echo "  by Tobias Dreyer and Marius Tolzmann <{dreyer,tolzmann}@molgen.mpg.de>"
     echo ""
-    echo " Usage: $0 [action] [options] <pkg>"
-    echo ""
-    echo " action:"
-    echo "   -i | --install    install package (default action)"
-    echo "   -u | --upgrade    install package"
-    echo "   -h | --help       display this help.. 8)"
+    echo " Usage: bee install [options] <pkg>"
     echo ""
     echo " options:"
     echo "   -f | --force      can be used to force installation come what may"
@@ -339,17 +334,9 @@ while true ; do
       shift;
       OPT_F=$OPT_F+1
       ;;
-    -u|--upgrade)
-      shift
-      pkg_upgrade $@
-      exit 0
-      ;;
     -h|--help)
       usage
       exit 0
-    ;;
-    -i|--install)
-      shift
       ;;
     --debug)
         shift
