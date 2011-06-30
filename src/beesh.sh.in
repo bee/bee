@@ -635,6 +635,7 @@ BEE_BUILDTYPE=""
 
 load_buildmagic cmake
 load_buildmagic configure
+load_buildmagic autogen
 load_buildmagic perl-module
 load_buildmagic perl-module-makemaker
 load_buildmagic make

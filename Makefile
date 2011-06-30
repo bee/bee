@@ -37,7 +37,7 @@ HELPER_BEE_SHELL=bee-init bee-check bee-remove bee-install bee-list bee-query
 
 LIBRARY_SHELL=beelib.config
 
-HELPER_BEESH_SHELL=configure cmake perl-module perl-module-makemaker make python-module
+HELPER_BEESH_SHELL=configure cmake autogen perl-module perl-module-makemaker make python-module
 
 CONFIG_TEMPLATES=fallback
 CONFIG_FILES=skiplist beerc
