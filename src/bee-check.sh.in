@@ -95,6 +95,72 @@ pkg_check() {
 
 }
 
+do_check_deps_of_file() {
+    local file=${1}
+    local type="OTHER"
+
+    local filetype=$(file ${file})
+
+    case "${filetype}" in
+        *"ar archive"*)
+            type="AR"
+            ;;
+
+        *"ELF 64-bit LSB executable, x86-64"*)
+            type="ELF64EXE"
+            ;;
+
+        *"ELF 64-bit LSB shared object, x86-64"*)
+            type="ELF64SO"
+            ;;
+
+        *"ELF 32-bit LSB executable"*)
+            type="ELF32EXE"
+            ;;
+
+        *"ELF 32-bit LSB shared object"*)
+            type="ELF32SO"
+            ;;
+
+        *"script text executable"*)
+            type="SCRIPT"
+            ;;
+
+        *"directory"*)
+            type="DIRECTORY"
+            ;;
+
+        *"symbolic link"*)
+            type="SYMLINK"
+            ;;
+
+        *)
+            #echo >&2 "WARNING: unknown file type '${filetype#*: }'"
+    esac
+
+    echo "    type     = ${type^^}"
+    # self provide basename seems not to be a good idea without
+    # defining
+#    echo "    provides = ${file##*/}"
+
+    if [ "${type:0:3}" = "ELF" ] ; then
+        readelf -d ${file} 2>/dev/null \
+            | egrep "(NEEDED|SONAME)" \
+            | sed -e 's,.*Shared library: \[\(.*\)\].*,    needs    = \1,' \
+                  -e 's,.*Library soname: \[\(.*\)\].*,    provides = \1,'
+    fi
+
+    if [ "${type}" = "SCRIPT" ] ; then
+        subtype=$(grep '#!' "${file}")
+        subtype=( ${subtype:2} )
+
+        for i in "${subtype[@]}" ; do
+            if [ ${i:0:1} = "/" ] ; then
+                echo "    needs    = $i"
+            fi
+        done
+    fi
+}
 
 ###############################################################################
 ##
@@ -103,6 +169,19 @@ do_check_deps() {
     local pkg=${1}
     local filesfile=${BEE_METADIR}/${pkg}/FILES
 
+    echo -e "[${pkg}]"
+
+    eval $(beeversion "${pkg}")
+
+    echo "    type     = package"
+    echo "    provides = ${PKGNAME}"
+    echo "    provides = ${PKGFULLPKG}"
+
+    for line in $(cat ${filesfile}) ; do
+        eval $(${BEESEP} ${line})
+        echo "    provides = ${file%%//*}"
+    done
+
     for line in $(cat ${filesfile}) ; do
         eval $(${BEESEP} ${line})
 
@@ -110,18 +189,24 @@ do_check_deps() {
         symlink=${file#*//}
         file=${file%%//*}
 
-        if [ ! -f "${file}" -o -h ${file} ] ; then
-             continue
+        echo -e "\n[${file}]"
+
+        echo "    mode     = ${mode}"
+        echo "    nlink    = ${nlink}"
+        echo "    uid      = ${uid}"
+        echo "    gid      = ${gid}"
+        echo "    size     = ${size}"
+        echo "    mtime    = ${mtime}"
+
+        if [ "${md5}" = "link" ] ; then
+            echo "    symlink  = ${symlink}"
+        elif [ "${md5}" != "directory" ] ; then
+            echo "    md5      = ${md5}"
         fi
 
-#       echo ${file}
+        do_check_deps_of_file "${file}"
 
-        readelf -d ${file} 2>/dev/null | egrep "(NEEDED|SONAME)"
-
-    done \
-      | sed -e 's,.*Shared library: \[\(.*\)\].*,needs \1,' \
-            -e 's,.*Library soname: \[\(.*\)\].*,provides \1,' \
-      | sort -u
+    done
 }
 
 ###############################################################################
