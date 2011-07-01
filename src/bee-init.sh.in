@@ -9,14 +9,21 @@ fi
 VERSION=${BEE_VERSION}
 
 function usage() {
-    echo "usage.."
-    echo "bee init [options] <url>"
-    echo "bee init [options] <pkgname> [url]"
-    echo
-    echo "options.."
-    echo "  -h                .. show this help"
-    echo "  -t [xorg|default] .. specify template used for beefile"
-    echo "  -f                .. force overwriting of beefile"
+    cat <<-EOF
+	bee-init v${VERSION} 2009-2011
+	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
+	     Max Planck Institute for Molecular Genetics Berlin Dahlem
+
+	Usage:
+	bee init [options] <url>
+	bee init [options] <pkgname> [url]
+
+	Options:
+	    -t [xorg|default]    specify template used for beefile
+	    -f | --force         force overwriting of beefile
+	    -h | --help          display this help
+
+	EOF
 }
 
 function print_msg() {

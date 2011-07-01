@@ -41,16 +41,19 @@ start_cmd() {
 
 ##### usage ###################################################################
 usage() {
-    echo "bee-install v${VERSION} 2009-2010"
-    echo ""
-    echo "  by Tobias Dreyer and Marius Tolzmann <{dreyer,tolzmann}@molgen.mpg.de>"
-    echo ""
-    echo " Usage: bee install [options] <pkg>"
-    echo ""
-    echo " options:"
-    echo "   -f | --force      can be used to force installation come what may"
-    echo "   -v | --verbose    bee more verbose (can be used twice e.g. -vv)"
-    echo
+    cat <<-EOF
+	bee-install v${VERSION} 2009-2011
+	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
+	     Max Planck Institute for Molecular Genetics Berlin Dahlem
+
+	Usage: bee install [options] <package>
+
+	Options:
+	    -f | --force      can be used to force installation come what may
+	    -v | --verbose    bee more verbose (can be used twice e.g. -vv)
+	    -h | --help       display this help
+
+	EOF
 }
 
 ###############################################################################

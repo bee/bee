@@ -73,11 +73,18 @@ do_remove() {
 }
 
 usage() {
-    echo "usage: bee remove <option> <package>"
-    echo
-    echo "options:"
-    echo "    -h --help .. prints this"
-    echo "    --noop    .. prints what would happen"
+    cat <<-EOF
+	bee-remove v${VERSION} 2009-2011
+	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
+	     Max Planck Institute for Molecular Genetics Berlin Dahlem
+
+	Usage: bee remove [options] <package>
+
+	Options:
+	    -h | --help    display this help
+	    --noop         do not actually remove; just print
+
+	EOF
 }
 
 options=$(getopt -n bee_remove \

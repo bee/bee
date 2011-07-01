@@ -40,12 +40,12 @@ ARCH=$(arch)
 usage() {
     cat <<-EOF
 	bee-list v${VERSION} 2009-2011
-	  by Marius Tolzmann and Tobias Dreyer {tolzmann,dreyer}@molgen.mpg.de
-	     Max Planck Institute for Molecular Gentics Berlin Dahlem
+	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
+	     Max Planck Institute for Molecular Genetics Berlin Dahlem
 
-	usage: bee list [action] [pattern list]
+	Usage: bee list <action> [pattern list]
 
-	available actions:
+	Actions:
 	    -i | --installed (default) list installed pkgs matching pattern list
 	    -a | --available           list available pkgs matching pattern list
 

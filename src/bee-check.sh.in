@@ -265,20 +265,22 @@ do_check() {
 
 ##### usage ###################################################################
 usage() {
-    echo "bee-check v${VERSION} 2009-2011"
-    echo ""
-    echo "  by Tobias Dreyer and Marius Tolzmann <{dreyer,tolzmann}@molgen.mpg.de>"
-    echo ""
-    echo " Usage: bee check [action] [options] <pkg>"
-    echo ""
-    echo " action:"
-    echo "   -d | --deps"
-    echo "   -h | --help       display this help.. 8)"
-    echo ""
-    echo " options:"
-    echo "   -f | --force      can be used to force check come what may"
-    echo "   -v | --verbose    bee more verbose (can be used twice e.g. -vv)"
-    echo
+    cat <<-EOF
+	bee-check v${VERSION} 2009-2011
+	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
+	     Max Planck Institute for Molecular Genetics Berlin Dahlem
+
+	Usage: bee check [options] [action] <package>
+
+	Actions:
+	    -d | --deps       print dependencies of the package
+	    -h | --help       display this help
+
+	Options:
+	    -f | --force      can be used to force check come what may
+	    -v | --verbose    bee more verbose (can be used twice e.g. -vv)
+
+	EOF
 }
 
 ###############################################################################

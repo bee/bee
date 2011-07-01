@@ -24,12 +24,20 @@ function print_error() {
 }
 
 function usage() {
-    echo "usage: $0 <option> <arguments>"
-    echo "possible options are:"
-    echo "  init"
-    echo "  install"
-    echo "  remove"
-    echo "  check"
+    cat <<-EOF
+	bee v${BEE_VERSION} 2009-2011
+	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
+	     Max Planck Institute for Molecular Genetics Berlin Dahlem
+
+	Usage: bee <tool> [options]
+
+	Tools:
+	  init
+	  install
+	  remove
+	  check
+
+	EOF
 }
 
 function search_tool_cmd {

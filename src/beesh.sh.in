@@ -56,45 +56,22 @@ function create_meta() {
 #### show_help() ##############################################################
 
 function show_help() {
-    echo " beesh v${VERSION} 2009-2010"
-    echo ""
-    echo "  by Tobias Dreyer and Marius Tolzmann <{dreyer,tolzmann}@molgen.mpg.de>"
-    echo ""
-    echo " Usage: $0 [options] <pkg>.bee"
-    echo ""
-    echo " Options:"
-    echo "   -c | --cleanup       .. may be used to clean up <pkg>-related"
-    echo "                           directory tree before build process is started"
-    echo "   -i | --install       .. after build process is successful and <pkg> is"
-    echo "                           built, <pkg>.tgz is install by bee_install"
-    echo "   -f | --force-install .. same as -i; bee_install is invoked with --force"
-    echo "   -h | --help          .. display this help.. 8)"
-    echo ""
-    echo ""
-    echo " Beefile example.."
-    echo ""
-    echo "#!/bin/env beesh"
-    echo "SRCURL=\"ftp://ftp.gmplib.org/pub/gmp-4.3.1/gmp-4.3.1.tar.bz2\""
-    echo ""
-    echo "# PATCHURL[0]="
-    echo ""
-    echo "PGRP=( uncategorized )"
-    echo ""
-    echo "BEE_CONFIGURE=\"compat\""
-    echo ""
-    echo "# EXCLUDE=\"\""
-    echo ""
-    echo "mee_configure() {"
-    echo "    bee_configure"
-    echo "}"
-    echo ""
-    echo "mee_build() {"
-    echo "    bee_build"
-    echo "}"
-    echo ""
-    echo "mee_install() {"
-    echo "    bee_install"
-    echo "}"
+    cat <<-EOF
+	beesh v${VERSION} 2009-2011
+	    by Marius Tolzmann and Tobias Dreyer {tolzmann,dreyer}@molgen.mpg.de
+	       Max Planck Institute for Molecular Genetics Berlin Dahlem
+
+	Usage: beesh [options] <pkg>.bee
+
+	Options:
+	    -c | --cleanup          may be used to clean up <pkg>-related
+	                            directory tree before build process is started
+	    -i | --install          after build process is successful and <pkg> is
+	                            built, <pkg>.tgz is install by bee_install
+	    -f | --force-install    same as -i; bee_install is invoked with --force
+	    -h | --help             display this help
+
+	EOF
 }
 
 function check_repositories() {

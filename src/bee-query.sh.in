@@ -28,11 +28,14 @@ VERSION=${BEE_VERSION}
 
 ##### usage ###################################################################
 usage() {
-    echo "bee-query v${VERSION} 2009-2010"
-    echo ""
-    echo "  by Tobias Dreyer and Marius Tolzmann <{dreyer,tolzmann}@molgen.mpg.de>"
-    echo ""
-    echo " Usage: bee query <file> [ <file> .. ]"
+    cat <<-EOF
+	bee-query v${VERSION} 2009-2011
+	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
+	     Max Planck Institute for Molecular Genetics Berlin Dahlem
+
+	Usage: bee query [package|pattern|file]
+
+	EOF
 }
 
 query() {
