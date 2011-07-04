@@ -82,13 +82,13 @@ usage() {
 
 	Options:
 	    -h | --help    display this help
-	    --noop         do not actually remove; just print
+	    -n | --noop    do not actually remove; just print
 
 	EOF
 }
 
 options=$(getopt -n bee_remove \
-                 -o h \
+                 -o n,h \
                  --long noop,help \
                  -- "$@")
 if [ $? != 0 ] ; then
@@ -99,7 +99,7 @@ eval set -- "${options}"
 
 while true ; do
     case "$1" in
-        --noop)
+        -n|--noop)
             shift
             NOOP=1
             ;;
