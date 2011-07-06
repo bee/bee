@@ -81,7 +81,7 @@ void cut_and_print(char *string, char delimeter, char opt_short, char *prefix, c
         s = (opt_short) ? p : string;
     }
     
-    printf("%s %s%s%s", suffix, prefix, s, suffix);
+    printf("%s %s%s%s\n", suffix, prefix, s, suffix);
 }
 
 int main(int argc, char *argv[])
@@ -151,9 +151,9 @@ int main(int argc, char *argv[])
         exit(1);
     }
     
-    cut_and_print(argv[optind], delimeter, opt_short, opt_prepend, opt_append);
+    while(optind < argc)
+        cut_and_print(argv[optind++], delimeter, opt_short, opt_prepend, opt_append);
     
-    printf("\n");
     
     return(0);
 }
