@@ -1,5 +1,4 @@
 for release 1.0:
-    - beesh: add all prefix variables to autoexclude while packaging
     - search and fix bugs
     - auto-triggers to update various databases like mime/icons/mandb
     - handle aborted wget
