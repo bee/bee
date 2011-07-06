@@ -312,7 +312,7 @@ function bee_install() {
 # $BEE_SKIPLIST is found in $BEEFAULTS
 function bee_pkg_pack() {
 
-    aex=$(beecut -d '/' -p '^' -a '$' -n ${BEE_AUTO_EXCLUDE} | sort -u)
+    aex=$(@BINDIR@/beecut -d '/' -p '^' -a '$' -n ${BEE_AUTO_EXCLUDE} | sort -u)
 
     for e in ${EXCLUDE} ${aex} ; do
         exargs="${exargs} --exclude=${e}";
@@ -552,7 +552,7 @@ if [ ! -f ${BEE} ] ; then
 fi
 
 ### define pkg variables
-eval $(beeversion ${BEE})
+eval $(@BINDIR@/beeversion ${BEE})
 
 PN=${PKGNAME}
 PV=( ${PKGVERSION[@]} )
