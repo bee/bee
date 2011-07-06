@@ -145,7 +145,7 @@ function bee_init_builddir() {
 
 function fetch_one_file() {
     url=$1
-    file=${2:-$(basename ${url})}
+    file=${2:-${url##*/}}
 
     if [ "${url:0:8}" = "file:///" ] ; then
         url=${url:7}
@@ -360,7 +360,7 @@ function bee_pkg_pack() {
 
     rm ${DUMP}
 
-    beefilename=$(basename ${BEE})
+    beefilename=${BEE##*/}
     beefiledest=${BEE_REPOSITORY_BEEDIR}/${beefilename}
 
     print_info "-> saving bee-file ${beefilename} .."
@@ -392,7 +392,7 @@ function bee_archivebuild() {
         --absolute-names \
         ${S} ${B} \
         ${bee_FETCHED_FILES[@]} \
-        ${BEE_REPOSITORY_BEEDIR}/$(basename ${BEE}) \
+        ${BEE_REPOSITORY_BEEDIR}/${BEE##*/} \
         --transform="s,^${BEEWORKDIR},${PKGALLPKG}," \
         --transform="s,^${F},${PKGALLPKG}/files," \
         --transform="s,^${BEE_REPOSITORY_BEEDIR},${PKGALLPKG}/files,"
