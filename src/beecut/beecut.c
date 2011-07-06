@@ -97,12 +97,12 @@ int main(int argc, char *argv[])
     char *opt_append  = opt_prepend;
 
     struct option long_options[] = {
-        {"delimeter",   required_argument, 0, 'd'},
+        {"delimeter",   required_argument, 0, OPT_DELIMETER},
 
         {"prepend",     required_argument, 0, OPT_PREPEND},
         {"append",      required_argument, 0, OPT_APPEND},
 
-        {"short",       no_argument, 0, 's'},
+        {"short",       no_argument, 0, OPT_SHORT},
         
         {"version",     no_argument, 0, OPT_VERSION},
         {"help",        no_argument, 0, OPT_HELP},
