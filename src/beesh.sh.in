@@ -311,7 +311,10 @@ function bee_install() {
 # $EXCLUDE is read from .bee file
 # $BEE_SKIPLIST is found in $BEEFAULTS
 function bee_pkg_pack() {
-    for e in ${EXCLUDE} ; do
+
+    aex=$(beecut -d '/' -p '^' -a '$' -n ${BEE_AUTO_EXCLUDE} | sort -u)
+
+    for e in ${EXCLUDE} ${aex} ; do
         exargs="${exargs} --exclude=${e}";
     done
 
@@ -588,7 +591,10 @@ for var in prefix eprefix bindir sbindir libexecdir sysconfdir \
            sharedstatedir localstatedir libdir includedir \
            datarootdir datadir infodir localedir mandir docdir ; do
     eval eval ${var^^}=\${${var^^}}
+    eval 'BEE_AUTO_EXCLUDE="${BEE_AUTO_EXCLUDE} \${${var^^}}"'
 done
+
+eval "BEE_AUTO_EXCLUDE=\"${BEE_AUTO_EXCLUDE}\""
 
 ###############################################################################
 
