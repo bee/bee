@@ -24,7 +24,7 @@
 #include <ctype.h>
 
 #define BEECUT_MAJOR    0
-#define BEECUT_MINOR    3
+#define BEECUT_MINOR    4
 #define BEECUT_PATCHLVL 0
 
 #define OPT_DELIMETER 'd'
@@ -38,7 +38,7 @@
 void print_version(void) 
 {
     printf("beecut v%d.%d.%d - "
-           "by Marius Tolzmann <tolzmann@molgen.mpg.de> 2010\n", 
+           "by Marius Tolzmann <tolzmann@molgen.mpg.de> 2010-2011\n",
              BEECUT_MAJOR, BEECUT_MINOR, BEECUT_PATCHLVL);
 }
 
