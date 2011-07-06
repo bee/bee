@@ -24,11 +24,13 @@
 #include <ctype.h>
 
 #define BEECUT_MAJOR    0
-#define BEECUT_MINOR    2
-#define BEECUT_PATCHLVL 1
+#define BEECUT_MINOR    3
+#define BEECUT_PATCHLVL 0
 
 #define OPT_DELIMETER 'd'
 #define OPT_SHORT     's'
+#define OPT_PREPEND   'p'
+#define OPT_APPEND    'a'
 #define OPT_VERSION   128
 #define OPT_HELP      129
 
@@ -41,27 +43,36 @@ void print_version(void)
 
 void print_full_usage(void) 
 {
-    printf("usage: beecut [--delimeter=<delimchar>] [--short] <string>\n\n");
-    
+    printf("usage: beecut [options] <string>\n\n");
+
+    printf("options:\n\n");
+
+    printf("  -d | --delimeter <char>  specify the delimeter character\n\n");
+
+    printf("  -s | --short             output short elements\n\n");
+
+    printf("  -p | --prepend <string>  prepend <string> to each output element\n");
+    printf("  -a | --append <string>   append  <string> to each output element\n\n");
+
     printf("examples:\n\n");
-    
+
     printf("  beecut 2.4.23.0        will print '2.4.23.0 2 2.4 2.4.23 2.4.23.0'\n");
     printf("  beecut -s 2.4.23.0     will print '2.4.23.0 2 4 23 0'\n");
     printf("  beecut -s -d '-' a-b-c will print 'a-b-c a b c'\n\n");
 }
 
-void cut_and_print(char *string, char delimeter, char opt_short)
+void cut_and_print(char *string, char delimeter, char opt_short, char *prefix, char *suffix)
 {
     char *p, *s;
     
     p = s = string;
     
-    printf("%s", string);
+    printf("%s%s", prefix, string);
     
     while((p=strchr(p, delimeter))) {
         if(s < p) /* only print space if we have something to print */
-            putchar(' ');
-        
+            printf("%s %s", suffix, prefix);
+
         while(s < p)
             putchar(*(s++));
         
@@ -70,7 +81,7 @@ void cut_and_print(char *string, char delimeter, char opt_short)
         s = (opt_short) ? p : string;
     }
     
-    printf(" %s", s);
+    printf("%s %s%s%s", suffix, prefix, s, suffix);
 }
 
 int main(int argc, char *argv[])
@@ -82,9 +93,15 @@ int main(int argc, char *argv[])
     
     char opt_short = 0;
     
+    char *opt_prepend = "";
+    char *opt_append  = opt_prepend;
+
     struct option long_options[] = {
         {"delimeter",   required_argument, 0, 'd'},
-        
+
+        {"prepend",     required_argument, 0, OPT_PREPEND},
+        {"append",      required_argument, 0, OPT_APPEND},
+
         {"short",       no_argument, 0, 's'},
         
         {"version",     no_argument, 0, OPT_VERSION},
@@ -93,7 +110,7 @@ int main(int argc, char *argv[])
         {0, 0, 0, 0}
     };
     
-    while ((c = getopt_long_only(argc, argv, "d:s", long_options, &option_index)) != -1) {
+    while ((c = getopt_long_only(argc, argv, "p:a:d:s", long_options, &option_index)) != -1) {
 
         switch (c) {
             case OPT_DELIMETER:
@@ -102,6 +119,14 @@ int main(int argc, char *argv[])
                      exit(1);
                 }
                 delimeter = optarg[0];
+                break;
+
+            case OPT_PREPEND:
+                opt_prepend = strdup(optarg);
+                break;
+
+            case OPT_APPEND:
+                opt_append = strdup(optarg);
                 break;
 
             case OPT_SHORT:
@@ -126,7 +151,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
     
-    cut_and_print(argv[optind], delimeter, opt_short);
+    cut_and_print(argv[optind], delimeter, opt_short, opt_prepend, opt_append);
     
     printf("\n");
     
