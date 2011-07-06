@@ -25,7 +25,7 @@
 
 #define BEECUT_MAJOR    0
 #define BEECUT_MINOR    2
-#define BEECUT_PATCHLVL 0
+#define BEECUT_PATCHLVL 1
 
 #define OPT_DELIMETER 'd'
 #define OPT_SHORT     's'
@@ -94,34 +94,31 @@ int main(int argc, char *argv[])
     };
     
     while ((c = getopt_long_only(argc, argv, "d:s", long_options, &option_index)) != -1) {
-        
-        if(c == OPT_DELIMETER) {
-            delimeter = optarg[0];
-            continue;
+
+        switch (c) {
+            case OPT_DELIMETER:
+                if (!optarg[0] || optarg[1]) {
+                     fprintf(stderr, "invalid delimeter '%s'\n", optarg);
+                     exit(1);
+                }
+                delimeter = optarg[0];
+                break;
+
+            case OPT_SHORT:
+                opt_short = 1;
+                break;
+
+            case OPT_HELP:
+                printf("\n");
+                print_version();
+                printf("\n");
+                print_full_usage();
+                exit(0);
+
+            case OPT_VERSION:
+                print_version();
+                exit(0);
         }
-        
-        if(c == OPT_SHORT) {
-            opt_short = 1;
-            continue;
-        }
-        
-        if(c == OPT_HELP) {
-            printf("\n");
-            print_version();
-            printf("\n");
-            print_full_usage();
-            exit(0);
-        }
-        
-        if(c == OPT_VERSION) {
-            print_version();
-            exit(0);
-        }
-        
-        if(opterr)
-           continue;
-        
-        fprintf(stderr, "YOU HIT A BUG #001 opterr=%d c='%c'\n", opterr, delimeter);
     }  /* end while getopt_long_only */
     
     if(argc-optind < 1) {
