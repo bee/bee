@@ -58,7 +58,7 @@ function create_meta() {
 function show_help() {
     cat <<-EOF
 	beesh v${VERSION} 2009-2011
-	    by Marius Tolzmann and Tobias Dreyer {tolzmann,dreyer}@molgen.mpg.de
+	    by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
 	       Max Planck Institute for Molecular Genetics Berlin Dahlem
 
 	Usage: beesh [options] <pkg>.bee
@@ -462,8 +462,9 @@ function bee_run() {
 
 config_init_colors
 
-echo -e "${COLOR_CYAN}BEE - mariux package management "
-echo -e "  by Marius Tolzmann und Tobias Dreyer {tolzmann,dreyer}@molgen.mpg.de"
+echo -e "${COLOR_CYAN}BEE v${BEE_VERSION} 2009-2011 - mariux64 package magic "
+echo -e "  by Marius Tolzmann und Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>"
+echo -e "     Max Planck Institute for Molecular Genetics Berlin Dahlem"
 echo -e "${COLOR_NORMAL}"
 
 config_init
