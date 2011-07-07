@@ -118,6 +118,7 @@ function bee_init_builddir() {
             rm -fr ${W}
         else
             print_error "error initializing build-dir ${W}"
+            print_error "please use -c to force a cleanup."
             exit 1
         fi
     fi
