@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
             case OPT_DELIMETER:
                 if (!optarg[0] || optarg[1]) {
                      fprintf(stderr, "invalid delimeter '%s'\n", optarg);
-                     exit(1);
+                     exit(EXIT_FAILURE);
                 }
                 delimeter = optarg[0];
                 break;
@@ -149,17 +149,17 @@ int main(int argc, char *argv[])
                 print_version();
                 printf("\n");
                 print_full_usage();
-                exit(0);
+                exit(EXIT_SUCCESS);
 
             case OPT_VERSION:
                 print_version();
-                exit(0);
+                exit(EXIT_SUCCESS);
         }
     }  /* end while getopt_long_only */
     
     if(argc-optind < 1) {
         print_full_usage();
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     
     while(optind < argc)
