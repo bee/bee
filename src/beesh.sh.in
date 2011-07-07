@@ -169,7 +169,6 @@ function fetch_one_file() {
         print_info "fetching $url"
         wget \
             ${nocheck} \
-            --no-verbose \
             --output-document="${F}/${file}" \
             --no-clobber \
             "${url}" || true
