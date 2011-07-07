@@ -300,7 +300,7 @@ int parse_version(char *s,  struct beeversion *v)
     return(0);
 }
 
-void cut_and_print(char *string, char delimeter, char opt_short)
+void cut_and_print(char *string, char delimiter, char opt_short)
 {
     char *p, *s;
     
@@ -308,7 +308,7 @@ void cut_and_print(char *string, char delimeter, char opt_short)
     
     printf("%s", string);
     
-    while((p=strchr(p, delimeter))) {
+    while((p=strchr(p, delimiter))) {
         putchar(' ');
         
         while(s < p)
