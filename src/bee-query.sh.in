@@ -44,7 +44,7 @@ query() {
     for f in "${list[@]}" ; do
         # check if $f is pkg, list related files
         # otherwise list pkg
-        base=$(basename $f)
+        base=${f##*/}
         if [ -d "${BEE_METADIR}/${base}" ] ; then
             eval $(@BINDIR@/beeversion $base)
             get_files "${PKGALLPKG}"
@@ -72,7 +72,7 @@ get_pkgs() {
 
     for i in ${BEE_METADIR}/* ; do
         if egrep -q "file=.*${f}" ${i}/FILES ; then
-            echo $(basename ${i})
+            echo ${i##*/}
             for line in $(egrep "file=.*${f}" ${i}/FILES) ; do
                 echo "  $(beefind2filename $line)"
             done

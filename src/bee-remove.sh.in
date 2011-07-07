@@ -63,9 +63,6 @@ do_remove() {
         fi
     done
 
-    # create bee-filename
-    BEE=$(basename $(echo ${pkg} | sed -e "s,\(.*\)-\(.*\)-\(.*\)\..*,\1-\2-\3.bee," - ))
-
     #cleaning up meta directory
     if [ -f ${pkg}/FILES ] ; then
         ${NOOP:+echo} rm -vfr ${pkg}
