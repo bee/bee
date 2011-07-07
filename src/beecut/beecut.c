@@ -1,6 +1,6 @@
 /*
-** beecut - split strings 
-** Copyright (C) 2010 
+** beecut - split strings
+** Copyright (C) 2010-2011
 **       Marius Tolzmann <tolzmann@molgen.mpg.de>
 **
 ** This program is free software; you can redistribute it and/or modify
@@ -35,14 +35,14 @@
 #define OPT_VERSION   128
 #define OPT_HELP      129
 
-void print_version(void) 
+void print_version(void)
 {
     printf("beecut v%d.%d.%d - "
            "by Marius Tolzmann <tolzmann@molgen.mpg.de> 2010-2011\n",
              BEECUT_MAJOR, BEECUT_MINOR, BEECUT_PATCHLVL);
 }
 
-void print_full_usage(void) 
+void print_full_usage(void)
 {
     printf("usage: beecut [options] <string>\n\n");
 
@@ -69,23 +69,23 @@ void cut_and_print(char *string, char delimiter, char opt_short, char opt_newlin
     char nl;
 
     nl = opt_newline ? '\n' : ' ';
-    
+
     p = s = string;
-    
+
     printf("%s%s", prefix, string);
-    
+
     while((p=strchr(p, delimiter))) {
         if(s < p) /* only print space if we have something to print */
             printf("%s%c%s", suffix, nl, prefix);
 
         while(s < p)
             putchar(*(s++));
-        
+
         p++;
-        
+
         s = (opt_short) ? p : string;
     }
-    
+
     printf("%s%c%s%s%s\n", suffix, nl, prefix, s, suffix);
 }
 
@@ -93,12 +93,12 @@ int main(int argc, char *argv[])
 {
     int  option_index = 0;
     int  c = 0;
-    
+
     char delimiter = '.';
-    
+
     char opt_short   = 0;
     char opt_newline = 0;
-    
+
     char *opt_prepend = "";
     char *opt_append  = opt_prepend;
 
@@ -110,13 +110,13 @@ int main(int argc, char *argv[])
 
         {"short",       no_argument, 0, OPT_SHORT},
         {"newline",     no_argument, 0, OPT_NEWLINE},
-        
+
         {"version",     no_argument, 0, OPT_VERSION},
         {"help",        no_argument, 0, OPT_HELP},
-        
+
         {0, 0, 0, 0}
     };
-    
+
     while ((c = getopt_long_only(argc, argv, "p:a:d:sn", long_options, &option_index)) != -1) {
 
         switch (c) {
@@ -156,15 +156,15 @@ int main(int argc, char *argv[])
                 exit(EXIT_SUCCESS);
         }
     }  /* end while getopt_long_only */
-    
+
     if(argc-optind < 1) {
         print_full_usage();
         exit(EXIT_FAILURE);
     }
-    
+
     while(optind < argc)
         cut_and_print(argv[optind++], delimiter, opt_short,
                       opt_newline, opt_prepend, opt_append);
-    
+
     return(0);
 }
