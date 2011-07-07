@@ -119,7 +119,7 @@ pkg_install() {
     done
 
     available=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --available "${search}")
-    subsearch=( $(beecut -d '-' "${search}") )
+    subsearch=( $(@BINDIR@/beecut -d '-' "${search}") )
     nss=${#subsearch[*]}
 
     install_candidate=
@@ -131,7 +131,7 @@ pkg_install() {
 
         found=
         for a in ${available} ; do
-            p=$(beeversion --pkgfullname "${a}")
+            p=$(@BINDIR@/beeversion --pkgfullname "${a}")
             debug_msg "  against $p ($a)"
 
             if [ "${p}" = "${sss}" ] ; then
@@ -151,7 +151,7 @@ pkg_install() {
 
         if [ -n "${install_candidate}" ] ; then
             debug_msg "install candidates: ${install_candidate}"
-            to_bee_installed=$(beeversion -max ${install_candidate})
+            to_bee_installed=$(@BINDIR@/beeversion -max ${install_candidate})
             debug_msg "   => and the winner is:  ${to_bee_installed}"
             pkg_install ${to_bee_installed}
             break
@@ -178,11 +178,11 @@ pkg_install() {
 get_installed_versions() {
     local pkg=${1}
 
-    local pname=$(beeversion --pkgfullname ${pkg})
+    local pname=$(@BINDIR@/beeversion --pkgfullname ${pkg})
     local list
 
     for i in $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list -i "${pname}") ; do
-        local installed=$(beeversion --pkgfullname ${i})
+        local installed=$(@BINDIR@/beeversion --pkgfullname ${i})
         if [ "${installed}" = "${pname}" ] ; then
             list="${list:+${list} }${i}"
         fi
@@ -245,7 +245,7 @@ do_install() {
     fi
 
     # create bee-filename
-    BEE="$(beeversion ${pkg} --format="%F").bee"
+    BEE="$(@BINDIR@/beeversion ${pkg} --format="%F").bee"
 
     taraction="-x"
 
