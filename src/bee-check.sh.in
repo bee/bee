@@ -19,7 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-BEESEP=beesep
+BEESEP=@BINDIR@/beesep
 
 ###############################################################################
 ###############################################################################
@@ -171,7 +171,7 @@ do_check_deps() {
 
     echo -e "[${pkg}]"
 
-    eval $(beeversion "${pkg}")
+    eval $(@BINDIR@/beeversion "${pkg}")
 
     echo "    type     = package"
     echo "    provides = ${PKGNAME}"

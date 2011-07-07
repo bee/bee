@@ -37,7 +37,7 @@ pkg_remove() {
 do_remove() {
     pkg=$1
 
-    FILES=$(beefind.pl --dump ${pkg}/FILES)
+    FILES=$(@BINDIR@/beefind.pl --dump ${pkg}/FILES)
 
     # removing files
     for f in $FILES ; do

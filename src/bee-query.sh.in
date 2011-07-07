@@ -46,7 +46,7 @@ query() {
         # otherwise list pkg
         base=$(basename $f)
         if [ -d "${BEE_METADIR}/${base}" ] ; then
-            eval $(beeversion $base)
+            eval $(@BINDIR@/beeversion $base)
             get_files "${PKGALLPKG}"
         else
             get_pkgs ${f}
