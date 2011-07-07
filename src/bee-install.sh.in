@@ -100,8 +100,8 @@ pkg_install() {
     fi
 
     # if search is relative or absolute path to file -> exit
-    if [ "${search:0:2}" = "./" -o "${search%/*}" != "." ] ; then
-        echo "${search}: no such File or Directory"
+    if [ "${search:0:2}" = "./" -o "${search%/*}" != "${search}" ] ; then
+        echo "${search}: Uncorrect search patter / No such file or directory"
         exit 1
     fi
 
@@ -279,14 +279,17 @@ print_pkg_list() {
     fi
 
     for p in ${@} ; do
-        local pkgname=${p##*/}
-        local installed=$(get_installed_versions ${pkgname})
+        local pkgname
+        local installed
 
+        pkgname=${p##*/}
         pkgname=${pkgname%.bz2}
         pkgname=${pkgname%.gz}
         pkgname=${pkgname%.tar}
         pkgname=${pkgname%.iee}
         pkgname=${pkgname%.bee}
+
+        installed=$(get_installed_versions ${pkgname})
 
         local status
         for i in ${installed} ; do
