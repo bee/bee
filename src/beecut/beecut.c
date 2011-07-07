@@ -27,7 +27,7 @@
 #define BEECUT_MINOR    4
 #define BEECUT_PATCHLVL 0
 
-#define OPT_DELIMETER 'd'
+#define OPT_DELIMITER 'd'
 #define OPT_SHORT     's'
 #define OPT_PREPEND   'p'
 #define OPT_APPEND    'a'
@@ -48,7 +48,7 @@ void print_full_usage(void)
 
     printf("options:\n\n");
 
-    printf("  -d | --delimeter <char>  specify the delimeter character\n\n");
+    printf("  -d | --delimiter <char>  specify the delimiter character\n\n");
 
     printf("  -s | --short             output short elements\n");
     printf("  -n | --newline           output each element on a seperate line\n\n");
@@ -63,7 +63,7 @@ void print_full_usage(void)
     printf("  beecut -s -d '-' a-b-c will print 'a-b-c a b c'\n\n");
 }
 
-void cut_and_print(char *string, char delimeter, char opt_short, char opt_newline, char *prefix, char *suffix)
+void cut_and_print(char *string, char delimiter, char opt_short, char opt_newline, char *prefix, char *suffix)
 {
     char *p, *s;
     char nl;
@@ -74,7 +74,7 @@ void cut_and_print(char *string, char delimeter, char opt_short, char opt_newlin
     
     printf("%s%s", prefix, string);
     
-    while((p=strchr(p, delimeter))) {
+    while((p=strchr(p, delimiter))) {
         if(s < p) /* only print space if we have something to print */
             printf("%s%c%s", suffix, nl, prefix);
 
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
     int  option_index = 0;
     int  c = 0;
     
-    char delimeter = '.';
+    char delimiter = '.';
     
     char opt_short   = 0;
     char opt_newline = 0;
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     char *opt_append  = opt_prepend;
 
     struct option long_options[] = {
-        {"delimeter",   required_argument, 0, OPT_DELIMETER},
+        {"delimiter",   required_argument, 0, OPT_DELIMITER},
 
         {"prepend",     required_argument, 0, OPT_PREPEND},
         {"append",      required_argument, 0, OPT_APPEND},
@@ -120,12 +120,12 @@ int main(int argc, char *argv[])
     while ((c = getopt_long_only(argc, argv, "p:a:d:sn", long_options, &option_index)) != -1) {
 
         switch (c) {
-            case OPT_DELIMETER:
+            case OPT_DELIMITER:
                 if (!optarg[0] || optarg[1]) {
-                     fprintf(stderr, "invalid delimeter '%s'\n", optarg);
+                     fprintf(stderr, "invalid delimiter '%s'\n", optarg);
                      exit(EXIT_FAILURE);
                 }
-                delimeter = optarg[0];
+                delimiter = optarg[0];
                 break;
 
             case OPT_PREPEND:
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
     }
     
     while(optind < argc)
-        cut_and_print(argv[optind++], delimeter, opt_short,
+        cut_and_print(argv[optind++], delimiter, opt_short,
                       opt_newline, opt_prepend, opt_append);
     
     return(0);
