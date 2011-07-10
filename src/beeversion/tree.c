@@ -54,10 +54,13 @@ static struct tree_node *subtree_allocate(void)
 
 static void node_free_content(struct tree *tree, struct tree_node *node)
 {
+    assert(tree);
+    assert(node);
 
 #ifdef TREE_DEBUG
     printf("freeing '%s'\n", (char *)node->key);
 #endif
+
     if (tree->free_data && node->data)
         tree->free_data(node->data);
 
@@ -84,14 +87,16 @@ static void subtree_free(struct tree *tree, struct tree_node *this)
 
 void tree_free(struct tree *tree)
 {
+     assert(tree);
      subtree_free(tree, tree->root);
-
      free(tree);
 }
 
 static void tree_update_node(struct tree_node *node)
 {
     unsigned char l, r;
+
+    assert(node);
 
     l = TREE_HEIGHT(node->left);
     r = TREE_HEIGHT(node->right);
@@ -200,6 +205,9 @@ static struct tree_node *tree_rotate_left(struct tree *tree, struct tree_node *n
 {
     struct tree_node *root;
 
+    assert(tree);
+    assert(node);
+
     root = subtree_rotate_left(node);
 
     if (!root->parent)
@@ -212,6 +220,9 @@ static struct tree_node *tree_rotate_right(struct tree *tree, struct tree_node *
 {
     struct tree_node *root;
 
+    assert(tree);
+    assert(node);
+
     root = subtree_rotate_right(node);
 
     if (!root->parent)
@@ -223,6 +234,9 @@ static struct tree_node *tree_rotate_right(struct tree *tree, struct tree_node *
 static void node_print(struct tree *tree, struct tree_node *node, int depth, int dir)
 {
     int i;
+
+    assert(tree);
+    assert(node);
 
     assert(tree->print_key);
 
@@ -331,13 +345,14 @@ struct tree_node *tree_insert(struct tree *tree, void *data)
 {
     struct tree_node *node;
 
+    assert(tree);
     assert(data);
+
+    assert(tree->generate_key);
 
     node = subtree_allocate();
     if (!node)
         return NULL;
-
-    assert(tree->generate_key);
 
     node->data = data;
     node->key  = tree->generate_key(data);
@@ -354,6 +369,7 @@ static struct tree_node *tree_search_node_by_key(struct tree *tree, void *key)
 
     assert(tree);
     assert(key);
+
     assert(tree->compare_key);
 
     node = tree->root;
@@ -398,6 +414,9 @@ static struct tree_node *subtree_successor(struct tree_node *node)
 
 static void node_copy_content(struct tree_node *from, struct tree_node *to)
 {
+    assert(to);
+    assert(from);
+
 #ifdef TREE_DEBUG
     printf("copying '%s'\n", (char *)from->key);
 #endif
@@ -420,6 +439,7 @@ static void subtree_delete_node(struct tree *tree, struct tree_node *node)
         node_free_content(tree, n);
         node = n;
         n = NULL;
+        assert(!node->left || !node->right);
     }
 
     if (node->left)
@@ -466,6 +486,8 @@ void *tree_delete(struct tree *tree, void *key)
 
 static void subtree_print(struct tree *tree, struct tree_node *node, int depth, int dir)
 {
+    assert(tree);
+
     if (!node)
         return;
 
@@ -476,5 +498,7 @@ static void subtree_print(struct tree *tree, struct tree_node *node, int depth, 
 
 void tree_print(struct tree *tree)
 {
+    assert(tree);
+
     subtree_print(tree, tree->root, 0, 0);
 }
