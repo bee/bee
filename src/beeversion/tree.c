@@ -412,7 +412,7 @@ static struct tree_node *subtree_successor(struct tree_node *node)
     return node;
 }
 
-static void node_copy_content(struct tree_node *from, struct tree_node *to)
+static void node_copy_content(struct tree *tree, struct tree_node *from, struct tree_node *to)
 {
     assert(to);
     assert(from);
@@ -420,6 +420,9 @@ static void node_copy_content(struct tree_node *from, struct tree_node *to)
 #ifdef TREE_DEBUG
     printf("copying '%s'\n", (char *)from->key);
 #endif
+
+    node_free_content(tree, to);
+
     to->key  = from->key;
     to->data = from->data;
 }
@@ -431,16 +434,15 @@ static void subtree_delete_node(struct tree *tree, struct tree_node *node)
     assert(tree);
     assert(node);
 
-    node_free_content(tree, node);
-
     if (node->left && node->right) {
         n = subtree_successor(node);
-        node_copy_content(n, node);
-        node_free_content(tree, n);
+        node_copy_content(tree, n, node);
         node = n;
         n = NULL;
         assert(!node->left || !node->right);
     }
+
+    node_free_content(tree, node);
 
     if (node->left)
         n = node->left;
