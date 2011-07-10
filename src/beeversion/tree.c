@@ -52,7 +52,7 @@ static struct tree_node *subtree_allocate(void)
     return t;
 }
 
-static void subtree_node_free_content(struct tree *tree, struct tree_node *node)
+static void node_free_content(struct tree *tree, struct tree_node *node)
 {
 
 #ifdef TREE_DEBUG
@@ -78,7 +78,7 @@ static void subtree_free(struct tree *tree, struct tree_node *this)
     subtree_free(tree, this->left);
     subtree_free(tree, this->right);
 
-    subtree_node_free_content(tree, this);
+    node_free_content(tree, this);
     free(this);
 }
 
@@ -407,7 +407,7 @@ static struct tree_node *subtree_successor(struct tree_node *node)
     return node;
 }
 
-static void subtree_node_copy_content(struct tree_node *from, struct tree_node *to)
+static void node_copy_content(struct tree_node *from, struct tree_node *to)
 {
 #ifdef TREE_DEBUG
     printf("copying '%s'\n", (char *)from->key);
@@ -423,12 +423,12 @@ static void subtree_delete_node(struct tree *tree, struct tree_node *node)
     assert(tree);
     assert(node);
 
-    subtree_node_free_content(tree, node);
+    node_free_content(tree, node);
 
     if (node->left && node->right) {
         n = subtree_successor(node);
-        subtree_node_copy_content(n, node);
-        subtree_node_free_content(tree, n);
+        node_copy_content(n, node);
+        node_free_content(tree, n);
         node = n;
         n = NULL;
     }
