@@ -243,8 +243,6 @@ static void tree_balance_node(struct tree *tree, struct tree_node *node)
 {
     struct tree_node *child;
 
-//    assert(node);
-
     while (node) {
         tree_update_node(node);
 
@@ -261,13 +259,6 @@ static void tree_balance_node(struct tree *tree, struct tree_node *node)
 
             tree_rotate_left(tree, node);
 
-/*            if (child->balance_factor == -1) {
-                tree_rotate_left(tree, node);
-            } else if (child->balance_factor == 1) {
-                tree_rotate_right(tree, child);
-                tree_rotate_left(tree, node);
-            }
-*/
         } else if (node->balance_factor == 2) {
             child = node->left;
 
@@ -276,14 +267,6 @@ static void tree_balance_node(struct tree *tree, struct tree_node *node)
 
             tree_rotate_right(tree, node);
 
-/*
-            if (child->balance_factor == 1) {
-                tree_rotate_right(tree, node);
-            } else if (child->balance_factor == -1) {
-                tree_rotate_left(tree, child);
-                tree_rotate_right(tree, node);
-            }
-*/
         }
 
         node = node->parent;
