@@ -220,7 +220,7 @@ static struct tree_node *tree_rotate_right(struct tree *tree, struct tree_node *
     return root;
 }
 
-static void node_print(struct tree *tree, struct tree_node *node, int depth)
+static void node_print(struct tree *tree, struct tree_node *node, int depth, int dir)
 {
     int i;
 
@@ -229,6 +229,12 @@ static void node_print(struct tree *tree, struct tree_node *node, int depth)
     for (i = 0 ; i < depth ; i++) {
         putchar('-');
     }
+
+    if(dir > 0)
+        putchar('\\');
+
+    if(dir < 0)
+        putchar('/');
 
     tree->print_key(node->key);
 
@@ -248,7 +254,7 @@ static void tree_balance_node(struct tree *tree, struct tree_node *node)
 
 #ifdef TREE_DEBUG
         printf("balancing ");
-	node_print(tree, node, 0);
+	node_print(tree, node, 0, 0);
 #endif
 
         if (node->balance_factor == -2) {
@@ -285,7 +291,7 @@ static struct tree_node *tree_insert_node(struct tree *tree, struct tree_node *n
 
 #ifdef TREE_DEBUG
     printf("inserting ");
-    node_print(tree, node, 0);
+    node_print(tree, node, 0, 0);
 #endif
 
     if (!tree->root)
@@ -458,17 +464,17 @@ void *tree_delete(struct tree *tree, void *key)
     return NULL;
 }
 
-static void subtree_print(struct tree *tree, struct tree_node *node, int depth)
+static void subtree_print(struct tree *tree, struct tree_node *node, int depth, int dir)
 {
     if (!node)
         return;
 
-    subtree_print(tree, node->left,  depth+1);
-    node_print(tree, node, depth);
-    subtree_print(tree, node->right, depth+1);
+    subtree_print(tree, node->left,  depth+1, -1);
+    node_print(tree, node, depth, dir);
+    subtree_print(tree, node->right, depth+1, 1);
 }
 
 void tree_print(struct tree *tree)
 {
-    subtree_print(tree, tree->root, 0);
+    subtree_print(tree, tree->root, 0, 0);
 }
