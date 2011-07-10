@@ -4,7 +4,6 @@
 
 struct tree {
     struct tree_node *root;
-    struct tree_node *current;
 
     void   (*free_data)(void *data);
 
