@@ -32,7 +32,8 @@ struct tree *tree_allocate(void)
 {
     struct tree *t;
 
-    t = calloc(1, sizeof(*t));
+    if(!(t = calloc(1, sizeof(*t))))
+        return NULL;
 
     t->generate_key = &tree_generate_key_default;
     t->compare_key  = &tree_compare_key_default;
@@ -45,7 +46,8 @@ static struct tree_node *subtree_allocate(void)
 {
     struct tree_node *t;
 
-    t = calloc(1, sizeof(*t));
+    if(!(t = calloc(1, sizeof(*t))))
+        return NULL;
 
     t->height = 1;
 
