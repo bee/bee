@@ -25,6 +25,7 @@ if [ -z ${BEE_VERSION} ] ; then
 fi
 
 VERSION=${BEE_VERSION}
+BEESEP=@BINDIR@/beesep
 
 ##### usage ###################################################################
 usage() {
@@ -61,7 +62,8 @@ get_files() {
         ff="${s}/${pkg}/FILES"
         if [ -e "${ff}" ] ; then
             for line in $(cat ${ff}) ; do
-                beefind2filename $line
+                eval $(${BEESEP} ${line})
+                echo ${file}
             done
         fi
     done
@@ -70,27 +72,17 @@ get_files() {
 get_pkgs() {
     f=$1
 
-    for i in ${BEE_METADIR}/* ; do
-        if egrep -q "file=.*${f}" ${i}/FILES ; then
-            echo ${i##*/}
-            for line in $(egrep "file=.*${f}" ${i}/FILES) ; do
-                echo "  $(beefind2filename $line)"
+    for i in ${BEE_METADIR}/*/FILES ; do
+        if egrep -q "file=.*${f}" ${i} ; then
+            # print package name
+            echo $(basename $(dirname ${i}))
+            for line in $(egrep "file=.*${f}" ${i}) ; do
+                eval $(${BEESEP} ${line})
+                echo "  ${file}"
             done
         fi
     done
 }
-
-beefind2filename() {
-    line=$1
-
-    OLDIFS=${IFS}
-    IFS=":"
-    eval $line
-    echo $file
-    unset md5 mode nlink uid gid size mtime file
-    IFS=${OLDIFS}
-}
-
 
 
 ###############################################################################
