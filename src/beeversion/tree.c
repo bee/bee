@@ -6,11 +6,37 @@
 
 #include "tree.h"
 
+static void *tree_generate_key_default(void *data)
+{
+    assert(data);
+
+    return data;
+}
+
+static int tree_compare_key_default(void *a, void *b)
+{
+    assert(a);
+    assert(b);
+
+    return strcmp(a, b);
+}
+
+static void tree_print_key_default(void *key)
+{
+    assert(key);
+
+    fputs(key, stdout);
+}
+
 struct tree *tree_allocate(void)
 {
     struct tree *t;
 
     t = calloc(1, sizeof(*t));
+
+    t->generate_key = &tree_generate_key_default;
+    t->compare_key  = &tree_compare_key_default;
+    t->print_key    = &tree_print_key_default;
 
     return t;
 }
@@ -316,19 +342,16 @@ struct tree_node *tree_insert(struct tree *tree, void *data)
 {
     struct tree_node *node;
 
-    node = subtree_allocate();
+    assert(data);
 
+    node = subtree_allocate();
     if (!node)
         return NULL;
 
-    node->data = data;
+    assert(tree->generate_key);
 
-    if (tree->generate_key) {
-        node->key = tree->generate_key(data);
-    } else {
-        assert(!tree->free_key);
-        node->key = node->data;
-    }
+    node->data = data;
+    node->key  = tree->generate_key(data);
 
     tree_insert_node(tree, node);
 
