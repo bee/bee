@@ -23,6 +23,9 @@ bee_install() {
     start_cmd make install DESTDIR=${D} "$@"
 }
 
+if ! grep datarootdir ${S}/configure ; then
+    BEE_CONFIGURE='compat'
+fi
 
 # check IGNORE_DATAROOTDIR for compatibility with old bee-files
 if [ ${IGNORE_DATAROOTDIR} ] ; then
