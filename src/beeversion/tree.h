@@ -6,17 +6,13 @@ struct tree {
     struct tree_node *root;
     struct tree_node *current;
 
-    /* pointer function generating key from data */
+    void   (*free_data)(void *data);
+
     void * (*generate_key)(void *data);
+    void   (*free_key)(void *data);
 
-    /* pointer to function comparing two keys */
-    int  (*key_compare)(void *a, void *b);
-
-    void (*print_key)(void *key);
-
-    /* pointers to functions freeing data and key */
-    void (*free_data)(void *data);
-    void (*free_key)(void *data);
+    int    (*compare_key)(void *a, void *b);
+    void   (*print_key)(void *key);
 };
 
 struct tree_node {

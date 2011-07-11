@@ -272,7 +272,7 @@ static struct tree_node *tree_insert_node(struct tree *tree, struct tree_node *n
     assert(tree);
     assert(node);
 
-    assert(tree->key_compare);
+    assert(tree->compare_key);
 
 #ifdef TREE_DEBUG
     printf("inserting ");
@@ -285,7 +285,7 @@ static struct tree_node *tree_insert_node(struct tree *tree, struct tree_node *n
     current = tree->root;
 
     while (!node->parent) {
-        cmp = tree->key_compare(node->key, current->key);
+        cmp = tree->compare_key(node->key, current->key);
 
         if (cmp < 0) {
             if (current->left) {
@@ -342,12 +342,12 @@ static struct tree_node *tree_search_node_by_key(struct tree *tree, void *key)
 
     assert(tree);
     assert(key);
-    assert(tree->key_compare);
+    assert(tree->compare_key);
 
     node = tree->root;
 
     while (node) {
-        if (!(cmp = tree->key_compare(key, node->key)))
+        if (!(cmp = tree->compare_key(key, node->key)))
             return node;
 
         node = (cmp < 0) ? node->left : node->right;
@@ -363,7 +363,6 @@ void *tree_search(struct tree *tree, void *key)
 
     assert(tree);
     assert(key);
-    assert(tree->key_compare);
 
     node = tree_search_node_by_key(tree, key);
 
@@ -444,7 +443,6 @@ void *tree_delete(struct tree *tree, void *key)
 
     assert(tree);
     assert(key);
-    assert(tree->key_compare);
 
     node = tree_search_node_by_key(tree, key);
 
