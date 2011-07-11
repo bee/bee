@@ -19,12 +19,16 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "beeversion.h"
 
 int compare_version_strings(char *v1, char *v2) {
     char *a, *b;
     long long i,j;
+
+    assert(v1);
+    assert(v2);
 
     a = v1;
     b = v2;
@@ -85,6 +89,9 @@ int compare_version_strings(char *v1, char *v2) {
 int compare_beepackage_names(struct beeversion *v1, struct beeversion *v2) {
     int ret;
 
+    assert(v1);
+    assert(v2);
+
     ret = strcmp(v1->pkgname, v2->pkgname);
 
     if(!ret)
@@ -96,6 +103,9 @@ int compare_beepackage_names(struct beeversion *v1, struct beeversion *v2) {
 
 int compare_beeversions(struct beeversion *v1, struct beeversion *v2) {
     int ret;
+
+    assert(v1);
+    assert(v2);
 
     ret = compare_version_strings(v1->version, v2->version);
     if(ret) return(ret);
@@ -115,6 +125,9 @@ int compare_beeversions(struct beeversion *v1, struct beeversion *v2) {
 
 int compare_beepackages(struct beeversion *v1, struct beeversion *v2) {
     int ret;
+
+    assert(v1);
+    assert(v2);
 
     ret = compare_beepackage_names(v1, v2);
 

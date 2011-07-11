@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include <sys/utsname.h>
 
@@ -40,6 +41,8 @@ char parse_extra(struct beeversion *v)
 
     struct extra_version *ev;
     char                 *s;
+
+    assert(v);
 
     s  = v->extraversion;
     ev = extra;
@@ -82,6 +85,9 @@ int parse_version(char *s,  struct beeversion *v)
     char   *p;
     char   *version_or_revision;
     size_t len;
+
+    assert(s);
+    assert(v);
 
     if(! (v->string=strdup(s))) {
         perror("strdup");
@@ -224,4 +230,3 @@ int parse_version(char *s,  struct beeversion *v)
     parse_extra(v);
     return(0);
 }
-
