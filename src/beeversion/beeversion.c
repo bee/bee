@@ -22,21 +22,11 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <string.h>
-#include <ctype.h>
 
-#include <sys/utsname.h>
+#include "beeversion.h"
+#include "parse.h"
+#include "compare.h"
 
-#define BEEVERSION_MAJOR    1
-#define BEEVERSION_MINOR    3
-#define BEEVERSION_PATCHLVL 0
-
-#define EXTRA_UNKNOWN 200
-#define EXTRA_ALPHA   1
-#define EXTRA_BETA    2
-#define EXTRA_RC      3
-#define EXTRA_NONE    4
-#define EXTRA_PATCH   5
-#define EXTRA_ANY     6
 
 #define TEST_BITS 3
 #define TYPE_BITS 2
@@ -77,30 +67,6 @@
 #define MODE_TEST   1
 #define MODE_PARSE  2
 
-#define SUPPORTED_ARCHITECTURES \
-            "noarch", "any", \
-            "x86_64", "i686", "i386", "i486", "i586", \
-            "alpha", "arm", "m68k", "sparc", "mips", "ppc"
-
-struct extra_version {
-    char         *string;
-    unsigned int  priority;
-    size_t        length;
-};
-
-struct beeversion {
-    char *string;
-    char *pkgname;
-    char *subname;
-    char *version;
-    char *extraversion;
-    int   extraversion_typ;
-    char *extraversion_nr;
-    char *pkgrevision;
-    char *arch;
-    char *suffix;
-};
-
 char *filter_pkgfullname;
 
 int compare_beeversions(struct beeversion *, struct beeversion *);
@@ -140,166 +106,6 @@ void print_full_usage(void) {
     
 }
 
-
-/*
-** IN: s: pointer to versionstring..
-**     v: pointer to version structure
-**
-** OUT: filled structure on success..
-**
-** RETURN: 0  on success
-**         >0 error at position x
-**
-*/
-int parse_version(char *s,  struct beeversion *v)
-{
-    char   *p;
-    char   *version_or_revision;
-    size_t len;
-
-    if(! (v->string=strdup(s))) {
-        perror("strdup");
-        exit(254);
-    }
-    
-    s   = v->string;
-    len = strlen(s);
-    
-    v->pkgname          = s+len;
-    v->subname          = s+len;
-    v->version          = s+len;
-    v->extraversion     = s+len;
-    v->extraversion_nr  = s+len;
-    v->pkgrevision      = s+len;
-    v->arch             = s+len;
-    v->suffix           = s+len;
-    v->extraversion_typ = EXTRA_UNKNOWN;
-    
-    /* p-v-r   p-v   v */
-    
-    /* extract basename */
-    if((p=strrchr(s,'/'))) {
-        s = p+1;
-    }
-    
-    /* extract architecture if known.. */
-    
-    if((p=strrchr(s, '.')) && !strchr(++p, '-')) {
-        struct utsname unm;
-        char           *arch[] = { SUPPORTED_ARCHITECTURES, NULL };
-        char           **a;
-        
-        if(uname(&unm)) {
-             perror("uname");
-             exit(1);
-        }
-        
-        if(!strcmp(p, "bee")) {
-             /* ignore .bee suffix */
-             *(p-1) = 0;
-        } else {
-            if(!strcmp(p, unm.machine)) {
-                v->arch = p;
-                *(p-1)  = 0;
-            }
-        }
-        
-        for(a=arch; *(p-1) && *a; a++) {
-            if(strcmp(p, *a))
-                continue;
-                
-            v->arch = p;
-            *(p-1)  = 0;
-        }
-    }
-    
-    /* do split pkg */
-    
-    if((p=strrchr(s, '-'))) {
-        version_or_revision = p+1;
-        *p=0;
-        
-        /* check for empty version_or_revision */
-        if(!*version_or_revision)
-            return(p-s+1);
-
-        /* first part ist pname (will be checked later) */
-        v->pkgname = s;
-        
-        /* version_or_revision must start with a digit */
-        if(!isdigit(*version_or_revision)) {
-            return(p-s+1);
-        }
-
-        /* if there is another dash  
-        **   revision is version_or_revision
-        **   version  is p+1
-        ** else
-        **   revision is empty
-        **   version  is version_or_revision
-        */
-        if((p=strrchr(s, '-'))) {
-            int  r_isdigit = 1;
-            char *r;
-            
-            /* check if revision matches ^[0-9]+$ */
-               
-            for(r=version_or_revision; *r; r++) {
-                if(!isdigit(*r)) {
-                    r_isdigit=0;
-                    break;
-                }
-            }
-            
-            if(!r_isdigit)
-                p = NULL;
-                
-                
-            if(r_isdigit && !isdigit(*(p+1)))
-                p = NULL;
-        }
-        
-        if(p) {
-            v->version     = p+1;
-            *p=0;
-
-            if(!*(v->version) || *(v->version) == '_')
-                return(p-s+1);
-            
-            v->pkgrevision = version_or_revision;
-            
-        } else {
-            v->version = version_or_revision;
-        }
-    } else {
-        if(!isdigit(*s)) {
-            return(1);
-        }
-        v->version = s;
-    }
-    
-    /* check pname or version */
-    if(!*s || *s == '_')
-        return(1);
-
-    if((p=strchr(v->version, '_'))) {
-        *p=0;
-        v->extraversion=p+1;
-        if(!*(v->extraversion))
-            return(p-s+1);
-    }
-
-    if(v->pkgname && (p=strchr(v->pkgname, '_'))) {
-        *p=0;
-        v->subname=p+1;
-        if(!*(v->subname))
-            return(p-s+1);
-    }
-    
-    parse_extra(v);
-    return(0);
-}
-
 void cut_and_print(char *string, char delimiter, char opt_short)
 {
     char *p, *s;
@@ -322,45 +128,6 @@ void cut_and_print(char *string, char delimiter, char opt_short)
     printf(" %s", s);
 }
 
-char parse_extra(struct beeversion *v)
-{
-    struct extra_version extra[] = {
-        { "alpha", EXTRA_ALPHA, 5 },
-        { "beta",  EXTRA_BETA,  4 },
-        { "rc",    EXTRA_RC,    2 },
-        { "patch", EXTRA_PATCH, 5 },
-        { "p",     EXTRA_PATCH, 1 },
-        { NULL,    EXTRA_ANY,   0 }
-    };
-    
-    struct extra_version *ev;
-    char                 *s;
-   
-    s  = v->extraversion;
-    ev = extra;
-    
-    if(!*s) {
-        v->extraversion_typ = EXTRA_NONE;
-        v->extraversion_nr  = s;
-#ifdef DEBUG
-        printf(stderr, "parse_extra(%s) = %d, '%s'", 
-            v->extraversion, v->extraversion_typ, v->extraversion_nr);
-#endif
-        return(1);
-    }
-    
-    while(ev->string && strncmp(ev->string, s, ev->length))
-        ev++;
-
-    v->extraversion_typ = ev->priority;
-    v->extraversion_nr  = s + ev->length;
-    
-#ifdef DEBUG
-        printf(stderr, "parse_extra(%s) = %d, '%s'", 
-            v->extraversion, v->extraversion_typ, v->extraversion_nr);
-#endif
-    return(1);
-}
 
 int parse_argument(char* text, struct beeversion *versionsnummer)
 {	
@@ -373,111 +140,9 @@ int parse_argument(char* text, struct beeversion *versionsnummer)
     return(1);
 }
 
-int compare_version_strings(char *v1, char *v2) {
-    char *a, *b;
-    long long i,j;
-    
-    a = v1;
-    b = v2;
-
-    while(*a && *b && *a == *b) {
-        a++;
-        b++;
-    }
-    
-    /* strings are equal ; *a==*b==0*/
-    if(*a == *b)
-        return(0);
-    
-    if(isdigit(*a)) {
-        if(isdigit(*b)) {
-            /* rewind string to first digit */
-            /* e.g. to compare 12 vs 100 and not 2 vs 00 */
-            while(a > v1 && isdigit(*(a-1))) {
-                a--;
-                b--;
-            }
-            i = atoll(a);
-            j = atoll(b);
-           
-            if(i<j)
-                return(-1);
-            if(i>j)
-                return(1);
-            
-            /* numbers are equal but strings are not?           */
-            /* yes ->  leading zeros: atoll("01") == atoll("1") */
-            return(0);
-        }
-        /* a > ('.',alpha, 0) */
-        return(1);
-    }
-    
-    if(isalpha(*a)) {
-    
-        /*  alpha < digit */
-        if(isdigit(*b))
-            return(-1);
-        
-        if(isalpha(*b)) {
-            if(*a < *b)
-                return(-1);
-            return(1);
-        }
-        return(1);
-    }
-    
-    if(! *b)
-        return(1);
-    
-    return(-1);
-}
-
-
-int compare_beepackage_names(struct beeversion *v1, struct beeversion *v2) {
-    int ret;
-    
-    ret = strcmp(v1->pkgname, v2->pkgname);
-    
-    if(!ret)
-        ret = strcmp(v1->subname, v2->subname);
-    
-    return(ret);
-   
-}
-
-int compare_beepackages(struct beeversion *v1, struct beeversion *v2) {
-    int ret;
-    
-    ret = compare_beepackage_names(v1, v2);
-    
-    if(!ret)
-        ret = compare_beeversions(v1, v2);
-        
-    return(ret);
-}
 
 static int compare_beepackages_gen(const void *a, const void *b) {
     return((int)compare_beepackages((struct beeversion *)a, (struct beeversion *)b));
-}
-
-int compare_beeversions(struct beeversion *v1, struct beeversion *v2) {
-    int ret;
-
-    ret = compare_version_strings(v1->version, v2->version);
-    if(ret) return(ret);
-    
-    if(v1->extraversion_typ < v2->extraversion_typ)
-        return(-1);
-
-    if(v1->extraversion_typ > v2->extraversion_typ)
-        return(1);
-    
-    ret = compare_version_strings(v1->extraversion_nr, v2->extraversion_nr);
-    if(ret) return(ret);
-    
-    ret = compare_version_strings(v1->pkgrevision, v2->pkgrevision);
-    return ret;
 }
 
 void print_format(char* s, struct beeversion *v)

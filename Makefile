@@ -50,21 +50,27 @@ build: shellscripts perlscripts cprograms
 
 SHELLSCRIPTS=$(PROGRAMS_SHELL) $(HELPER_BEE_SHELL) $(LIBRARY_SHELL)
 
+BEEVERSION_OBJECTS=beeversion.o parse.o compare.o
+
 shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS))
 perlscripts:  $(PROGRAMS_PERL)
 cprograms:    $(PROGRAMS_C)
 
 beesep: src/beesep/beesep.c
-	@echo "building $@ .."
+	@echo "linking $@ .."
 	@gcc -Wall -o $@ $^
 
-beeversion: src/beeversion/beeversion.c
-	@echo "building $@ .."
+beeversion: $(addprefix  src/beeversion/, ${BEEVERSION_OBJECTS})
+	@echo "linking $@ .."
 	@gcc -Wall -o $@ $^
 
 beecut: src/beecut/beecut.c
-	@echo "building $@ .."
+	@echo "linking $@ .."
 	@gcc -Wall -o $@ $^
+
+%.o: %.c
+	@echo "compiling $@ .."
+	@gcc -Wall -o $@ -c $^
 
 %.sh: src/%.sh.in
 	@echo "creating $@ .."
@@ -89,6 +95,7 @@ clean:
 	@rm -vf $(addsuffix .sh,${SHELLSCRIPTS})
 	@rm -vf ${PROGRAMS_PERL}
 	@rm -vf ${PROGRAMS_C}
+	@rm -vf $(addprefix  src/beeversion/, ${BEEVERSION_OBJECTS})
 
 install: install-core install-config
 
