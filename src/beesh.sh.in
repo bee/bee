@@ -166,12 +166,16 @@ function fetch_one_file() {
             rm -vf ${F}/${file}
         fi
 
+        trap "rm -f ${F}/${file}" EXIT
+
         print_info "fetching $url"
         wget \
             ${nocheck} \
             --output-document="${F}/${file}" \
             --no-clobber \
             "${url}" || true
+
+        trap EXIT
 
         ls -ld "${F}/${file}"
     fi
