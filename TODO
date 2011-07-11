@@ -4,3 +4,4 @@ for release 1.0:
     - handle aborted wget
     - build_in_source really build in source
     - auto detect old configure and auto switch to compat mode
+    - add PREFIX-vars to PKG and try to remove them when not used in othe pkg and empty
