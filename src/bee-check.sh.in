@@ -173,7 +173,7 @@ do_check_deps() {
 
     eval $(@BINDIR@/beeversion "${pkg}")
 
-    echo "    type     = package"
+    echo "    type     = PACKAGE"
     echo "    provides = ${PKGNAME}"
     echo "    provides = ${PKGFULLPKG}"
 
