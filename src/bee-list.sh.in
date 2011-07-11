@@ -60,7 +60,7 @@ list_installed() {
     if [ ! -r ${BEE_METADIR} ] ; then
         return
     fi
-    find ${BEE_METADIR} -mindepth 1 -maxdepth 1 -printf "%f\n" \
+    find ${BEE_METADIR} -mindepth 1 -maxdepth 1 -type d -printf "%f\n" \
         | sort
 }
 
