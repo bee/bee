@@ -286,7 +286,10 @@ int do_test(int argc, char *argv[], char test) {
         }
         
         ret = compare_beeversions(a, b);
-        
+
+        free(a->string);
+        free(b->string);
+
         switch(t) {
             case T_LESS_THAN:
                 return(ret < 0);
@@ -337,7 +340,11 @@ int do_test(int argc, char *argv[], char test) {
                a = b;
         }
         print_format("%A\n", a);
-        
+
+        for(i=0;i<argc;i++) {
+            free(va[i].string);
+        }
+
         free(va);
         return(1);
     }
@@ -359,7 +366,9 @@ int do_parse(int argc, char *argv[], char *format) {
         return(0);
     
     print_format(format, &v);
-    
+
+    free(v.string);
+
     return(1);
 }
 
