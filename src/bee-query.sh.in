@@ -46,7 +46,7 @@ query() {
         # check if $f is pkg, list related files
         # otherwise list pkg
         base=${f##*/}
-        if [ -d "${BEE_METADIR}/${base}" ] ; then
+        if [ ! -z "${base}" -a -d "${BEE_METADIR}/${base}" ] ; then
             eval $(@BINDIR@/beeversion $base)
             get_files "${PKGALLPKG}"
         else
