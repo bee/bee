@@ -23,7 +23,7 @@ bee_install() {
     start_cmd make install DESTDIR=${D} "$@"
 }
 
-if ! grep datarootdir ${S}/configure ; then
+if ! grep -q datarootdir ${S}/configure ; then
     BEE_CONFIGURE='compat'
 fi
 
