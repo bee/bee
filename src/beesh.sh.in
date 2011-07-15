@@ -590,15 +590,7 @@ PKGALLPKG=
 # since PKGARCH is now known reconstruct PKGALLPKG
 : ${PKGALLPKG:=${PKGFULLPKG}.${PKGARCH}}
 
-# expand variables
-for var in prefix eprefix bindir sbindir libexecdir sysconfdir \
-           sharedstatedir localstatedir libdir includedir \
-           datarootdir datadir infodir localedir mandir docdir ; do
-    eval eval ${var^^}=\${${var^^}}
-    eval 'BEE_AUTO_EXCLUDE="${BEE_AUTO_EXCLUDE} \${${var^^}}"'
-done
-
-eval "BEE_AUTO_EXCLUDE=\"${BEE_AUTO_EXCLUDE}\""
+expand_prefix_variables
 
 ###############################################################################
 

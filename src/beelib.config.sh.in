@@ -142,8 +142,8 @@ function config_verify_builtin_prefixes() {
     : ${BINDIR:='${EPREFIX}/bin'}
     : ${SBINDIR:='${EPREFIX}/sbin'}
     : ${LIBEXECDIR:='${EPREFIX}/lib/${PKGNAME}'}
-    : ${SYSCONFDIR:=/etc}
-    : ${LOCALSTATEDIR:=/var}
+    : ${SYSCONFDIR:=DEFAULT}
+    : ${LOCALSTATEDIR:=DEFAULT}
     : ${SHAREDSTATEDIR:='${LOCALSTATEDIR}'}
     : ${LIBDIR:='${EPREFIX}/lib'}
     : ${INCLUDEDIR:='${PREFIX}/include'}
@@ -153,6 +153,32 @@ function config_verify_builtin_prefixes() {
     : ${MANDIR:='${DATAROOTDIR}/man'}
     : ${DOCDIR:='${DATAROOTDIR}/doc/gtkhtml'}
     : ${LOCALEDIR:='${DATAROOTDIR}/locale'}
+}
+
+function expand_prefix_variables() {
+    if [ "${SYSCONFDIR}" = "DEFAULT" ] ; then
+        SYSCONFDIR="/etc"
+        if [ "${PREFIX}" != "/usr" -a "${PREFIX}" != "/usr/local" ] ; then
+            SYSCONFDIR="${PREFIX}${SYSCONFDIR}"
+        fi
+    fi
+
+    if [ "${LOCALSTATEDIR}" = "DEFAULT" ] ; then
+        LOCALSTATEDIR="/var"
+        if [ "${PREFIX}" != "/usr" -a "${PREFIX}" != "/usr/local" ] ; then
+            LOCALSTATEDIR="${PREFIX}${LOCALSTATEDIR}"
+        fi
+    fi
+
+    BEE_AUTO_EXCLUDE=""
+    for var in PREFIX EPREFIX BINDIR SBINDIR LIBEXECDIR SYSCONFDIR \
+               SHAREDSTATEDIR LOCALSTATEDIR LIBDIR INCLUDEDIR \
+               DATAROOTDIR DATADIR INFODIR LOCALEDIR MANDIR DOCDIR ; do
+        eval eval ${var}=\${${var}}
+        eval 'BEE_AUTO_EXCLUDE="${BEE_AUTO_EXCLUDE} \${${var}}"'
+    done
+
+    eval "BEE_AUTO_EXCLUDE=\"${BEE_AUTO_EXCLUDE}\""
 }
 
 function config_init() {
