@@ -142,6 +142,12 @@ function config_verify_builtin_prefixes() {
     : ${BINDIR:='${EPREFIX}/bin'}
     : ${SBINDIR:='${EPREFIX}/sbin'}
     : ${LIBEXECDIR:='${EPREFIX}/lib/${PKGNAME}'}
+
+    if [ "${PREFIX}" != "/usr" -a "${PREFIX}" != "/usr/local" ] ; then
+        : ${SYSCONFDIR:='${PREFIX}'/etc}
+        : ${LOCALSTATEDIR:='${PREFIX}'/var}
+    fi
+
     : ${SYSCONFDIR:=/etc}
     : ${LOCALSTATEDIR:=/var}
     : ${SHAREDSTATEDIR:='${LOCALSTATEDIR}'}
