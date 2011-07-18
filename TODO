@@ -1,7 +1,6 @@
 for release 1.0:
     - search and fix bugs
+    - make build magic overwritable "force configure" ..
     - auto-triggers to update various databases like mime/icons/mandb
-    - handle aborted wget
-    - build_in_source really build in source
     - auto detect old configure and auto switch to compat mode
     - add PREFIX-vars to PKG and try to remove them when not used in othe pkg and empty
