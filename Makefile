@@ -39,6 +39,8 @@ LIBRARY_SHELL=beelib.config
 
 HELPER_BEESH_SHELL=configure cmake autogen perl-module perl-module-makemaker make python-module
 
+HELPER_HOOKS_SHELL=
+
 CONFIG_TEMPLATES=fallback
 CONFIG_FILES=skiplist beerc
 
@@ -128,6 +130,12 @@ install-core: build
 	@for i in ${HELPER_BEESH_SHELL} ; do \
 	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/$${i}.sh" ; \
 	     install -m 0644 src/beesh.d/$${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/$${i}.sh ; \
+	 done
+
+	@mkdir -p ${DESTDIR}${LIBEXECDIR}/bee/hooks.d
+	@for i in ${HELPER_HOOKS_SHELL} ; do \
+	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/$${i}.sh" ; \
+	     install -m 0755 src/hooks.d/$${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/$${i}.sh ; \
 	 done
 
 install-config:

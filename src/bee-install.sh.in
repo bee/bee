@@ -247,6 +247,8 @@ do_install() {
     # create bee-filename
     BEE="$(@BINDIR@/beeversion ${pkg} --format="%F").bee"
 
+    [ "${NOOP}" != "yes" ] && run_hooks pre-install ${pkg}
+
     taraction="-x"
 
     [ "${NOOP}" = "yes" ] && taraction="-t"
@@ -260,7 +262,18 @@ do_install() {
         --transform="s,^PATCHES,${BEE_METADIR}/${pkg}/PATCHES," \
         --show-transformed-names
 
+    [ "${NOOP}" != "yes" ] && run_hooks post-install ${pkg}
+
     exit $?
+}
+
+function run_hooks() {
+    local action=${1}
+    local pkg=${2}
+
+    for t in ${BEE_LIBEXECDIR}/bee/hooks.d/*.sh ; do
+        ${t} ${action} ${pkg}
+    done
 }
 
 ###############################################################################
