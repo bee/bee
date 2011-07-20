@@ -16,10 +16,10 @@ for dir in ${XDG_DATA_DIRS//:/ } ; do
     if grep -q "${mime_dir}/packages" ${BEE_METADIR}/${pkg}/FILES ; then
         case "${action}" in
             "post-install")
-                update-mime-database -V ${mime_dir}
+                update-mime-database ${mime_dir}
                 ;;
             "post-remove")
-                update-mime-database -V ${mime_dir}
+                update-mime-database ${mime_dir}
                 ;;
         esac
     fi
