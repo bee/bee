@@ -40,7 +40,7 @@ LIBRARY_SHELL=beelib.config
 HELPER_BEESH_SHELL=configure cmake autogen perl-module perl-module-makemaker make python-module
 
 HELPER_HOOKS_SHELL=update-mime-database glib-compile-schemas mkfontdir-mkfontscale gtk-update-icon-cache \
-                   ldconfig
+                   ldconfig update-desktop-database
 
 CONFIG_TEMPLATES=fallback
 CONFIG_FILES=skiplist beerc
