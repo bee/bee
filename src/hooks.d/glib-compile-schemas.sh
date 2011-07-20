@@ -7,12 +7,9 @@ if [ -z ${BEE_VERSION} ] ; then
     exit 1
 fi
 
-binaries="glib-compile-schemas"
-for bin in ${binaries} ; do
-    if [ -z "$(which ${bin} 2>/dev/null)" ] ; then
-        exit 0
-    fi
-done
+if ! which glib-compile-schemas >/dev/null 2>&1 ; then
+    exit 0
+fi
 
 for dir in ${XDG_DATA_DIRS//:/ } ; do
     schema_dir=${dir}/glib-2.0/schemas

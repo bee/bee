@@ -7,12 +7,9 @@ if [ -z ${BEE_VERSION} ] ; then
     exit 1
 fi
 
-binaries="mkfontscale mkfontdir"
-for bin in ${binaries} ; do
-    if [ -z "$(which ${bin} 2>/dev/null)" ] ; then
-        exit 0
-    fi
-done
+if ! which mkfontscale mkfontdir >/dev/null 2>&1 ; then
+    exit 0
+fi
 
 function clean_font_dirs() {
     local font_base_dir=${1}

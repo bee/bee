@@ -7,12 +7,9 @@ if [ -z ${BEE_VERSION} ] ; then
     exit 1
 fi
 
-binaries="gdk-pixbuf-query-loaders"
-for bin in ${binaries} ; do
-    if [ -z "$(which ${bin} 2>/dev/null)" ] ; then
-        exit 0
-    fi
-done
+if ! which gdk-pixbuf-query-loaders >/dev/null 2>&1 ; then
+    exit 0
+fi
 
 gdk_pixbuf_moduledir=$(pkg-config --variable=gdk_pixbuf_moduledir gdk-pixbuf-2.0)
 gdk_pixbuf_cache_file=$(pkg-config --variable=gdk_pixbuf_cache_file gdk-pixbuf-2.0)

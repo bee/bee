@@ -7,12 +7,9 @@ if [ -z ${BEE_VERSION} ] ; then
     exit 1
 fi
 
-binaries="gtk-update-icon-cache"
-for bin in ${binaries} ; do
-    if [ -z "$(which ${bin} 2>/dev/null)" ] ; then
-        exit 0
-    fi
-done
+if ! which gtk-update-icon-cache >/dev/null 2>&1 ; then
+    exit 0
+fi
 
 for dir in ${XDG_DATA_DIRS//:/ } ; do
     icon_base_dir=${dir}/icons

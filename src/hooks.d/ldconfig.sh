@@ -7,12 +7,13 @@ if [ -z ${BEE_VERSION} ] ; then
     exit 1
 fi
 
-binaries="ldconfig"
-for bin in ${binaries} ; do
-    if [ -z "$(which ${bin} 2>/dev/null)" ] ; then
-        exit 0
-    fi
-done
+if [ ${UID} -ne 0 ] ; then
+    exit 0
+fi
+
+if ! which ldconfig >/dev/null 2>&1 ; then
+    exit 0
+fi
 
 if grep -q "/lib/" ${BEE_METADIR}/${pkg}/FILES ; then
     case "${action}" in
