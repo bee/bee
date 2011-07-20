@@ -32,7 +32,7 @@ function update_fonts() {
 
 for dir in ${XDG_DATA_DIRS//:/ } ; do
     font_base_dir=${dir}/fonts
-    if grep -q ${font_base_dir} ${BEE_METADIR}/${pkg}/FILES ; then
+    if grep -q "file=${font_base_dir}" ${BEE_METADIR}/${pkg}/FILES ; then
         case "${action}" in
             "post-install")
                 clean_font_dirs ${font_base_dir}

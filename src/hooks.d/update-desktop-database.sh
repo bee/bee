@@ -13,7 +13,7 @@ fi
 
 for dir in ${XDG_DATA_DIRS//:/ } ; do
     desktop_dir=${dir}/applications
-    if grep -q "${desktop_dir}/.*\.desktop" ${BEE_METADIR}/${pkg}/FILES ; then
+    if grep -q "file=${desktop_dir}/.*\.desktop" ${BEE_METADIR}/${pkg}/FILES ; then
         case "${action}" in
             "post-install")
                 rm -f ${desktop_dir}/mimeinfo.cache

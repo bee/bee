@@ -13,7 +13,7 @@ fi
 
 for dir in ${XDG_DATA_DIRS//:/ } ; do
     mime_dir=${dir}/mime
-    if grep -q "${mime_dir}/packages" ${BEE_METADIR}/${pkg}/FILES ; then
+    if grep -q "file=${mime_dir}/packages" ${BEE_METADIR}/${pkg}/FILES ; then
         case "${action}" in
             "post-install")
                 update-mime-database ${mime_dir}

@@ -13,7 +13,7 @@ fi
 
 for dir in ${XDG_DATA_DIRS//:/ } ; do
     schema_dir=${dir}/glib-2.0/schemas
-    if grep -q ${schema_dir} ${BEE_METADIR}/${pkg}/FILES ; then
+    if grep -q "file=${schema_dir}" ${BEE_METADIR}/${pkg}/FILES ; then
         case "${action}" in
             "post-install")
                 rm -f ${schema_dir}/gschemas.compiled
