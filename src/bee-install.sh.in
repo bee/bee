@@ -247,8 +247,6 @@ do_install() {
     # create bee-filename
     BEE="$(@BINDIR@/beeversion ${pkg} --format="%F").bee"
 
-    [ "${NOOP}" != "yes" ] && run_hooks pre-install ${pkg}
-
     taraction="-x"
 
     [ "${NOOP}" = "yes" ] && taraction="-t"
