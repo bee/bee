@@ -14,15 +14,17 @@ for bin in ${binaries} ; do
     fi
 done
 
-cachefile=$(pkg-config --variable=gdk_pixbuf_cache_file gdk-pixbuf-2.0)
-if grep -q "gdk-pixbuf-2.0/.*/loaders/.*\.(so|a)" ${BEE_METADIR}/${pkg}/FILES ; then
+gdk_pixbuf_moduledir=$(pkg-config --variable=gdk_pixbuf_moduledir gdk-pixbuf-2.0)
+gdk_pixbuf_cache_file=$(pkg-config --variable=gdk_pixbuf_cache_file gdk-pixbuf-2.0)
+
+if grep -q "${gdk_pixbuf_moduledir}" ${BEE_METADIR}/${pkg}/FILES ; then
     case "${action}" in
         "post-install")
-            rm -f ${cachefile}
+            rm -f ${gdk_pixbuf_cache_file}
             gdk-pixbuf-query-loaders --update-cache
             ;;
         "pre-remove")
-            rm -f ${cachefile}
+            rm -f ${gdk_pixbuf_cache_file}
             ;;
         "post-remove")
             gdk-pixbuf-query-loaders --update-cache
