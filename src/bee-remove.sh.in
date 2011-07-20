@@ -39,6 +39,8 @@ do_remove() {
 
     FILES=$(@BINDIR@/beefind.pl --dump ${pkg}/FILES)
 
+    [ "${NOOP}" != "yes" ] && run_hooks pre-remove ${pkg}
+
     # removing files
     for f in $FILES ; do
         # test for other pkg
@@ -63,10 +65,21 @@ do_remove() {
         fi
     done
 
+    [ "${NOOP}" != "yes" ] && run_hooks post-remove ${pkg}
+
     #cleaning up meta directory
     if [ -f ${pkg}/FILES ] ; then
         ${NOOP:+echo} rm -vfr ${pkg}
     fi
+}
+
+function run_hooks() {
+    local action=${1}
+    local pkg=${2##*/}
+
+    for t in ${BEE_LIBEXECDIR}/bee/hooks.d/*.sh ; do
+        ${t} ${action} ${pkg}
+    done
 }
 
 usage() {
