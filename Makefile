@@ -29,7 +29,7 @@ DEFCONFDIR=${SYSCONFDIR}/default
 
 DESTDIR=
 
-PROGRAMS_C=beeversion beesep beecut
+PROGRAMS_C=beeversion beesep beecut beeuniq
 PROGRAMS_SHELL=bee beesh
 PROGRAMS_PERL=beefind.pl
 
@@ -68,6 +68,10 @@ beeversion: $(addprefix  src/beeversion/, ${BEEVERSION_OBJECTS})
 	@gcc -Wall -o $@ $^
 
 beecut: src/beecut/beecut.c
+	@echo "linking $@ .."
+	@gcc -Wall -o $@ $^
+
+beeuniq: src/beeuniq/beeuniq.c
 	@echo "linking $@ .."
 	@gcc -Wall -o $@ $^
 
