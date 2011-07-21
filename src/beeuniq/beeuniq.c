@@ -28,6 +28,7 @@
 #define VERSION_MINOR    1
 #define VERSION_PATCHLVL 0
 
+#define OPT_DELIMITER 'd'
 #define OPT_VERSION   'v'
 #define OPT_HELP      'h'
 
@@ -40,7 +41,9 @@ void print_version(void)
 
 void print_full_usage(void)
 {
-    printf("usage: beeuniq [options] <string>\n");
+    printf("usage: beeuniq [options] <string>\n\n");
+    printf("options:\n\n");
+    printf("  -d | --delimiter <char>  specify the outputdelimiter character\n\n");
 }
 
 char in(char *search, char *strings[], int max)
@@ -77,7 +80,11 @@ int main(int argc, char *argv[])
     int  c = 0;
     int  max, i;
 
+    char delimiter = ' ';
+
     struct option long_options[] = {
+        {"delimiter",   required_argument, 0, OPT_DELIMITER},
+
         {"version",     no_argument, 0, OPT_VERSION},
         {"help",        no_argument, 0, OPT_HELP},
 
@@ -87,6 +94,14 @@ int main(int argc, char *argv[])
     while ((c = getopt_long_only(argc, argv, "hv", long_options, &option_index)) != -1) {
 
         switch (c) {
+            case OPT_DELIMITER:
+                if (!optarg[0] || optarg[1]) {
+                     fprintf(stderr, "invalid delimiter '%s'\n", optarg);
+                     exit(EXIT_FAILURE);
+                }
+                delimiter = optarg[0];
+                break;
+
             case OPT_HELP:
                 print_version();
                 printf("\n");
@@ -105,12 +120,13 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    max = bee_uniq(argc-optind, &argv[optind]);
+    max  = bee_uniq(argc-optind, &argv[optind]);
+    max += optind-1;
 
     for(i=optind; i <= max; i++) {
         fputs(argv[i], stdout);
         if(max-i)
-            putchar(' ');
+            putchar(delimiter);
     }
 
     putchar('\n');
