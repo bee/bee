@@ -1,12 +1,16 @@
 /*
 ** beeversion - compare bee package versionnumbers
-** Copyright (C) 2010 
-**       Marius Tolzmann <tolzmann@molgen.mpg.de>
-**       David Fessler <dfessler@uni-potsdam.de>
 **
-** This program is free software; you can redistribute it and/or modify
+** Copyright (C) 2009-2011
+**       Marius Tolzmann <tolzmann@molgen.mpg.de>
+**       Tobias Dreyer <dreyer@molgen.mpg.de>
+**       and other bee developers
+**
+** This file is part of bee.
+**
+** bee is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation; either version 3 of the License, or
+** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,

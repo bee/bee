@@ -1,11 +1,16 @@
 /*
 ** beecut - split strings
-** Copyright (C) 2010-2011
-**       Marius Tolzmann <tolzmann@molgen.mpg.de>
 **
-** This program is free software; you can redistribute it and/or modify
+** Copyright (C) 2009-2011
+**       Marius Tolzmann <tolzmann@molgen.mpg.de>
+**       Tobias Dreyer <dreyer@molgen.mpg.de>
+**       and other bee developers
+**
+** This file is part of bee.
+**
+** bee is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation; either version 3 of the License, or
+** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
 ** This program is distributed in the hope that it will be useful,
@@ -38,7 +43,7 @@
 void print_version(void)
 {
     printf("beecut v%d.%d.%d - "
-           "by Marius Tolzmann <tolzmann@molgen.mpg.de> 2010-2011\n",
+           "by Marius Tolzmann <tolzmann@molgen.mpg.de> 2009-2011\n",
              BEECUT_MAJOR, BEECUT_MINOR, BEECUT_PATCHLVL);
 }
 

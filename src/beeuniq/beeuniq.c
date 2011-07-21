@@ -1,11 +1,14 @@
 /*
 ** beeuniq - filter duplicate command line arguments
-** Copyright (C) 2010-2011
+**
+** Copyright (C) 2009-2011
 **       Marius Tolzmann <tolzmann@molgen.mpg.de>
+**       Tobias Dreyer <dreyer@molgen.mpg.de>
+**       and other bee developers
 **
-** This file is part of Bee.
+** This file is part of bee.
 **
-** Bee is free software; you can redistribute it and/or modify
+** bee is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
