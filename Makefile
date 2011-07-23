@@ -56,7 +56,7 @@ build: shellscripts perlscripts cprograms manpages
 
 SHELLSCRIPTS=$(PROGRAMS_SHELL) $(HELPER_BEE_SHELL) $(LIBRARY_SHELL)
 
-BEEVERSION_OBJECTS=beeversion.o parse.o compare.o
+BEEVERSION_OBJECTS=beeversion.o parse.o compare.o output.o
 
 shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS))
 perlscripts:  $(PROGRAMS_PERL)
