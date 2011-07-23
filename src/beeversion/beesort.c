@@ -7,6 +7,7 @@
 #include "beeversion.h"
 #include "compare.h"
 #include "parse.h"
+#include "output.h"
 #include "tree.h"
 
 void my_free_data(void *data)
@@ -24,7 +25,7 @@ int my_compare_key(void *a, void *b)
 
 void my_print_key(void *key)
 {
-    printf("%s", ((struct beeversion *)key)->string);
+    print_format("%A", key, NULL);
 }
 
 struct tree *init_tree(void)
