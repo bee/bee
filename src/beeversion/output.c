@@ -20,12 +20,15 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include "beeversion.h"
 
 static void cut_and_print(char *string, char delimiter, char opt_short)
 {
     char *p, *s;
+
+    assert(string);
 
     p = s = string;
 
@@ -50,9 +53,12 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
     char *p;
     size_t len;
 
+    assert(s && v);
+
     p=s;
 
     if(filter_pkgfullname) {
+       assert(v->pkgname && v->subname);
 
        len = strlen(v->pkgname);
 
@@ -78,39 +84,49 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
                     printf("%%");
                     break;
                 case 'p':
+                    assert(v->pkgname);
                     printf("%s", v->pkgname);
                     break;
                 case 's':
+                    assert(v->suffix);
                     if(*(v->suffix))
                         printf(".%s", v->suffix);
                     break;
                 case 'x':
+                    assert(v->subname);
                     printf("%s", v->subname);
                     break;
                 case 'v':
+                    assert(v->version);
                     printf("%s", v->version);
                     break;
                 case 'e':
+                    assert(v->extraversion);
                     printf("%s", v->extraversion);
                     break;
                 case 'r':
+                    assert(v->pkgrevision);
                     printf("%s", v->pkgrevision);
                     break;
                 case 'a':
+                    assert(v->arch);
                     printf("%s", v->arch);
                     break;
                 case 'P':
+                    assert(v->pkgname && v->subname);
                     printf("%s", v->pkgname);
                     if(*(v->subname))
                         printf("_%s", v->subname);
                     break;
                 case 'V':
+                    assert(v->version && v->extraversion);
                     printf("%s", v->version);
                     if(*(v->extraversion))
                         printf("_%s", v->extraversion);
                     break;
                 case 'F':
                 case 'A':
+                    assert(v->pkgname && v->subname);
                     if(*(v->pkgname)) {
                         printf("%s", v->pkgname);
                         if(*(v->subname))
@@ -118,10 +134,12 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
                         printf("-");
                     }
 
+                    assert(v->version && v->extraversion);
                     printf("%s", v->version);
                     if(*(v->extraversion))
                         printf("_%s", v->extraversion);
 
+                    assert(v->pkgrevision && v->arch);
                     if(*(v->pkgrevision)) {
                         printf("-%s", v->pkgrevision);
                         if(*p == 'A' && *(v->arch))
@@ -135,6 +153,7 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
         if(*p == '@') {
             switch(*(++p)) {
                 case 'v':
+                    assert(v->version);
                     cut_and_print(v->version, '.', 0);
                     break;
             }
