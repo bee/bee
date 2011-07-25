@@ -7,6 +7,7 @@ BINDIR     = ${EPREFIX}/bin
 LIBDIR     = ${EPREFIX}/lib
 LIBEXECDIR = ${EPREFIX}/libexec
 DATADIR    = ${PREFIX}/share
+MANDIR     = ${DATADIR}/man
 SYSCONFDIR = ${PREFIX}/etc
 
 # set sysconfdir /etc if prefix /usr
@@ -42,6 +43,8 @@ HELPER_BEESH_SHELL=configure cmake autogen perl-module perl-module-makemaker mak
 HELPER_HOOKS_SHELL=update-mime-database glib-compile-schemas mkfontdir-mkfontscale gtk-update-icon-cache \
                    ldconfig update-desktop-database gdk-pixbuf-query-loaders
 
+BEE_MANPAGES=bee bee-check bee-init bee-install bee-list bee-query bee-remove
+
 CONFIG_TEMPLATES=fallback
 CONFIG_FILES=skiplist beerc
 
@@ -49,7 +52,7 @@ CONFIG_FILES=skiplist beerc
 
 all: build
 
-build: shellscripts perlscripts cprograms
+build: shellscripts perlscripts cprograms manpages
 
 SHELLSCRIPTS=$(PROGRAMS_SHELL) $(HELPER_BEE_SHELL) $(LIBRARY_SHELL)
 
@@ -58,6 +61,7 @@ BEEVERSION_OBJECTS=beeversion.o parse.o compare.o
 shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS))
 perlscripts:  $(PROGRAMS_PERL)
 cprograms:    $(PROGRAMS_C)
+manpages:     $(addsuffix .1,$(BEE_MANPAGES))
 
 beesep: src/beesep/beesep.c
 	@echo "linking $@ .."
@@ -97,6 +101,12 @@ beeuniq: src/beeuniq/beeuniq.c
 %.pl: src/%.pl
 	@echo "creating $@ .."
 	@cp $< $@
+
+%.1: src/man.d/%.1
+	@echo "creating $@"
+	@sed \
+	    -e 's,@BEE_VERSION@,${BEE_VERSION},g' \
+	    $< > $@
 
 clean:
 	@rm -vf $(addsuffix .sh,${SHELLSCRIPTS})
@@ -141,6 +151,12 @@ install-core: build
 	@for i in ${HELPER_HOOKS_SHELL} ; do \
 	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/$${i}.sh" ; \
 	     install -m 0755 src/hooks.d/$${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/$${i}.sh ; \
+	 done
+
+	@mkdir -p ${DESTDIR}${MANDIR}/man1
+	@for i in ${BEE_MANPAGES} ; do \
+	     echo "installing ${DESTDIR}${MANDIR}/man1/$${i}.1" ; \
+	     install -m 0644 $${i}.1 ${DESTDIR}${MANDIR}/man1/$${i}.1 ; \
 	 done
 
 install-config:

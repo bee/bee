@@ -1,0 +1,61 @@
+.TH "bee" "1" "2011-07-25" "bee @BEE_VERSION@" "bee package management"
+.SH "NAME"
+bee \- Run a bee tool
+.SH "SYNOPSIS"
+.SY "bee "
+.OP check
+.OP init
+.OP install
+.OP list
+.OP query
+.OP remove
+.I arguments
+.YS
+.SH "DESCRIPTION"
+.P
+.B bee
+is a wrapper tool that is used to run all bee tools. All options known by these bee tools can be passed
+to
+.BR bee .
+.\" .SH "OPTIONS"
+.SH "FILES"
+.TP
+.B /etc/bee/beerc
+.TQ
+.B ${HOME}/.beerc
+The main config files. Use these to change
+.BR bee 's
+environment variables.
+.SH "ENVIRONMENT"
+.TP
+.B ${BEE_METADIR}
+Directory searched for installed bee packages
+.IP
+root-user: /usr/share/bee
+.IP
+other:     ${HOME}/.local/share/beemeta
+.TP
+.B ${BEE_REPOSITORY_PREFIX}/pkgs
+Directory searched for available bee packages
+.IP
+root-user: /usr/src/bee/pkgs
+.IP
+other:     ${HOME}/.local/beeroot/pkgs
+.\" .SH "DIAGNOSTICS"
+.\" .SH "BUGS"
+.SH "AUTHORS"
+.P
+.MT tolzmann@molgen.mpg.de
+Marius Tolzmann
+.ME
+.P
+.MT dreyer@molgen.mpg.de
+Tobias Dreyer
+.ME
+.SH "SEE ALSO"
+.BR bee-check (1)
+.BR bee-init (1)
+.BR bee-install (1)
+.BR bee-list (1)
+.BR bee-query (1)
+.BR bee-remove (1)

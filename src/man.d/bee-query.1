@@ -1,0 +1,73 @@
+.TH "bee-query" "1" "2011-07-25" "bee @BEE_VERSION@" "bee package management"
+.SH "NAME"
+bee\-query \- Ask the bee database for files and packages
+.SH "SYNOPSIS"
+.SY "bee query"
+.OP \-h
+.I pattern
+.YS
+.SH "DESCRIPTION"
+.P
+Use
+.B bee-query
+to ask the bee database for
+.IR pattern .
+If
+.I patten
+matches the full name of an installed package, all related files, otherwise all
+matching files and the related packages will be displayed.
+.P
+As part of the bee package management
+.B bee-query
+is invoked by the wrapper tool
+.BR bee (1) .
+.SH "OPTIONS"
+.TP
+.B \-h
+.TQ
+.B \-\-help
+Print a little help screen.
+.SH "FILES"
+.TP
+.B /etc/bee/beerc
+.TQ
+.B ${HOME}/.beerc
+The main config files. Use these to change
+.BR bee-query 's
+environment variables.
+.SH "ENVIRONMENT"
+.TP
+.B ${BEE_METADIR}
+Directory searched for installed bee packages
+.IP
+root-user: /usr/share/bee
+.IP
+other:     ${HOME}/.local/share/beemeta
+.SH "DIAGNOSTICS"
+Following error message may be seen:
+.TP
+.B "BEE-ERROR: please call bee-query from bee .."
+.B bee-query
+must be run by the wrapper
+.BR bee .
+Just call
+.B bee query
+.OP options
+.I pattern
+.\" .SH "BUGS"
+.SH "AUTHORS"
+.P
+.MT tolzmann@molgen.mpg.de
+Marius Tolzmann
+.ME
+.P
+.MT dreyer@molgen.mpg.de
+Tobias Dreyer
+.ME
+.SH "SEE ALSO"
+.BR bee (1)
+.BR bee-check (1)
+.BR bee-init (1)
+.BR bee-install (1)
+.BR bee-list (1)
+.BR bee-remove (1)
