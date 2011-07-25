@@ -12,6 +12,14 @@
 /beesh.sh
 /beeversion
 /beelib.config.sh
+/bee.1
+/bee-check.1
+/bee-init.1
+/bee-install.1
+/bee-list.1
+/bee-query.1
+/bee-remove.1
 *.tar.gz
 *.o
 *.tar.bz2
+
