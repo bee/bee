@@ -159,7 +159,7 @@ do_check_deps_of_file() {
         subtype=( ${subtype:2} )
 
         for i in "${subtype[@]}" ; do
-            if [ ${i:0:1} = "/" ] ; then
+            if [ "${i:0:1}" = "/" ] ; then
                 echo "    needs    = $i"
             fi
         done
