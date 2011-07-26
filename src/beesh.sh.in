@@ -73,9 +73,14 @@ function start_cmd() {
 #### create_meta() ############################################################
 
 function create_meta() {
-    echo >>${D}/META "BEEMETAFORMAT=1"
+    echo >>${D}/META "BEEMETAFORMAT=2"
     echo >>${D}/META "BEEPKG='${PKGALLPKG}'"
-    echo >>${D}/META "PGRP=( ${PGRP[@]} )"
+
+    for var in prefix eprefix bindir sbindir libexecdir sysconfdir \
+           sharedstatedir localstatedir libdir includedir \
+           datarootdir datadir infodir localedir mandir docdir ; do
+        eval eval echo PKG_${var^^}=\${${var^^}} >>${D}/META
+    done
 }
 
 #### show_help() ##############################################################
