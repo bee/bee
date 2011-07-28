@@ -23,7 +23,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-if [ -z ${BEE_VERSION} ] ; then
+if [ -z "${BEE_VERSION}" ] ; then
     echo >&2 "BEE-ERROR: please call $0 from bee .."
     exit 1
 fi
@@ -40,14 +40,14 @@ pkg_remove() {
     search=$1
 
     # pattern is absolute path to pkg
-    if [ -d ${search} ] ; then
+    if [ -d "${search}" ] ; then
         do_remove "${search}"
         return
     fi
 
     # pattern is a pkg in BEE_METADIR
-    if [ -d ${BEE_METADIR}/${search} ] ; then
         do_remove ${BEE_METADIR}/${search}
+    if [ -d "${BEE_METADIR}/${search}" ] ; then
         return
     fi
 
@@ -71,7 +71,7 @@ do_remove() {
         RELPKG=$(egrep "file=$s(|//.*)$" ${BEE_METADIR}/*/FILES)
         if [ 1 -eq $(echo $RELPKG | wc -w) ] ; then
             #check for directories
-            if [ -d $f ] ; then
+            if [ -d "$f" ] ; then
                 DIR="$f $DIR"
             else
                 ${NOOP:+echo} rm -vf $f
@@ -95,7 +95,7 @@ do_remove() {
     fi
 
     #cleaning up meta directory
-    if [ -f ${pkg}/FILES ] ; then
+    if [ -f "${pkg}/FILES" ] ; then
         ${NOOP:+echo} rm -vfr ${pkg}
     fi
 
@@ -139,8 +139,8 @@ options=$(getopt -n bee_remove \
                  --long noop,help \
                  -- "$@")
 if [ $? != 0 ] ; then
-  usage
-  exit 1
+    usage
+    exit 1
 fi
 eval set -- "${options}"
 
