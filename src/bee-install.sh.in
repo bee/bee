@@ -23,7 +23,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-if [ -z ${BEE_VERSION} ] ; then
+if [ -z "${BEE_VERSION}" ] ; then
     echo >&2 "BEE-ERROR: please call $0 from bee .."
     exit 1
 fi
@@ -213,7 +213,7 @@ check_installed() {
 
     if [ "${installed}" != "" ] ; then
         for i in ${installed} ; do
-            if [ ${i} = ${pkgname} ] ; then
+            if [ "${i}" = "${pkgname}" ] ; then
                 echo "[  already installed  ] ${i}"
             else
                 echo "[alternative installed] ${i}"
@@ -308,7 +308,7 @@ print_pkg_list() {
 
         local status
         for i in ${installed} ; do
-            if [ ${i} = ${pkgname} ] ; then
+            if [ "${i}" = "${pkgname}" ] ; then
                 status="*"
             else
                 status=${status:--}
@@ -341,8 +341,8 @@ options=$(getopt -n bee_install \
                  --long debug,noop \
                  -- "$@")
 if [ $? != 0 ] ; then
-  usage
-  exit 1
+    usage
+    exit 1
 fi
 eval set -- "${options}"
 
@@ -375,7 +375,7 @@ while true ; do
         ;;
     *)
       shift
-      if [ -z ${1} ] ; then
+      if [ -z "${1}" ] ; then
            usage
            exit 1
       fi
