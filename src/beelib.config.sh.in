@@ -76,7 +76,7 @@ function config_init_base_config() {
 
 function config_handle_deprecated_config() {
     : ${DOTBEERC:=${HOME}/.beerc}
-    if [ -r ${DOTBEERC} ] ; then
+    if [ -r "${DOTBEERC}" ] ; then
         print_error \
             "ERROR: support for ~/.beerc is" \
             " deprecated please move it to" \
@@ -119,7 +119,7 @@ function config_load_system_config() {
         fi
     done
 
-    if [ -r ${BEE_CONFIG_FILE} ] ; then
+    if [ -r "${BEE_CONFIG_FILE}" ] ; then
         . ${BEE_CONFIG_FILE}
     fi
 }
