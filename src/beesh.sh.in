@@ -645,15 +645,22 @@ cd ${S}
 
 bee_run patch ${bee_PATCHFILES[@]}
 
-BEE_BUILDTYPE=""
+bee_buildmagic=$(@BINDIR@/beeuniq ${BEE_BUILDTYPE[@]} \
+                               cmake \
+                               configure \
+                               autogen \
+                               perl-module \
+                               perl-module-makemaker \
+                               make \
+                               python-module)
 
-load_buildmagic cmake
-load_buildmagic configure
-load_buildmagic autogen
-load_buildmagic perl-module
-load_buildmagic perl-module-makemaker
-load_buildmagic make
-load_buildmagic python-module
+BEE_BUILDTYPE=""
+for t in ${bee_buildmagic[@]} ; do
+    load_buildmagic ${t}
+    if [ -n "${BEE_BUILDTYPE}" ] ; then
+        break
+    fi
+done
 
 print_info "changing to build directory: ${B}"
 cd ${B}
