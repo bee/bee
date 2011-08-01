@@ -30,7 +30,7 @@
 #include "beeversion.h"
 #include "parse.h"
 #include "compare.h"
-
+#include "output.h"
 
 #define TEST_BITS 3
 #define TYPE_BITS 2
@@ -71,7 +71,7 @@
 #define MODE_TEST   1
 #define MODE_PARSE  2
 
-char *filter_pkgfullname;
+char *filter_pkgfullname = NULL;
 
 int compare_beeversions(struct beeversion *, struct beeversion *);
 char parse_extra(struct beeversion *);
@@ -110,29 +110,6 @@ void print_full_usage(void) {
     
 }
 
-void cut_and_print(char *string, char delimiter, char opt_short)
-{
-    char *p, *s;
-    
-    p = s = string;
-    
-    printf("%s", string);
-    
-    while((p=strchr(p, delimiter))) {
-        putchar(' ');
-        
-        while(s < p)
-            putchar(*(s++));
-        
-        p++;
-        
-        s = (opt_short) ? p : string;
-    }
-    
-    printf(" %s", s);
-}
-
-
 int parse_argument(char* text, struct beeversion *versionsnummer)
 {	
     int p;
@@ -144,125 +121,9 @@ int parse_argument(char* text, struct beeversion *versionsnummer)
     return(1);
 }
 
-
 static int compare_beepackages_gen(const void *a, const void *b) {
     return((int)compare_beepackages((struct beeversion *)a, (struct beeversion *)b));
 }
-
-void print_format(char* s, struct beeversion *v)
-{
-    char *p;
-    size_t len;
-    
-    p=s;
-    
-    if(filter_pkgfullname) {
-    
-       len = strlen(v->pkgname);
-       
-       if(len > strlen(filter_pkgfullname))
-           return;
-       
-       if(strncmp(v->pkgname, filter_pkgfullname, len))
-           return;
-       
-       p = filter_pkgfullname+len;
-       
-       if((!*p && *(v->subname)) || (*p && *p++ != '_'))
-           return;
-       
-       if(strcmp(p, v->subname))
-           return;
-    }
-    
-    for(p=s; *p; p++) {
-        if(*p == '%') {
-            switch(*(++p)) {
-                case '%':
-                    printf("%%");
-                    break;
-                case 'p':
-                    printf("%s", v->pkgname);
-                    break;
-                case 's':
-                    if(*(v->suffix))
-                        printf(".%s", v->suffix);
-                    break;
-                case 'x':
-                    printf("%s", v->subname);
-                    break;
-                case 'v':
-                    printf("%s", v->version);
-                    break;
-                case 'e':
-                    printf("%s", v->extraversion);
-                    break;
-                case 'r':
-                    printf("%s", v->pkgrevision);
-                    break;
-                case 'a':
-                    printf("%s", v->arch);
-                    break;
-                case 'P':
-                    printf("%s", v->pkgname);
-                    if(*(v->subname))
-                        printf("_%s", v->subname);
-                    break;
-                case 'V':
-                    printf("%s", v->version);
-                    if(*(v->extraversion))
-                        printf("_%s", v->extraversion);
-                    break;
-                case 'F':
-                case 'A':
-                    if(*(v->pkgname)) {
-                        printf("%s", v->pkgname);
-                        if(*(v->subname))
-                            printf("_%s", v->subname);
-                        printf("-");
-                    }
-                    
-                    printf("%s", v->version);
-                    if(*(v->extraversion))
-                        printf("_%s", v->extraversion);
-                        
-                    if(*(v->pkgrevision)) {
-                        printf("-%s", v->pkgrevision);
-                        if(*p == 'A' && *(v->arch))
-                            printf(".%s", v->arch);
-                    }
-                    break;
-            }
-            continue;
-        } /* if '%' */
-        
-        if(*p == '@') {
-            switch(*(++p)) {
-                case 'v':
-                    cut_and_print(v->version, '.', 0);
-                    break;
-            }
-            continue;
-        } /* if '@' */
-        
-        if(*p == '\\') {
-            switch(*(++p)) {
-                case 'n':
-                    printf("\n");
-                    break;
-                case 't':
-                    printf("\t");
-                    break;
-                    
-            } 
-            continue;
-        } /* if '\' */
-        
-        printf("%c", *p);
-        
-    } /* for *p */
-}
-
 
 int do_test(int argc, char *argv[], char test) {
     int i;
@@ -336,14 +197,14 @@ int do_test(int argc, char *argv[], char test) {
             
             /* a != b */
             if(compare_beepackage_names(a, b)) {
-                print_format("%A\n", a);
+                print_format("%A\n", a, filter_pkgfullname);
                 a = b;
             }
             
             if(t == T_MAX) 
                a = b;
         }
-        print_format("%A\n", a);
+        print_format("%A\n", a, filter_pkgfullname);
 
         for(i=0;i<argc;i++) {
             free(va[i].string);
@@ -369,7 +230,7 @@ int do_parse(int argc, char *argv[], char *format) {
     if(!parse_argument(argv[0], &v))
         return(0);
     
-    print_format(format, &v);
+    print_format(format, &v, filter_pkgfullname);
 
     free(v.string);
 
