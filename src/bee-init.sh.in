@@ -211,6 +211,14 @@ function initialize() {
             -i ${beefile}
     fi
 
+    if [ -n "${OPT_BUILDTYPE}" ] ; then
+        sed -e "s,@BEE_BUILDTYPE@,BEE_BUILDTYPE=\"${OPT_BUILDTYPE}\"," \
+            -i ${beefile}
+    else
+        sed -e "s,@BEE_BUILDTYPE@,# BEE_BUILDTYPE=," \
+            -i ${beefile}
+    fi
+
     bee_versionify ${beefile}
 
     chmod 755 ${beefile}
@@ -225,6 +233,7 @@ options=$(getopt -n beeinit \
                  --long sysconfdir:,localstatedir:,sharedstatedir: \
                  --long libdir:,includedir:,datarootdir:,datadir: \
                  --long infodir:,mandir:,docdir:,localedir: \
+                 --long buildtype: \
                  -- "$@")
 
 if [ $? != 0 ] ; then
@@ -288,6 +297,11 @@ while true ; do
         --docdir|\
         --localedir)
             eval OPT_${1:2}="${2}"
+            shift 2
+            ;;
+
+        --buildtype)
+            OPT_BUILDTYPE="${2}"
             shift 2
             ;;
 
