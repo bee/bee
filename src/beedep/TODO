@@ -1,0 +1,17 @@
+* saving and loading graph efficiently
+
+* output: show recursion depth when printing e.g. the dependencies
+  -> one space shows recursion depth 1, two spaces = depth 2, ...
+
+* cleanup function naming
+
+* new feature: fuzzy matching
+  -> so that the user can e.g. type packages without version numbers like 'dependencies -u nano'
+
+* do a test run with data of whole system
+  -> therefore use ldd, readelf, ... to fetch the information
+  -> get all packages with `BEE_METADIR=/usr/share/bee bee list`
+  -> data can be found at /usr/share/bee/<pkg-name>/FILES
+
+* always check memory leaks:
+  valgrind -v --show-reachable=yes --smc-check=all --leak-check=full ./dependencies
