@@ -159,9 +159,9 @@ function bee_init_builddir() {
 
 
     if [ "${B}" == "${S}" ] ; then
-        B=${BEEWORKDIR}/build
-        print_info " -> B=S linking build dir ${B} to source dir"
-        ln -s source ${B}
+        link=${BEEWORKDIR}/build
+        print_info " -> B=S linking build dir ${link} to source dir"
+        ln -s source ${link}
     else
         print_info " -> creating build dir ${B}"
         mkdir -p ${B}
@@ -422,6 +422,10 @@ function bee_archivebuild() {
 
     print_info " -> saving build environment.."
     print_info "${COLOR_CYAN}${archive}"
+
+    if [ "${B}" = "${S}" ] ; then
+        B=${BEEWORKDIR}/build
+    fi
 
     tar -cjf ${archive} \
         --show-transformed-names \
