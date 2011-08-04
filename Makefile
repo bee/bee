@@ -57,13 +57,16 @@ build: shellscripts perlscripts cprograms manpages
 SHELLSCRIPTS=$(PROGRAMS_SHELL) $(HELPER_BEE_SHELL) $(LIBRARY_SHELL)
 
 BEEVERSION_OBJECTS=beeversion.o parse.o compare.o output.o
+BEESEP_OBJECTS=beesep.o
+BEECUT_OBJECTS=beecut.o
+BEEUNIQ_OBJECTS=beeuniq.o
 
 shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS))
 perlscripts:  $(PROGRAMS_PERL)
 cprograms:    $(PROGRAMS_C)
 manpages:     $(addsuffix .1,$(BEE_MANPAGES))
 
-beesep: src/beesep/beesep.c
+beesep: $(addprefix src/beesep/, ${BEESEP_OBJECTS})
 	@echo "linking $@ .."
 	@gcc -Wall -o $@ $^
 
@@ -71,11 +74,11 @@ beeversion: $(addprefix  src/beeversion/, ${BEEVERSION_OBJECTS})
 	@echo "linking $@ .."
 	@gcc -Wall -o $@ $^
 
-beecut: src/beecut/beecut.c
+beecut: $(addprefix src/beecut/, ${BEECUT_OBJECTS})
 	@echo "linking $@ .."
 	@gcc -Wall -o $@ $^
 
-beeuniq: src/beeuniq/beeuniq.c
+beeuniq: $(addprefix src/beeuniq/, ${BEEUNIQ_OBJECTS})
 	@echo "linking $@ .."
 	@gcc -Wall -o $@ $^
 
@@ -113,6 +116,9 @@ clean:
 	@rm -vf ${PROGRAMS_PERL}
 	@rm -vf ${PROGRAMS_C}
 	@rm -vf $(addprefix  src/beeversion/, ${BEEVERSION_OBJECTS})
+	@rm -vf $(addprefix  src/beesep/, ${BEESEP_OBJECTS})
+	@rm -vf $(addprefix  src/beecut/, ${BEECUT_OBJECTS})
+	@rm -vf $(addprefix  src/beeuniq/, ${BEEUNIQ_OBJECTS})
 	@rm -vf ${addsuffix .1,${BEE_MANPAGES}}
 
 install: install-core install-config
