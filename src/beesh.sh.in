@@ -205,7 +205,7 @@ function fetch_one_file() {
             --no-clobber \
             "${url}" || true
 
-        trap EXIT
+        trap - EXIT
 
         ls -ld "${F}/${file}"
     fi
