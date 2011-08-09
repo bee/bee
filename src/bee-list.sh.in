@@ -23,7 +23,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-if [ -z ${BEE_VERSION} ] ; then
+if [ -z "${BEE_VERSION}" ] ; then
     echo >&2 "BEE-ERROR: please call $0 from bee .."
     exit 1
 fi
@@ -60,7 +60,7 @@ usage() {
 #   RETURNS a sorted list of installed packages
 #
 list_installed() {
-    if [ ! -r ${BEE_METADIR} ] ; then
+    if [ ! -r "${BEE_METADIR}" ] ; then
         return
     fi
     find ${BEE_METADIR} -mindepth 1 -maxdepth 1 -type d -printf "%f\n" \
@@ -82,12 +82,12 @@ list_available() {
 
     search=""
     for p in $path ; do
-        if [ -r ${p} ] ; then
+        if [ -r "${p}" ] ; then
             search="${search} ${p}"
         fi
     done
 
-    if [ -z ${search} ] ; then
+    if [ -z "${search}" ] ; then
         return
     fi
 
@@ -136,8 +136,8 @@ options=$(getopt -n bee-list \
                  --long debug \
                  -- "$@")
 if [ $? != 0 ] ; then
-  usage
-  exit 1
+    usage
+    exit 1
 fi
 eval set -- "${options}"
 

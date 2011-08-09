@@ -25,7 +25,7 @@
 
 set -e
 
-if [ -z ${BEE_VERSION} ] ; then
+if [ -z "${BEE_VERSION}" ] ; then
     echo >&2 "BEE-ERROR: please call $0 from bee .."
     exit 1
 fi
@@ -104,7 +104,7 @@ function create_beefile_from_template {
         done
     done
 
-    if [ ! -r ${BEE_TEMPLATE} ] ; then
+    if [ ! -r "${BEE_TEMPLATE}" ] ; then
         print_error "no valid template found .."
         exit 1
     fi
@@ -169,7 +169,7 @@ function initialize() {
 
         pname=${pname%.bee}
 
-        if [ ${pname} = ${surl} ] ; then
+        if [ "${pname}" = "${surl}" ] ; then
             surl=""
         else
             pname=${pname}-0
@@ -178,7 +178,7 @@ function initialize() {
 
     beefile="${pname}.bee"
 
-    if [ -e ${beefile} ] && [ "$OPT_FORCE" != "yes" ] ; then
+    if [ -e "${beefile}" ] && [ "$OPT_FORCE" != "yes" ] ; then
         echo "${beefile} already exists .. use option -f to overwrite .."
         exit 1
     fi
@@ -237,8 +237,8 @@ options=$(getopt -n beeinit \
                  -- "$@")
 
 if [ $? != 0 ] ; then
-  usage
-  exit 1
+    usage
+    exit 1
 fi
 
 OPT_VERSIONIFY="yes"
@@ -307,7 +307,7 @@ while true ; do
 
         *)
             shift
-            if [ -z ${1} ] ; then
+            if [ -z "${1}" ] ; then
                  usage
                  exit 1
             fi

@@ -23,7 +23,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-if [ -z ${BEE_VERSION} ] ; then
+if [ -z "${BEE_VERSION}" ] ; then
     echo >&2 "BEE-ERROR: please call $0 from bee .."
     exit 1
 fi
@@ -97,8 +97,8 @@ options=$(getopt -n bee-query \
                  --long help \
                  -- "$@")
 if [ $? != 0 ] ; then
-  usage
-  exit 1
+    usage
+    exit 1
 fi
 eval set -- "${options}"
 
@@ -110,7 +110,7 @@ while true ; do
     ;;
     *)
       shift
-      if [ -z ${1} ] ; then
+      if [ -z "${1}" ] ; then
            usage
            exit 1
       fi
