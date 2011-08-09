@@ -155,6 +155,7 @@ function initialize() {
         # strip some known and some special suffixes
         pname=${pname%.gz}
         pname=${pname%.bz2}
+        pname=${pname%.xz}
         pname=${pname%.zip}
 
         pname=${pname%.tgz}
