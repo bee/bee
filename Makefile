@@ -113,6 +113,7 @@ clean:
 	@rm -vf ${PROGRAMS_PERL}
 	@rm -vf ${PROGRAMS_C}
 	@rm -vf $(addprefix  src/beeversion/, ${BEEVERSION_OBJECTS})
+	@rm -vf ${addsuffix .1,${BEE_MANPAGES}}
 
 install: install-core install-config
 
