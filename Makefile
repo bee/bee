@@ -30,7 +30,7 @@ DEFCONFDIR=${SYSCONFDIR}/default
 
 DESTDIR=
 
-PROGRAMS_C=beeversion beesep beecut beeuniq
+PROGRAMS_C=beeversion beesep beecut beeuniq beesort
 PROGRAMS_SHELL=bee beesh
 PROGRAMS_PERL=beefind.pl
 
@@ -60,6 +60,7 @@ BEEVERSION_OBJECTS=beeversion.o parse.o compare.o output.o
 BEESEP_OBJECTS=beesep.o
 BEECUT_OBJECTS=beecut.o
 BEEUNIQ_OBJECTS=beeuniq.o
+BEESORT_OBJECTS=beesort.o compare.o output.o parse.o tree.o
 
 shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS))
 perlscripts:  $(PROGRAMS_PERL)
@@ -79,6 +80,10 @@ beecut: $(addprefix src/beecut/, ${BEECUT_OBJECTS})
 	@gcc -Wall -o $@ $^
 
 beeuniq: $(addprefix src/beeuniq/, ${BEEUNIQ_OBJECTS})
+	@echo "linking $@ .."
+	@gcc -Wall -o $@ $^
+
+beesort: $(addprefix src/beeversion/, ${BEESORT_OBJECTS})
 	@echo "linking $@ .."
 	@gcc -Wall -o $@ $^
 
@@ -119,6 +124,7 @@ clean:
 	@rm -vf $(addprefix  src/beesep/, ${BEESEP_OBJECTS})
 	@rm -vf $(addprefix  src/beecut/, ${BEECUT_OBJECTS})
 	@rm -vf $(addprefix  src/beeuniq/, ${BEEUNIQ_OBJECTS})
+	@rm -vf $(addprefix  src/beeversion/, ${BEESORT_OBJECTS})
 	@rm -vf ${addsuffix .1,${BEE_MANPAGES}}
 
 install: install-core install-config

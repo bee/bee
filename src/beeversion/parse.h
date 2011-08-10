@@ -26,3 +26,4 @@
 
 char parse_extra(struct beeversion *v);
 int parse_version(char *s,  struct beeversion *v);
+void init_version(char *s, struct beeversion *v);

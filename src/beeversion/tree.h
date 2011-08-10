@@ -37,5 +37,6 @@ void *tree_search(struct tree *tree, void *key);
 void *tree_delete(struct tree *tree, void *key);
 
 void tree_print(struct tree *tree);
+void tree_print_plain(struct tree *tree);
 
 #endif
