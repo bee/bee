@@ -97,6 +97,12 @@ int compare_beepackage_names(struct beeversion *v1, struct beeversion *v2) {
     assert(v1);
     assert(v2);
 
+    assert(v1->pkgname);
+    assert(v2->pkgname);
+
+    assert(v1->subname);
+    assert(v2->subname);
+
     ret = strcmp(v1->pkgname, v2->pkgname);
 
     if(!ret)
@@ -113,7 +119,8 @@ int compare_beeversions(struct beeversion *v1, struct beeversion *v2) {
     assert(v2);
 
     ret = compare_version_strings(v1->version, v2->version);
-    if(ret) return(ret);
+    if(ret)
+        return(ret);
 
     if(v1->extraversion_typ < v2->extraversion_typ)
         return(-1);
@@ -122,7 +129,8 @@ int compare_beeversions(struct beeversion *v1, struct beeversion *v2) {
         return(1);
 
     ret = compare_version_strings(v1->extraversion_nr, v2->extraversion_nr);
-    if(ret) return(ret);
+    if(ret)
+        return(ret);
 
     ret = compare_version_strings(v1->pkgrevision, v2->pkgrevision);
     return ret;

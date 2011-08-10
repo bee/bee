@@ -48,6 +48,7 @@ char parse_extra(struct beeversion *v)
     char                 *s;
 
     assert(v);
+    assert(v->extraversion);
 
     s  = v->extraversion;
     ev = extra;

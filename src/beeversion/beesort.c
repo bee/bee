@@ -44,7 +44,7 @@ void my_free_data(void *data)
 
 int my_compare_key(void *a, void *b)
 {
-    return compare_beepackages(a,b);
+    return compare_beepackages(a, b);
 }
 
 void my_print_key(void *key)
@@ -81,7 +81,8 @@ int main(int argc, char *argv[])
 
     while((opt = getopt(argc, argv, "u")) != -1) {
         switch(opt) {
-            case 'u': opt_uniq = 1; break;
+            case 'u':
+                opt_uniq = 1; break;
         }
     }
 
@@ -122,7 +123,7 @@ int main(int argc, char *argv[])
             v->pkgname = v->string;
         }
 
-        if(opt_uniq == 0 || (opt_uniq == 1 && tree_search(tree, v) == NULL))
+        if(!opt_uniq || (opt_uniq && !tree_search(tree, v)))
             tree_insert(tree, v);
     }
 
