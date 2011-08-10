@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
             v->pkgname = v->string;
         }
 
-        if(!opt_uniq || (opt_uniq && !tree_search(tree, v)))
+        if(!(opt_uniq && tree_search(tree, v)))
             tree_insert(tree, v);
     }
 
