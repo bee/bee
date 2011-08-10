@@ -131,11 +131,12 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
                         printf("%s", v->pkgname);
                         if(*(v->subname))
                             printf("_%s", v->subname);
-                        printf("-");
                     }
 
                     assert(v->version && v->extraversion);
-                    printf("%s", v->version);
+                    if(*(v->version))
+                        printf("-%s", v->version);
+
                     if(*(v->extraversion))
                         printf("_%s", v->extraversion);
 

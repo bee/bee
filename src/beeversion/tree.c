@@ -396,6 +396,9 @@ void *tree_search(struct tree *tree, void *key)
 
     node = tree_search_node_by_key(tree, key);
 
+    if(node == NULL)
+        return NULL;
+
     assert(node->data);
 
     return node->data;
@@ -500,9 +503,28 @@ static void subtree_print(struct tree *tree, struct tree_node *node, int depth, 
     subtree_print(tree, node->right, depth+1, 1);
 }
 
+static void subtree_print_plain(struct tree *tree, struct tree_node *node)
+{
+    assert(tree);
+
+    if (!node)
+        return;
+
+    subtree_print_plain(tree, node->left);
+    node_print(tree, node, 0, 0);
+    subtree_print_plain(tree, node->right);
+}
+
 void tree_print(struct tree *tree)
 {
     assert(tree);
 
     subtree_print(tree, tree->root, 0, 0);
+}
+
+void tree_print_plain(struct tree *tree)
+{
+    assert(tree);
+
+    subtree_print_plain(tree, tree->root);
 }
