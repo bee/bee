@@ -127,20 +127,17 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
                 case 'F':
                 case 'A':
                     assert(v->pkgname && v->subname);
-                    if(*(v->pkgname)) {
-                        printf("%s", v->pkgname);
-                        if(*(v->subname))
-                            printf("_%s", v->subname);
-                    }
-
                     assert(v->version && v->extraversion);
+                    assert(v->pkgrevision && v->arch);
+
+                    if(*(v->pkgname))
+                        printf("%s", v->pkgname);
+                    if(*(v->subname))
+                        printf("_%s", v->subname);
                     if(*(v->version))
                         printf("-%s", v->version);
-
                     if(*(v->extraversion))
                         printf("_%s", v->extraversion);
-
-                    assert(v->pkgrevision && v->arch);
                     if(*(v->pkgrevision))
                         printf("-%s", v->pkgrevision);
                     if(*p == 'A' && *(v->arch))
