@@ -31,7 +31,7 @@ fi
 VERSION=${BEE_VERSION}
 
 debug_msg() {
-    if [ "${DEBUG}" != "yes" ] ; then
+    if [ "${OPT_DEBUG}" != "yes" ] ; then
         return
     fi
 
@@ -253,7 +253,7 @@ do_install() {
 
     taraction="-x"
 
-    [ "${NOOP}" = "yes" ] && taraction="-t"
+    [ "${OPT_NOOP}" = "yes" ] && taraction="-t"
 
     echo "installing ${file} .."
 
@@ -264,7 +264,7 @@ do_install() {
         --transform="s,^PATCHES,${BEE_METADIR}/${pkg}/PATCHES," \
         --show-transformed-names
 
-    [ "${NOOP}" != "yes" ] && run_hooks post-install ${pkg}
+    [ "${OPT_NOOP}" != "yes" ] && run_hooks post-install ${pkg}
 
     exit $?
 }
@@ -367,11 +367,11 @@ while true ; do
       ;;
     --debug)
         shift
-        DEBUG="yes"
+        OPT_DEBUG="yes"
         ;;
     --noop)
         shift
-        NOOP="yes"
+        OPT_NOOP="yes"
         ;;
     *)
       shift
