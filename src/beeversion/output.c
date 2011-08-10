@@ -141,11 +141,10 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
                         printf("_%s", v->extraversion);
 
                     assert(v->pkgrevision && v->arch);
-                    if(*(v->pkgrevision)) {
+                    if(*(v->pkgrevision))
                         printf("-%s", v->pkgrevision);
-                        if(*p == 'A' && *(v->arch))
-                            printf(".%s", v->arch);
-                    }
+                    if(*p == 'A' && *(v->arch))
+                        printf(".%s", v->arch);
                     break;
             }
             continue;
