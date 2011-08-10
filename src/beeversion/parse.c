@@ -74,27 +74,19 @@ char parse_extra(struct beeversion *v)
 #endif
     return(1);
 }
-
 /*
- * IN: s: pointer to versionstring..
- *     v: pointer to version structure
- *
- * OUT: filled structure on success..
- *
- * RETURN: 0  on success
- *         >0 error at position x
- *
+ * IN: string: pointer to versionstring..
+ *          v: pointer to version structure..
  */
-int parse_version(char *s,  struct beeversion *v)
+void init_version(char *string, struct beeversion *v)
 {
-    char   *p;
-    char   *version_or_revision;
+    char *s;
     size_t len;
 
-    assert(s);
+    assert(string);
     assert(v);
 
-    if(! (v->string=strdup(s))) {
+    if(! (v->string=strdup(string))) {
         perror("strdup");
         exit(254);
     }
@@ -111,6 +103,26 @@ int parse_version(char *s,  struct beeversion *v)
     v->arch             = s+len;
     v->suffix           = s+len;
     v->extraversion_typ = EXTRA_UNKNOWN;
+}
+
+/*
+ * IN: string: pointer to versionstring..
+ *          v: pointer to version structure
+ *
+ * OUT: filled structure on success..
+ *
+ * RETURN: 0  on success
+ *         >0 error at position x
+ *
+ */
+int parse_version(char *string,  struct beeversion *v)
+{
+    char   *p, *s;
+    char   *version_or_revision;
+
+    init_version(string, v);
+
+    s = v->string;
 
     /* p-v-r   p-v   v */
 
