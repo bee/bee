@@ -1,9 +1,9 @@
-.TH "bee-install" "1" "2011-07-25" "bee @BEE_VERSION@" "bee package management"
+.TH "bee-install" "1" "2011-08-11" "bee @BEE_VERSION@" "bee package management"
 .SH "NAME"
 bee\-install \- Install a bee package
 .SH "SYNOPSIS"
 .SY "bee install"
-.OP \-afhv
+.OP \-afhuv
 .OP \-\-noop
 .I bee-package
 .YS
@@ -54,6 +54,16 @@ is already installed.
 .TQ
 .B \-\-help
 Print a little help screen.
+.TP
+.B \-u
+.TQ
+.B \-\-upgrade
+Install
+.I bee\-package
+and remove all other installed versions of this package.
+Downgrades are possible by forcing the installation of lower versions with the
+.B \-f
+option.
 .TP
 .B \-\-noop
 Do not install anything. Just show files related to

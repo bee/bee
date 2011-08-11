@@ -31,7 +31,7 @@ fi
 VERSION=${BEE_VERSION}
 
 debug_msg() {
-    if [ "${DEBUG}" != "yes" ] ; then
+    if [ "${OPT_DEBUG}" != "yes" ] ; then
         return
     fi
 
@@ -55,6 +55,7 @@ usage() {
 	Options:
 	    -f | --force      can be used to force installation come what may
 	    -v | --verbose    bee more verbose (can be used twice e.g. -vv)
+	    -u | --upgrade    install a package and remove all other versions afterwards
 	    -h | --help       display this help
 
 	EOF
@@ -101,6 +102,7 @@ pkg_install() {
     # install specific package
     if [ -f "${search}" ] ; then
          do_install "${search}"
+         return
     fi
 
     # if search is relative or absolute path to file -> exit
@@ -112,13 +114,16 @@ pkg_install() {
     # install package from repository
     if [ -f "${BEE_REPOSITORY_PKGDIR}/${search}" ] ; then
          do_install "${BEE_REPOSITORY_PKGDIR}/${search}"
+         return
     fi
 
     for e in "" ".$(arch)" ".noarch" ".any" ; do
         if [ -f "${BEE_REPOSITORY_PKGDIR}/${search}${e}.bee.tar.bz2" ] ; then
             do_install "${BEE_REPOSITORY_PKGDIR}/${search}${e}.bee.tar.bz2"
+            return
         elif [ -f "${BEE_REPOSITORY_PKGDIR}/${search}${e}.iee.tar.bz2" ] ; then
             do_install "${BEE_REPOSITORY_PKGDIR}/${search}${e}.iee.tar.bz2"
+            return
         fi
     done
 
@@ -169,7 +174,6 @@ pkg_install() {
     done
 }
 
-
 ###############################################################################
 ### get_installed_versions ###
 ##
@@ -212,6 +216,7 @@ check_installed() {
     local installed=$(get_installed_versions ${pkgname})
 
     if [ "${installed}" != "" ] ; then
+        echo "would install ${pkgname} .."
         for i in ${installed} ; do
             if [ "${i}" = "${pkgname}" ] ; then
                 echo "[  already installed  ] ${i}"
@@ -244,7 +249,19 @@ do_install() {
     debug_msg "do_install file=${file}"
     debug_msg "do_install pkg=${pkg}"
 
-    if [ "${OPT_F}" = "0" ] ; then
+    eval $(@BINDIR@/beeversion ${pkg})
+    installed=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list -i ${PKGNAME}) )
+    debug_msg "installed=${installed[@]}"
+    debug_msg "OPT_F=${OPT_F}"
+
+    do_upgrade=0
+    if [ "${OPT_UPGRADE}" = "yes" \
+      -a "${pkg}" = "$(@BINDIR@/beeversion -max ${pkg} ${installed[@]})" \
+      -a "$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list -i ${pkg})" = "" ] ; then
+        do_upgrade=1
+    fi
+
+    if [ "${OPT_F}" = "0" -a "${do_upgrade}" = "0" ] ; then
         check_installed ${pkg}
     fi
 
@@ -253,7 +270,7 @@ do_install() {
 
     taraction="-x"
 
-    [ "${NOOP}" = "yes" ] && taraction="-t"
+    [ "${OPT_NOOP}" = "yes" ] && taraction="-t"
 
     echo "installing ${file} .."
 
@@ -264,9 +281,19 @@ do_install() {
         --transform="s,^PATCHES,${BEE_METADIR}/${pkg}/PATCHES," \
         --show-transformed-names
 
-    [ "${NOOP}" != "yes" ] && run_hooks post-install ${pkg}
+    [ "${OPT_NOOP}" != "yes" ] && run_hooks post-install ${pkg}
 
-    exit $?
+    if [ "${OPT_UPGRADE}" != "yes" ] ; then
+        return
+    fi
+
+    for p in ${installed[@]} ; do
+        if [ "${p}" = "${pkg}" ] ; then
+            continue
+        fi
+        echo "removing ${p} .."
+        ${OPT_NOOP:+echo} ${BEE_LIBEXECDIR}/bee/bee.d/bee-remove ${p}
+    done
 }
 
 function run_hooks() {
@@ -365,13 +392,17 @@ while true ; do
       usage
       exit 0
       ;;
+    -u|--upgrade)
+        shift
+        OPT_UPGRADE="yes"
+        ;;
     --debug)
         shift
-        DEBUG="yes"
+        OPT_DEBUG="yes"
         ;;
     --noop)
         shift
-        NOOP="yes"
+        OPT_NOOP="yes"
         ;;
     *)
       shift

@@ -46,8 +46,8 @@ pkg_remove() {
     fi
 
     # pattern is a pkg in BEE_METADIR
-        do_remove ${BEE_METADIR}/${search}
     if [ -d "${BEE_METADIR}/${search}" ] ; then
+        do_remove ${BEE_METADIR}/${search}
         return
     fi
 
