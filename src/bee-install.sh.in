@@ -106,9 +106,9 @@ pkg_install() {
     fi
 
     # if search is relative or absolute path to file -> exit
-    if [ "${search:0:2}" = "./" -o "${search%/*}" != "${search}" ] ; then
-        echo "${search}: Uncorrect search patter / No such file or directory"
-        exit 1
+    if [[ "${search}" =~ "/" ]] ; then
+        echo "${search}: No such file or directory"
+        return
     fi
 
     # install package from repository
