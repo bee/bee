@@ -216,7 +216,7 @@ check_installed() {
     local installed=$(get_installed_versions ${pkgname})
 
     if [ "${installed}" != "" ] ; then
-        echo "would install ${pkgname} .."
+        echo "[    would install    ] ${pkgname} .."
         for i in ${installed} ; do
             if [ "${i}" = "${pkgname}" ] ; then
                 echo "[  already installed  ] ${i}"
