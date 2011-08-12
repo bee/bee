@@ -132,6 +132,12 @@ int parse_version(char *string,  struct beeversion *v)
         s = p+1;
     }
 
+    /* extract suffix .bee* */
+    if((p=strstr(s, ".bee"))) {
+        v->suffix = p+1;
+        *p=0;
+    }
+
     /* extract architecture if known.. */
     if((p=strrchr(s, '.')) && !strchr(++p, '-')) {
         struct utsname unm;
