@@ -152,14 +152,9 @@ int parse_version(char *string,  struct beeversion *v)
              exit(1);
         }
 
-        if(!strcmp(p, "bee")) {
-             /* ignore .bee suffix */
-             *(p-1) = 0;
-        } else {
-            if(!strcmp(p, unm.machine)) {
-                v->arch = p;
-                *(p-1)  = 0;
-            }
+        if(!strcmp(p, unm.machine)) {
+            v->arch = p;
+            *(p-1)  = 0;
         }
 
         for(a=arch; *(p-1) && *a; a++) {
