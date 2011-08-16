@@ -136,6 +136,9 @@ int parse_version(char *string,  struct beeversion *v)
     if((p=strstr(s, ".bee"))) {
         v->suffix = p+1;
         *p=0;
+    } else if((p=strstr(s, ".iee"))) {
+        v->suffix = p+1;
+        *p=0;
     }
 
     /* extract architecture if known.. */
