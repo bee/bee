@@ -103,10 +103,9 @@ do_remove() {
     if [ "${BEEMETAFORMAT}" = "2" ] ; then
         dirs=$(for var in ${!PKG_*} ; do eval echo \${${var}} ; done | sort -ur)
         for dir in ${dirs} ; do
-            if [ ! -d "${dir}" -o -n "$(ls -A ${dir})" -o -n "$(${BEE_LIBEXECDIR}/bee/bee.d/bee-query ${dir})" ] ; then
-                continue
+            if [ -d "${dir}" -a -z "$(${BEE_LIBEXECDIR}/bee/bee.d/bee-query ${dir})" ] ; then
+                ${NOOP:+echo} rmdir ${dir}
             fi
-            ${NOOP:+echo} rmdir ${dir}
         done
     fi
 }
