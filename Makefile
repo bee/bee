@@ -1,4 +1,4 @@
-BEE_VERSION = 1.0_rc13
+BEE_VERSION = 1.0_rc14
 
 PREFIX     = /usr
 EPREFIX    = ${PREFIX}
