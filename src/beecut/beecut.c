@@ -134,11 +134,11 @@ int main(int argc, char *argv[])
                 break;
 
             case OPT_PREPEND:
-                opt_prepend = strdup(optarg);
+                opt_prepend = optarg;
                 break;
 
             case OPT_APPEND:
-                opt_append = strdup(optarg);
+                opt_append = optarg;
                 break;
 
             case OPT_SHORT:
