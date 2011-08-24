@@ -118,8 +118,8 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
 
-        bee_init_version(s, v);
-        if(bee_parse_version(v) != 0) {
+        if(parse_version(s, v) != 0) {
+            init_version(s, v);
             v->pkgname = v->string;
         }
 

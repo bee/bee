@@ -25,6 +25,5 @@
 #include "beeversion.h"
 
 char parse_extra(struct beeversion *v);
-int bee_parse_version(struct beeversion *v);
 int parse_version(char *s,  struct beeversion *v);
-void bee_init_version(char *s, struct beeversion *v);
+void init_version(char *s, struct beeversion *v);
