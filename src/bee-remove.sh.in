@@ -148,7 +148,7 @@ while true ; do
     case "$1" in
         -n|--noop)
             shift
-            NOOP=1
+            NOOP="yes"
             ;;
         -h|--help)
             usage
