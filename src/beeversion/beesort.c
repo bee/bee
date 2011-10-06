@@ -26,13 +26,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include <unistd.h>
+#include <getopt.h>
 
 #include "beeversion.h"
 #include "compare.h"
 #include "parse.h"
 #include "output.h"
 #include "tree.h"
+
+#define NUM_OPTS       1
+#define OPT_SHORT_UNIQ 'u'
+#define OPT_LONG_UNIQ  "unique"
 
 void my_free_data(void *data)
 {
@@ -73,18 +77,25 @@ struct tree *init_tree(void)
 
 int main(int argc, char *argv[])
 {
-    char line[LINE_MAX], *s, *p;
+    char line[LINE_MAX], *s, *p, *optstring = NULL;
     FILE *file;
     struct tree *tree;
     struct beeversion *v;
-    int l, opt, opt_uniq = 0;
+    int l, opt, opt_uniq = 0, longindex;
+    struct option long_options[] = {
+        {OPT_LONG_UNIQ, 0, 0, OPT_SHORT_UNIQ},
+        {0, 0, 0, 0}
+    };
 
-    while((opt = getopt(argc, argv, "u")) != -1) {
+    optstring = calloc(NUM_OPTS + 1, sizeof(optstring));
+    sprintf(optstring, "%c", OPT_SHORT_UNIQ);
+    while((opt = getopt_long(argc, argv, optstring, long_options, &longindex)) != -1) {
         switch(opt) {
-            case 'u':
+            case OPT_SHORT_UNIQ:
                 opt_uniq = 1; break;
         }
     }
+    free(optstring);
 
     tree = init_tree();
 

@@ -1,5 +1,9 @@
 BEE_VERSION = 1.0_rc14
 
+CC=gcc
+CFLAGS=-Wall -g
+LDFLAGS=
+
 PREFIX     = /usr
 EPREFIX    = ${PREFIX}
 SBINDIR    = ${EPREFIX}/sbin
@@ -69,27 +73,27 @@ manpages:     $(addsuffix .1,$(BEE_MANPAGES))
 
 beesep: $(addprefix src/beesep/, ${BEESEP_OBJECTS})
 	@echo "linking $@ .."
-	@gcc -Wall -o $@ $^
+	@${CC} ${LDFLAGS} -o $@ $^
 
 beeversion: $(addprefix  src/beeversion/, ${BEEVERSION_OBJECTS})
 	@echo "linking $@ .."
-	@gcc -Wall -o $@ $^
+	@${CC} ${LDFLAGS} -o $@ $^
 
 beecut: $(addprefix src/beecut/, ${BEECUT_OBJECTS})
 	@echo "linking $@ .."
-	@gcc -Wall -o $@ $^
+	@${CC} ${LDFLAGS} -o $@ $^
 
 beeuniq: $(addprefix src/beeuniq/, ${BEEUNIQ_OBJECTS})
 	@echo "linking $@ .."
-	@gcc -Wall -o $@ $^
+	@${CC} ${LDFLAGS} -o $@ $^
 
 beesort: $(addprefix src/beeversion/, ${BEESORT_OBJECTS})
 	@echo "linking $@ .."
-	@gcc -Wall -o $@ $^
+	@${CC} ${LDFLAGS} -o $@ $^
 
 %.o: %.c
 	@echo "compiling $@ .."
-	@gcc -Wall -o $@ -c $^
+	@${CC} ${CFLAGS} -o $@ -c $^
 
 %.sh: src/%.sh.in
 	@echo "creating $@ .."
