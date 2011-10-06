@@ -34,10 +34,6 @@
 #include "output.h"
 #include "tree.h"
 
-#define NUM_OPTS       1
-#define OPT_SHORT_UNIQ 'u'
-#define OPT_LONG_UNIQ  "unique"
-
 void my_free_data(void *data)
 {
     struct beeversion *v = data;
@@ -77,25 +73,23 @@ struct tree *init_tree(void)
 
 int main(int argc, char *argv[])
 {
-    char line[LINE_MAX], *s, *p, *optstring = NULL;
+    char line[LINE_MAX], *s, *p;
     FILE *file;
     struct tree *tree;
     struct beeversion *v;
     int l, opt, opt_uniq = 0, longindex;
     struct option long_options[] = {
-        {OPT_LONG_UNIQ, 0, 0, OPT_SHORT_UNIQ},
+        {"unique", no_argument, NULL, 'u'},
         {0, 0, 0, 0}
     };
 
-    optstring = calloc(NUM_OPTS + 1, sizeof(optstring));
-    sprintf(optstring, "%c", OPT_SHORT_UNIQ);
-    while((opt = getopt_long(argc, argv, optstring, long_options, &longindex)) != -1) {
+    while((opt = getopt_long(argc, argv, "u", long_options, &longindex)) != -1) {
         switch(opt) {
-            case OPT_SHORT_UNIQ:
-                opt_uniq = 1; break;
+            case 'u':
+                opt_uniq = 1;
+                break;
         }
     }
-    free(optstring);
 
     tree = init_tree();
 
