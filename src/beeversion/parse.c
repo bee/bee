@@ -37,7 +37,9 @@ char parse_extra(struct beeversion *v)
 {
     struct extra_version extra[] = {
         { "alpha", EXTRA_ALPHA, 5 },
+        { "a",     EXTRA_ALPHA, 1 },
         { "beta",  EXTRA_BETA,  4 },
+        { "b",     EXTRA_BETA,  1 },
         { "rc",    EXTRA_RC,    2 },
         { "patch", EXTRA_PATCH, 5 },
         { "p",     EXTRA_PATCH, 1 },
