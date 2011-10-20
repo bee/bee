@@ -45,7 +45,7 @@ LIBRARY_SHELL=beelib.config
 HELPER_BEESH_SHELL=configure cmake autogen perl-module perl-module-makemaker make python-module
 
 HELPER_HOOKS_SHELL=update-mime-database glib-compile-schemas mkfontdir-mkfontscale gtk-update-icon-cache \
-                   ldconfig update-desktop-database gdk-pixbuf-query-loaders mandb
+                   ldconfig update-desktop-database gdk-pixbuf-query-loaders mandb systemd-tmpfiles
 
 BEE_MANPAGES=bee bee-check bee-init bee-install bee-list bee-query bee-remove
 
