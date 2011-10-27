@@ -226,6 +226,7 @@ function config_export() {
     export BEE_REPOSITORY_PKGDIR
     export BEE_REPOSITORY_BUILDARCHIVEDIR
     export BEE_METADIR
+    export BEE_CACHEDIR
     export BEE_TMP_TMPDIR
     export BEE_TMP_BUILDROOT
 
