@@ -168,8 +168,6 @@ function initialize() {
         pname=${pname%.source}
         pname=${pname%-source}
 
-        pname=${pname%.bee}
-
         if [ "${pname}" = "${surl}" ] ; then
             surl=""
         else
@@ -177,7 +175,7 @@ function initialize() {
         fi
     fi
 
-    beefile="${pname}.bee"
+    beefile="${pname%.bee}.bee"
 
     if [ -e "${beefile}" ] && [ "$OPT_FORCE" != "yes" ] ; then
         echo "${beefile} already exists .. use option -f to overwrite .."
