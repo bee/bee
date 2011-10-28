@@ -152,6 +152,9 @@ function initialize() {
         # start auto packagename generation with surl basename
         pname=${surl##*/}
 
+        # and remove all HTTP-GET variables..
+        pname=${pname%%\?*}
+
         # strip some known and some special suffixes
         pname=${pname%.gz}
         pname=${pname%.bz2}
