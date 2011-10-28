@@ -26,6 +26,10 @@ if [ ! -r ${S}/CMakeLists.txt ] ; then
     return
 fi
 
+if ! which cmake >/dev/null 2>&1 ; then
+    return
+fi
+
 BEE_BUILDTYPE=cmake
 
 #### bee_configure() ##########################################################
