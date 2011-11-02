@@ -43,14 +43,14 @@ bee_configure() {
 #### bee_build() ##############################################################
 
 bee_build() {
-    start_cmd make \
+    start_cmd make ${BEE_MAKEFLAGS} \
         "${@}"
 }
 
 #### bee_install() ############################################################
 
 bee_install() {
-    start_cmd make \
+    start_cmd make ${BEE_MAKEFLAGS} \
         install \
         "${@}"
 }
