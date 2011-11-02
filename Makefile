@@ -34,6 +34,20 @@ DEFCONFDIR=${SYSCONFDIR}/default
 
 DESTDIR=
 
+quiet-command = $(if ${V},${1},$(if ${2},@echo ${2} && ${1}, @${1}))
+quiet-install = $(call quiet-command, install -m ${1} ${2} ${DESTDIR}${3},"INSTALL        ${DESTDIR}${3}")
+
+sed-rules = -e 's,@PREFIX@,${PREFIX},g' \
+	    -e 's,@EPREFIX@,${EPREFIX},g' \
+	    -e 's,@BINDIR@,${BINDIR},g' \
+	    -e 's,@SBINDIR@,${SBINDIR},g' \
+	    -e 's,@LIBDIR@,${LIBDIR},g' \
+	    -e 's,@SYSCONFDIR@,${SYSCONFDIR},g' \
+	    -e 's,@DEFCONFDIR@,${DEFCONFDIR},g' \
+	    -e 's,@LIBEXECDIR@,${LIBEXECDIR},g' \
+	    -e 's,@BEE_VERSION@,${BEE_VERSION},g' \
+	    -e 's,@DATADIR@,${DATADIR},g'
+
 PROGRAMS_C=beeversion beesep beecut beeuniq beesort
 PROGRAMS_SHELL=bee beesh
 PROGRAMS_PERL=beefind.pl
@@ -97,28 +111,14 @@ beesort: $(addprefix src/beeversion/, ${BEESORT_OBJECTS})
 
 %.sh: src/%.sh.in
 	@echo "creating $@ .."
-	@sed \
-	    -e 's,@PREFIX@,${PREFIX},g' \
-	    -e 's,@EPREFIX@,${EPREFIX},g' \
-	    -e 's,@BINDIR@,${BINDIR},g' \
-	    -e 's,@SBINDIR@,${SBINDIR},g' \
-	    -e 's,@LIBDIR@,${LIBDIR},g' \
-	    -e 's,@SYSCONFDIR@,${SYSCONFDIR},g' \
-	    -e 's,@DEFCONFDIR@,${DEFCONFDIR},g' \
-	    -e 's,@LIBEXECDIR@,${LIBEXECDIR},g' \
-	    -e 's,@BEE_VERSION@,${BEE_VERSION},g' \
-	    -e 's,@DATADIR@,${DATADIR},g' \
-	    $< > $@
+	@sed ${sed-rules} $< > $@
 
 %.pl: src/%.pl
 	@echo "creating $@ .."
 	@cp $< $@
 
-%.1: src/man.d/%.1
-	@echo "creating $@"
-	@sed \
-	    -e 's,@BEE_VERSION@,${BEE_VERSION},g' \
-	    $< > $@
+%.1: manpages/%.1.in
+	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
 
 clean:
 	@rm -vf $(addsuffix .sh,${SHELLSCRIPTS})
