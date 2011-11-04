@@ -168,7 +168,7 @@ install-hooks: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/,${HELPER_HOOKS_S
 install-dir-hookdir:
 	$(call quiet-installdir,0755,${DESTDIR}${LIBEXECDIR}/bee/hooks.d)
 
-${DESTDIR}${LIBEXECDIR}/bee/hooks.d/%: src/hooks.d/%.sh install-dir-hookdir
+${DESTDIR}${LIBEXECDIR}/bee/hooks.d/%: hooks/%.sh install-dir-hookdir
 	$(call quiet-install,0755,$<,$@)
 
 install-man: $(addprefix ${DESTDIR}${MANDIR}/man1/,${BEE_MANPAGES})
