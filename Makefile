@@ -179,17 +179,14 @@ install-dir-mandir:
 ${DESTDIR}${MANDIR}/man1/%.1: %.1 install-dir-mandir
 	$(call quiet-install,0644,$<,$@)
 
-install-config:
-	@mkdir -p ${DESTDIR}${DEFCONFDIR}/bee
+install-dir-config:
+	$(call quiet-installdir,0755,${DESTDIR}${DEFCONFDIR}/bee/templates)
 
-	@for i in ${CONFIG_FILES} ; do \
-	     echo "installing ${DESTDIR}${DEFCONFDIR}/bee/$${i}" ; \
-	     install -m 0444 conf/$${i} ${DESTDIR}${DEFCONFDIR}/bee/$${i}; \
-	 done
+install-config: install-config-defaults install-config-templates
 
-	@mkdir -p ${DESTDIR}${DEFCONFDIR}/bee/templates
+install-config-defaults: $(addprefix ${DESTDIR}${DEFCONFDIR}/bee/,${CONFIG_FILES})
 
-	@for i in ${CONFIG_TEMPLATES} ; do \
-	     echo "installing ${DESTDIR}${DEFCONFDIR}/bee/templates/$${i}" ; \
-	     install -m 0444 conf/templates/$${i} ${DESTDIR}${DEFCONFDIR}/bee/templates/$${i} ; \
-	 done
+install-config-templates: $(addprefix ${DESTDIR}${DEFCONFDIR}/bee/templates/,${CONFIG_TEMPLATES})
+
+${DESTDIR}${DEFCONFDIR}/bee/%: conf/% install-dir-config
+	$(call quiet-install,0444,$<,$@)
