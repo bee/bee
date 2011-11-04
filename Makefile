@@ -86,36 +86,28 @@ cprograms:    $(PROGRAMS_C)
 manpages:     $(addsuffix .1,$(BEE_MANPAGES))
 
 beesep: $(addprefix src/beesep/, ${BEESEP_OBJECTS})
-	@echo "linking $@ .."
-	@${CC} ${LDFLAGS} -o $@ $^
+	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 beeversion: $(addprefix  src/beeversion/, ${BEEVERSION_OBJECTS})
-	@echo "linking $@ .."
-	@${CC} ${LDFLAGS} -o $@ $^
+	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 beecut: $(addprefix src/beecut/, ${BEECUT_OBJECTS})
-	@echo "linking $@ .."
-	@${CC} ${LDFLAGS} -o $@ $^
+	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 beeuniq: $(addprefix src/beeuniq/, ${BEEUNIQ_OBJECTS})
-	@echo "linking $@ .."
-	@${CC} ${LDFLAGS} -o $@ $^
+	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 beesort: $(addprefix src/beeversion/, ${BEESORT_OBJECTS})
-	@echo "linking $@ .."
-	@${CC} ${LDFLAGS} -o $@ $^
+	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 %.o: %.c
-	@echo "compiling $@ .."
-	@${CC} ${CFLAGS} -o $@ -c $^
+	$(call quiet-command,${CC} ${CFLAGS} -o $@ -c $^,"CC	$@")
 
 %.sh: src/%.sh.in
-	@echo "creating $@ .."
-	@sed ${sed-rules} $< > $@
+	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
 
 %.pl: src/%.pl
-	@echo "creating $@ .."
-	@cp $< $@
+	$(call quiet-command,cp $< $@,"CP	$@")
 
 %.1: manpages/%.1.in
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
