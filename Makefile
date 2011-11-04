@@ -126,7 +126,7 @@ clean:
 
 install: install-core install-config
 
-install-core: build install-man install-hooks install-buildtypes install-beeshlib
+install-core: build install-man install-hooks install-buildtypes install-beeshlib install-tools
 	@mkdir -p ${DESTDIR}${BINDIR}
 
 	@for i in ${PROGRAMS_SHELL} ; do \
@@ -139,12 +139,13 @@ install-core: build install-man install-hooks install-buildtypes install-beeshli
 	     install -m 0755 $${i} ${DESTDIR}${BINDIR}/$${i} ; \
 	 done
 
-	@mkdir -p ${DESTDIR}${LIBEXECDIR}/bee/bee.d
+install-tools: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/bee.d/,${HELPER_BEE_SHELL})
 
-	@for i in ${HELPER_BEE_SHELL} ; do \
-	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/bee.d/$${i}" ; \
-	     install -m 0755 $${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/bee.d/$${i} ; \
-	 done
+install-dir-tools:
+	$(call quiet-installdir,0755,${DESTDIR}${LIBEXECDIR}/bee/bee.d)
+
+${DESTDIR}${LIBEXECDIR}/bee/bee.d/%: %.sh install-dir-tools
+	$(call quiet-install,0755,$<,$@)
 
 install-beeshlib: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/,${LIBRARY_SHELL})
 
