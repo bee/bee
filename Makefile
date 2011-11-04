@@ -160,7 +160,7 @@ install-buildtypes: $(addsuffix .sh,$(addprefix ${DESTDIR}${LIBEXECDIR}/bee/bees
 install-dir-buildtypes:
 	$(call quiet-installdir,0755,${DESTDIR}${LIBEXECDIR}/bee/beesh.d)
 
-${DESTDIR}${LIBEXECDIR}/bee/beesh.d/%.sh: src/beesh.d/%.sh install-dir-buildtypes
+${DESTDIR}${LIBEXECDIR}/bee/beesh.d/%.sh: buildtypes/%.sh install-dir-buildtypes
 	$(call quiet-install,0755,$<,$@)
 
 install-hooks: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/,${HELPER_HOOKS_SHELL})
