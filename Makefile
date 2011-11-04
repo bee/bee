@@ -114,11 +114,11 @@ beesort: $(addprefix src/, ${BEESORT_OBJECTS})
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
 
 clean:
-	@rm -vf $(addsuffix .sh,${SHELLSCRIPTS}) $(LIBRARY_SHELL)
-	@rm -vf ${PROGRAMS_PERL}
-	@rm -vf ${PROGRAMS_C}
-	@rm -vf src/*.o
-	@rm -vf ${BEE_MANPAGES}
+	$(call quiet-command,rm -f $(addsuffix .sh,${SHELLSCRIPTS}) $(LIBRARY_SHELL),"RM	<various>.sh")
+	$(call quiet-command,rm -f ${PROGRAMS_PERL},"RM	${PROGRAMS_PERL}")
+	$(call quiet-command,rm -f ${PROGRAMS_C},"RM	${PROGRAMS_C}")
+	$(call quiet-command,rm -f src/*.o,"RM	src/*.o")
+	$(call quiet-command,rm -f ${BEE_MANPAGES},"RM	${BEE_MANPAGES}")
 
 install: install-core install-config
 
