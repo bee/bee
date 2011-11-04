@@ -62,7 +62,7 @@ HELPER_BEESH_SHELL=configure cmake autogen perl-module perl-module-makemaker mak
 HELPER_HOOKS_SHELL=update-mime-database glib-compile-schemas mkfontdir-mkfontscale gtk-update-icon-cache \
                    ldconfig update-desktop-database gdk-pixbuf-query-loaders mandb systemd-tmpfiles
 
-BEE_MANPAGES=bee bee-check bee-init bee-install bee-list bee-query bee-remove
+BEE_MANPAGES=bee.1 bee-check.1 bee-init.1 bee-install.1 bee-list.1 bee-query.1 bee-remove.1
 
 CONFIG_TEMPLATES=fallback
 CONFIG_FILES=skiplist beerc
@@ -84,7 +84,7 @@ BEESORT_OBJECTS=beesort.o compare.o output.o parse.o tree.o
 shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS))
 perlscripts:  $(PROGRAMS_PERL)
 cprograms:    $(PROGRAMS_C)
-manpages:     $(addsuffix .1,$(BEE_MANPAGES))
+manpages:     ${BEE_MANPAGES}
 
 beesep: $(addprefix src/beesep/, ${BEESEP_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
@@ -122,11 +122,11 @@ clean:
 	@rm -vf $(addprefix  src/beecut/, ${BEECUT_OBJECTS})
 	@rm -vf $(addprefix  src/beeuniq/, ${BEEUNIQ_OBJECTS})
 	@rm -vf $(addprefix  src/beeversion/, ${BEESORT_OBJECTS})
-	@rm -vf ${addsuffix .1,${BEE_MANPAGES}}
+	@rm -vf ${BEE_MANPAGES}
 
 install: install-core install-config
 
-install-core: build
+install-core: build install-man
 	@mkdir -p ${DESTDIR}${BINDIR}
 
 	@for i in ${PROGRAMS_SHELL} ; do \
@@ -163,11 +163,13 @@ install-core: build
 	     install -m 0755 src/hooks.d/$${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/$${i}.sh ; \
 	 done
 
-	@mkdir -p ${DESTDIR}${MANDIR}/man1
-	@for i in ${BEE_MANPAGES} ; do \
-	     echo "installing ${DESTDIR}${MANDIR}/man1/$${i}.1" ; \
-	     install -m 0644 $${i}.1 ${DESTDIR}${MANDIR}/man1/$${i}.1 ; \
-	 done
+install-man: $(addprefix ${DESTDIR}${MANDIR}/man1/,${BEE_MANPAGES})
+
+install-dir-mandir:
+	$(call quiet-installdir,0755,${DESTDIR}${MANDIR}/man1)
+
+${DESTDIR}${MANDIR}/man1/%.1: %.1 install-dir-mandir
+	$(call quiet-install,0644,$<,$@)
 
 install-config:
 	@mkdir -p ${DESTDIR}${DEFCONFDIR}/bee
