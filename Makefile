@@ -86,19 +86,19 @@ perlscripts:  $(PROGRAMS_PERL)
 cprograms:    $(PROGRAMS_C)
 manpages:     ${BEE_MANPAGES}
 
-beesep: $(addprefix src/beesep/, ${BEESEP_OBJECTS})
+beesep: $(addprefix src/, ${BEESEP_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
-beeversion: $(addprefix  src/beeversion/, ${BEEVERSION_OBJECTS})
+beeversion: $(addprefix  src/, ${BEEVERSION_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
-beecut: $(addprefix src/beecut/, ${BEECUT_OBJECTS})
+beecut: $(addprefix src/, ${BEECUT_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
-beeuniq: $(addprefix src/beeuniq/, ${BEEUNIQ_OBJECTS})
+beeuniq: $(addprefix src/, ${BEEUNIQ_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
-beesort: $(addprefix src/beeversion/, ${BEESORT_OBJECTS})
+beesort: $(addprefix src/, ${BEESORT_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 %.o: %.c
@@ -117,11 +117,7 @@ clean:
 	@rm -vf $(addsuffix .sh,${SHELLSCRIPTS}) $(LIBRARY_SHELL)
 	@rm -vf ${PROGRAMS_PERL}
 	@rm -vf ${PROGRAMS_C}
-	@rm -vf $(addprefix  src/beeversion/, ${BEEVERSION_OBJECTS})
-	@rm -vf $(addprefix  src/beesep/, ${BEESEP_OBJECTS})
-	@rm -vf $(addprefix  src/beecut/, ${BEECUT_OBJECTS})
-	@rm -vf $(addprefix  src/beeuniq/, ${BEEUNIQ_OBJECTS})
-	@rm -vf $(addprefix  src/beeversion/, ${BEESORT_OBJECTS})
+	@rm -vf src/*.o
 	@rm -vf ${BEE_MANPAGES}
 
 install: install-core install-config
