@@ -35,7 +35,8 @@ DEFCONFDIR=${SYSCONFDIR}/default
 DESTDIR=
 
 quiet-command = $(if ${V},${1},$(if ${2},@echo ${2} && ${1}, @${1}))
-quiet-install = $(call quiet-command, install -m ${1} ${2} ${DESTDIR}${3},"INSTALL        ${DESTDIR}${3}")
+quiet-install = $(call quiet-command,install -m ${1} ${2} ${3},"INSTALL	${3}")
+quiet-installdir = $(call quiet-command,install -m ${1} -d ${2},"MKDIR	${2}")
 
 sed-rules = -e 's,@PREFIX@,${PREFIX},g' \
 	    -e 's,@EPREFIX@,${EPREFIX},g' \
