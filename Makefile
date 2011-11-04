@@ -55,7 +55,7 @@ PROGRAMS_PERL=beefind.pl
 
 HELPER_BEE_SHELL=bee-init bee-check bee-remove bee-install bee-list bee-query
 
-LIBRARY_SHELL=beelib.config
+LIBRARY_SHELL=beelib.config.sh
 
 HELPER_BEESH_SHELL=configure cmake autogen perl-module perl-module-makemaker make python-module
 
@@ -73,7 +73,7 @@ all: build
 
 build: shellscripts perlscripts cprograms manpages
 
-SHELLSCRIPTS=$(PROGRAMS_SHELL) $(HELPER_BEE_SHELL) $(LIBRARY_SHELL)
+SHELLSCRIPTS=$(PROGRAMS_SHELL) $(HELPER_BEE_SHELL)
 
 BEEVERSION_OBJECTS=beeversion.o parse.o compare.o output.o
 BEESEP_OBJECTS=beesep.o
@@ -81,7 +81,7 @@ BEECUT_OBJECTS=beecut.o
 BEEUNIQ_OBJECTS=beeuniq.o
 BEESORT_OBJECTS=beesort.o compare.o output.o parse.o tree.o
 
-shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS))
+shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS)) $(LIBRARY_SHELL)
 perlscripts:  $(PROGRAMS_PERL)
 cprograms:    $(PROGRAMS_C)
 manpages:     ${BEE_MANPAGES}
@@ -114,7 +114,7 @@ beesort: $(addprefix src/beeversion/, ${BEESORT_OBJECTS})
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
 
 clean:
-	@rm -vf $(addsuffix .sh,${SHELLSCRIPTS})
+	@rm -vf $(addsuffix .sh,${SHELLSCRIPTS}) $(LIBRARY_SHELL)
 	@rm -vf ${PROGRAMS_PERL}
 	@rm -vf ${PROGRAMS_C}
 	@rm -vf $(addprefix  src/beeversion/, ${BEEVERSION_OBJECTS})
@@ -126,7 +126,7 @@ clean:
 
 install: install-core install-config
 
-install-core: build install-man install-hooks install-buildtypes
+install-core: build install-man install-hooks install-buildtypes install-beeshlib
 	@mkdir -p ${DESTDIR}${BINDIR}
 
 	@for i in ${PROGRAMS_SHELL} ; do \
@@ -146,10 +146,13 @@ install-core: build install-man install-hooks install-buildtypes
 	     install -m 0755 $${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/bee.d/$${i} ; \
 	 done
 
-	@for i in ${LIBRARY_SHELL} ; do \
-	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/$${i}.sh" ; \
-	     install -m 0755 $${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/$${i}.sh ; \
-	 done
+install-beeshlib: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/,${LIBRARY_SHELL})
+
+install-dir-beeshlib:
+	$(call quiet-installdir,0755,${DESTDIR}${LIBEXECDIR}/bee)
+
+${DESTDIR}${LIBEXECDIR}/bee/%: % install-dir-beeshlib
+	$(call quiet-install,0755,$<,$@)
 
 install-buildtypes: $(addsuffix .sh,$(addprefix ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/,${HELPER_BEESH_SHELL}))
 
