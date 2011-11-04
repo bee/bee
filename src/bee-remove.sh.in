@@ -114,7 +114,7 @@ function run_hooks() {
     local action=${1}
     local pkg=${2##*/}
 
-    for t in ${BEE_LIBEXECDIR}/bee/hooks.d/*.sh ; do
+    for t in ${BEE_LIBEXECDIR}/bee/hooks.d/* ; do
         ${t} ${action} ${pkg}
     done
 }

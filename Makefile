@@ -126,7 +126,7 @@ clean:
 
 install: install-core install-config
 
-install-core: build install-man
+install-core: build install-man install-hooks
 	@mkdir -p ${DESTDIR}${BINDIR}
 
 	@for i in ${PROGRAMS_SHELL} ; do \
@@ -157,11 +157,13 @@ install-core: build install-man
 	     install -m 0644 src/beesh.d/$${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/$${i}.sh ; \
 	 done
 
-	@mkdir -p ${DESTDIR}${LIBEXECDIR}/bee/hooks.d
-	@for i in ${HELPER_HOOKS_SHELL} ; do \
-	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/$${i}.sh" ; \
-	     install -m 0755 src/hooks.d/$${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/$${i}.sh ; \
-	 done
+install-hooks: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/,${HELPER_HOOKS_SHELL})
+
+install-dir-hookdir:
+	$(call quiet-installdir,0755,${DESTDIR}${LIBEXECDIR}/bee/hooks.d)
+
+${DESTDIR}${LIBEXECDIR}/bee/hooks.d/%: src/hooks.d/%.sh install-dir-hookdir
+	$(call quiet-install,0755,$<,$@)
 
 install-man: $(addprefix ${DESTDIR}${MANDIR}/man1/,${BEE_MANPAGES})
 
