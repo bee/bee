@@ -108,14 +108,10 @@ function config_load_local_config() {
     while [ ! -z "${path}" ] ; do
         local_config="${path}/${BEE_LOCAL_CONFIG_FILENAME}"
         if [ -r "${local_config}" ] ; then
-            break
+            . ${local_config}
         fi
         path=${path%/*}
     done
-
-    if [ ! -z "${local_config}" ] ; then
-        . ${local_config}
-    fi
 }
 
 function config_load_user_config() {
