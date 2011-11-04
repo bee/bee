@@ -34,20 +34,35 @@ DEFCONFDIR=${SYSCONFDIR}/default
 
 DESTDIR=
 
+quiet-command = $(if ${V},${1},$(if ${2},@echo ${2} && ${1}, @${1}))
+quiet-install = $(call quiet-command,install -m ${1} ${2} ${3},"INSTALL	${3}")
+quiet-installdir = $(call quiet-command,install -m ${1} -d ${2},"MKDIR	${2}")
+
+sed-rules = -e 's,@PREFIX@,${PREFIX},g' \
+	    -e 's,@EPREFIX@,${EPREFIX},g' \
+	    -e 's,@BINDIR@,${BINDIR},g' \
+	    -e 's,@SBINDIR@,${SBINDIR},g' \
+	    -e 's,@LIBDIR@,${LIBDIR},g' \
+	    -e 's,@SYSCONFDIR@,${SYSCONFDIR},g' \
+	    -e 's,@DEFCONFDIR@,${DEFCONFDIR},g' \
+	    -e 's,@LIBEXECDIR@,${LIBEXECDIR},g' \
+	    -e 's,@BEE_VERSION@,${BEE_VERSION},g' \
+	    -e 's,@DATADIR@,${DATADIR},g'
+
 PROGRAMS_C=beeversion beesep beecut beeuniq beesort
 PROGRAMS_SHELL=bee beesh
 PROGRAMS_PERL=beefind.pl
 
 HELPER_BEE_SHELL=bee-init bee-check bee-remove bee-install bee-list bee-query
 
-LIBRARY_SHELL=beelib.config
+LIBRARY_SHELL=beelib.config.sh
 
 HELPER_BEESH_SHELL=configure cmake autogen perl-module perl-module-makemaker make python-module
 
 HELPER_HOOKS_SHELL=update-mime-database glib-compile-schemas mkfontdir-mkfontscale gtk-update-icon-cache \
                    ldconfig update-desktop-database gdk-pixbuf-query-loaders mandb systemd-tmpfiles
 
-BEE_MANPAGES=bee bee-check bee-init bee-install bee-list bee-query bee-remove
+BEE_MANPAGES=bee.1 bee-check.1 bee-init.1 bee-install.1 bee-list.1 bee-query.1 bee-remove.1
 
 CONFIG_TEMPLATES=fallback
 CONFIG_FILES=skiplist beerc
@@ -58,7 +73,7 @@ all: build
 
 build: shellscripts perlscripts cprograms manpages
 
-SHELLSCRIPTS=$(PROGRAMS_SHELL) $(HELPER_BEE_SHELL) $(LIBRARY_SHELL)
+SHELLSCRIPTS=$(PROGRAMS_SHELL) $(HELPER_BEE_SHELL)
 
 BEEVERSION_OBJECTS=beeversion.o parse.o compare.o output.o
 BEESEP_OBJECTS=beesep.o
@@ -66,127 +81,108 @@ BEECUT_OBJECTS=beecut.o
 BEEUNIQ_OBJECTS=beeuniq.o
 BEESORT_OBJECTS=beesort.o compare.o output.o parse.o tree.o
 
-shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS))
+shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS)) $(LIBRARY_SHELL)
 perlscripts:  $(PROGRAMS_PERL)
 cprograms:    $(PROGRAMS_C)
-manpages:     $(addsuffix .1,$(BEE_MANPAGES))
+manpages:     ${BEE_MANPAGES}
 
-beesep: $(addprefix src/beesep/, ${BEESEP_OBJECTS})
-	@echo "linking $@ .."
-	@${CC} ${LDFLAGS} -o $@ $^
+beesep: $(addprefix src/, ${BEESEP_OBJECTS})
+	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
-beeversion: $(addprefix  src/beeversion/, ${BEEVERSION_OBJECTS})
-	@echo "linking $@ .."
-	@${CC} ${LDFLAGS} -o $@ $^
+beeversion: $(addprefix  src/, ${BEEVERSION_OBJECTS})
+	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
-beecut: $(addprefix src/beecut/, ${BEECUT_OBJECTS})
-	@echo "linking $@ .."
-	@${CC} ${LDFLAGS} -o $@ $^
+beecut: $(addprefix src/, ${BEECUT_OBJECTS})
+	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
-beeuniq: $(addprefix src/beeuniq/, ${BEEUNIQ_OBJECTS})
-	@echo "linking $@ .."
-	@${CC} ${LDFLAGS} -o $@ $^
+beeuniq: $(addprefix src/, ${BEEUNIQ_OBJECTS})
+	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
-beesort: $(addprefix src/beeversion/, ${BEESORT_OBJECTS})
-	@echo "linking $@ .."
-	@${CC} ${LDFLAGS} -o $@ $^
+beesort: $(addprefix src/, ${BEESORT_OBJECTS})
+	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 %.o: %.c
-	@echo "compiling $@ .."
-	@${CC} ${CFLAGS} -o $@ -c $^
+	$(call quiet-command,${CC} ${CFLAGS} -o $@ -c $^,"CC	$@")
 
 %.sh: src/%.sh.in
-	@echo "creating $@ .."
-	@sed \
-	    -e 's,@PREFIX@,${PREFIX},g' \
-	    -e 's,@EPREFIX@,${EPREFIX},g' \
-	    -e 's,@BINDIR@,${BINDIR},g' \
-	    -e 's,@SBINDIR@,${SBINDIR},g' \
-	    -e 's,@LIBDIR@,${LIBDIR},g' \
-	    -e 's,@SYSCONFDIR@,${SYSCONFDIR},g' \
-	    -e 's,@DEFCONFDIR@,${DEFCONFDIR},g' \
-	    -e 's,@LIBEXECDIR@,${LIBEXECDIR},g' \
-	    -e 's,@BEE_VERSION@,${BEE_VERSION},g' \
-	    -e 's,@DATADIR@,${DATADIR},g' \
-	    $< > $@
+	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
 
 %.pl: src/%.pl
-	@echo "creating $@ .."
-	@cp $< $@
+	$(call quiet-command,cp $< $@,"CP	$@")
 
-%.1: src/man.d/%.1
-	@echo "creating $@"
-	@sed \
-	    -e 's,@BEE_VERSION@,${BEE_VERSION},g' \
-	    $< > $@
+%.1: manpages/%.1.in
+	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
 
 clean:
-	@rm -vf $(addsuffix .sh,${SHELLSCRIPTS})
-	@rm -vf ${PROGRAMS_PERL}
-	@rm -vf ${PROGRAMS_C}
-	@rm -vf $(addprefix  src/beeversion/, ${BEEVERSION_OBJECTS})
-	@rm -vf $(addprefix  src/beesep/, ${BEESEP_OBJECTS})
-	@rm -vf $(addprefix  src/beecut/, ${BEECUT_OBJECTS})
-	@rm -vf $(addprefix  src/beeuniq/, ${BEEUNIQ_OBJECTS})
-	@rm -vf $(addprefix  src/beeversion/, ${BEESORT_OBJECTS})
-	@rm -vf ${addsuffix .1,${BEE_MANPAGES}}
+	$(call quiet-command,rm -f $(addsuffix .sh,${SHELLSCRIPTS}) $(LIBRARY_SHELL),"RM	<various>.sh")
+	$(call quiet-command,rm -f ${PROGRAMS_PERL},"RM	${PROGRAMS_PERL}")
+	$(call quiet-command,rm -f ${PROGRAMS_C},"RM	${PROGRAMS_C}")
+	$(call quiet-command,rm -f src/*.o,"RM	src/*.o")
+	$(call quiet-command,rm -f ${BEE_MANPAGES},"RM	${BEE_MANPAGES}")
 
 install: install-core install-config
 
-install-core: build
-	@mkdir -p ${DESTDIR}${BINDIR}
+install-core: build install-man install-hooks install-buildtypes install-beeshlib install-tools install-bin
 
-	@for i in ${PROGRAMS_SHELL} ; do \
-	     echo "installing ${DESTDIR}${BINDIR}/$${i}" ; \
-	     install -m 0755 $${i}.sh ${DESTDIR}${BINDIR}/$${i} ; \
-	 done
+install-bin: $(addprefix ${DESTDIR}${BINDIR}/,${PROGRAMS_PERL} ${PROGRAMS_C} ${PROGRAMS_SHELL})
 
-	@for i in ${PROGRAMS_PERL} ${PROGRAMS_C} ; do \
-	     echo "installing ${DESTDIR}${BINDIR}/$${i}" ; \
-	     install -m 0755 $${i} ${DESTDIR}${BINDIR}/$${i} ; \
-	 done
+install-dir-bindir:
+	$(call quiet-installdir,0755,${DESTDIR}${BINDIR})
 
-	@mkdir -p ${DESTDIR}${LIBEXECDIR}/bee/bee.d
+${DESTDIR}${BINDIR}/%: % install-dir-bindir
+	$(call quiet-install,0755,$<,$@)
 
-	@for i in ${HELPER_BEE_SHELL} ; do \
-	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/bee.d/$${i}" ; \
-	     install -m 0755 $${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/bee.d/$${i} ; \
-	 done
+${DESTDIR}${BINDIR}/%: %.sh install-dir-bindir
+	$(call quiet-install,0755,$<,$@)
 
-	@for i in ${LIBRARY_SHELL} ; do \
-	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/$${i}.sh" ; \
-	     install -m 0755 $${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/$${i}.sh ; \
-	 done
+install-tools: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/bee.d/,${HELPER_BEE_SHELL})
 
-	@mkdir -p ${DESTDIR}${LIBEXECDIR}/bee/beesh.d
-	@for i in ${HELPER_BEESH_SHELL} ; do \
-	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/$${i}.sh" ; \
-	     install -m 0644 src/beesh.d/$${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/$${i}.sh ; \
-	 done
+install-dir-tools:
+	$(call quiet-installdir,0755,${DESTDIR}${LIBEXECDIR}/bee/bee.d)
 
-	@mkdir -p ${DESTDIR}${LIBEXECDIR}/bee/hooks.d
-	@for i in ${HELPER_HOOKS_SHELL} ; do \
-	     echo "installing ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/$${i}.sh" ; \
-	     install -m 0755 src/hooks.d/$${i}.sh ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/$${i}.sh ; \
-	 done
+${DESTDIR}${LIBEXECDIR}/bee/bee.d/%: %.sh install-dir-tools
+	$(call quiet-install,0755,$<,$@)
 
-	@mkdir -p ${DESTDIR}${MANDIR}/man1
-	@for i in ${BEE_MANPAGES} ; do \
-	     echo "installing ${DESTDIR}${MANDIR}/man1/$${i}.1" ; \
-	     install -m 0644 $${i}.1 ${DESTDIR}${MANDIR}/man1/$${i}.1 ; \
-	 done
+install-beeshlib: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/,${LIBRARY_SHELL})
 
-install-config:
-	@mkdir -p ${DESTDIR}${DEFCONFDIR}/bee
+install-dir-beeshlib:
+	$(call quiet-installdir,0755,${DESTDIR}${LIBEXECDIR}/bee)
 
-	@for i in ${CONFIG_FILES} ; do \
-	     echo "installing ${DESTDIR}${DEFCONFDIR}/bee/$${i}" ; \
-	     install -m 0444 conf/$${i} ${DESTDIR}${DEFCONFDIR}/bee/$${i}; \
-	 done
+${DESTDIR}${LIBEXECDIR}/bee/%: % install-dir-beeshlib
+	$(call quiet-install,0755,$<,$@)
 
-	@mkdir -p ${DESTDIR}${DEFCONFDIR}/bee/templates
+install-buildtypes: $(addsuffix .sh,$(addprefix ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/,${HELPER_BEESH_SHELL}))
 
-	@for i in ${CONFIG_TEMPLATES} ; do \
-	     echo "installing ${DESTDIR}${DEFCONFDIR}/bee/templates/$${i}" ; \
-	     install -m 0444 conf/templates/$${i} ${DESTDIR}${DEFCONFDIR}/bee/templates/$${i} ; \
-	 done
+install-dir-buildtypes:
+	$(call quiet-installdir,0755,${DESTDIR}${LIBEXECDIR}/bee/beesh.d)
+
+${DESTDIR}${LIBEXECDIR}/bee/beesh.d/%.sh: buildtypes/%.sh install-dir-buildtypes
+	$(call quiet-install,0755,$<,$@)
+
+install-hooks: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/,${HELPER_HOOKS_SHELL})
+
+install-dir-hookdir:
+	$(call quiet-installdir,0755,${DESTDIR}${LIBEXECDIR}/bee/hooks.d)
+
+${DESTDIR}${LIBEXECDIR}/bee/hooks.d/%: hooks/%.sh install-dir-hookdir
+	$(call quiet-install,0755,$<,$@)
+
+install-man: $(addprefix ${DESTDIR}${MANDIR}/man1/,${BEE_MANPAGES})
+
+install-dir-mandir:
+	$(call quiet-installdir,0755,${DESTDIR}${MANDIR}/man1)
+
+${DESTDIR}${MANDIR}/man1/%.1: %.1 install-dir-mandir
+	$(call quiet-install,0644,$<,$@)
+
+install-dir-config:
+	$(call quiet-installdir,0755,${DESTDIR}${DEFCONFDIR}/bee/templates)
+
+install-config: install-config-defaults install-config-templates
+
+install-config-defaults: $(addprefix ${DESTDIR}${DEFCONFDIR}/bee/,${CONFIG_FILES})
+
+install-config-templates: $(addprefix ${DESTDIR}${DEFCONFDIR}/bee/templates/,${CONFIG_TEMPLATES})
+
+${DESTDIR}${DEFCONFDIR}/bee/%: conf/% install-dir-config
+	$(call quiet-install,0444,$<,$@)
