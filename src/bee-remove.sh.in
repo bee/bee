@@ -71,7 +71,7 @@ do_remove() {
         RELPKG=$(egrep "file=$s(|//.*)$" ${BEE_METADIR}/*/FILES)
         if [ 1 -eq $(echo $RELPKG | wc -w) ] ; then
             #check for directories
-            if [ -d "$f" ] ; then
+            if [ -d "$f" -a ! -h "$f" ] ; then
                 DIR="$f $DIR"
             else
                 ${NOOP:+echo} rm -vf $f
