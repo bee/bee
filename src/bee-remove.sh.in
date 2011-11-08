@@ -58,33 +58,22 @@ pkg_remove() {
 }
 
 do_remove() {
-    pkg=$1
+    pkg=${1}
 
-    FILES=$(@BINDIR@/beefind.pl --dump ${pkg}/FILES)
+    FILES=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-dep --remove --print ${pkg##*/})
+    if [ $? -ne 0 ] ; then
+        echo "removal of ${pkg} failed"
+        exit 1
+    fi
 
     [ "${NOOP}" != "yes" ] && run_hooks pre-remove ${pkg}
 
     # removing files
     for f in $FILES ; do
-        # test for other pkg
-        s=$(echo $f | sed -e "s,[\`|&^$.+?(){}],\\\&,g" -e "s,\[,\\\&,g" -e "s,\],\\\&,g")
-        RELPKG=$(egrep "file=$s(|//.*)$" ${BEE_METADIR}/*/FILES)
-        if [ 1 -eq $(echo $RELPKG | wc -w) ] ; then
-            #check for directories
-            if [ -d "$f" -a ! -h "$f" ] ; then
-                DIR="$f $DIR"
-            else
-                ${NOOP:+echo} rm -vf $f
-            fi
+        if [ -d "${f}" -a ! -h "$f" ] ; then
+            ${NOOP:+echo} rmdir -v ${f}
         else
-          echo "cannot remove $f .. is related to other pkgs"
-        fi
-    done
-
-    #removing directories
-    for d in $DIR ; do
-        if [ -z "$(ls $d)" ] ; then
-            ${NOOP:+echo} rmdir -v $d
+            ${NOOP:+echo} rm -fv ${f}
         fi
     done
 
@@ -92,11 +81,6 @@ do_remove() {
 
     if [ -r "${pkg}/META" ] ; then
         . ${pkg}/META
-    fi
-
-    #cleaning up meta directory
-    if [ -f "${pkg}/FILES" ] ; then
-        ${NOOP:+echo} rm -vfr ${pkg}
     fi
 
     # removing empty basedirs
@@ -107,6 +91,11 @@ do_remove() {
                 ${NOOP:+echo} rmdir ${dir}
             fi
         done
+    fi
+
+    #cleaning up meta directory
+    if [ -d "${pkg}" ] ; then
+        ${NOOP:+echo} rm -vfr ${pkg}
     fi
 }
 
