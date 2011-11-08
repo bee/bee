@@ -286,7 +286,10 @@ do_install() {
         ${BEE_LIBEXECDIR}/bee/bee.d/bee-check -d ${pkg} > ${BEE_METADIR}/${pkg}/DEPENDENCIES
     fi
 
-    [ "${OPT_NOOP}" != "yes" ] && run_hooks post-install ${pkg}
+    if [ "${OPT_NOOP}" != "yes" ]; then
+        run_hooks post-install ${pkg}
+        ${BEE_LIBEXECDIR}/bee/bee.d/bee-dep --update ${pkg}
+    fi
 
     if [ "${OPT_UPGRADE}" != "yes" ] ; then
         return
