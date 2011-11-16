@@ -282,9 +282,7 @@ do_install() {
         --transform="s,^DEPENDENCIES$,${BEE_METADIR}/${pkg}/DEPENDENCIES," \
         --show-transformed-names
 
-    if [ ! -f "${BEE_METADIR}/${pkg}/DEPENDENCIES" ] ; then
-        ${BEE_LIBEXECDIR}/bee/bee.d/bee-check -d ${pkg} > ${BEE_METADIR}/${pkg}/DEPENDENCIES
-    fi
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-check -d ${pkg} > ${BEE_METADIR}/${pkg}/DEPENDENCIES
 
     if [ "${OPT_NOOP}" != "yes" ]; then
         run_hooks post-install ${pkg}
