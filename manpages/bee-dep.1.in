@@ -1,0 +1,148 @@
+.de Vb
+.ft CW
+.nf
+..
+.de Ve
+.ft R
+
+.fi
+..
+.TH "bee\-dep" "1" "2011-11-10" "bee @BEE_VERSION@" "bee package management "
+.SH NAME
+
+.PP
+bee\-dep \- bee dependency tool
+.PP
+.SH SYNOPSIS
+
+\fBbee dep\fP
+[\fBoptions\fP]
+[\fIpkgname\fP]
+.PP
+.SH DESCRIPTION
+
+\fBbee\-dep\fP
+is used to read the DEPENDENCY
+file of every installed package and then be able to tell \fBbee\-remove\fP
+which files can be deleted.
+.PP
+As part of the bee package management \fBbee\-dep\fP
+is invoked by the wrapper tool \fBbee\fP(1).
+.PP
+.SH OPTIONS
+
+.PP
+\fB\-\-rebuild\fP
+.RS
+Rebuild the cache. Therefore the old cache is deleted and then updated with the information of the DEPENDENCY file of each installed package.
+.RS
+.PP
+.RE
+.RE
+.PP
+\fB\-\-update\fP
+\fIpkgname\fP
+.RS
+Update the cache for a specific package.
+.PP
+.RE
+.RE
+.PP
+\fB\-\-remove\fP
+\fIpkgname\fP
+.RS
+Remove a package from the cache.
+.br
+This option can be combined with the option \fB\-\-print\-removable\fP\&.
+.PP
+.RE
+.RE
+.PP
+\fB\-\-print\-removable\fP
+\fIpkgname\fP
+.RS
+Print all files/directories which can be deleted from the package.
+.br
+Combined with the \fB\-\-remove\fP
+option: Print all files/directories which were deleted from the cache.
+.PP
+.RE
+.RE
+.PP
+.SH FILES
+
+.B /etc/bee/beerc
+.br
+.B \fB${HOME}\fP/.beerc
+.br
+.RS
+The main config files. Use these to change \fBbee\-dep\fP\&'s
+environment variables.
+.RE
+.RE
+.PP
+.SH ENVIRONMENT
+
+\fB${BEE_METADIR}\fP
+.br
+.RS
+Directory searched for installed bee packages
+.br
+.PP
+root\-user: /usr/share/bee
+.br
+other:     ${HOME}/.local/share/beemeta
+.br
+.RE
+.RE
+.PP
+\fB${BEE_CACHEDIR}\fP
+.br
+.RS
+Directory where to save the cache file
+.ul
+index.db
+
+.br
+root\-user: /var/cache/bee
+.br
+other:     ${HOME}/.cache/bee
+.br
+.RE
+.RE
+.PP
+.SH DIAGNOSTICS
+
+Following error message may be seen:
+.PP
+\fBBEE\-ERROR: please call bee\-init from bee ..\fP
+.br
+.RS
+\fBbee\-dep\fP
+must be run by the wrapper \fBbee\fP\&.
+Just call \fBbee dep\fP
+[\fBoptions\fP]
+[\fIpkgname\fP]
+.RE
+.RE
+.PP
+.SH AUTHORS
+
+Matthias Ruester <\fBruester@molgen.mpg.de\fP>
+.br
+Lucas Schwass <\fBschwass@molgen.mpg.de\fP>
+.br
+Marius Tolzmann <\fBtolzmann@molgen.mpg.de\fP>
+.br
+Tobias Dreyer <\fBdreyer@molgen.mpg.de\fP>
+.PP
+.SH SEE ALSO
+
+\fBbee\fP(1)
+\fBbee\-init\fP(1)
+\fBbee\-check\fP(1)
+\fBbee\-install\fP(1)
+\fBbee\-list\fP(1)
+\fBbee\-query\fP(1)
+\fBbee\-remove\fP(1)
+.\" NOTE: This file is generated, DO NOT EDIT.

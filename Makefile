@@ -54,6 +54,7 @@ PROGRAMS_SHELL=bee beesh
 PROGRAMS_PERL=beefind.pl
 
 HELPER_BEE_SHELL=bee-init bee-check bee-remove bee-install bee-list bee-query
+HELPER_BEE_C=bee-dep
 
 LIBRARY_SHELL=beelib.config.sh
 
@@ -62,7 +63,7 @@ HELPER_BEESH_SHELL=configure cmake autogen perl-module perl-module-makemaker mak
 HELPER_HOOKS_SHELL=update-mime-database glib-compile-schemas mkfontdir-mkfontscale gtk-update-icon-cache \
                    ldconfig update-desktop-database gdk-pixbuf-query-loaders mandb systemd-tmpfiles
 
-BEE_MANPAGES=bee.1 bee-check.1 bee-init.1 bee-install.1 bee-list.1 bee-query.1 bee-remove.1
+BEE_MANPAGES=bee.1 bee-check.1 bee-init.1 bee-install.1 bee-list.1 bee-query.1 bee-remove.1 bee-dep.1
 
 CONFIG_TEMPLATES=fallback
 CONFIG_FILES=skiplist beerc
@@ -80,10 +81,11 @@ BEESEP_OBJECTS=beesep.o
 BEECUT_OBJECTS=beecut.o
 BEEUNIQ_OBJECTS=beeuniq.o
 BEESORT_OBJECTS=beesort.o compare.o output.o parse.o tree.o
+BEEDEP_OBJECTS=bee-dep.o graph.o hash.o beedep_tree.o node.o
 
 shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS)) $(LIBRARY_SHELL)
 perlscripts:  $(PROGRAMS_PERL)
-cprograms:    $(PROGRAMS_C)
+cprograms:    $(PROGRAMS_C) ${HELPER_BEE_C}
 manpages:     ${BEE_MANPAGES}
 
 beesep: $(addprefix src/, ${BEESEP_OBJECTS})
@@ -99,6 +101,9 @@ beeuniq: $(addprefix src/, ${BEEUNIQ_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 beesort: $(addprefix src/, ${BEESORT_OBJECTS})
+	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
+
+bee-dep: $(addprefix src/, ${BEEDEP_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 %.o: %.c
@@ -117,6 +122,7 @@ clean:
 	$(call quiet-command,rm -f $(addsuffix .sh,${SHELLSCRIPTS}) $(LIBRARY_SHELL),"RM	<various>.sh")
 	$(call quiet-command,rm -f ${PROGRAMS_PERL},"RM	${PROGRAMS_PERL}")
 	$(call quiet-command,rm -f ${PROGRAMS_C},"RM	${PROGRAMS_C}")
+	$(call quiet-command,rm -f ${HELPER_BEE_C},"RM	${HELPER_BEE_C}")
 	$(call quiet-command,rm -f src/*.o,"RM	src/*.o")
 	$(call quiet-command,rm -f ${BEE_MANPAGES},"RM	${BEE_MANPAGES}")
 
@@ -135,12 +141,15 @@ ${DESTDIR}${BINDIR}/%: % install-dir-bindir
 ${DESTDIR}${BINDIR}/%: %.sh install-dir-bindir
 	$(call quiet-install,0755,$<,$@)
 
-install-tools: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/bee.d/,${HELPER_BEE_SHELL})
+install-tools: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/bee.d/,${HELPER_BEE_SHELL} ${HELPER_BEE_C})
 
 install-dir-tools:
 	$(call quiet-installdir,0755,${DESTDIR}${LIBEXECDIR}/bee/bee.d)
 
 ${DESTDIR}${LIBEXECDIR}/bee/bee.d/%: %.sh install-dir-tools
+	$(call quiet-install,0755,$<,$@)
+
+${DESTDIR}${LIBEXECDIR}/bee/bee.d/%: % install-dir-tools
 	$(call quiet-install,0755,$<,$@)
 
 install-beeshlib: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/,${LIBRARY_SHELL})
