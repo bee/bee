@@ -4,7 +4,7 @@ bee\-list \- List installed and available bee packages
 .SH "SYNOPSIS"
 .SY "bee list"
 .OP \-ahi
-.OP \-\-exact
+.OP \-\-by\-pkgfullname
 .I pattern
 .YS
 .SH "DESCRIPTION"
@@ -24,7 +24,7 @@ is invoked by the wrapper tool
 List all bee packages available for installation that match
 .IR pattern .
 .TP
-.B \-\-exact
+.B \-\-by\-pkgfullname
 Use this flag, if you want that
 .I pattern
 has to match the full packagename.

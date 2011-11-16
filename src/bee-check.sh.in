@@ -56,7 +56,7 @@ pkg_check_all() {
 ##
 ##
 pkg_check_deps() {
-    installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --exact ${1})
+    installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --by-pkgfullname ${1})
 
     if [ ! "${installed}" -a $OPT_F -gt 0 ] ; then
         installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed "${1}")
@@ -74,7 +74,7 @@ pkg_check_deps() {
 ##
 ##
 pkg_check() {
-    installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --exact ${1})
+    installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --by-pkgfullname ${1})
 
     if [ ! "${installed}" -a $OPT_F -gt 0 ] ; then
         installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed "${1}")

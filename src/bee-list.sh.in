@@ -131,6 +131,7 @@ options=$(getopt -n bee-list \
                  -o aih \
                  --long available \
                  --long installed \
+                 --long by-pkgfullname \
                  --long exact \
                  --long help \
                  --long debug \
@@ -160,7 +161,7 @@ while true ; do
             shift
             filter="installed"
             ;;
-        --exact)
+        --by-pkgfullname|--exact)
             shift
             OPT_EXACT="yes"
             ;;
@@ -178,7 +179,7 @@ done
 
 if [ "${OPT_EXACT}" = "yes" ] ; then
     if [ ! -z ${2} ] ; then
-        echo >&2 "argument error: --exact only takes one package at a time .."
+        echo >&2 "argument error: --by-pkgfullname only takes one package at a time .."
         exit 1
     fi
 
