@@ -248,6 +248,14 @@ int graph_insert_nodes(struct hash *hash, char *filename)
         return EXIT_FAILURE;
     }
 
+    if(line_cnt == 0) {
+       fprintf(stderr, "bee-dep: error: file '%s' is empty\n", filename);
+       /* WTF: why can't we return 0 here for errors ??? */
+       return EXIT_FAILURE;
+    }
+
+    /* we dont't want to exit on success ??? or do we? i don't get it! */
+    /* but works for me now.. 8) */
     return EXIT_SUCCESS;
 }
 
