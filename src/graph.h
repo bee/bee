@@ -37,7 +37,7 @@
 
 #define IS_FILE(a)       ((a)[0] == '/')
 #define IS_DIR(a)        (!strcmp((a)->type, DIR))
-#define IS_WHITESPACE(a) (a == ' ' || a == '\t' || a == '\n' || a == '\r')
+#define IS_WHITESPACE(a) ((a) == ' ' || (a) == '\t' || (a) == '\n' || (a) == '\r')
 #define IS_PKG(a)        (!strcmp((a)->type, PACKAGE))
 
 #include "hash.h"

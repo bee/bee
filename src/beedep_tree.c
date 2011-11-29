@@ -31,7 +31,7 @@
 #include "beedep_tree.h"
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#define ABS(a) (((a) < 0) ? (-a) : (a))
+#define ABS(a) (((a) < 0) ? (-(a)) : (a))
 
 struct tree *tree_new(void)
 {
