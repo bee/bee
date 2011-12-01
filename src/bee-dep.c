@@ -140,12 +140,28 @@ void get_bee_variables(char **bee_cachedir, char **bee_metadir)
     }
 }
 
+static FILE *open_and_lock(char *filename, char *mode)
+{
+    FILE *f;
+
+    if ((f = fopen(filename, mode)) == NULL) {
+        perror("bee-dep: fopen");
+        exit(EXIT_FAILURE);
+    }
+
+    if (flock(fileno(f), LOCK_EX) == -1) {
+        perror("bee-dep: flock");
+        exit(EXIT_FAILURE);
+    }
+
+    return f;
+}
+
 int main(int argc, char *argv[])
 {
     int c, help, rebuild, update, remove, print, options;
     char found;
     char cachefile[PATH_MAX + 1], path[PATH_MAX + 1], tmp[PATH_MAX + 1];
-    char mode[] = "r";
     char *bee_metadir, *bee_cachedir, *dir, *pkgname;
     struct hash *graph;
     struct stat st;
@@ -235,26 +251,13 @@ int main(int argc, char *argv[])
 
     found = (stat(cachefile, &st) != -1 && S_ISREG(st.st_mode));
 
-    if (found && !rebuild)
-        mode[0] = 'r';
-    else
-        mode[0] = 'w';
-
-    if ((cache = fopen(cachefile, mode)) == NULL) {
-        perror("bee-dep: fopen");
-        exit(EXIT_FAILURE);
-    }
-
-    if (flock(fileno(cache), LOCK_EX) == -1) {
-        perror("bee-dep: flock");
-        exit(EXIT_FAILURE);
-    }
-
     graph = hash_new();
 
     if (rebuild) {
         if (init_cache(graph, bee_metadir, tmp) == EXIT_FAILURE)
-            cleanup_and_exit(graph, cache, EXIT_FAILURE);
+            cleanup_and_exit(graph, NULL, EXIT_FAILURE);
+
+        cache = open_and_lock(cachefile, "w");
 
         if (rename(tmp, cachefile) == -1) {
             perror("bee-dep: rename");
@@ -265,11 +268,15 @@ int main(int argc, char *argv[])
     }
 
     if (found) {
+        cache = open_and_lock(cachefile, "r");
+
         if (load_cache(graph, cache) == EXIT_FAILURE)
             cleanup_and_exit(graph, cache, EXIT_FAILURE);
     } else {
         if (init_cache(graph, bee_metadir, tmp) == EXIT_FAILURE)
-            cleanup_and_exit(graph, cache, EXIT_FAILURE);
+            cleanup_and_exit(graph, NULL, EXIT_FAILURE);
+
+        cache = open_and_lock(cachefile, "w");
 
         if (rename(tmp, cachefile) == -1) {
             perror("bee-dep: rename");
