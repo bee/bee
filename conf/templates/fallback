@@ -10,6 +10,8 @@ PATCHURL[0]=""
 
 # EXCLUDE=""
 
+# build_in_sourcedir
+
 @DEFAULT_PREFIX_VARS@
 
 #mee_extract() {
