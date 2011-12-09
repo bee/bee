@@ -97,7 +97,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
 
     if ((file = fopen(filename, "r")) == NULL) {
         perror("bee-dep: graph_insert_nodes: fopen");
-        return EXIT_FAILURE;
+        return 1;
     }
 
     line_cnt = type_flag = u = 0;
@@ -134,7 +134,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                 fprintf(stderr,
                         "bee-dep: %s: error at line %d: missing bracket\n",
                         filename, line_cnt);
-                return EXIT_FAILURE;
+                return 1;
             }
 
             *p = '\0';
@@ -143,7 +143,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                 fprintf(stderr,
                         "bee-dep: %s: error at line %d: empty node name\n",
                         filename, line_cnt);
-                return EXIT_FAILURE;
+                return 1;
             }
 
             if (IS_FILE(s)) {
@@ -152,7 +152,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                             "bee-dep: %s: error at line %d: "
                             "dont know to which package"
                             "\"%s\" belongs to\n", filename, line_cnt, s);
-                    return EXIT_FAILURE;
+                    return 1;
                 }
 
                 sprintf(nodename, "%s%s", pkgname, s);
@@ -189,7 +189,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
             fprintf(stderr,
                     "bee-dep: %s: error at line %d: missing value "
                     "for property \"%s\"\n", filename, line_cnt, prop);
-            return EXIT_FAILURE;
+            return 1;
         }
 
         memset(value, '\0', LINE_MAX);
@@ -201,7 +201,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                         "bee-dep: %s: error at line %d: "
                         "ambiguous type \"%s\"\n",
                         filename, line_cnt, value);
-                return EXIT_FAILURE;
+                return 1;
             }
 
             node_set_type(n, value);
@@ -248,21 +248,19 @@ int graph_insert_nodes(struct hash *hash, char *filename)
 
     if (fclose(file) == EOF) {
         perror("bee-dep: graph_insert_nodes: fclose");
-        return EXIT_FAILURE;
+        return 1;
     }
 
-    if(line_cnt == 0) {
-       fprintf(stderr, "bee-dep: error: file '%s' is empty\n", filename);
-       /* WTF: why can't we return 0 here for errors ??? */
-       return EXIT_FAILURE;
+    if (line_cnt == 0) {
+        fprintf(stderr, "bee-dep: error: file '%s' is empty\n", filename);
+        return 1;
     }
 
-    /* we dont't want to exit on success ??? or do we? i don't get it! */
-    /* but works for me now.. 8) */
-    return EXIT_SUCCESS;
+    return 0;
 }
 
-void search_dependencies(struct hash *hash, struct node *n, struct tree *d)
+static void search_dependencies(struct hash *hash, struct node *n,
+                                struct tree *d)
 {
     struct tree_node *t;
     char *pkgname;
@@ -270,10 +268,13 @@ void search_dependencies(struct hash *hash, struct node *n, struct tree *d)
     t = tree_first(n->neededby->root);
 
     while (t) {
-        pkgname = get_pkgname(t->n->name);
-        if (is_virtual_file(t->n->name))
-            tree_insert(d, hash_search(hash, pkgname));
-        free(pkgname);
+        if (is_virtual_file(t->n->name)) {
+            pkgname = get_pkgname(t->n->name);
+            if (!tree_search_node(d, pkgname))
+                tree_insert(d, hash_search(hash, pkgname));
+            free(pkgname);
+        }
+
         t = tree_next(t);
     }
 
@@ -285,25 +286,10 @@ void search_dependencies(struct hash *hash, struct node *n, struct tree *d)
     }
 }
 
-void print_dependencies(struct hash *hash, char *depend)
+static int print_dependencies(struct hash *hash, struct node *n)
 {
-    struct node *n;
     struct tree *t;
     struct tree_node *e;
-
-    if ((n = hash_search(hash, depend)) == NULL) {
-        fprintf(stderr,
-                "bee-dep: print_dependencies: cannot find \"%s\"\n",
-                depend);
-        return;
-    }
-
-    if (strcmp(n->type, PACKAGE)) {
-        fprintf(stderr,
-                "bee-dep: print_dependencies: \"%s\": no such package\n",
-                depend);
-        return;
-    }
 
     t = tree_new();
 
@@ -311,17 +297,16 @@ void print_dependencies(struct hash *hash, char *depend)
 
     e = tree_first(t->root);
 
-    if (!e)
-        puts("none");
-
     while (e) {
-        if (strcmp(depend, e->n->name) != 0)
+        if (strcmp(n->name, e->n->name) != 0)
             puts(e->n->name);
 
         e = tree_next(e);
     }
 
     tree_free(t);
+
+    return 0;
 }
 
 void add_all_neededby(struct hash *hash, struct node *n, struct tree *a)
@@ -449,14 +434,14 @@ int print_removable(struct hash *hash, char *remove)
         fprintf(stderr,
                 "bee-dep: print_removable: cannot find \"%s\"\n",
                 remove);
-        return EXIT_FAILURE;
+        return 1;
     }
 
     if (!IS_PKG(n)) {
         fprintf(stderr,
                 "bee-dep: print_removable: \"%s\": no such package\n",
                 remove);
-        return EXIT_FAILURE;
+        return 1;
     }
 
     t = tree_new();
@@ -468,7 +453,7 @@ int print_removable(struct hash *hash, char *remove)
     if ((dirs = calloc(cnt, sizeof(*dirs))) == NULL
         || (files = calloc(cnt, sizeof(*files))) == NULL) {
         perror("bee-dep: print_removable: calloc");
-        return EXIT_FAILURE;
+        return 1;
     }
 
     e = tree_first(t->root);
@@ -495,7 +480,428 @@ int print_removable(struct hash *hash, char *remove)
     free(files);
     tree_free(t);
 
-    return EXIT_SUCCESS;
+    return 0;
+}
+
+int count_removable(struct hash *hash, char *remove)
+{
+    struct node *n;
+    struct tree *t;
+    int c;
+
+    if ((n = hash_search(hash, remove)) == NULL) {
+        fprintf(stderr,
+                "bee-dep: print_removable: cannot find \"%s\"\n",
+                remove);
+        return -1;
+    }
+
+    if (!IS_PKG(n)) {
+        fprintf(stderr,
+                "bee-dep: print_removable: \"%s\": no such package\n",
+                remove);
+        return -1;
+    }
+
+    t = tree_new();
+
+    search_removable(hash, n, t, remove);
+
+    c = tree_count(t);
+
+    tree_free(t);
+
+    return c;
+}
+
+static void list_all_files(struct node *n)
+{
+    struct tree_node *t;
+
+    t = tree_first(n->provide->root);
+
+    while (t) {
+        if (IS_FILE(t->n->name))
+            puts(t->n->name);
+
+        list_all_files(t->n);
+
+        t = tree_next(t);
+    }
+}
+
+static void count_all_files(struct node *n, int *count)
+{
+    struct tree_node *t;
+
+    t = tree_first(n->provide->root);
+
+    while (t) {
+        if (IS_FILE(t->n->name))
+            (*count)++;
+
+        list_all_files(t->n);
+
+        t = tree_next(t);
+    }
+}
+
+int list_files(struct hash *hash, char *pkgname)
+{
+    struct node *n;
+
+    if ((n = hash_search(hash, pkgname)) == NULL) {
+        fprintf(stderr,
+                "bee-dep: list_files: cannot find \"%s\"\n",
+                pkgname);
+        return 1;
+    }
+
+    if (!IS_PKG(n)) {
+        fprintf(stderr,
+                "bee-dep: list_files: \"%s\": no such package\n",
+                pkgname);
+        return 1;
+    }
+
+    list_all_files(n);
+
+    return 0;
+}
+
+int count_files(struct hash *hash, char *pkgname)
+{
+    struct node *n;
+    int c;
+
+    if ((n = hash_search(hash, pkgname)) == NULL) {
+        fprintf(stderr,
+                "bee-dep: count_files: cannot find \"%s\"\n",
+                pkgname);
+        return -1;
+    }
+
+    if (!IS_PKG(n)) {
+        fprintf(stderr,
+                "bee-dep: count_files: \"%s\": no such package\n",
+                pkgname);
+        return -1;
+    }
+
+    c = 0;
+    count_all_files(n, &c);
+
+    return c;
+}
+
+static void get_all_providers(struct node *n, struct tree *all)
+{
+    struct tree_node *t;
+
+    t = tree_first(n->providedby->root);
+
+    while (t) {
+        if (IS_PKG(t->n) && !tree_search_node(all, t->n->name))
+            tree_insert(all, node_new(t->n->name, ""));
+
+        get_all_providers(t->n, all);
+
+        t = tree_next(t);
+    }
+}
+
+int print_providers(struct hash *hash, char *name)
+{
+    struct node *n;
+    struct tree_node *t;
+    struct tree *all;
+
+    if ((n = hash_search(hash, name)) == NULL) {
+        fprintf(stderr,
+                "bee-dep: print_providers: cannot find \"%s\"\n",
+                name);
+        return 1;
+    }
+
+    if (IS_PKG(n)) {
+        fprintf(stderr,
+                "bee-dep: print_providers: \"%s\" is a package\n",
+                name);
+        return 1;
+    }
+
+    all = tree_new();
+
+    get_all_providers(n, all);
+
+    t = tree_first(all->root);
+
+    while (t) {
+        puts(t->n->name);
+        t = tree_next(t);
+    }
+
+    tree_free_all_nodes(all);
+    tree_free(all);
+
+    return 0;
+}
+
+int count_providers(struct hash *hash, char *name)
+{
+    int count;
+    struct node *n;
+    struct tree *all;
+
+    count = 0;
+
+    if ((n = hash_search(hash, name)) == NULL) {
+        fprintf(stderr,
+                "bee-dep: count_providers: cannot find \"%s\"\n",
+                name);
+        return -1;
+    }
+
+    if (IS_PKG(n)) {
+        fprintf(stderr,
+                "bee-dep: count_providers: \"%s\" is a package\n",
+                name);
+        return -1;
+    }
+
+    all = tree_new();
+    get_all_providers(n, all);
+
+    count = tree_count(all);
+
+    tree_free_all_nodes(all);
+    tree_free(all);
+
+    return count;
+}
+
+int get_virtual_files(struct node *n, char *name, struct tree *all)
+{
+    struct tree_node *t;
+
+    t = tree_first(n->providedby->root);
+
+    while (t) {
+        if (!strcmp(name, get_filename(t->n->name))
+            && !tree_search_node(all, t->n->name))
+            tree_insert(all, t->n);
+
+        t = tree_next(t);
+    }
+
+    return tree_count(all);
+}
+
+static void search_requirements(struct hash *hash, struct node *n,
+                                struct tree *d)
+{
+    struct tree_node *t, *u;
+    struct tree *providers;
+
+    t = tree_first(n->need->root);
+
+    while (t) {
+        providers = tree_new();
+
+        get_all_providers(t->n, providers);
+
+        u = tree_first(providers->root);
+
+        while (u) {
+            if (!tree_search_node(d, u->n->name))
+                tree_insert(d, hash_search(hash, u->n->name));
+
+            u = tree_next(u);
+        }
+
+        tree_free_all_nodes(providers);
+        tree_free(providers);
+
+        t = tree_next(t);
+    }
+
+    t = tree_first(n->provide->root);
+
+    while (t) {
+        search_requirements(hash, t->n, d);
+        t = tree_next(t);
+    }
+}
+
+static int print_requirements(struct hash *hash, struct node *n)
+{
+    struct tree *t;
+    struct tree_node *e;
+
+    t = tree_new();
+
+    search_requirements(hash, n, t);
+
+    e = tree_first(t->root);
+
+    while (e) {
+        if (strcmp(n->name, e->n->name) != 0)
+            puts(e->n->name);
+
+        e = tree_next(e);
+    }
+
+    tree_free(t);
+
+    return 0;
+}
+
+int print_needs(struct hash *hash, char *name)
+{
+    struct tree_node *t, *v;
+    struct node *n;
+    struct tree *all, *vf;
+    char *pkgname;
+    int count;
+    char p;
+
+    if ((n = hash_search(hash, name)) == NULL) {
+        fprintf(stderr,
+                "bee-dep: print_needs: cannot find \"%s\"\n",
+                name);
+        return 1;
+    }
+
+    if (IS_PKG(n))
+        return print_requirements(hash, n);
+
+    vf    = tree_new();
+    count = 1;
+
+    if (is_virtual_file(n->name))
+        tree_insert(vf, n);
+    else
+        count = get_virtual_files(n, name, vf);
+
+    if (!count) {
+        fprintf(stderr, "bee-dep: could not get virtual file for \"%s\"\n",
+                name);
+        tree_free(vf);
+        return 1;
+    }
+
+    v = tree_first(vf->root);
+
+    while (v) {
+        all = tree_new();
+
+        t = tree_first(v->n->need->root);
+
+        while (t) {
+            get_all_providers(t->n, all);
+            t = tree_next(t);
+        }
+
+        t = tree_first(all->root);
+        p = (t && count > 1);
+
+        if (p) {
+            pkgname = get_pkgname(v->n->name);
+            printf("%s:\n", pkgname);
+            free(pkgname);
+        }
+
+        while (t) {
+            puts(t->n->name);
+            t = tree_next(t);
+        }
+
+        tree_free_all_nodes(all);
+        tree_free(all);
+
+        v = tree_next(v);
+
+        if (v && p)
+            puts("");
+    }
+
+    tree_free(vf);
+
+    return 0;
+}
+
+int print_neededby(struct hash *hash, char *name)
+{
+    struct node *n;
+    struct tree_node *t;
+    struct tree *all;
+
+    if ((n = hash_search(hash, name)) == NULL) {
+        fprintf(stderr,
+                "bee-dep: print_needs: cannot find \"%s\"\n",
+                name);
+        return 1;
+    }
+
+    if (IS_PKG(n))
+        return print_dependencies(hash, n);
+
+    all = tree_new();
+
+    t = tree_first(n->neededby->root);
+
+    while (t) {
+        get_all_providers(t->n, all);
+        t = tree_next(t);
+    }
+
+    t = tree_first(all->root);
+
+    while (t) {
+        puts(t->n->name);
+        t = tree_next(t);
+    }
+
+    tree_free_all_nodes(all);
+    tree_free(all);
+
+    return 0;
+}
+
+void list_packages(struct hash *hash)
+{
+    int i;
+    struct tree_node *t;
+
+    for (i = 0; i < TBLSIZE; i++) {
+        t = tree_first(hash->tbl[i]->root);
+
+        while (t) {
+            if (IS_PKG(t->n))
+                puts(t->n->name);
+            t = tree_next(t);
+        }
+    }
+}
+
+int count_packages(struct hash *hash)
+{
+    int i, c;
+    struct tree_node *t;
+
+    c = 0;
+
+    for (i = 0; i < TBLSIZE; i++) {
+        t = tree_first(hash->tbl[i]->root);
+
+        while (t) {
+            if (IS_PKG(t->n))
+                c++;
+            t = tree_next(t);
+        }
+    }
+
+    return c;
 }
 
 int save_cache(struct hash *hash, char *path)
@@ -506,7 +912,7 @@ int save_cache(struct hash *hash, char *path)
 
     if ((file = fopen(path, "w")) == NULL) {
         perror("bee-dep: save_cache: fopen");
-        return EXIT_FAILURE;
+        return 1;
     }
 
     for (i = 0; i < TBLSIZE; i++) {
@@ -552,13 +958,13 @@ int save_cache(struct hash *hash, char *path)
 
     if (fclose(file) == EOF) {
         perror("bee-dep: save_cache: fclose");
-        return EXIT_FAILURE;
+        return 1;
     }
 
-    return EXIT_SUCCESS;
+    return 0;
 }
 
-int load_cache(struct hash *hash, FILE *file)
+struct hash *load_cache(char *filename)
 {
     char line[LINE_MAX],
          a[NODENAME_MAX],
@@ -566,8 +972,16 @@ int load_cache(struct hash *hash, FILE *file)
     char c;
     struct node *k, *l;
     int line_cnt;
+    FILE *file;
+    struct hash *hash;
 
-    rewind(file);
+    if ((file = fopen(filename, "r")) == NULL) {
+        perror("bee-dep: load_cache: fopen");
+        return NULL;
+    }
+
+    hash = hash_new();
+
     line_cnt = 0;
 
     while (fgets(line, LINE_MAX, file)) {
@@ -579,7 +993,8 @@ int load_cache(struct hash *hash, FILE *file)
         if (sscanf(line, "%s %s", a, b) == EOF) {
             fprintf(stderr, "beedep: load_cache: "
                             "cache file is broken (line %d)\n", line_cnt);
-            return EXIT_FAILURE;
+            hash_free(hash);
+            return NULL;
         }
 
         hash_insert(hash, node_new(a, b));
@@ -591,7 +1006,8 @@ int load_cache(struct hash *hash, FILE *file)
         if (sscanf(line, "%s %s %c", a, b, &c) == EOF) {
             fprintf(stderr, "beedep: load_cache: "
                             "cache file is broken (line %d)\n", line_cnt);
-            return EXIT_FAILURE;
+            hash_free(hash);
+            return NULL;
         }
 
         k = hash_search(hash, a);
@@ -600,7 +1016,8 @@ int load_cache(struct hash *hash, FILE *file)
         if (!k || !l) {
             fprintf(stderr, "beedep: load_cache: "
                             "cache file is broken (line %d)\n", line_cnt);
-            return EXIT_FAILURE;
+            hash_free(hash);
+            return NULL;
         }
 
         if (c == 'n') {
@@ -612,25 +1029,18 @@ int load_cache(struct hash *hash, FILE *file)
         } else {
             fprintf(stderr, "beedep: load_cache: "
                             "cache file is broken (line %d)\n", line_cnt);
-            return EXIT_FAILURE;
+            hash_free(hash);
+            return NULL;
         }
     }
 
-    return EXIT_SUCCESS;
-}
-
-unsigned long count_providedby(struct hash *hash, char *count)
-{
-    struct node *n;
-
-    if ((n = hash_search(hash, count)) == NULL) {
-        fprintf(stderr,
-                "bee-dep: count_providedby: cannot find \"%s\"\n",
-                count);
-        exit(EXIT_FAILURE);
+    if (fclose(file) == EOF) {
+        perror("bee-dep: load_cache: fclose");
+        hash_free(hash);
+        return NULL;
     }
 
-    return tree_count(n->providedby);
+    return hash;
 }
 
 void remove_all(struct hash *hash, struct node *n)
@@ -674,17 +1084,66 @@ int remove_package(struct hash *hash, char *pkgname)
         fprintf(stderr,
                 "bee-dep: remove_package: cannot find \"%s\"\n",
                 pkgname);
-        return EXIT_FAILURE;
+        return 1;
     }
 
     if (!IS_PKG(n)) {
         fprintf(stderr,
                 "bee-dep: remove_package: \"%s\": no such package\n",
                 pkgname);
-        return EXIT_FAILURE;
+        return 1;
     }
 
     remove_all(hash, n);
 
-    return EXIT_SUCCESS;
+    return 0;
+}
+
+int print_conflicts(struct hash *hash)
+{
+    int i;
+    struct tree_node *t, *s;
+    char *pkgname;
+
+    for (i = 0; i < TBLSIZE; i++) {
+        t = tree_first(hash->tbl[i]->root);
+
+        while (t) {
+            if (!IS_FILE(t->n->name) || IS_DIR(t->n)
+                || tree_count(t->n->providedby) < 2) {
+                t = tree_next(t);
+                continue;
+            }
+
+            printf("%s: ", t->n->name);
+
+            s = tree_first(t->n->providedby->root);
+
+            while (s) {
+                if (IS_PKG(s->n)) {
+                    printf("%s", s->n->name);
+                } else if (is_virtual_file(s->n->name)) {
+                    pkgname = get_pkgname(s->n->name);
+                    printf("%s", pkgname);
+                    free(pkgname);
+                } else {
+                    fprintf(stderr, "bee-dep: print_conflicts: "
+                            "could not get pkgname for \"%s\"\n",
+                            s->n->name);
+                    return 1;
+                }
+
+                s = tree_next(s);
+
+                if (!s)
+                    puts("");
+                else
+                    printf(" ");
+            }
+
+            t = tree_next(t);
+        }
+    }
+
+    return 0;
 }
