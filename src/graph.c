@@ -498,7 +498,6 @@ int print_removable(struct hash *hash, char *remove)
 int save_cache(struct hash *hash, char *path)
 {
     int i;
-    unsigned long index;
     struct tree_node *s, *t;
     FILE *file;
 
@@ -506,11 +505,6 @@ int save_cache(struct hash *hash, char *path)
         perror("bee-dep: save_cache: fopen");
         return EXIT_FAILURE;
     }
-
-    index = 0;
-
-    if (hash->cnt == 0)
-        return EXIT_SUCCESS;
 
     for (i = 0; i < TBLSIZE; i++) {
         if (hash->tbl[i]->root) {
