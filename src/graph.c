@@ -32,6 +32,10 @@
 
 #include "graph.h"
 
+#define IS_FILE(a)       ((a)[0] == '/')
+#define IS_DIR(a)        (!strcmp((a)->type, DIR))
+#define IS_WHITESPACE(a) ((a) == ' ' || (a) == '\t' || (a) == '\n' || (a) == '\r')
+
 static void add_provide(struct node *a, struct node *b)
 {
     tree_insert(a->provide, b);

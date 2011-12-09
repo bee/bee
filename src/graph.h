@@ -35,12 +35,9 @@
 #define DIR     "DIRECTORY"
 #define UNKNOWN "VOID"
 
-#define IS_FILE(a)       ((a)[0] == '/')
-#define IS_DIR(a)        (!strcmp((a)->type, DIR))
-#define IS_WHITESPACE(a) ((a) == ' ' || (a) == '\t' || (a) == '\n' || (a) == '\r')
-#define IS_PKG(a)        (!strcmp((a)->type, PACKAGE))
-
 #include "hash.h"
+
+#define IS_PKG(a) (!strcmp((a)->type, PACKAGE))
 
 extern int graph_insert_nodes(struct hash *hash, char *filename);
 extern void print_broken(struct hash *hash, char *remove);
