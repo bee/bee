@@ -93,7 +93,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
          pkgname[NODENAME_MAX]  = {0},
          nodename[NODENAME_MAX] = {0};
     int l, line_cnt;
-    struct node *n, *h, *v;
+    struct node *n, *h, *v, *c;
 
     if ((file = fopen(filename, "r")) == NULL) {
         perror("bee-dep: graph_insert_nodes: fopen");
@@ -160,10 +160,10 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                 sprintf(nodename, "%s", s);
             }
 
-            if ((n = hash_search(hash, nodename)) == NULL) {
-                n = node_new(nodename, UNKNOWN);
-                hash_insert(hash, n);
-            }
+            c = node_new(nodename, UNKNOWN);
+            n = hash_safe_insert(hash, c);
+            if (c != n)
+                node_free(c);
 
             type_flag = 0;
             continue;
@@ -215,18 +215,20 @@ int graph_insert_nodes(struct hash *hash, char *filename)
 
             type_flag = 1;
         } else if (strcasecmp(prop, PROVIDES) == 0) {
-            if ((h = hash_search(hash, value)) == NULL) {
-                h = node_new(value, UNKNOWN);
-                hash_insert(hash, h);
-            }
+            c = node_new(value, UNKNOWN);
+            h = hash_safe_insert(hash, c);
+
+            if (c != h)
+                node_free(c);
 
             if (IS_FILE(value)) {
                 sprintf(nodename, "%s%s", pkgname, value);
 
-                if ((v = hash_search(hash, nodename)) == NULL) {
-                    v = node_new(nodename, UNKNOWN);
-                    hash_insert(hash, v);
-                }
+                c = node_new(nodename, UNKNOWN);
+                v = hash_safe_insert(hash, c);
+
+                if (v != c)
+                    node_free(c);
 
                 add_provide(n, v);
                 add_provide(v, h);
@@ -234,10 +236,11 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                 add_provide(n, h);
             }
         } else if (strcasecmp(prop, NEEDS) == 0) {
-            if ((h = hash_search(hash, value)) == NULL) {
-                h = node_new(value, UNKNOWN);
-                hash_insert(hash, h);
-            }
+            c = node_new(value, UNKNOWN);
+            h = hash_safe_insert(hash, c);
+
+            if (c != h)
+                node_free(c);
 
             add_need(n, h);
         }
