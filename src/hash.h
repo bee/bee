@@ -29,7 +29,7 @@
 
 #include "beedep_tree.h"
 
-#define TBLSIZE 2000003 /* prime number */
+#define TBLSIZE 2000003L /* prime number */
 
 struct hash {
     struct tree *tbl[TBLSIZE];
