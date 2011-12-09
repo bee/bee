@@ -47,7 +47,7 @@ struct hash *hash_new(void)
 
 unsigned long hash_index(char *key)
 {
-    unsigned long index = 0;
+    register unsigned long index = 0;
     char c;
 
     while ((c = *key++))

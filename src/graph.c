@@ -85,7 +85,7 @@ char is_virtual_file(char *s)
 int graph_insert_nodes(struct hash *hash, char *filename)
 {
     FILE *file;
-    char *s, *p, *a;
+    register char *s, *p, *a;
     char type_flag, u;
     char line[LINE_MAX],
          prop[LINE_MAX],
