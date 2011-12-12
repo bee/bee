@@ -52,6 +52,19 @@ function usage() {
 
 function download() {
     repository_url=${1}
+    repository_type=${2}
+
+    : ${repository_type:=${repository_url%%:*}}
+
+    case "${repository_type}" in
+        *) # default to git download
+            download_git ${repository_url}
+            ;;
+    esac
+}
+
+function download_git() {
+    repository_url=${1}
     reponame=${repository_url##*/}
     reponame=${reponame%%.git}
     tmp_path=${BEE_TMP_TMPDIR}/${BASHPID}
@@ -102,7 +115,8 @@ function download() {
 }
 
 options=$(getopt -n bee-download \
-                 -o hn:v:c: \
+                 -o hn:v:c:t: \
+                 --long type: \
                  --long help \
                  --long pkgname: \
                  --long version: \
@@ -134,6 +148,10 @@ while true ; do
             OPT_COMMIT="${2}"
             shift 2
             ;;
+        -t|--type)
+            OPT_TYPE="${2}"
+            shift 2
+            ;;
         --)
             repository_url=${2}
             shift
@@ -142,7 +160,7 @@ while true ; do
                  exit 1
             fi
 
-            download ${repository_url}
+            download ${repository_url} ${OPT_TYPE}
             exit 0
             ;;
     esac
