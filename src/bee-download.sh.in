@@ -1,0 +1,186 @@
+#!/bin/bash
+#
+# bee-download - download a repository and convert it into a tarball
+#
+# Copyright (C) 2009-2011
+#       Tobias Dreyer <dreyer@molgen.mpg.de>
+#       Marius Tolzmann <tolzmann@molgen.mpg.de>
+#       and other bee developers
+#
+# This file is part of bee.
+#
+# bee is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e
+
+if [ -z "${BEE_VERSION}" ] ; then
+    echo >&2 "BEE-ERROR: please call $0 from bee .."
+    exit 1
+fi
+
+VERSION=${BEE_VERSION}
+
+function usage() {
+    cat <<-EOF
+	bee-download v${VERSION} 2009-2011
+	  by Tobias Dreyer <dreyer@molgen.mpg.de>
+	     Max Planck Institute for Molecular Genetics Berlin Dahlem
+
+	Usage:
+	bee download [options] <repository-url>
+
+	Options:
+	    -h | --help     display this help
+	    -n | --pkgname  specifiy a package name
+	    -v | --version  specifiy a package version
+	    -c | --commit   use a certain commit as HEAD revision
+
+	EOF
+}
+
+function download() {
+    repository_url=${1}
+    repository_type=${2}
+
+    : ${repository_type:=${repository_url%%:*}}
+
+    case "${repository_type}" in
+        http|https)
+            download_http ${repository_url}
+            ;;
+        *) # default to git download
+            download_git ${repository_url}
+            ;;
+    esac
+}
+
+function download_http() {
+    repository_url=${1}
+
+    file=${repository_url##*/}
+
+    destination=${BEE_DOWNLOADDIR}/${file}
+
+    wget \
+        --no-check-certificate \
+        --output-document=${destination} \
+        --no-clobber \
+        ${repository_url}
+
+    echo ${destination}
+}
+
+function download_git() {
+    repository_url=${1}
+    reponame=${repository_url##*/}
+    reponame=${reponame%%.git}
+    tmp_path=${BEE_TMP_TMPDIR}/${BASHPID}
+
+    mkdir -p ${tmp_path}
+
+    trap "rm -fr ${tmp_path}" EXIT
+
+    git clone -n ${repository_url} ${tmp_path}/${reponame} >/dev/null 2>&1
+    cd ${tmp_path}/${reponame}
+
+    if [ -n "${OPT_COMMIT}" ] ; then
+        git reset ${OPT_COMMIT} >/dev/null 2>&1
+    fi
+
+    gd=$(git describe --tags --long)
+    commit=${gd##*-g}
+    gd=${gd%-*}
+    ahead=${gd##*-}
+    gd=${gd%-*}
+    tag=${gd}
+
+    unset PKGNAME
+    eval $(@BINDIR@/beeversion ${tag} 2>/dev/null)
+    if [ -z "${PKGNAME}" ] ; then
+        PKGNAME=${reponame}
+        PKGFULLVERSION=${tag##${reponame}}
+        PKGFULLVERSION=${PKGFULLVERSION//-/}
+        PKGFULLVERSION=${PKGFULLVERSION//[^0-9.]/}
+    fi
+
+    pkgextraextraversion="_p${ahead}_${commit}"
+
+    filename=${OPT_PKGNAME:-${PKGNAME}}-${OPT_VERSION:-${PKGFULLVERSION}}${pkgextraextraversion}
+
+    git archive --format=tar --prefix=${filename}/ ${commit} | bzip2 >${filename}.tar.bz2
+
+    if [ ! -d "${BEE_DOWNLOADDIR}" ] ; then
+        mkdir -p ${BEE_DOWNLOADDIR}
+    fi
+    mv ${filename}.tar.bz2 ${BEE_DOWNLOADDIR}
+
+    trap - EXIT
+
+    rm -fr ${tmp_path}
+
+    echo ${BEE_DOWNLOADDIR}/${filename}.tar.bz2
+}
+
+options=$(getopt -n bee-download \
+                 -o hn:v:c:t: \
+                 --long type: \
+                 --long help \
+                 --long pkgname: \
+                 --long version: \
+                 --long commit: \
+                 -- "$@")
+
+if [ $? -ne 0 ] ; then
+    usage
+    exit 1
+fi
+
+eval set -- "${options}"
+
+while true ; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -n|--pkgname)
+            OPT_PKGNAME="${2}"
+            shift 2
+            ;;
+        -v|--version)
+            OPT_VERSION="${2}"
+            shift 2
+            ;;
+        -c|--commit)
+            OPT_COMMIT="${2}"
+            shift 2
+            ;;
+        -t|--type)
+            OPT_TYPE="${2}"
+            shift 2
+            ;;
+        --)
+            repository_url=${2}
+            shift
+            if [ -z "${repository_url}" ] ; then
+                 usage
+                 exit 1
+            fi
+
+            download ${repository_url} ${OPT_TYPE}
+            exit 0
+            ;;
+    esac
+done

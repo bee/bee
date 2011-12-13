@@ -53,7 +53,7 @@ PROGRAMS_C=beeversion beesep beecut beeuniq beesort
 PROGRAMS_SHELL=bee beesh
 PROGRAMS_PERL=beefind.pl
 
-HELPER_BEE_SHELL=bee-init bee-check bee-remove bee-install bee-list bee-query
+HELPER_BEE_SHELL=bee-init bee-check bee-remove bee-install bee-list bee-query bee-download
 HELPER_BEE_C=bee-dep
 
 LIBRARY_SHELL=beelib.config.sh

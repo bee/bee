@@ -183,6 +183,7 @@ function config_verify_builtin_config() {
     : ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
     : ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
     : ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
+    : ${BEE_DOWNLOADDIR:=${BEE_REPOSITORY_PREFIX}/downloads}
 }
 
 function config_verify_builtin_prefixes() {
@@ -245,6 +246,7 @@ function config_export() {
     export BEE_REPOSITORY_BEEDIR
     export BEE_REPOSITORY_PKGDIR
     export BEE_REPOSITORY_BUILDARCHIVEDIR
+    export BEE_DOWNLOADDIR
     export BEE_METADIR
     export BEE_CACHEDIR
     export BEE_TMP_TMPDIR
