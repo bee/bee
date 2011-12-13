@@ -57,10 +57,29 @@ function download() {
     : ${repository_type:=${repository_url%%:*}}
 
     case "${repository_type}" in
+        http|https)
+            download_http ${repository_url}
+            ;;
         *) # default to git download
             download_git ${repository_url}
             ;;
     esac
+}
+
+function download_http() {
+    repository_url=${1}
+
+    file=${repository_url##*/}
+
+    destination=${BEE_DOWNLOADDIR}/${file}
+
+    wget \
+        --no-check-certificate \
+        --output-document=${destination} \
+        --no-clobber \
+        ${repository_url}
+
+    echo ${destination}
 }
 
 function download_git() {
