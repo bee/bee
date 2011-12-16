@@ -50,11 +50,20 @@ function usage() {
 	EOF
 }
 
+function guess_type() {
+    repository_url=${1}
+
+    [ "${repository_url##*.}" = "git" ] && echo "git" && return
+    [ -d "${repository_url}/.git" ] && echo "git" && return
+
+    echo ${repository_url%%:*}
+}
+
 function download() {
     repository_url=${1}
     repository_type=${2}
 
-    : ${repository_type:=${repository_url%%:*}}
+    : ${repository_type:=$(guess_type ${repository_url})}
 
     case "${repository_type}" in
         http|https)
