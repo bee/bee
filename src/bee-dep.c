@@ -163,6 +163,7 @@ static FILE *open_and_lock(char *filename, char *mode)
 int mkdirp(char *path, mode_t mode)
 {
     char *dir, *pdir, *end;
+    int ret;
 
     assert(path);
 
@@ -180,12 +181,12 @@ int mkdirp(char *path, mode_t mode)
             return -1;
 
         /* create the directory ; ignore err if it already exists */
-        if(mkdir(pdir, mode) == -1 && errno != EEXIST) {
-            free(pdir);
-            return -1;
-        }
+        ret = mkdir(pdir, mode);
 
         free(pdir);
+
+        if(ret == -1 && errno != EEXIST)
+            return -1;
   }
 
   return 0;
