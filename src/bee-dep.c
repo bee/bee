@@ -277,8 +277,6 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    graph = NULL;
-
     found = (stat(cachefile, &st) != -1 && S_ISREG(st.st_mode));
 
     graph = hash_new();
