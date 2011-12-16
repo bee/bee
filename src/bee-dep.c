@@ -34,6 +34,8 @@
 #include <libgen.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <errno.h>
+#include <assert.h>
 
 #include "graph.h"
 
@@ -157,24 +159,36 @@ static FILE *open_and_lock(char *filename, char *mode)
     return f;
 }
 
+/* create all directories in path with mode mode */
 int mkdirp(char *path, mode_t mode)
 {
-    char *dir, *pdir;
-    struct stat st;
+    char *dir, *pdir, *end;
 
-    if(path == NULL) {
-        return -1;
-    }
+    assert(path);
 
-    dir = strdup(path);
-    pdir = dirname(dir);
-    if(stat(pdir, &st) == -1) {
-        mkdirp(pdir, mode);
-    }
+    dir = end = path;
 
-    free(dir);
+    while(*dir) {
+        /* skip "/" */
+        dir = end + strspn(end, "/");
 
-    return mkdir(path, mode);
+        /* skip non-"/" */
+        end = dir + strcspn(dir, "/");
+
+        /* grab everything in path till current end */
+        if(!(pdir = strndup(path, end - path)))
+            return -1;
+
+        /* create the directory ; ignore err if it already exists */
+        if(mkdir(pdir, mode) == -1 && errno != EEXIST) {
+            free(pdir);
+            return -1;
+        }
+
+        free(pdir);
+  }
+
+  return 0;
 }
 
 int main(int argc, char *argv[])
@@ -260,8 +274,8 @@ int main(int argc, char *argv[])
     dir = strdup(cachefile);
     dir = dirname(dir);
 
-    if (stat(dir, &st) == -1 && mkdirp(dir, 0755) == -1) {
-        perror("bee-dep: mkdir");
+    if (mkdirp(dir, 0755) == -1) {
+        perror("bee-dep: mkdirp");
         exit(EXIT_FAILURE);
     }
 
