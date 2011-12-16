@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
     int c, help, rebuild, update, remove, print, options;
     char found;
     char cachefile[PATH_MAX + 1], path[PATH_MAX + 1], tmp[PATH_MAX + 1];
-    char *bee_metadir, *bee_cachedir, *dir, *pkgname;
+    char *bee_metadir, *bee_cachedir, *pkgname;
     struct hash *graph;
     struct stat st;
     FILE *cache;
@@ -272,15 +272,10 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    dir = strdup(cachefile);
-    dir = dirname(dir);
-
-    if (mkdirp(dir, 0755) == -1) {
+    if (mkdirp(bee_cachedir, 0755) == -1) {
         perror("bee-dep: mkdirp");
         exit(EXIT_FAILURE);
     }
-
-    free(dir);
 
     graph = NULL;
 
