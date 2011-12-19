@@ -46,6 +46,39 @@
 #define likely(x)       __builtin_expect(!!(x), 1)
 #define unlikely(x)     __builtin_expect(!!(x), 0)
 
+#define BEE_METADIR  env_bee_metadir()
+#define BEE_CACHEDIR env_bee_cachedir()
+
+static char *env_bee_metadir(void)
+{
+    static char *value = NULL;
+
+    if(value)
+        return value;
+
+    value = getenv("BEE_METADIR");
+
+    if(!value)
+        value = "";
+
+    return value;
+}
+
+static char *env_bee_cachedir(void)
+{
+    static char *value = NULL;
+
+    if(value)
+        return value;
+
+    value = getenv("BEE_CACHEDIR");
+
+    if(!value)
+        value = "";
+
+    return value;
+}
+
 static void usage(void)
 {
      printf("bee-dep v%s 2011\n"
@@ -63,7 +96,7 @@ static void usage(void)
             getenv("BEE_VERSION"));
 }
 
-int init_cache(struct hash *graph, char *bee_metadir, char *filename)
+int init_cache(struct hash *graph, char *filename)
 {
     struct dirent **package;
     int i, pkg_cnt;
@@ -72,7 +105,7 @@ int init_cache(struct hash *graph, char *bee_metadir, char *filename)
 
     /* TODO: need to handle all kinds of race conditions here 8) */
 
-    if ((pkg_cnt = scandir(bee_metadir, &package, 0, alphasort)) < 0) {
+    if ((pkg_cnt = scandir(BEE_METADIR, &package, 0, alphasort)) < 0) {
         perror("bee-dep: create_cache: scandir");
         return 0;
     }
@@ -82,7 +115,7 @@ int init_cache(struct hash *graph, char *bee_metadir, char *filename)
     free(package[1]);
 
     for (i = 2; i < pkg_cnt; i++) {
-        sprintf(path, "%s/%s", bee_metadir, package[i]->d_name);
+        sprintf(path, "%s/%s", BEE_METADIR, package[i]->d_name);
 
         if (stat(path, &st) == -1) {
             perror("bee-dep: create_cache: stat");
@@ -134,19 +167,6 @@ void cleanup_and_exit(struct hash *h, FILE *f, int r)
         unlock(f);
 
     exit(r);
-}
-
-void get_bee_variables(char **bee_cachedir, char **bee_metadir)
-{
-    if (!(*bee_cachedir = getenv("BEE_CACHEDIR"))) {
-        fprintf(stderr, "BEE-ERROR: BEE_CACHEDIR not set\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (!(*bee_metadir = getenv("BEE_METADIR"))) {
-        fprintf(stderr, "BEE-ERROR: BEE_METADIR not set\n");
-        exit(EXIT_FAILURE);
-    }
 }
 
 static FILE *open_and_lock(char *filename, char *mode)
@@ -239,7 +259,7 @@ int main(int argc, char *argv[])
     char *cachefile = NULL;
     char *depfile   = NULL;
     char found;
-    char *bee_metadir, *bee_cachedir, *pkgname;
+    char *pkgname;
     struct hash *graph;
     struct stat st;
     FILE *cache = NULL;
@@ -258,8 +278,6 @@ int main(int argc, char *argv[])
         fprintf(stderr, "BEE-ERROR: please call beedep from bee\n");
         exit(EXIT_FAILURE);
     }
-
-    get_bee_variables(&bee_cachedir, &bee_metadir);
 
     if (argc == 1) {
         usage();
@@ -308,7 +326,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if (mkdirp(bee_cachedir, 0755) == -1) {
+    if (mkdirp(BEE_CACHEDIR, 0755) == -1) {
         perror("bee-dep: mkdirp");
         exit(EXIT_FAILURE);
     }
@@ -318,7 +336,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if(asprintf(&cachefile, "%s/%s", bee_cachedir, CACHENAME) == -1) {
+    if(asprintf(&cachefile, "%s/%s", BEE_CACHEDIR, CACHENAME) == -1) {
         perror("bee-dep: asprintf");
         exit(EXIT_FAILURE);
     }
@@ -326,7 +344,7 @@ int main(int argc, char *argv[])
     if (rebuild) {
         int ret = EXIT_SUCCESS;
 
-        if (!init_cache(graph, bee_metadir, cachefile))
+        if (!init_cache(graph, cachefile))
             ret = EXIT_FAILURE;
 
         free(cachefile);
@@ -348,7 +366,7 @@ int main(int argc, char *argv[])
             cleanup_and_exit(graph, cache, EXIT_FAILURE);
         }
     } else {
-        if (!init_cache(graph, bee_metadir, cachefile)) {
+        if (!init_cache(graph, cachefile)) {
             free(cachefile);
             hash_free(graph);
             return EXIT_FAILURE;
@@ -359,7 +377,7 @@ int main(int argc, char *argv[])
         found = !!hash_search(graph, pkgname);
 
         if (asprintf(&depfile, "%s/%s/DEPENDENCIES",
-                    bee_metadir, pkgname) == -1) {
+                    BEE_METADIR, pkgname) == -1) {
             perror("bee-dep: asprintf");
             free(cachefile);
             cleanup_and_exit(graph, cache, EXIT_FAILURE);
