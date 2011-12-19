@@ -34,8 +34,6 @@
 #include <libgen.h>
 #include <unistd.h>
 #include <getopt.h>
-#include <errno.h>
-#include <assert.h>
 
 #include "graph.h"
 
@@ -159,37 +157,24 @@ static FILE *open_and_lock(char *filename, char *mode)
     return f;
 }
 
-/* create all directories in path with mode mode */
 int mkdirp(char *path, mode_t mode)
 {
-    char *dir, *pdir, *end;
-    int ret;
+    char *dir, *pdir;
+    struct stat st;
 
-    assert(path);
+    if(path == NULL) {
+        return -1;
+    }
 
-    dir = end = path;
+    dir = strdup(path);
+    pdir = dirname(dir);
+    if(stat(pdir, &st) == -1) {
+        mkdirp(pdir, mode);
+    }
 
-    while(*dir) {
-        /* skip "/" */
-        dir = end + strspn(end, "/");
+    free(dir);
 
-        /* skip non-"/" */
-        end = dir + strcspn(dir, "/");
-
-        /* grab everything in path till current end */
-        if(!(pdir = strndup(path, end - path)))
-            return -1;
-
-        /* create the directory ; ignore err if it already exists */
-        ret = mkdir(pdir, mode);
-
-        free(pdir);
-
-        if(ret == -1 && errno != EEXIST)
-            return -1;
-  }
-
-  return 0;
+    return mkdir(path, mode);
 }
 
 int main(int argc, char *argv[])
@@ -197,7 +182,7 @@ int main(int argc, char *argv[])
     int c, help, rebuild, update, remove, print, options;
     char found;
     char cachefile[PATH_MAX + 1], path[PATH_MAX + 1], tmp[PATH_MAX + 1];
-    char *bee_metadir, *bee_cachedir, *pkgname;
+    char *bee_metadir, *bee_cachedir, *dir, *pkgname;
     struct hash *graph;
     struct stat st;
     FILE *cache;
@@ -272,10 +257,17 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if (mkdirp(bee_cachedir, 0755) == -1) {
-        perror("bee-dep: mkdirp");
+    dir = strdup(cachefile);
+    dir = dirname(dir);
+
+    if (stat(dir, &st) == -1 && mkdirp(dir, 0755) == -1) {
+        perror("bee-dep: mkdir");
         exit(EXIT_FAILURE);
     }
+
+    free(dir);
+
+    graph = NULL;
 
     found = (stat(cachefile, &st) != -1 && S_ISREG(st.st_mode));
 
