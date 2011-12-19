@@ -338,6 +338,7 @@ int main(int argc, char *argv[])
 
     if(asprintf(&cachefile, "%s/%s", BEE_CACHEDIR, CACHENAME) == -1) {
         perror("bee-dep: asprintf");
+        hash_free(graph);
         exit(EXIT_FAILURE);
     }
 
