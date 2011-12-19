@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
     char *bee_metadir, *bee_cachedir, *pkgname;
     struct hash *graph;
     struct stat st;
-    FILE *cache;
+    FILE *cache = NULL;
     struct node *h;
 
     struct option long_options[] = {
@@ -334,8 +334,6 @@ int main(int argc, char *argv[])
             free(tmpfile);
             cleanup_and_exit(graph, NULL, EXIT_FAILURE);
         }
-
-        cache = open_and_lock(cachefile, "w");
 
         if (rename(tmpfile, cachefile) == -1) {
             perror("bee-dep: rename");
