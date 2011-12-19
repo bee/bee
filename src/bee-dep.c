@@ -256,6 +256,32 @@ char *get_cachefilename(void)
     return cfname;
 }
 
+int do_rebuild_cachedb(void)
+{
+    char *cfname;
+    struct hash *graph;
+    int ret;
+
+    cfname = get_cachefilename();
+
+    if (!cfname)
+        return 0;
+
+    graph = hash_new();
+
+    if (!graph) {
+        free(cfname);
+        return 0;
+    }
+
+    ret = init_cache(graph, cfname);
+
+    free(cfname);
+    hash_free(graph);
+
+    return ret;
+}
+
 int main(int argc, char *argv[])
 {
     int c, help, rebuild, update, remove, print, options;
@@ -335,6 +361,12 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    if (rebuild) {
+        if(!do_rebuild_cachedb())
+            return EXIT_FAILURE;
+        return EXIT_SUCCESS;
+    }
+
     if(!(graph = hash_new())) {
         perror("bee-dep: hash_new");
         exit(EXIT_FAILURE);
@@ -345,16 +377,6 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if (rebuild) {
-        int ret = EXIT_SUCCESS;
-
-        if (!init_cache(graph, cachefile))
-            ret = EXIT_FAILURE;
-
-        free(cachefile);
-        hash_free(graph);
-        return ret;
-    }
 
     ret = regular_file_exists(cachefile);
 
