@@ -157,26 +157,6 @@ static FILE *open_and_lock(char *filename, char *mode)
     return f;
 }
 
-int mkdirp(char *path, mode_t mode)
-{
-    char *dir, *pdir;
-    struct stat st;
-
-    if(path == NULL) {
-        return -1;
-    }
-
-    dir = strdup(path);
-    pdir = dirname(dir);
-    if(stat(pdir, &st) == -1) {
-        mkdirp(pdir, mode);
-    }
-
-    free(dir);
-
-    return mkdir(path, mode);
-}
-
 int main(int argc, char *argv[])
 {
     int c, help, rebuild, update, remove, print, options;
@@ -260,7 +240,7 @@ int main(int argc, char *argv[])
     dir = strdup(cachefile);
     dir = dirname(dir);
 
-    if (stat(dir, &st) == -1 && mkdirp(dir, 0755) == -1) {
+    if (stat(dir, &st) == -1 && mkdir(dir, 0755) == -1) {
         perror("bee-dep: mkdir");
         exit(EXIT_FAILURE);
     }
