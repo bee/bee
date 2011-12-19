@@ -245,6 +245,17 @@ int regular_file_exists(char *fname)
     return -1;
 }
 
+char *get_cachefilename(void)
+{
+    char *cfname;
+
+    if(asprintf(&cfname, "%s/%s", BEE_CACHEDIR, CACHENAME) == -1) {
+        perror("bee-dep: get_cachefilename");
+        return NULL;
+    }
+    return cfname;
+}
+
 int main(int argc, char *argv[])
 {
     int c, help, rebuild, update, remove, print, options;
@@ -329,8 +340,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if(asprintf(&cachefile, "%s/%s", BEE_CACHEDIR, CACHENAME) == -1) {
-        perror("bee-dep: asprintf");
+    if(!(cachefile = get_cachefilename())) {
         hash_free(graph);
         exit(EXIT_FAILURE);
     }
