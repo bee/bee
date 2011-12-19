@@ -24,6 +24,8 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -232,8 +234,10 @@ int main(int argc, char *argv[])
 {
     int c, help, rebuild, update, remove, print, options;
     int ret;
+    char *cachefile = NULL;
+    char *tmpfile   = NULL;
+    char *depfile   = NULL;
     char found;
-    char cachefile[PATH_MAX + 1], path[PATH_MAX + 1], tmp[PATH_MAX + 1];
     char *bee_metadir, *bee_cachedir, *pkgname;
     struct hash *graph;
     struct stat st;
@@ -303,12 +307,6 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if (sprintf(cachefile, "%s/%s", bee_cachedir, CACHENAME) < 0
-        || sprintf(tmp, "%s/index.tmp", bee_cachedir) < 0) {
-        perror("bee-dep: sprintf");
-        exit(EXIT_FAILURE);
-    }
-
     if (mkdirp(bee_cachedir, 0755) == -1) {
         perror("bee-dep: mkdirp");
         exit(EXIT_FAILURE);
@@ -319,17 +317,35 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    if(asprintf(&cachefile, "%s/%s", bee_cachedir, CACHENAME) == -1) {
+        perror("bee-dep: asprintf");
+        exit(EXIT_FAILURE);
+    }
+
+    if(asprintf(&tmpfile, "%s/index.tmp", bee_cachedir) == -1) {
+        perror("bee-dep: asprintf");
+        free(cachefile);
+        exit(EXIT_FAILURE);
+    }
+
     if (rebuild) {
-        if (init_cache(graph, bee_metadir, tmp) == EXIT_FAILURE)
+        if (init_cache(graph, bee_metadir, tmpfile) == EXIT_FAILURE) {
+            free(cachefile);
+            free(tmpfile);
             cleanup_and_exit(graph, NULL, EXIT_FAILURE);
+        }
 
         cache = open_and_lock(cachefile, "w");
 
-        if (rename(tmp, cachefile) == -1) {
+        if (rename(tmpfile, cachefile) == -1) {
             perror("bee-dep: rename");
+            free(cachefile);
+            free(tmpfile);
             cleanup_and_exit(graph, cache, EXIT_FAILURE);
         }
 
+        free(cachefile);
+        free(tmpfile);
         cleanup_and_exit(graph, cache, EXIT_SUCCESS);
     }
 
@@ -337,20 +353,30 @@ int main(int argc, char *argv[])
 
     if (ret == -1 || (ret == 0 && errno != ENOENT)) {
         perror("bee-dep: regular_file_exists(cachefile)");
+        free(cachefile);
+        free(tmpfile);
         cleanup_and_exit(graph, cache, EXIT_FAILURE);
     } else if (ret) {
         cache = open_and_lock(cachefile, "r");
 
-        if (load_cache(graph, cache) == EXIT_FAILURE)
+        if (load_cache(graph, cache) == EXIT_FAILURE) {
+            free(cachefile);
+            free(tmpfile);
             cleanup_and_exit(graph, cache, EXIT_FAILURE);
+        }
     } else {
-        if (init_cache(graph, bee_metadir, tmp) == EXIT_FAILURE)
+        if (init_cache(graph, bee_metadir, tmpfile) == EXIT_FAILURE) {
+            free(cachefile);
+            free(tmpfile);
             cleanup_and_exit(graph, NULL, EXIT_FAILURE);
+        }
 
         cache = open_and_lock(cachefile, "w");
 
-        if (rename(tmp, cachefile) == -1) {
+        if (rename(tmpfile, cachefile) == -1) {
             perror("bee-dep: rename");
+            free(cachefile);
+            free(tmpfile);
             cleanup_and_exit(graph, cache, EXIT_FAILURE);
         }
     }
@@ -358,71 +384,113 @@ int main(int argc, char *argv[])
     if (update) {
         found = !!hash_search(graph, pkgname);
 
-        if (sprintf(path, "%s/%s/DEPENDENCIES",
-                    bee_metadir, pkgname) < 0) {
-            perror("bee-dep: sprintf");
+        if (asprintf(&depfile, "%s/%s/DEPENDENCIES",
+                    bee_metadir, pkgname) == -1) {
+            perror("bee-dep: asprintf");
+            free(cachefile);
+            free(tmpfile);
             cleanup_and_exit(graph, cache, EXIT_FAILURE);
         }
 
-        if (stat(path, &st) != -1) {
+        if (stat(depfile, &st) != -1) {
             if (found) {
                 fprintf(stderr, "bee-dep: package '%s' is "
                         "already in the cache\n", pkgname);
+                free(cachefile);
+                free(tmpfile);
+                free(depfile);
                 cleanup_and_exit(graph, cache, EXIT_SUCCESS);
             }
 
-            if (graph_insert_nodes(graph, path) == EXIT_FAILURE)
+            if (graph_insert_nodes(graph, depfile) == EXIT_FAILURE) {
+                free(cachefile);
+                free(tmpfile);
+                free(depfile);
                 cleanup_and_exit(graph, cache, EXIT_FAILURE);
+            }
         } else {
             if (!found) {
                 fprintf(stderr,
                         "bee-dep: unknown package '%s'\n", pkgname);
+                free(cachefile);
+                free(tmpfile);
+                free(depfile);
                 cleanup_and_exit(graph, cache, EXIT_FAILURE);
             }
 
             if ((h = hash_search(graph, pkgname)) == NULL || !IS_PKG(h)) {
                 fprintf(stderr, "bee-dep: unknown package '%s'\n", pkgname);
+                free(cachefile);
+                free(tmpfile);
+                free(depfile);
                 cleanup_and_exit(graph, cache, EXIT_FAILURE);
             }
 
             if (remove_package(graph, pkgname) == EXIT_FAILURE)
+                free(cachefile);
+                free(tmpfile);
+                free(depfile);
                 cleanup_and_exit(graph, cache, EXIT_FAILURE);
         }
 
-        if (save_cache(graph, tmp) == EXIT_FAILURE)
+        if (save_cache(graph, tmpfile) == EXIT_FAILURE) {
+            free(cachefile);
+            free(tmpfile);
+            free(depfile);
             cleanup_and_exit(graph, cache, EXIT_FAILURE);
-
-        if (rename(tmp, cachefile) == -1) {
+        }
+        if (rename(tmpfile, cachefile) == -1) {
             perror("bee-dep: rename");
+            free(cachefile);
+            free(tmpfile);
+            free(depfile);
             cleanup_and_exit(graph, cache, EXIT_FAILURE);
         }
 
+        free(cachefile);
+        free(tmpfile);
+        free(depfile);
         cleanup_and_exit(graph, cache, EXIT_SUCCESS);
     }
 
     if ((h = hash_search(graph, pkgname)) == NULL || !IS_PKG(h)) {
         fprintf(stderr, "bee-dep: unknown package '%s'\n", pkgname);
+        free(cachefile);
+        free(tmpfile);
         cleanup_and_exit(graph, cache, EXIT_FAILURE);
     }
 
     if (print) {
-        if (print_removable(graph, pkgname) == EXIT_FAILURE)
-            cleanup_and_exit(graph, cache, EXIT_FAILURE);
-    }
-
-    if (remove) {
-        if (remove_package(graph, pkgname) == EXIT_FAILURE)
-            cleanup_and_exit(graph, cache, EXIT_FAILURE);
-
-        if (save_cache(graph, tmp) == EXIT_FAILURE)
-            cleanup_and_exit(graph, cache, EXIT_FAILURE);
-
-        if (rename(tmp, cachefile) == -1) {
-            perror("bee-dep: rename");
+        if (print_removable(graph, pkgname) == EXIT_FAILURE) {
+            free(cachefile);
+            free(tmpfile);
             cleanup_and_exit(graph, cache, EXIT_FAILURE);
         }
     }
 
+    if (remove) {
+        if (remove_package(graph, pkgname) == EXIT_FAILURE) {
+            free(cachefile);
+            free(tmpfile);
+            cleanup_and_exit(graph, cache, EXIT_FAILURE);
+        }
+
+        if (save_cache(graph, tmpfile) == EXIT_FAILURE) {
+            free(cachefile);
+            free(tmpfile);
+            cleanup_and_exit(graph, cache, EXIT_FAILURE);
+        }
+
+        if (rename(tmpfile, cachefile) == -1) {
+            perror("bee-dep: rename");
+            free(cachefile);
+            free(tmpfile);
+            cleanup_and_exit(graph, cache, EXIT_FAILURE);
+        }
+    }
+
+    free(cachefile);
+    free(tmpfile);
     cleanup_and_exit(graph, cache, EXIT_SUCCESS);
 
     return EXIT_FAILURE;
