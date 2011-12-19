@@ -41,6 +41,9 @@
 
 #define CACHENAME "index.db"
 
+#define likely(x)       __builtin_expect(!!(x), 1)
+#define unlikely(x)     __builtin_expect(!!(x), 0)
+
 static void usage(void)
 {
      printf("bee-dep v%s 2011\n"
@@ -190,6 +193,39 @@ int mkdirp(char *path, mode_t mode)
   }
 
   return 0;
+}
+
+/*
+ * checks if given filename is a regular file
+ * returns:
+ *
+ *   1 : file exists and is a regular file
+ *   0 : file is not a regular file or does not exist
+ *       check errno for
+ *          EEXIST : file exists but is not a regular file
+ *          ENOENT : file does not exist
+ *  -1 : error; check errno see(stat(2))
+ */
+int regular_file_exists(char *fname)
+{
+    struct stat st;
+    int ret;
+
+    ret = stat(fname, &st);
+
+    if(likely(ret == 0)) {
+        if(likely(S_ISREG(st.st_mode)))
+            return 1;
+
+        /* set errno for file exists but is not a regular file */
+        errno = EEXIST;
+        return 0;
+    }
+
+    if (likely(errno == ENOENT))
+        return 0;
+
+    return -1;
 }
 
 int main(int argc, char *argv[])
