@@ -34,10 +34,8 @@ struct hash *hash_new(void)
     struct hash *h;
     unsigned long i;
 
-    if ((h = calloc(1, sizeof(struct hash))) == NULL) {
-        perror("bee-dep: hash_new: calloc");
-        exit(EXIT_FAILURE);
-    }
+    if (!(h = calloc(1, sizeof(struct hash))))
+        return NULL;
 
     for (i = 0; i < TBLSIZE; i++)
         h->tbl[i] = tree_new();
