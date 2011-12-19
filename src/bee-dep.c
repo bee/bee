@@ -96,12 +96,26 @@ static void usage(void)
             getenv("BEE_VERSION"));
 }
 
+int pkg_to_graph(struct hash *graph, char *pkgname)
+{
+    int ret = 1;
+    char *fname;
+
+    if(asprintf(&fname, "%s/%s/DEPENDENCIES", BEE_METADIR, pkgname) == -1) {
+        perror("bee-dep: pkg_to_graph: asprintf");
+        return -1;
+    }
+
+    ret = graph_insert_nodes(graph, fname);
+
+    free(fname);
+    return ret;
+}
+
 int init_cache(struct hash *graph, char *filename)
 {
     struct dirent **package;
     int i, pkg_cnt;
-    char path[PATH_MAX + 1];
-    struct stat st;
 
     /* TODO: need to handle all kinds of race conditions here 8) */
 
@@ -115,28 +129,7 @@ int init_cache(struct hash *graph, char *filename)
     free(package[1]);
 
     for (i = 2; i < pkg_cnt; i++) {
-        sprintf(path, "%s/%s", BEE_METADIR, package[i]->d_name);
-
-        if (stat(path, &st) == -1) {
-            perror("bee-dep: create_cache: stat");
-            return 0;
-        }
-
-        if (S_ISDIR(st.st_mode)) {
-            strcat(path, "/DEPENDENCIES");
-
-            if (stat(path, &st) == -1) {
-                fprintf(stderr,
-                        "bee-dep: create_cache: missing "
-                        "DEPENDENCIES file for package '%s'\n",
-                        package[i]->d_name);
-                return 0;
-            }
-
-            if (!graph_insert_nodes(graph, path))
-                return 0;
-        }
-
+        pkg_to_graph(graph, package[i]->d_name);
         free(package[i]);
     }
 
