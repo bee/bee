@@ -72,7 +72,7 @@ int init_cache(struct hash *graph, char *bee_metadir, char *filename)
 
     if ((pkg_cnt = scandir(bee_metadir, &package, 0, alphasort)) < 0) {
         perror("bee-dep: create_cache: scandir");
-        return EXIT_FAILURE;
+        return 0;
     }
 
     /* skip . and .. */
@@ -84,7 +84,7 @@ int init_cache(struct hash *graph, char *bee_metadir, char *filename)
 
         if (stat(path, &st) == -1) {
             perror("bee-dep: create_cache: stat");
-            return EXIT_FAILURE;
+            return 0;
         }
 
         if (S_ISDIR(st.st_mode)) {
@@ -95,11 +95,11 @@ int init_cache(struct hash *graph, char *bee_metadir, char *filename)
                         "bee-dep: create_cache: missing "
                         "DEPENDENCIES file for package '%s'\n",
                         package[i]->d_name);
-                return EXIT_FAILURE;
+                return 0;
             }
 
             if (graph_insert_nodes(graph, path) == EXIT_FAILURE)
-                return EXIT_FAILURE;
+                return 0;
         }
 
         free(package[i]);
@@ -329,7 +329,7 @@ int main(int argc, char *argv[])
     }
 
     if (rebuild) {
-        if (init_cache(graph, bee_metadir, tmpfile) == EXIT_FAILURE) {
+        if (!init_cache(graph, bee_metadir, tmpfile)) {
             free(cachefile);
             free(tmpfile);
             cleanup_and_exit(graph, NULL, EXIT_FAILURE);
@@ -365,7 +365,7 @@ int main(int argc, char *argv[])
             cleanup_and_exit(graph, cache, EXIT_FAILURE);
         }
     } else {
-        if (init_cache(graph, bee_metadir, tmpfile) == EXIT_FAILURE) {
+        if (!init_cache(graph, bee_metadir, tmpfile)) {
             free(cachefile);
             free(tmpfile);
             cleanup_and_exit(graph, NULL, EXIT_FAILURE);
@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
                 cleanup_and_exit(graph, cache, EXIT_FAILURE);
         }
 
-        if (save_cache(graph, tmpfile) == EXIT_FAILURE) {
+        if (!save_cache(graph, tmpfile)) {
             free(cachefile);
             free(tmpfile);
             free(depfile);
@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
             cleanup_and_exit(graph, cache, EXIT_FAILURE);
         }
 
-        if (save_cache(graph, tmpfile) == EXIT_FAILURE) {
+        if (!save_cache(graph, tmpfile)) {
             free(cachefile);
             free(tmpfile);
             cleanup_and_exit(graph, cache, EXIT_FAILURE);

@@ -504,13 +504,13 @@ int save_cache(struct hash *hash, char *path)
 
     if ((file = fopen(path, "w")) == NULL) {
         perror("bee-dep: save_cache: fopen");
-        return EXIT_FAILURE;
+        return 0;
     }
 
     index = 0;
 
     if (hash->cnt == 0)
-        return EXIT_SUCCESS;
+        return 1;
 
     for (i = 0; i < TBLSIZE; i++) {
         if (hash->tbl[i]->root) {
@@ -555,10 +555,10 @@ int save_cache(struct hash *hash, char *path)
 
     if (fclose(file) == EOF) {
         perror("bee-dep: save_cache: fclose");
-        return EXIT_FAILURE;
+        return 0;
     }
 
-    return EXIT_SUCCESS;
+    return 1;
 }
 
 int load_cache(struct hash *hash, FILE *file)
