@@ -286,7 +286,7 @@ do_install() {
 
     if [ "${OPT_NOOP}" != "yes" ]; then
         run_hooks post-install ${pkg}
-        ${BEE_LIBEXECDIR}/bee/bee.d/bee-dep --update ${pkg}
+        ${BEE_LIBEXECDIR}/bee/bee.d/bee-dep update ${pkg}
     fi
 
     if [ "${OPT_UPGRADE}" != "yes" ] ; then
