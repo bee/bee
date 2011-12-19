@@ -47,7 +47,7 @@ struct hash *hash_new(void)
 
 unsigned long hash_index(char *key)
 {
-    unsigned long index = 0;
+    register unsigned long index = 0;
     char c;
 
     while ((c = *key++))
@@ -62,8 +62,20 @@ void hash_insert(struct hash *hash, struct node *n)
     unsigned long index = hash_index(n->name);
 
     tree_insert(hash->tbl[index], n);
+}
 
-    hash->cnt++;
+struct node *hash_safe_insert(struct hash *hash, struct node *n)
+{
+    unsigned long index = hash_index(n->name);
+    struct node *r;
+
+    r = tree_search_node(hash->tbl[index], n->name);
+
+    if (r)
+        return r;
+
+    tree_insert(hash->tbl[index], n);
+    return n;
 }
 
 struct node *hash_search(struct hash *hash, char *key)

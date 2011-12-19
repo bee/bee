@@ -35,20 +35,26 @@
 #define DIR     "DIRECTORY"
 #define UNKNOWN "VOID"
 
-#define IS_FILE(a)       ((a)[0] == '/')
-#define IS_DIR(a)        (!strcmp((a)->type, DIR))
-#define IS_WHITESPACE(a) ((a) == ' ' || (a) == '\t' || (a) == '\n' || (a) == '\r')
-#define IS_PKG(a)        (!strcmp((a)->type, PACKAGE))
-
 #include "hash.h"
 
+#define IS_PKG(a) (!strcmp((a)->type, PACKAGE))
+
 extern int graph_insert_nodes(struct hash *hash, char *filename);
-extern void print_dependencies(struct hash *hash, char *depend);
 extern void print_broken(struct hash *hash, char *remove);
 extern int print_removable(struct hash *hash, char *remove);
+extern int count_removable(struct hash *hash, char *remove);
+extern int list_files(struct hash *hash, char *pkgname);
+extern int count_files(struct hash *hash, char *pkgname);
+extern int print_providers(struct hash *hash, char *name);
+extern int count_providers(struct hash *hash, char *name);
+extern int print_needs(struct hash *hash, char *name);
+extern int print_neededby(struct hash *hash, char *name);
+extern void list_packages(struct hash *hash);
+extern int count_packages(struct hash *hash);
 extern int remove_package(struct hash *hash, char *pkgname);
+extern int print_conflicts(struct hash *hash);
 extern int save_cache(struct hash *hash, char *path);
-extern int load_cache(struct hash *hash, FILE *file);
+extern struct hash *load_cache(char *filename);
 extern unsigned long count_providedby(struct hash *hash, char *count);
 
 #endif

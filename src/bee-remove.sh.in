@@ -60,7 +60,7 @@ pkg_remove() {
 do_remove() {
     pkg=${1}
 
-    FILES=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-dep --remove --print ${pkg##*/})
+    FILES=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-dep remove --print ${pkg##*/})
     if [ $? -ne 0 ] ; then
         echo "removal of ${pkg} failed"
         exit 1

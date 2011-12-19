@@ -29,16 +29,16 @@
 
 #include "beedep_tree.h"
 
-#define TBLSIZE 2000003 /* prime number */
+#define TBLSIZE 2000003L /* prime number */
 
 struct hash {
     struct tree *tbl[TBLSIZE];
-    unsigned long cnt;
 };
 
 extern struct hash *hash_new(void);
 extern unsigned long hash_index(char *key);
 extern void hash_insert(struct hash *hash, struct node *n);
+extern struct node *hash_safe_insert(struct hash *hash, struct node *n);
 extern struct node *hash_search(struct hash *hash, char *key);
 extern void hash_free(struct hash *hash);
 
