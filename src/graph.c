@@ -100,7 +100,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
 
     if ((file = fopen(filename, "r")) == NULL) {
         perror("bee-dep: graph_insert_nodes: fopen");
-        return EXIT_FAILURE;
+        return 0;
     }
 
     line_cnt = type_flag = u = 0;
@@ -137,7 +137,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                 fprintf(stderr,
                         "bee-dep: %s: error at line %d: missing bracket\n",
                         filename, line_cnt);
-                return EXIT_FAILURE;
+                return 0;
             }
 
             *p = '\0';
@@ -146,7 +146,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                 fprintf(stderr,
                         "bee-dep: %s: error at line %d: empty node name\n",
                         filename, line_cnt);
-                return EXIT_FAILURE;
+                return 0;
             }
 
             if (IS_FILE(s)) {
@@ -155,7 +155,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                             "bee-dep: %s: error at line %d: "
                             "dont know to which package"
                             "\"%s\" belongs to\n", filename, line_cnt, s);
-                    return EXIT_FAILURE;
+                    return 0;
                 }
 
                 sprintf(nodename, "%s%s", pkgname, s);
@@ -192,7 +192,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
             fprintf(stderr,
                     "bee-dep: %s: error at line %d: missing value "
                     "for property \"%s\"\n", filename, line_cnt, prop);
-            return EXIT_FAILURE;
+            return 0;
         }
 
         memset(value, '\0', LINE_MAX);
@@ -204,7 +204,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                         "bee-dep: %s: error at line %d: "
                         "ambiguous type \"%s\"\n",
                         filename, line_cnt, value);
-                return EXIT_FAILURE;
+                return 0;
             }
 
             node_set_type(n, value);
@@ -248,18 +248,15 @@ int graph_insert_nodes(struct hash *hash, char *filename)
 
     if (fclose(file) == EOF) {
         perror("bee-dep: graph_insert_nodes: fclose");
-        return EXIT_FAILURE;
+        return 0;
     }
 
     if(line_cnt == 0) {
        fprintf(stderr, "bee-dep: error: file '%s' is empty\n", filename);
-       /* WTF: why can't we return 0 here for errors ??? */
-       return EXIT_FAILURE;
+       return 0;
     }
 
-    /* we dont't want to exit on success ??? or do we? i don't get it! */
-    /* but works for me now.. 8) */
-    return EXIT_SUCCESS;
+    return 1;
 }
 
 void search_dependencies(struct hash *hash, struct node *n, struct tree *d)

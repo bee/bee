@@ -133,7 +133,7 @@ int init_cache(struct hash *graph, char *filename)
                 return 0;
             }
 
-            if (graph_insert_nodes(graph, path) == EXIT_FAILURE)
+            if (!graph_insert_nodes(graph, path))
                 return 0;
         }
 
@@ -392,7 +392,7 @@ int main(int argc, char *argv[])
                 cleanup_and_exit(graph, cache, EXIT_SUCCESS);
             }
 
-            if (graph_insert_nodes(graph, depfile) == EXIT_FAILURE) {
+            if (!graph_insert_nodes(graph, depfile)) {
                 free(cachefile);
                 free(depfile);
                 cleanup_and_exit(graph, cache, EXIT_FAILURE);
