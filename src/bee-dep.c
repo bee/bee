@@ -231,6 +231,7 @@ int regular_file_exists(char *fname)
 int main(int argc, char *argv[])
 {
     int c, help, rebuild, update, remove, print, options;
+    int ret;
     char found;
     char cachefile[PATH_MAX + 1], path[PATH_MAX + 1], tmp[PATH_MAX + 1];
     char *bee_metadir, *bee_cachedir, *pkgname;
@@ -313,8 +314,6 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    found = (stat(cachefile, &st) != -1 && S_ISREG(st.st_mode));
-
     graph = hash_new();
 
     if (rebuild) {
@@ -331,7 +330,12 @@ int main(int argc, char *argv[])
         cleanup_and_exit(graph, cache, EXIT_SUCCESS);
     }
 
-    if (found) {
+    ret = regular_file_exists(cachefile);
+
+    if (ret == -1 || (ret == 0 && errno != ENOENT)) {
+        perror("bee-dep: regular_file_exists(cachefile)");
+        cleanup_and_exit(graph, cache, EXIT_FAILURE);
+    } else if (ret) {
         cache = open_and_lock(cachefile, "r");
 
         if (load_cache(graph, cache) == EXIT_FAILURE)
