@@ -314,7 +314,10 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    graph = hash_new();
+    if(!(graph = hash_new())) {
+        perror("bee-dep: hash_new");
+        exit(EXIT_FAILURE);
+    }
 
     if (rebuild) {
         if (init_cache(graph, bee_metadir, tmp) == EXIT_FAILURE)
