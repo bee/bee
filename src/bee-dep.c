@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
     struct hash *graph;
     struct stat st;
     FILE *cache = NULL;
-    struct node *h;
+    struct node *hnode;
 
     struct option long_options[] = {
         {"help",            0, &help,    1},
@@ -367,9 +367,10 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (update) {
-        found = !!hash_search(graph, pkgname);
+    hnode = hash_search(graph, pkgname);
+    found = hnode && IS_PKG(hnode);
 
+    if (update) {
         if (asprintf(&depfile, "%s/%s/DEPENDENCIES",
                     BEE_METADIR, pkgname) == -1) {
             perror("bee-dep: asprintf");
@@ -378,7 +379,7 @@ int main(int argc, char *argv[])
         }
 
         if (stat(depfile, &st) != -1) {
-            if (found) {
+            if (hnode) {
                 fprintf(stderr, "bee-dep: package '%s' is "
                         "already in the cache\n", pkgname);
                 free(cachefile);
@@ -400,7 +401,7 @@ int main(int argc, char *argv[])
                 cleanup_and_exit(graph, cache, EXIT_FAILURE);
             }
 
-            if ((h = hash_search(graph, pkgname)) == NULL || !IS_PKG(h)) {
+            if (!hnode || !IS_PKG(hnode)) {
                 fprintf(stderr, "bee-dep: unknown package '%s'\n", pkgname);
                 free(cachefile);
                 free(depfile);
@@ -424,7 +425,7 @@ int main(int argc, char *argv[])
         cleanup_and_exit(graph, cache, EXIT_SUCCESS);
     }
 
-    if ((h = hash_search(graph, pkgname)) == NULL || !IS_PKG(h)) {
+    if (!hnode || !IS_PKG(hnode)) {
         fprintf(stderr, "bee-dep: unknown package '%s'\n", pkgname);
         free(cachefile);
         cleanup_and_exit(graph, cache, EXIT_FAILURE);
