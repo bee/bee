@@ -24,11 +24,14 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "graph.h"
 
@@ -495,12 +498,14 @@ int print_removable(struct hash *hash, char *remove)
     return EXIT_SUCCESS;
 }
 
-int save_cache(struct hash *hash, char *path)
+static int save_cache_to_file(struct hash *hash, char *path)
 {
     int i;
     unsigned long index;
     struct tree_node *s, *t;
     FILE *file;
+
+    /* TODO: need to handle all kinds of race conditions here 8) */
 
     if ((file = fopen(path, "w")) == NULL) {
         perror("bee-dep: save_cache: fopen");
@@ -559,6 +564,35 @@ int save_cache(struct hash *hash, char *path)
     }
 
     return 1;
+}
+
+int save_cache(struct hash *hash, char *fname)
+{
+    char *tmpname;
+    int ret = 1;
+
+    /* TODO: need to handle all kinds of race conditions here 8) */
+
+    if(asprintf(&tmpname, "%s.tmp", fname) == -1) {
+        perror("bee-dep: save_cache: asprintf");
+        return 0;
+    }
+
+    if(save_cache_to_file(hash, tmpname)) {
+        if(rename(tmpname, fname) == -1) {
+            perror("bee-dep: save_cache: rename");
+            if(unlink(tmpname) == -1) {
+                perror("bee-dep: save_cache: unlink");
+            }
+            ret = 0;
+        }
+    } else {
+        ret = 0;
+    }
+
+    free(tmpname);
+
+    return ret;
 }
 
 int load_cache(struct hash *hash, FILE *file)
