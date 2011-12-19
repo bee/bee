@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
     } else if (ret) {
         cache = open_and_lock(cachefile, "r");
 
-        if (load_cache(graph, cache) == EXIT_FAILURE) {
+        if (!load_cache(graph, cache)) {
             free(cachefile);
             cleanup_and_exit(graph, cache, EXIT_FAILURE);
         }

@@ -616,7 +616,7 @@ int load_cache(struct hash *hash, FILE *file)
         if (sscanf(line, "%s %s", a, b) == EOF) {
             fprintf(stderr, "beedep: load_cache: "
                             "cache file is broken (line %d)\n", line_cnt);
-            return EXIT_FAILURE;
+            return 0;
         }
 
         hash_insert(hash, node_new(a, b));
@@ -628,7 +628,7 @@ int load_cache(struct hash *hash, FILE *file)
         if (sscanf(line, "%s %s %c", a, b, &c) == EOF) {
             fprintf(stderr, "beedep: load_cache: "
                             "cache file is broken (line %d)\n", line_cnt);
-            return EXIT_FAILURE;
+            return 0;
         }
 
         k = hash_search(hash, a);
@@ -637,7 +637,7 @@ int load_cache(struct hash *hash, FILE *file)
         if (!k || !l) {
             fprintf(stderr, "beedep: load_cache: "
                             "cache file is broken (line %d)\n", line_cnt);
-            return EXIT_FAILURE;
+            return 0;
         }
 
         if (c == 'n') {
@@ -649,11 +649,11 @@ int load_cache(struct hash *hash, FILE *file)
         } else {
             fprintf(stderr, "beedep: load_cache: "
                             "cache file is broken (line %d)\n", line_cnt);
-            return EXIT_FAILURE;
+            return 0;
         }
     }
 
-    return EXIT_SUCCESS;
+    return 1;
 }
 
 unsigned long count_providedby(struct hash *hash, char *count)
