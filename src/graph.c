@@ -24,14 +24,11 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-#define _GNU_SOURCE
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 #include "graph.h"
 
@@ -100,7 +97,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
 
     if ((file = fopen(filename, "r")) == NULL) {
         perror("bee-dep: graph_insert_nodes: fopen");
-        return 0;
+        return EXIT_FAILURE;
     }
 
     line_cnt = type_flag = u = 0;
@@ -137,7 +134,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                 fprintf(stderr,
                         "bee-dep: %s: error at line %d: missing bracket\n",
                         filename, line_cnt);
-                return 0;
+                return EXIT_FAILURE;
             }
 
             *p = '\0';
@@ -146,7 +143,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                 fprintf(stderr,
                         "bee-dep: %s: error at line %d: empty node name\n",
                         filename, line_cnt);
-                return 0;
+                return EXIT_FAILURE;
             }
 
             if (IS_FILE(s)) {
@@ -155,7 +152,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                             "bee-dep: %s: error at line %d: "
                             "dont know to which package"
                             "\"%s\" belongs to\n", filename, line_cnt, s);
-                    return 0;
+                    return EXIT_FAILURE;
                 }
 
                 sprintf(nodename, "%s%s", pkgname, s);
@@ -192,7 +189,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
             fprintf(stderr,
                     "bee-dep: %s: error at line %d: missing value "
                     "for property \"%s\"\n", filename, line_cnt, prop);
-            return 0;
+            return EXIT_FAILURE;
         }
 
         memset(value, '\0', LINE_MAX);
@@ -204,7 +201,7 @@ int graph_insert_nodes(struct hash *hash, char *filename)
                         "bee-dep: %s: error at line %d: "
                         "ambiguous type \"%s\"\n",
                         filename, line_cnt, value);
-                return 0;
+                return EXIT_FAILURE;
             }
 
             node_set_type(n, value);
@@ -248,15 +245,18 @@ int graph_insert_nodes(struct hash *hash, char *filename)
 
     if (fclose(file) == EOF) {
         perror("bee-dep: graph_insert_nodes: fclose");
-        return 0;
+        return EXIT_FAILURE;
     }
 
     if(line_cnt == 0) {
        fprintf(stderr, "bee-dep: error: file '%s' is empty\n", filename);
-       return 0;
+       /* WTF: why can't we return 0 here for errors ??? */
+       return EXIT_FAILURE;
     }
 
-    return 1;
+    /* we dont't want to exit on success ??? or do we? i don't get it! */
+    /* but works for me now.. 8) */
+    return EXIT_SUCCESS;
 }
 
 void search_dependencies(struct hash *hash, struct node *n, struct tree *d)
@@ -495,24 +495,22 @@ int print_removable(struct hash *hash, char *remove)
     return EXIT_SUCCESS;
 }
 
-static int save_cache_to_file(struct hash *hash, char *path)
+int save_cache(struct hash *hash, char *path)
 {
     int i;
     unsigned long index;
     struct tree_node *s, *t;
     FILE *file;
 
-    /* TODO: need to handle all kinds of race conditions here 8) */
-
     if ((file = fopen(path, "w")) == NULL) {
         perror("bee-dep: save_cache: fopen");
-        return 0;
+        return EXIT_FAILURE;
     }
 
     index = 0;
 
     if (hash->cnt == 0)
-        return 1;
+        return EXIT_SUCCESS;
 
     for (i = 0; i < TBLSIZE; i++) {
         if (hash->tbl[i]->root) {
@@ -557,39 +555,10 @@ static int save_cache_to_file(struct hash *hash, char *path)
 
     if (fclose(file) == EOF) {
         perror("bee-dep: save_cache: fclose");
-        return 0;
+        return EXIT_FAILURE;
     }
 
-    return 1;
-}
-
-int save_cache(struct hash *hash, char *fname)
-{
-    char *tmpname;
-    int ret = 1;
-
-    /* TODO: need to handle all kinds of race conditions here 8) */
-
-    if(asprintf(&tmpname, "%s.tmp", fname) == -1) {
-        perror("bee-dep: save_cache: asprintf");
-        return 0;
-    }
-
-    if(save_cache_to_file(hash, tmpname)) {
-        if(rename(tmpname, fname) == -1) {
-            perror("bee-dep: save_cache: rename");
-            if(unlink(tmpname) == -1) {
-                perror("bee-dep: save_cache: unlink");
-            }
-            ret = 0;
-        }
-    } else {
-        ret = 0;
-    }
-
-    free(tmpname);
-
-    return ret;
+    return EXIT_SUCCESS;
 }
 
 int load_cache(struct hash *hash, FILE *file)
@@ -613,7 +582,7 @@ int load_cache(struct hash *hash, FILE *file)
         if (sscanf(line, "%s %s", a, b) == EOF) {
             fprintf(stderr, "beedep: load_cache: "
                             "cache file is broken (line %d)\n", line_cnt);
-            return 0;
+            return EXIT_FAILURE;
         }
 
         hash_insert(hash, node_new(a, b));
@@ -625,7 +594,7 @@ int load_cache(struct hash *hash, FILE *file)
         if (sscanf(line, "%s %s %c", a, b, &c) == EOF) {
             fprintf(stderr, "beedep: load_cache: "
                             "cache file is broken (line %d)\n", line_cnt);
-            return 0;
+            return EXIT_FAILURE;
         }
 
         k = hash_search(hash, a);
@@ -634,7 +603,7 @@ int load_cache(struct hash *hash, FILE *file)
         if (!k || !l) {
             fprintf(stderr, "beedep: load_cache: "
                             "cache file is broken (line %d)\n", line_cnt);
-            return 0;
+            return EXIT_FAILURE;
         }
 
         if (c == 'n') {
@@ -646,11 +615,11 @@ int load_cache(struct hash *hash, FILE *file)
         } else {
             fprintf(stderr, "beedep: load_cache: "
                             "cache file is broken (line %d)\n", line_cnt);
-            return 0;
+            return EXIT_FAILURE;
         }
     }
 
-    return 1;
+    return EXIT_SUCCESS;
 }
 
 unsigned long count_providedby(struct hash *hash, char *count)
