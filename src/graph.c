@@ -191,9 +191,8 @@ int graph_insert_nodes(struct hash *hash, char *filename)
 
         if (!l) {
             fprintf(stderr,
-                    "bee-dep: %s: error at line %d: missing value "
+                    "bee-dep: warning: %s: line %d: missing value "
                     "for property \"%s\"\n", filename, line_cnt, prop);
-            return 1;
         }
 
         memset(value, '\0', LINE_MAX);
