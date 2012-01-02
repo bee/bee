@@ -104,6 +104,10 @@ function show_help() {
 	EOF
 }
 
+function disable_autoexclusion() {
+    unset BEE_AUTO_EXCLUDE
+}
+
 function require_version() {
     if @BINDIR@/beeversion "${VERSION}" -lt "${1}" ; then
         print_error "this bee-file requires at least bee v${1} .."
