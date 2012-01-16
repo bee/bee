@@ -453,9 +453,6 @@ static int bee_dep_update(int argc, char *argv[])
 
     if (stat(path, &st) != -1) {
         if (hash_search(graph, pkg)) {
-            fprintf(stderr,
-                    "bee-dep: package \"%s\" is already in the cache\n",
-                    pkg);
             hash_free(graph);
             return 0;
         }
