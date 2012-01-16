@@ -87,6 +87,9 @@ void hash_free(struct hash *hash)
 {
     int i;
 
+    if (!hash)
+        return;
+
     for (i = 0; i < TBLSIZE; i++) {
         tree_free_all_nodes(hash->tbl[i]);
         tree_free(hash->tbl[i]);
