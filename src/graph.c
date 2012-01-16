@@ -517,36 +517,48 @@ int count_removable(struct hash *hash, char *remove)
     return c;
 }
 
-static void list_all_files(struct node *n)
+static int list_all_files(struct node *n, char print)
 {
     struct tree_node *t;
+    int count;
 
-    t = tree_first(n->provide->root);
+    t     = tree_first(n->provide->root);
+    count = 0;
 
     while (t) {
-        if (IS_FILE(t->n->name))
-            puts(t->n->name);
+        if (IS_FILE(t->n->name)) {
+            count++;
 
-        list_all_files(t->n);
+            if (print)
+                puts(t->n->name);
+        }
+
+        count += list_all_files(t->n, print);
 
         t = tree_next(t);
     }
+
+    return count;
 }
 
-static void count_all_files(struct node *n, int *count)
+static int count_all_files(struct node *n)
 {
     struct tree_node *t;
+    int count;
 
-    t = tree_first(n->provide->root);
+    t     = tree_first(n->provide->root);
+    count = 0;
 
     while (t) {
         if (IS_FILE(t->n->name))
-            (*count)++;
+            count++;
 
-        list_all_files(t->n);
+        count += list_all_files(t->n, 0);
 
         t = tree_next(t);
     }
+
+    return count;
 }
 
 int list_files(struct hash *hash, char *pkgname)
@@ -567,7 +579,7 @@ int list_files(struct hash *hash, char *pkgname)
         return 1;
     }
 
-    list_all_files(n);
+    list_all_files(n, 1);
 
     return 0;
 }
@@ -575,7 +587,6 @@ int list_files(struct hash *hash, char *pkgname)
 int count_files(struct hash *hash, char *pkgname)
 {
     struct node *n;
-    int c;
 
     if ((n = hash_search(hash, pkgname)) == NULL) {
         fprintf(stderr,
@@ -591,10 +602,7 @@ int count_files(struct hash *hash, char *pkgname)
         return -1;
     }
 
-    c = 0;
-    count_all_files(n, &c);
-
-    return c;
+    return count_all_files(n);
 }
 
 static void get_all_providers(struct node *n, struct tree *all)
