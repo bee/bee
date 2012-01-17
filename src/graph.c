@@ -385,7 +385,8 @@ void print_broken(struct hash *hash, char *remove)
 
 void sort_dirs(char **dirs, int dir_cnt)
 {
-    int i, j, c;
+    int i, j;
+    size_t c;
     char *h;
 
     for (i = 1; i < dir_cnt; i++) {
