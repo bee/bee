@@ -81,17 +81,17 @@ static void get_bee_variables(void)
 {
     if (!bee_version()) {
         fprintf(stderr, "BEE-ERROR: please call bee-dep from bee\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     if (!bee_metadir()) {
         fprintf(stderr, "BEE-ERROR: BEE_METADIR not set\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     if (!bee_cachedir()) {
         fprintf(stderr, "BEE_ERROR: BEE_CACHEDIR not set\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -195,7 +195,7 @@ void ensure_directories(void)
         if (*c == '/' || !(*c)) {
             if (stat(dir, &st) == -1 && mkdir(dir, 0755) == -1) {
                 perror("mkdir");
-                exit(1);
+                exit(EXIT_FAILURE);
             }
         }
 
@@ -353,7 +353,7 @@ struct hash *get_cache(void)
         graph = load_cache(cache_filename());
 
     if (!graph)
-        exit(1);
+        exit(EXIT_FAILURE);
 
     return graph;
 }
@@ -744,7 +744,7 @@ static FILE *lockfile(void)
 
         if ((file = fopen(lock_filename(), "w")) == NULL) {
             perror("bee-dep: lockfile");
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 
         fprintf(file, "locked by pid %d\n", getpid());
@@ -767,7 +767,7 @@ void lock(void)
 
     if (fcntl(fileno(f), F_SETLKW, &flo) == -1) {
         perror("bee-dep: lock");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -789,17 +789,17 @@ void unlock(void)
 
     if (ftruncate(fileno(f), 0) == -1) {
         perror("bee-dep: unlock: ftruncate");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     if (fcntl(fileno(f), F_SETLK, &flo) == -1) {
         perror("bee-dep: unlock: fcntl");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     if (fclose(f) == EOF) {
         perror("bee-dep: unlock: fclose");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 }
 
