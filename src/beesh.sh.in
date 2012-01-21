@@ -531,8 +531,8 @@ function bee_run() {
 
 config_init_colors
 
-echo -e "${COLOR_CYAN}BEE v${BEE_VERSION} 2009-2011 - mariux64 package magic "
-echo -e "  by Marius Tolzmann und Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>"
+echo -e "${COLOR_CYAN}BEE v${BEE_VERSION} 2009-2011"
+echo -e "  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>"
 echo -e "     Max Planck Institute for Molecular Genetics Berlin Dahlem"
 echo -e "${COLOR_NORMAL}"
 
