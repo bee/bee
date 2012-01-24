@@ -108,7 +108,7 @@ function download_git() {
         git reset ${OPT_COMMIT} >/dev/null 2>&1
     fi
 
-    gd=$(git describe --tags --long)
+    gd=$(git describe --tags --long --always)
     commit=${gd##*-g}
     gd=${gd%-*}
     ahead=${gd##*-}
@@ -124,7 +124,13 @@ function download_git() {
         PKGFULLVERSION=${PKGFULLVERSION//[^0-9.]/}
     fi
 
-    pkgextraextraversion="_p${ahead}_${commit}"
+    if [ "$ahead" != "$gd" ] ; then
+        pkgextraextraversion="_p${ahead}"
+    else
+        PKGFULLVERSION=0
+    fi
+
+    pkgextraextraversion="${pkgextraextraversion}_${commit}"
 
     filename=${OPT_PKGNAME:-${PKGNAME}}-${OPT_VERSION:-${PKGFULLVERSION}}${pkgextraextraversion}
 
