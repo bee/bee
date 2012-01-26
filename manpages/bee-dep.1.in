@@ -7,7 +7,7 @@
 
 .fi
 ..
-.TH "bee\-dep" "1" "2011-11-10" "bee @BEE_VERSION@" "bee package management "
+.TH "bee\-dep" "1" "2012-01-26" "bee @BEE_VERSION@" "bee package management"
 .SH NAME
 
 .PP
@@ -16,31 +16,36 @@ bee\-dep \- bee dependency tool
 .SH SYNOPSIS
 
 \fBbee dep\fP
-[\fBoptions\fP]
-[\fIpkgname\fP]
+<command> [pkgname|file]
 .PP
 .SH DESCRIPTION
 
 \fBbee\-dep\fP
-is used to read the DEPENDENCY
-file of every installed package and then be able to tell \fBbee\-remove\fP
-which files can be deleted.
+reads the
+.ul
+DEPENDENCIES
+file
+of every installed package and is able to query several information about the packages.
+.br
 .PP
 As part of the bee package management \fBbee\-dep\fP
 is invoked by the wrapper tool \fBbee\fP(1).
 .PP
-.SH OPTIONS
+.SH COMMANDS
 
 .PP
-\fB\-\-rebuild\fP
+\fBrebuild\fP
 .RS
-Rebuild the cache. Therefore the old cache is deleted and then updated with the information of the DEPENDENCY file of each installed package.
+Rebuild the cache. Therefore the old cache is deleted and then recreated with the information of the
+.ul
+DEPENDENCIES
+file of each installed package.
 .RS
 .PP
 .RE
 .RE
 .PP
-\fB\-\-update\fP
+\fBupdate\fP
 \fIpkgname\fP
 .RS
 Update the cache for a specific package.
@@ -48,33 +53,34 @@ Update the cache for a specific package.
 .RE
 .RE
 .PP
-\fB\-\-remove\fP
-\fIpkgname\fP
+\fBremove\fP
+[options] \fIpkgname\fP
 .RS
 Remove a package from the cache.
-.br
-This option can be combined with the option \fB\-\-print\-removable\fP\&.
 .PP
 .RE
 .RE
 .PP
-\fB\-\-print\-removable\fP
-\fIpkgname\fP
+\fBlist\fP
+[options] \fIpkgname\fP
 .RS
-Print all files/directories which can be deleted from the package.
-.br
-Combined with the \fB\-\-remove\fP
-option: Print all files/directories which were deleted from the cache.
+Query information about a package.
+.PP
+.RE
+.RE
+.PP
+\fBconflicts\fP
+.RS
+Show conflicting packages.
 .PP
 .RE
 .RE
 .PP
 .SH FILES
 
-.B /etc/bee/beerc
+\fB/etc/bee/beerc\fP
 .br
-.B \fB${HOME}\fP/.beerc
-.br
+\fB${HOME}/.beerc\fP
 .RS
 The main config files. Use these to change \fBbee\-dep\fP\&'s
 environment variables.
@@ -86,12 +92,12 @@ environment variables.
 \fB${BEE_METADIR}\fP
 .br
 .RS
-Directory searched for installed bee packages
+Directory where to search for installed bee packages
 .br
 .PP
 root\-user: /usr/share/bee
 .br
-other:     ${HOME}/.local/share/beemeta
+other: ${HOME}/.local/share/beemeta
 .br
 .RE
 .RE
@@ -102,27 +108,16 @@ other:     ${HOME}/.local/share/beemeta
 Directory where to save the cache file
 .ul
 index.db
+and
+the lock file
+.ul
+index.lock
 
 .br
 root\-user: /var/cache/bee
 .br
-other:     ${HOME}/.cache/bee
+other: ${HOME}/.cache/bee
 .br
-.RE
-.RE
-.PP
-.SH DIAGNOSTICS
-
-Following error message may be seen:
-.PP
-\fBBEE\-ERROR: please call bee\-init from bee ..\fP
-.br
-.RS
-\fBbee\-dep\fP
-must be run by the wrapper \fBbee\fP\&.
-Just call \fBbee dep\fP
-[\fBoptions\fP]
-[\fIpkgname\fP]
 .RE
 .RE
 .PP
@@ -145,4 +140,3 @@ Tobias Dreyer <\fBdreyer@molgen.mpg.de\fP>
 \fBbee\-list\fP(1)
 \fBbee\-query\fP(1)
 \fBbee\-remove\fP(1)
-.\" NOTE: This file is generated, DO NOT EDIT.
