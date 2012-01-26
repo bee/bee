@@ -293,14 +293,11 @@ void tree_node_free(struct tree *t, struct tree_node *n)
     struct tree_node *delete,
                      *replace,
                      *to_update;
-    struct node *s;
 
     delete = n;
 
     if (!delete)
         return;
-
-    s = delete->n;
 
     if (delete->left) {
         if (delete->right) {
