@@ -274,7 +274,7 @@ do_install() {
 
     echo "installing ${file} .."
 
-    start_cmd tar ${taraction} -vvPf ${file} \
+    start_cmd tar ${taraction} --dereference -vvPf ${file} \
         --transform="s,^FILES$,${BEE_METADIR}/${pkg}/FILES," \
         --transform="s,^BUILD$,${BEE_METADIR}/${pkg}/${BEE}," \
         --transform="s,^META$,${BEE_METADIR}/${pkg}/META," \
