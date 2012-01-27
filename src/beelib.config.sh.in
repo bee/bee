@@ -177,8 +177,12 @@ function config_verify_builtin_config() {
         : ${BEE_CACHEDIR=${XDG_CACHE_HOME}/bee}
     fi
 
+    user=${LOGNAME}
+    : ${user:=${USER}}
+    : ${user:=${USERNAME}}
+
     : ${BEE_TMP_TMPDIR:=/tmp}
-    : ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${LOGNAME}}
+    : ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${user}}
 
     : ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
     : ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
