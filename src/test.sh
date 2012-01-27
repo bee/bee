@@ -44,7 +44,7 @@
 
 
 echo -n "testing usage .. "
-if ! ./beeversion >/dev/null ; then
+if ! ./beeversion >/dev/null 2>&1 ; then
     echo "OK"
 else
     echo "FAILED"
@@ -53,14 +53,14 @@ fi
 
 for p in --lt --gt --le --ge --eq --ne ; do 
    echo -n "testing fail when no args in ${p} .. "
-   if ! ./beeversion ${p} >/dev/null ; then
+   if ! ./beeversion ${p} >/dev/null 2>&1 ; then
        echo "OK"
    else
        echo "FAILED"
    fi
    
    echo -n "testing fail when no args in ${p} .. "
-   if ! ./beeversion ${p} dummy-1.2-3 >/dev/null ; then
+   if ! ./beeversion ${p} dummy-1.2-3 >/dev/null 2>&1 ; then
        echo "OK"
    else
        echo "FAILED"
@@ -77,7 +77,7 @@ expect_success() {
     if [ $? -eq 0 ] ; then
         echo "PASSED"
     else
-        echo "FAILED"
+        echo "FAILED (got fail, expected success)"
     fi
 }
 
@@ -91,7 +91,7 @@ expect_failure() {
     if [ $? -eq 1 ] ; then
         echo "PASSED"
     else
-        echo "FAILED"
+        echo "FAILED (got success, expected fail)"
     fi
 }
 
