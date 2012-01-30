@@ -82,6 +82,12 @@ function download_http() {
 
     destination=${BEE_DOWNLOADDIR}/${file}
 
+    if [ ! -s "${destination}" ] ; then
+        rm -vf ${destination}
+    fi
+
+    trap "rm -f ${destination}" EXIT
+
     wget \
         --no-check-certificate \
         --output-document=${destination} \
@@ -89,6 +95,8 @@ function download_http() {
         ${repository_url}
 
     echo ${destination}
+
+    trap - EXIT
 }
 
 function download_git() {
