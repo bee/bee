@@ -121,7 +121,7 @@ function check_repositories() {
 
     mkdir -pv ${BEE_REPOSITORY_BEEDIR}
     mkdir -pv ${BEE_REPOSITORY_PKGDIR}
-    mkdir -pv ${BEE_REPOSITORY_BUILDARCHIVEDIR}
+    mkdir -pv ${BEE_BUILDARCHIVEDIR}
 
     if [ ! -w "${BEE_REPOSITORY_BEEDIR}" ] ; then
         print_error " !! ${BEE_REPOSITORY_BEEDIR} not writable"
@@ -133,7 +133,7 @@ function check_repositories() {
         r=1
     fi
 
-    if [ ! -w "${BEE_REPOSITORY_BUILDARCHIVEDIR}" ] ; then
+    if [ ! -w "${BEE_BUILDARCHIVEDIR}" ] ; then
         print_error " !! ${BEE_REPOSITORY_BEEDIR} not writable"
         r=1
     fi
@@ -434,11 +434,11 @@ function bee_pkg_pack() {
 function bee_archivebuild() {
     [ "${OPT_ARCHIVE_BUILD}" != "yes" ] && return
 
-    if [ ! -d "${BEE_REPOSITORY_BUILDARCHIVEDIR}" ] ; then
-        mkdir -pv ${BEE_REPOSITORY_BUILDARCHIVEDIR}
+    if [ ! -d "${BEE_BUILDARCHIVEDIR}" ] ; then
+        mkdir -pv ${BEE_BUILDARCHIVEDIR}
     fi
 
-    archive="${BEE_REPOSITORY_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2"
+    archive="${BEE_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2"
 
     print_info " -> saving build environment.."
     print_info "${COLOR_CYAN}${archive}"
