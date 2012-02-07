@@ -75,14 +75,35 @@ function config_init_base_config() {
     XDG_DATA_DIRS=$(beeuniq -d : ${XDG_DATA_DIRS//:/ })
 }
 
+
+function deprecated_mv() {
+    local what=${1}
+    local from=${2}
+    local to=${3}
+
+    if [ -e "${from}" -a ! -e "${to}" ] ; then
+        print_error "WARNING: migrating deprecated config ${what}:"
+        print_error "WARNING:   moving ${from} -> ${to}"
+        mkdir -vp "${to%/*}"
+        mv -v "${from}" "${to}"
+    fi
+}
+
 function config_handle_deprecated_config() {
-    : ${DOTBEERC:=${HOME}/.beerc}
-    if [ -r "${DOTBEERC}" ] ; then
-        print_error \
-            "ERROR: support for ~/.beerc is" \
-            " deprecated please move it to" \
-            " ${XDG_CONFIG_HOME}/bee/beerc"
-        exit 1
+    deprecated_mv "DOTBEERC"              "${HOME}/.beerc" "${XDG_CONFIG_HOME}/bee/beerc"
+    deprecated_mv "BEE_REPOSITORY_PREFIX" "${XDG_DATA_HOME}/beeroot" "${BEE_REPOSITORY_PREFIX}"
+    deprecated_mv "BEE_METADIR"           "${XDG_DATA_HOME}/beemeta" "${BEE_METADIR}"
+    deprecated_mv "BEE_REPOSITORY_BEEDIR" "${BEE_REPOSITORY_PREFIX}/bees" "${BEE_REPOSITORY_BEEDIR}"
+    deprecated_mv "BEE_REPOSITORY_PKGDIR" "${BEE_REPOSITORY_PREFIX}/pkgs" "${BEE_REPOSITORY_PKGDIR}"
+    deprecated_mv "BEE_DOWNLOADDIR"       "${BEE_REPOSITORY_PREFIX}/downloads" "${BEE_DOWNLOADDIR}"
+    deprecated_mv "BEE_TMP_BUILDROOT"     "${BEE_TMP_TMPDIR}/beeroot-${USER}" "${BEE_TMP_BUILDROOT}"
+
+    if [ ! -z "${BEE_REPOSITORY_BUILDARCHIVEDIR}" ] ; then
+        print_error "WARNING: ignored deprecated variable BEE_REPOSITORY_BUILDARCHIVEDIR please use BEE_BUILDARCHIVEDIR=${BEE_REPOSITORY_BUILDARCHIVEDIR}"
+    fi
+
+    if [ ! -z "${DOTBEERC}" ] ; then
+        print_error "WARNING: ignored deprecated variable DOTBEERC please use BEE_USER_CONFIG_FILE=${DOTBEERC}"
     fi
 }
 
@@ -242,12 +263,12 @@ function expand_prefix_variables() {
 
 function config_init() {
     config_init_base_config
-    config_handle_deprecated_config
     config_load_local_config
     config_load_user_config
     config_load_system_config
     config_verify_builtin_config
     config_verify_builtin_prefixes
+    config_handle_deprecated_config
 }
 
 function config_export() {
