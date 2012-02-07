@@ -172,7 +172,7 @@ function config_verify_builtin_config() {
         : ${BEE_METADIR=${BEE_XDG_DATADIR}/bee}
         : ${BEE_CACHEDIR=/var/cache/bee}
     else # user
-        : ${BEE_REPOSITORY_PREFIX=${XDG_DATA_HOME}/beeroot}
+        : ${BEE_REPOSITORY_PREFIX=${HOME}/.local/src/bee}
         : ${BEE_METADIR=${XDG_DATA_HOME}/bee}
         : ${BEE_CACHEDIR=${XDG_CACHE_HOME}/bee}
     fi
