@@ -182,7 +182,7 @@ function config_verify_builtin_config() {
     : ${user:=${USERNAME}}
 
     : ${BEE_TMP_TMPDIR:=/tmp}
-    : ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${user}}
+    : ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/bee-${user}}
 
     : ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
     : ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
