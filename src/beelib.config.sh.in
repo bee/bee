@@ -187,6 +187,11 @@ function config_verify_builtin_config() {
     : ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
     : ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
     : ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
+
+    # XDG_DOWNLOAD_DIR defaults to: ${HOME}/Downloads
+    #    but since i don't like it we don't set XDG_DOWNLOAD_DIR but respect it
+    #    if set.
+    : ${BEE_DOWNLOADDIR:=${XDG_DOWNLOAD_DIR}}
     : ${BEE_DOWNLOADDIR:=${BEE_REPOSITORY_PREFIX}/downloads}
 }
 
