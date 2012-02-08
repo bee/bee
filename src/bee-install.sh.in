@@ -112,17 +112,17 @@ pkg_install() {
     fi
 
     # install package from repository
-    if [ -f "${BEE_REPOSITORY_PKGDIR}/${search}" ] ; then
-         do_install "${BEE_REPOSITORY_PKGDIR}/${search}"
+    if [ -f "${BEE_PKGDIR}/${search}" ] ; then
+         do_install "${BEE_PKGDIR}/${search}"
          return
     fi
 
     for e in "" ".$(arch)" ".noarch" ".any" ; do
-        if [ -f "${BEE_REPOSITORY_PKGDIR}/${search}${e}.bee.tar.bz2" ] ; then
-            do_install "${BEE_REPOSITORY_PKGDIR}/${search}${e}.bee.tar.bz2"
+        if [ -f "${BEE_PKGDIR}/${search}${e}.bee.tar.bz2" ] ; then
+            do_install "${BEE_PKGDIR}/${search}${e}.bee.tar.bz2"
             return
-        elif [ -f "${BEE_REPOSITORY_PKGDIR}/${search}${e}.iee.tar.bz2" ] ; then
-            do_install "${BEE_REPOSITORY_PKGDIR}/${search}${e}.iee.tar.bz2"
+        elif [ -f "${BEE_PKGDIR}/${search}${e}.iee.tar.bz2" ] ; then
+            do_install "${BEE_PKGDIR}/${search}${e}.iee.tar.bz2"
             return
         fi
     done
