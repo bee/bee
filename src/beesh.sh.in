@@ -616,7 +616,16 @@ if [ ! -f "${BEE}" ] ; then
 fi
 
 ### define pkg variables
+PKGNAME=
+PKGVERSION=
+PKGREVISION=
+
 eval $(@BINDIR@/beeversion ${BEE})
+
+if [ -z "${PKGNAME}" -o -z "${PKGVERSION}" -o -z "${PKGREVISION}" ] ; then
+    print_error "${BEE}: please use the proper package versioning (e.g. package-1.0-0)"
+    exit 1
+fi
 
 PN=${PKGNAME}
 PV=( ${PKGVERSION[@]} )
