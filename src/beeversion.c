@@ -115,7 +115,7 @@ int parse_argument(char* text, struct beeversion *versionsnummer)
     int p;
     
     if((p=parse_version(text, versionsnummer))) {
-        fprintf(stderr, "syntax error at position %d in '%s'\n", p, text);
+        fprintf(stderr, "beeversion: syntax error at position %d in '%s'\n", p, text);
         return(0);
     }
     return(1);
@@ -169,7 +169,7 @@ int do_test(int argc, char *argv[], char test) {
             case T_NOT_EQUAL:
                 return(ret != 0);
         }
-        fprintf(stderr, "YOU HIT A BUG #004\n");
+        fprintf(stderr, "beeversion: YOU HIT A BUG #004\n");
     }
     
     /* min / max */
@@ -214,7 +214,7 @@ int do_test(int argc, char *argv[], char test) {
         return(1);
     }
     
-    fprintf(stderr, "YOU HIT A BUG #006\n");
+    fprintf(stderr, "beeversion: YOU HIT A BUG #006\n");
     
     return(0);
 }
@@ -316,12 +316,12 @@ int main(int argc, char *argv[])
     
         if( (c & TEST_TYPE_MASK) && ! (c & ~TEST_FULL_MASK)) {
             if(mode && mode == MODE_PARSE) {
-                fprintf(stderr, "skipping test-option --%s since already running in parse mode\n",
+                fprintf(stderr, "beeversion: skipping test-option --%s since already running in parse mode\n",
                           long_options[option_index].name);
                 continue;
             }
             if(test_to_do) {
-                fprintf(stderr, "skipping test-option --%s since --%s is already set\n",
+                fprintf(stderr, "beeversion: skipping test-option --%s since --%s is already set\n",
                           long_options[option_index].name, long_options[test_index].name);
                 continue;
             }
@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
         }
         
         if(mode && mode == MODE_TEST) {
-            fprintf(stderr, "skipping parse-option --%s since already running in test mode\n",
+            fprintf(stderr, "beeversion: skipping parse-option --%s since already running in test mode\n",
                       long_options[option_index].name);
             continue;
         }
@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
         /* define format */
         if((c >= 'A' && c <= 'z')) {
             if(format && ! build_format) {
-                fprintf(stderr, "--%s ignored\n", long_options[option_index].name);
+                fprintf(stderr, "beeversion: --%s ignored\n", long_options[option_index].name);
                 continue;
             }
             
@@ -369,7 +369,7 @@ int main(int argc, char *argv[])
         
         if(c == OPT_FORMAT) {
             if(format) {
-                fprintf(stderr, "--%s ignored\n", long_options[option_index].name);
+                fprintf(stderr, "beeversion: --%s ignored\n", long_options[option_index].name);
                 continue;
             }
             format = optarg;
@@ -378,7 +378,7 @@ int main(int argc, char *argv[])
         
         if(c == OPT_KEYVALUE) {
             if(format) {
-                fprintf(stderr, "--%s ignored\n", long_options[option_index].name);
+                fprintf(stderr, "beeversion: --%s ignored\n", long_options[option_index].name);
                 continue;
             }
             format = keyvalue;
@@ -401,7 +401,7 @@ int main(int argc, char *argv[])
         if(opterr)
            continue;
         
-        fprintf(stderr, "YOU HIT A BUG #003 opterr=%d\n", opterr);
+        fprintf(stderr, "beeversion: YOU HIT A BUG #003 opterr=%d\n", opterr);
     }  /* end while getopt_long_only */
     
     if(build_format)
