@@ -13,6 +13,7 @@
 /beesh.sh
 /beesort
 /beeversion
+/beegetopt
 /bee-dep
 /beelib.config.sh
 /bee.1
@@ -23,6 +24,7 @@
 /bee-query.1
 /bee-remove.1
 /bee-dep.1
+/.beerc
 *.tar.gz
 *.o
 *.tar.bz2

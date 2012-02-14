@@ -49,7 +49,7 @@ sed-rules = -e 's,@PREFIX@,${PREFIX},g' \
 	    -e 's,@BEE_VERSION@,${BEE_VERSION},g' \
 	    -e 's,@DATADIR@,${DATADIR},g'
 
-PROGRAMS_C=beeversion beesep beecut beeuniq beesort
+PROGRAMS_C=beeversion beesep beecut beeuniq beesort beegetopt
 PROGRAMS_SHELL=bee beesh
 PROGRAMS_PERL=beefind.pl
 
@@ -82,6 +82,7 @@ BEECUT_OBJECTS=beecut.o
 BEEUNIQ_OBJECTS=beeuniq.o
 BEESORT_OBJECTS=beesort.o compare.o output.o parse.o tree.o
 BEEDEP_OBJECTS=bee-dep.o graph.o hash.o beedep_tree.o node.o
+BEEGETOPT_OBJECTS=bee_getopt.o beegetopt.o
 
 shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS)) $(LIBRARY_SHELL)
 perlscripts:  $(PROGRAMS_PERL)
@@ -104,6 +105,9 @@ beesort: $(addprefix src/, ${BEESORT_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 bee-dep: $(addprefix src/, ${BEEDEP_OBJECTS})
+	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
+
+beegetopt: $(addprefix src/, ${BEEGETOPT_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 %.o: %.c
