@@ -86,6 +86,8 @@ function search_tool_cmd {
 
 TOOL=${1}
 
+config_init_colors
+
 config_init
 
 config_export
