@@ -119,22 +119,22 @@ function check_repositories() {
     r=0
     print_info "==> checking repositories .."
 
-    mkdir -pv ${BEE_REPOSITORY_BEEDIR}
-    mkdir -pv ${BEE_REPOSITORY_PKGDIR}
-    mkdir -pv ${BEE_REPOSITORY_BUILDARCHIVEDIR}
+    mkdir -pv ${BEE_BEEDIR}
+    mkdir -pv ${BEE_PKGDIR}
+    mkdir -pv ${BEE_BUILDARCHIVEDIR}
 
-    if [ ! -w "${BEE_REPOSITORY_BEEDIR}" ] ; then
-        print_error " !! ${BEE_REPOSITORY_BEEDIR} not writable"
+    if [ ! -w "${BEE_BEEDIR}" ] ; then
+        print_error " !! ${BEE_BEEDIR} not writable"
         r=1
     fi
 
-    if [ ! -w "${BEE_REPOSITORY_PKGDIR}" ] ; then
-        print_error " !! ${BEE_REPOSITORY_PKGDIR} not writable"
+    if [ ! -w "${BEE_PKGDIR}" ] ; then
+        print_error " !! ${BEE_PKGDIR} not writable"
         r=1
     fi
 
-    if [ ! -w "${BEE_REPOSITORY_BUILDARCHIVEDIR}" ] ; then
-        print_error " !! ${BEE_REPOSITORY_BEEDIR} not writable"
+    if [ ! -w "${BEE_BUILDARCHIVEDIR}" ] ; then
+        print_error " !! ${BEE_BUILDARCHIVEDIR} not writable"
         r=1
     fi
 
@@ -390,12 +390,12 @@ function bee_pkg_pack() {
         cp ${p} ${D}/PATCHES
     done
 
-    if [ ! -d "${BEE_REPOSITORY_PKGDIR}" ] ; then
-        mkdir -pv ${BEE_REPOSITORY_PKGDIR}
+    if [ ! -d "${BEE_PKGDIR}" ] ; then
+        mkdir -pv ${BEE_PKGDIR}
     fi
 
     pkgname=${PKGALLPKG}.bee.tar.bz2
-    pkgfile=${BEE_REPOSITORY_PKGDIR}/${pkgname}
+    pkgfile=${BEE_PKGDIR}/${pkgname}
 
     print_info " -> creating package ${pkgname} .."
     print_info "${COLOR_CYAN}${pkgfile}"
@@ -418,27 +418,27 @@ function bee_pkg_pack() {
     rm ${DUMP}
 
     beefilename=${BEE##*/}
-    beefiledest=${BEE_REPOSITORY_BEEDIR}/${beefilename}
+    beefiledest=${BEE_BEEDIR}/${beefilename}
 
     print_info "-> saving bee-file ${beefilename} .."
     print_info "${COLOR_CYAN}${beefiledest}"
 
-    if [ ! -d "${BEE_REPOSITORY_BEEDIR}" ] ; then
-        mkdir -pv ${BEE_REPOSITORY_BEEDIR}
+    if [ ! -d "${BEE_BEEDIR}" ] ; then
+        mkdir -pv ${BEE_BEEDIR}
     fi
 
-    cp -v ${BEE} ${BEE_REPOSITORY_BEEDIR}
+    cp -v ${BEE} ${BEE_BEEDIR}
 }
 
 
 function bee_archivebuild() {
     [ "${OPT_ARCHIVE_BUILD}" != "yes" ] && return
 
-    if [ ! -d "${BEE_REPOSITORY_BUILDARCHIVEDIR}" ] ; then
-        mkdir -pv ${BEE_REPOSITORY_BUILDARCHIVEDIR}
+    if [ ! -d "${BEE_BUILDARCHIVEDIR}" ] ; then
+        mkdir -pv ${BEE_BUILDARCHIVEDIR}
     fi
 
-    archive="${BEE_REPOSITORY_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2"
+    archive="${BEE_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2"
 
     print_info " -> saving build environment.."
     print_info "${COLOR_CYAN}${archive}"
@@ -453,10 +453,10 @@ function bee_archivebuild() {
         --absolute-names \
         ${S} ${B} \
         ${bee_FETCHED_FILES[@]} \
-        ${BEE_REPOSITORY_BEEDIR}/${BEE##*/} \
+        ${BEE_BEEDIR}/${BEE##*/} \
         --transform="s,^${BEEWORKDIR},${PKGALLPKG}," \
         --transform="s,^${F},${PKGALLPKG}/files," \
-        --transform="s,^${BEE_REPOSITORY_BEEDIR},${PKGALLPKG}/files,"
+        --transform="s,^${BEE_BEEDIR},${PKGALLPKG}/files,"
 }
 
 function load_buildmagic() {
@@ -726,5 +726,5 @@ echo
 
 if [ "${OPT_INSTALL}" = "yes" ] ; then
     print_info "installing ${PKGALLPKG} .."
-    bee install ${OPT_FORCE:+-f} ${BEE_REPOSITORY_PKGDIR}/${PKGALLPKG}.bee.tar.bz2
+    bee install ${OPT_FORCE:+-f} ${BEE_PKGDIR}/${PKGALLPKG}.bee.tar.bz2
 fi

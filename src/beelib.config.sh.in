@@ -75,15 +75,66 @@ function config_init_base_config() {
     XDG_DATA_DIRS=$(beeuniq -d : ${XDG_DATA_DIRS//:/ })
 }
 
+
+function deprecated_mv() {
+    local what=${1}
+    local from=${2}
+    local to=${3}
+
+    if [ -e "${from}" -a ! -e "${to}" ] ; then
+        print_error "WARNING: migrating deprecated config ${what}:"
+        print_error "WARNING:   moving ${from} -> ${to}"
+        mkdir -vp "${to%/*}"
+        mv -v "${from}" "${to}"
+    fi
+}
+
 function config_handle_deprecated_config() {
-    : ${DOTBEERC:=${HOME}/.beerc}
-    if [ -r "${DOTBEERC}" ] ; then
-        print_error \
-            "ERROR: support for ~/.beerc is" \
-            " deprecated please move it to" \
-            " ${XDG_CONFIG_HOME}/bee/beerc"
+
+    local exit_deprecated=0
+
+    if [ ! -z "${DOTBEERC}" ] ; then
+        print_error "ERROR: deprecated variable DOTBEERC is set."
+        print_error "ERROR: please use BEE_USER_CONFIG_FILE=${DOTBEERC}"
+        exit_deprecated=1
+    fi
+
+    if [ ! -z "${BEE_REPOSITORY_BUILDARCHIVEDIR}" ] ; then
+        print_error "ERROR: deprecated variable BEE_REPOSITORY_BUILDARCHIVEDIR is set."
+        print_error "ERROR: please use BEE_BUILDARCHIVEDIR=${BEE_REPOSITORY_BUILDARCHIVEDIR}"
+        exit_deprecated=1
+    fi
+
+    if [ ! -z "${BEE_REPOSITORY_BEEDIR}" ] ; then
+        print_error "ERROR: deprecated variable BEE_REPOSITORY_BEEDIR is set."
+        print_error "ERROR: please use BEE_BEEDIR=${BEE_REPOSITORY_BEEDIR}"
+        exit_deprecated=1
+    fi
+
+    if [ ! -z "${BEE_REPOSITORY_PKGDIR}" ] ; then
+        print_error "ERROR: deprecated variable BEE_REPOSITORY_PKGDIR is set."
+        print_error "ERROR: please use BEE_PKGDIR=${BEE_REPOSITORY_PKGDIR}"
+        exit_deprecated=1
+    fi
+
+    if [ ! -z "${BEE_REPOSITORY_PKGPATH}" ] ; then
+        print_error "ERROR: deprecated variable BEE_REPOSITORY_PKGPATH is set."
+        print_error "ERROR: please use BEE_PKGPATH=${BEE_REPOSITORY_PKGPATH}"
+        exit_deprecated=1
+    fi
+
+    if [ ${exit_deprecated} == 1 ] ; then
+        print_error "ERROR: please fix depracted variable errors before continuing."
         exit 1
     fi
+
+    deprecated_mv "DOTBEERC"              "${HOME}/.beerc" "${XDG_CONFIG_HOME}/bee/beerc"
+    deprecated_mv "BEE_REPOSITORY_PREFIX" "${XDG_DATA_HOME}/beeroot" "${BEE_REPOSITORY_PREFIX}"
+    deprecated_mv "BEE_METADIR"           "${XDG_DATA_HOME}/beemeta" "${BEE_METADIR}"
+    deprecated_mv "BEE_BEEDIR"            "${BEE_REPOSITORY_PREFIX}/bees" "${BEE_BEEDIR}"
+    deprecated_mv "BEE_PKGDIR"            "${BEE_REPOSITORY_PREFIX}/pkgs" "${BEE_PKGDIR}"
+    deprecated_mv "BEE_DOWNLOADDIR"       "${BEE_REPOSITORY_PREFIX}/downloads" "${BEE_DOWNLOADDIR}"
+    deprecated_mv "BEE_TMP_BUILDROOT"     "${BEE_TMP_TMPDIR}/beeroot-${USER}" "${BEE_TMP_BUILDROOT}"
 }
 
 # load config: (bee/beerc)
@@ -172,8 +223,8 @@ function config_verify_builtin_config() {
         : ${BEE_METADIR=${BEE_XDG_DATADIR}/bee}
         : ${BEE_CACHEDIR=/var/cache/bee}
     else # user
-        : ${BEE_REPOSITORY_PREFIX=${XDG_DATA_HOME}/beeroot}
-        : ${BEE_METADIR=${XDG_DATA_HOME}/beemeta}
+        : ${BEE_REPOSITORY_PREFIX=${HOME}/.local/src/bee}
+        : ${BEE_METADIR=${XDG_DATA_HOME}/bee}
         : ${BEE_CACHEDIR=${XDG_CACHE_HOME}/bee}
     fi
 
@@ -182,11 +233,16 @@ function config_verify_builtin_config() {
     : ${user:=${USERNAME}}
 
     : ${BEE_TMP_TMPDIR:=/tmp}
-    : ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/beeroot-${user}}
+    : ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/bee-${user}}
 
-    : ${BEE_REPOSITORY_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bees}
-    : ${BEE_REPOSITORY_PKGDIR:=${BEE_REPOSITORY_PREFIX}/pkgs}
-    : ${BEE_REPOSITORY_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
+    : ${BEE_BEEDIR:=${BEE_REPOSITORY_PREFIX}/bee-files}
+    : ${BEE_PKGDIR:=${BEE_REPOSITORY_PREFIX}/packages}
+    : ${BEE_BUILDARCHIVEDIR:=${BEE_REPOSITORY_PREFIX}/build-archives}
+
+    # XDG_DOWNLOAD_DIR defaults to: ${HOME}/Downloads
+    #    but since i don't like it we don't set XDG_DOWNLOAD_DIR but respect it
+    #    if set.
+    : ${BEE_DOWNLOADDIR:=${XDG_DOWNLOAD_DIR}}
     : ${BEE_DOWNLOADDIR:=${BEE_REPOSITORY_PREFIX}/downloads}
 }
 
@@ -237,19 +293,19 @@ function expand_prefix_variables() {
 
 function config_init() {
     config_init_base_config
-    config_handle_deprecated_config
     config_load_local_config
     config_load_user_config
     config_load_system_config
     config_verify_builtin_config
     config_verify_builtin_prefixes
+    config_handle_deprecated_config
 }
 
 function config_export() {
     export BEE_REPOSITORY_PREFIX
-    export BEE_REPOSITORY_BEEDIR
-    export BEE_REPOSITORY_PKGDIR
-    export BEE_REPOSITORY_BUILDARCHIVEDIR
+    export BEE_BEEDIR
+    export BEE_PKGDIR
+    export BEE_BUILDARCHIVEDIR
     export BEE_DOWNLOADDIR
     export BEE_METADIR
     export BEE_CACHEDIR

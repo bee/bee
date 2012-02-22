@@ -69,16 +69,16 @@ list_installed() {
 
 #
 # lists available packages
-#   RETURNS a sorted list of packages available in ${BEE_REPOSITORY_PKGDIR}
-#   or in any directory in ${BEE_REPOSITORY_PKGPATH}
+#   RETURNS a sorted list of packages available in ${BEE_PKGDIR}
+#   or in any directory in ${BEE_PKGPATH}
 #
 list_available() {
     local IFS=":${IFS}"
     # preapre for repository pathes..
-    : ${BEE_REPOSITORY_PKGPATH:=${BEE_REPOSITORY_PKGDIR}}
+    : ${BEE_PKGPATH:=${BEE_PKGDIR}}
 
-    # replace all ':' with ' ' in BEE_REPOSITORY_PKGPATH
-    path=${BEE_REPOSITORY_PKGPATH//:/ }
+    # replace all ':' with ' ' in BEE_PKGPATH
+    path=${BEE_PKGPATH//:/ }
 
     search=""
     for p in $path ; do
