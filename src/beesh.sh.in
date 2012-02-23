@@ -292,6 +292,8 @@ function bee_extract() {
     local bee_S
     bee_S=( "$@" )
 
+    : ${BEE_EXTRACT_STRIP:=1}
+
     if is_func mee_unpack ; then
         print_error "#BEE-WARNING# function 'mee_unpack()' is deprecated .. use 'mee_extract()' instead .." >&2
         mee_unpack "${@}"
@@ -304,7 +306,7 @@ function bee_extract() {
 
     s=${bee_S[0]}
     print_info " -> extracting main source ${s} .."
-    tar xof ${s} --strip-components 1 -C ${S}
+    tar xof ${s} --strip-components ${BEE_EXTRACT_STRIP} -C ${S}
 
     unset bee_S[0]
 
