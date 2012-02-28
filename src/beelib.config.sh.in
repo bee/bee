@@ -100,8 +100,8 @@ function deprecated_mv() {
     local to=${3}
 
     if [ -e "${from}" -a ! -e "${to}" ] ; then
-        print_error "WARNING: migrating deprecated config ${what}:"
-        print_error "WARNING:   moving ${from} -> ${to}"
+        print_warning "WARNING: migrating deprecated config ${what}:"
+        print_warning "WARNING:   moving ${from} -> ${to}"
         mkdir -vp "${to%/*}"
         mv -v "${from}" "${to}"
     fi
