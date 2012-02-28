@@ -37,22 +37,30 @@ BEE_VERSION="@BEE_VERSION@"
 
 function usage() {
     cat <<-EOF
-	bee v${BEE_VERSION} 2009-2011
+	bee v${BEE_VERSION} 2009-2012
 	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
 	     Max Planck Institute for Molecular Genetics Berlin Dahlem
 
-	Usage: bee <tool> [options]
+	EOF
+    print_usage
+    echo
+    echo " available tools: (use bee <tool> --help for further information)"
+    echo
 
-	Tools:
-	  init
-	  install
-	  remove
-	  check
-	  query
-	  list
+    for i in ${BEE_LIBEXECDIR}/bee/bee.d/bee-* ; do
+        echo "  bee ${i##*/bee-}"
+    done
+    echo
+}
 
+function print_usage() {
+    cat <<-EOF
+	  bee <tool> [tool-options] [tool-arguments]
+	  bee --print-config
 	EOF
 }
+
+
 
 function search_tool_cmd {
     local IFS=":${IFS}"
