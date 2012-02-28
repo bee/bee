@@ -313,6 +313,12 @@ void bee_getopt_pop_current_argument(struct bee_getopt_ctl *optctl)
     optctl->_argc--;
 }
 
+void bee_getopt_pop_all_arguments(struct bee_getopt_ctl *optctl)
+{
+    while(optctl->optind < optctl->_argc)
+        bee_getopt_pop_current_argument(optctl);
+}
+
 static int _bee_getopt_long(struct bee_getopt_ctl *optctl, int *optindex)
 {
     int this;
@@ -347,12 +353,11 @@ static int _bee_getopt_long(struct bee_getopt_ctl *optctl, int *optindex)
         return BEE_GETOPT_NOOPT;
     }
 
-    /* match '--' and pop all remaining arguments */
+    /* match & skip '--' and pop all remaining arguments */
 
     if(maybe_long && (optctl->argv[this][2] == '\0')) {
-//        fprintf(stderr, "found -- popping all..\n");
-        for(optctl->optind++; optctl->optind < optctl->_argc;)
-            bee_getopt_pop_current_argument(optctl);
+        optctl->optind++;
+        bee_getopt_pop_all_arguments(optctl);
         return BEE_GETOPT_END;
     }
 
