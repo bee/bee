@@ -180,6 +180,7 @@ function config_load_local_config() {
         local_config="${path}/${BEE_LOCAL_CONFIG_FILENAME}"
         if [ -r "${local_config}" ] ; then
             . ${local_config}
+            BEE_LOCAL_CONFIG_FILE_=${BEE_LOCAL_CONFIG_FILE_}${BEE_LOCAL_CONFIG_FILE_:+:}${local_config}
             if [ -z "${BEE_LOCAL_CONFIG_CONTINUE}" ] ; then
                 break;
             fi
@@ -192,17 +193,23 @@ function config_load_local_config() {
 function config_load_user_config() {
     : ${BEE_USER_CONFIG_FILE:=${XDG_CONFIG_HOME}/bee/beerc}
 
+    unset BEE_USER_CONFIG_FILE_
+
     # load user config
     if [ -r "${BEE_USER_CONFIG_FILE}" ] ; then
         . ${BEE_USER_CONFIG_FILE}
+        BEE_USER_CONFIG_FILE_=${BEE_USER_CONFIG_FILE}
     fi
 }
 
 function config_load_system_config() {
     local IFS=":${IFS}"
 
+    unset BEE_CONFIG_FILE_
+
     if [ ! -z "${BEE_CONFIG_FILE}" -a -r "${BEE_CONFIG_FILE}" ] ; then
         . ${BEE_CONFIG_FILE}
+        BEE_CONFIG_FILE_=${BEE_CONFIG_FILE}
         return
     fi
 
@@ -217,6 +224,7 @@ function config_load_system_config() {
 
     if [ -r "${BEE_CONFIG_FILE}" ] ; then
         . ${BEE_CONFIG_FILE}
+        BEE_CONFIG_FILE_=${BEE_CONFIG_FILE}
     fi
 }
 
