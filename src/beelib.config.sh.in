@@ -170,7 +170,7 @@ function config_load_local_config() {
 
     local_config=
 
-    : ${BEE_LOCAL_CONFIG_FILENAME=.beerc}
+    : ${BEE_LOCAL_CONFIG_FILENAME:=.beerc}
 
     path=${PWD}
 
