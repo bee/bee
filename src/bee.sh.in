@@ -74,7 +74,9 @@ function search_tool_cmd {
 }
 
 
-options=$(${BEE_BINDIR}/beegetopt --name=bee --option=print-config -- "${@}")
+options=$(${BEE_BINDIR}/beegetopt --name=bee \
+    --option=print-config \
+    -- "${@}")
 
 eval set -- "${options}"
 
