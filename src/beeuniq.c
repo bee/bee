@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long_only(argc, argv, "hv", long_options, &option_index)) != -1) {
+    while ((c = getopt_long_only(argc, argv, "hvd:", long_options, &option_index)) != -1) {
 
         switch (c) {
             case OPT_DELIMITER:
