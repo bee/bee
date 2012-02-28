@@ -263,7 +263,7 @@ static int handle_option(struct bee_getopt_ctl *ctl, const int index)
 
        if (!o->required_args) {
 
-           /* only optional arguments - set optarg if not set */
+           /* only optional argumentsBEE_FLAG_STOPONNOOPT - set optarg if not set */
            if (!ctl->optarg) {
                /* no optarg and no more arguments -> done without optional argument */
                if (ctl->optind == ctl->_argc)
@@ -407,6 +407,10 @@ int bee_getopt(struct bee_getopt_ctl *optctl, int *optindex, int flags)
                 return BEE_GETOPT_NOVALUE;
 
             case BEE_GETOPT_NOOPT:
+                if (flags & BEE_FLAG_STOPONNOOPT) {
+                    bee_getopt_pop_all_arguments(optctl);
+                    return BEE_GETOPT_END;
+                }
                 break;
 
             case BEE_GETOPT_AMBIGUOUS:
@@ -416,6 +420,10 @@ int bee_getopt(struct bee_getopt_ctl *optctl, int *optindex, int flags)
                 return BEE_GETOPT_ERROR;
 
             case BEE_GETOPT_OPTUNKNOWN:
+                if (flags & BEE_FLAG_STOPONUNKNOWN) {
+                    bee_getopt_pop_all_arguments(optctl);
+                    return BEE_GETOPT_END;
+                }
                 if (!(flags & BEE_FLAG_SKIPUNKNOWN)) {
                     if (optctl->program)
                         fprintf(stderr, "%s: ", optctl->program);

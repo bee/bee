@@ -40,6 +40,16 @@ void usage(void)
       "Usage: beegetopt [options]\n\n"
       "  -o | --option=OPTION[,OPTION]   Options to be recognized\n"
       "\n"
+      "  -n | --name=NAME                set program name\n"
+      "  -N | --stop-on-no-option        stop parsing when argument\n"
+      "                                  is not an optiion\n"
+      "  -U | --stop-on-unknown-option   stop parsing when argument\n"
+      "                                  is an unknown optiion\n"
+      "  -S | --no-skip-unknown-option   carp on unknown options\n"
+      "                                  by default unknown options are skipped\n"
+      "                                  and handled as non-option argument.\n"
+      "                                  -S is ignored if -U is given.\n"
+      "\n"
       "  -h | --help                     This little help\n"
       "  -V | --version                  Version information\n"
       "\n"
@@ -57,6 +67,9 @@ int main(int argc, char *argv[])
        BEE_OPTION_REQUIRED_ARG("option", 'o'),
        BEE_OPTION_REQUIRED_ARG("longoption", 'o'),
        BEE_OPTION_REQUIRED_ARG("name", 'n'),
+       BEE_OPTION_NO_ARG("stop-on-unknown-option",  'U'),
+       BEE_OPTION_NO_ARG("stop-on-no-option",  'N'),
+       BEE_OPTION_NO_ARG("no-skip-unknown-option",  'S'),
        BEE_OPTION_END
    };
 
@@ -74,6 +87,7 @@ int main(int argc, char *argv[])
    char  *sep;
    char  *sepstr;
    char  *name = NULL;
+   int    flags = BEE_FLAG_SKIPUNKNOWN;
 
    bee_getopt_init(&optctl, argc-1, &argv[1], opts);
 
@@ -95,6 +109,18 @@ int main(int argc, char *argv[])
 
            case 'n':
                name = optctl.optarg;
+               break;
+
+           case 'N':
+               flags |= BEE_FLAG_STOPONNOOPT;
+               break;
+
+           case 'U':
+               flags |= BEE_FLAG_STOPONUNKNOWN;
+               break;
+
+           case 'S':
+               flags &= ~BEE_FLAG_SKIPUNKNOWN;
                break;
 
            case 'o':
@@ -203,7 +229,7 @@ int main(int argc, char *argv[])
 
     optctl.program = name?name:"program";
 
-    while((opt=bee_getopt(&optctl, &i, BEE_FLAG_SKIPUNKNOWN)) != BEE_GETOPT_END) {
+    while((opt=bee_getopt(&optctl, &i, flags)) != BEE_GETOPT_END) {
 
        if (opt == BEE_GETOPT_ERROR) {
            exit(1);

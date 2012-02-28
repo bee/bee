@@ -34,7 +34,9 @@
 #define BEE_TYPE_TOGGLE     8
 #define BEE_TYPE_COUNT      9
 
-#define BEE_FLAG_SKIPUNKNOWN (1<<0)
+#define BEE_FLAG_SKIPUNKNOWN   (1<<0)
+#define BEE_FLAG_STOPONNOOPT   (1<<1)
+#define BEE_FLAG_STOPONUNKNOWN (1<<2)
 
 #define BEE_OPT_LONG(name)     .long_opt      = (name)
 #define BEE_OPT_SHORT(short)   .short_opt     = (short)
