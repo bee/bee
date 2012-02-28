@@ -174,10 +174,16 @@ function config_load_local_config() {
 
     path=${PWD}
 
+    unset BEE_LOCAL_CONFIG_CONTINUE
+
     while [ ! -z "${path}" ] ; do
         local_config="${path}/${BEE_LOCAL_CONFIG_FILENAME}"
         if [ -r "${local_config}" ] ; then
             . ${local_config}
+            if [ -z "${BEE_LOCAL_CONFIG_CONTINUE}" ] ; then
+                break;
+            fi
+            unset BEE_LOCAL_CONFIG_CONTINUE
         fi
         path=${path%/*}
     done
