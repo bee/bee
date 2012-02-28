@@ -30,6 +30,7 @@ BEE_VERSION="@BEE_VERSION@"
 : ${BEE_DATADIR:=@DATADIR@}
 : ${BEE_LIBDIR:=@LIBDIR@}
 : ${BEE_LIBEXECDIR:=@LIBEXECDIR@}
+: ${BEE_BINDIR:=@BINDIR@}
 
 # load libs
 . ${BEE_LIBEXECDIR}/bee/beelib.config.sh
@@ -84,6 +85,27 @@ function search_tool_cmd {
     done
 }
 
+
+options=$(${BEE_BINDIR}/beegetopt --name=bee --option=print-config -- "${@}")
+
+eval set -- "${options}"
+
+declare -i OPT_PRINTCONFIG=0
+
+while true ; do
+    case "$1" in
+        --print-config)
+            shift
+            OPT_PRINTCONFIG=1
+            ;;
+        --)
+            shift
+            break
+            ;;
+    esac
+done
+
+
 TOOL=${1}
 
 config_init_colors
@@ -91,6 +113,11 @@ config_init_colors
 config_init
 
 config_export
+
+if [ ${OPT_PRINTCONFIG} = 1 ] ; then
+    config_print
+    exit 0
+fi
 
 search_tool_cmd ${TOOL}
 

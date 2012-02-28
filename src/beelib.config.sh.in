@@ -323,3 +323,15 @@ function config_export() {
     export XDG_DATA_HOME
     export XDG_DATA_DIRS
 }
+
+function config_print() {
+    for v in ${!BEE_*} ${!XDG_*}; do
+        eval echo "${v}=\${${v}}"
+    done | sort
+
+    for v in PREFIX EPREFIX BINDIR SBINDIR LIBEXECDIR SYSCONFDIR LOCALSTATEDIR \
+         SHAREDSTATEDIR LIBDIR INCLUDEDIR DATAROOTDIR DATADIR INFODIR \
+         MANDIR DOCDIR LOCALEDIR ; do
+        eval echo "${v}=\${${v}}"
+    done
+}
