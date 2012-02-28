@@ -37,7 +37,7 @@
 void usage(void)
 {
    printf(
-      "Usage: beegetopt [options]\n\n"
+      "Usage: beegetopt [options] -- [arguments and options to be parsed]\n\n"
       "  -o | --option=OPTION[,OPTION]   Options to be recognized\n"
       "\n"
       "  -n | --name=NAME                set program name\n"
@@ -52,6 +52,18 @@ void usage(void)
       "\n"
       "  -h | --help                     This little help\n"
       "  -V | --version                  Version information\n"
+      "\n"
+      " OPTION may be a short or a long options or a combination of long and\n"
+      " short options seperated by a slash (/). In this case the second to last\n"
+      " option are considered aliases for the first. Only the first option is\n"
+      " returned as a new commandline argument: e.g.\n"
+      "    --option long/alias/a/b  will always return --long\n"
+      "    --option a/b/long        will always return -a\n"
+      "\n"
+      " If the last character of OPTION is '=' this option will require an\n"
+      " argument. "
+      " If it is ':' this option takes an optional argument: e.g.\n"
+      "    --option name/n=\n"
       "\n"
    );
 }
