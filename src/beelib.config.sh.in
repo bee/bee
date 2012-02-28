@@ -196,6 +196,7 @@ function config_load_system_config() {
     local IFS=":${IFS}"
 
     if [ ! -z "${BEE_CONFIG_FILE}" -a -r "${BEE_CONFIG_FILE}" ] ; then
+        . ${BEE_CONFIG_FILE}
         return
     fi
 
