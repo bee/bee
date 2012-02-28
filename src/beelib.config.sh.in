@@ -36,6 +36,7 @@ function config_init_colors() {
         COLOR_BRCONTENT=${COLOR_YELLOW}
         COLOR_INFO=${COLOR_GREEN}
         COLOR_ERROR=${COLOR_RED}
+        COLOR_WARN=${COLOR_YELLOW}
     else
         COLOR_NORMAL=""
         COLOR_GREEN=""
@@ -48,7 +49,24 @@ function config_init_colors() {
         COLOR_BRCONTENT=""
         COLOR_INFO="**INFO** "
         COLOR_ERROR="**ERROR** "
+        COLOR_WARN="**WARNING** "
     fi
+}
+
+function print_msg() {
+    echo >&2 -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${@}"
+}
+
+function print_info() {
+    print_msg "${COLOR_INFO}${@}${COLOR_NORMAL}"
+}
+
+function print_error() {
+    print_msg "${COLOR_ERROR}${@}${COLOR_NORMAL}"
+}
+
+function print_warning() {
+    print_msg "${COLOR_WARN}${@}${COLOR_NORMAL}"
 }
 
 function config_init_base_config() {

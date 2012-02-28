@@ -41,14 +41,6 @@ VERSION=${BEE_VERSION}
 # load libs
 . ${BEE_LIBEXECDIR}/bee/beelib.config.sh
 
-function print_info() {
-    echo -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${COLOR_INFO}${@}${COLOR_NORMAL}"
-}
-
-function print_error() {
-    echo -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${COLOR_ERROR}${@}${COLOR_NORMAL}"
-}
-
 ###############################################################################
 ###############################################################################
 ###############################################################################

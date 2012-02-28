@@ -35,18 +35,6 @@ BEE_VERSION="@BEE_VERSION@"
 # load libs
 . ${BEE_LIBEXECDIR}/bee/beelib.config.sh
 
-function print_msg() {
-    echo >&2 -e "${COLOR_BRACKET}[${COLOR_BRCONTENT}BEE${COLOR_BRACKET}] ${@}"
-}
-
-function print_info() {
-    print_msg "${COLOR_INFO}${@}${COLOR_NORMAL}"
-}
-
-function print_error() {
-    print_msg "${COLOR_ERROR}${@}${COLOR_NORMAL}"
-}
-
 function usage() {
     cat <<-EOF
 	bee v${BEE_VERSION} 2009-2011
