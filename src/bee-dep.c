@@ -215,26 +215,9 @@ int mkdirp(char *path, mode_t mode)
 
 void ensure_directories(void)
 {
-    char *c;
-    int i;
-    char dir[PATH_MAX + 1] = {0};
-    struct stat st;
-
-    c = bee_cachedir();
-    i = 0;
-
-    while (*c) {
-        dir[i] = *c;
-        c++;
-
-        if (*c == '/' || !(*c)) {
-            if (stat(dir, &st) == -1 && mkdir(dir, 0755) == -1) {
-                perror("mkdir");
-                exit(EXIT_FAILURE);
-            }
-        }
-
-        i++;
+    if (mkdirp(bee_cachedir(), 0755) == -1) {
+        perror("bee-dep: mkdirp");
+        exit(EXIT_FAILURE);
     }
 }
 
