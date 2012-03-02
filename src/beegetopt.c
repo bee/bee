@@ -38,22 +38,22 @@ void usage(void)
 {
    printf(
       "Usage: beegetopt [options] -- [arguments and options to be parsed]\n\n"
-      "  -o | --option=OPTION[,OPTION]   Options to be recognized\n"
+      "  -o | --option=OPTION[,OPTION]   options to be recognized\n"
       "\n"
       "  -n | --name=NAME                set program name\n"
       "  -N | --stop-on-no-option        stop parsing when argument\n"
-      "                                  is not an optiion\n"
+      "                                  is not an option\n"
       "  -U | --stop-on-unknown-option   stop parsing when argument\n"
-      "                                  is an unknown optiion\n"
+      "                                  is an unknown option\n"
       "  -S | --no-skip-unknown-option   carp on unknown options\n"
       "                                  by default unknown options are skipped\n"
       "                                  and handled as non-option argument.\n"
       "                                  -S is ignored if -U is given.\n"
       "\n"
-      "  -h | --help                     This little help\n"
-      "  -V | --version                  Version information\n"
+      "  -h | --help                     print this little help\n"
+      "  -V | --version                  print version\n"
       "\n"
-      " OPTION may be a short or a long options or a combination of long and\n"
+      " OPTION may be a short or a long option or a combination of long and\n"
       " short options seperated by a slash (/). In this case the second to last\n"
       " option are considered aliases for the first. Only the first option is\n"
       " returned as a new commandline argument: e.g.\n"
@@ -162,17 +162,13 @@ int main(int argc, char *argv[])
                }
 
                break;
-
        }
-
-
    }
 
    if(!totalopts) {
        usage();
        exit(1);
    }
-
 
    beeopts = calloc(totalopts+1, sizeof(*beeopts));
 
