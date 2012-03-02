@@ -34,12 +34,10 @@
  what we do not support
 
     -help  long = "help"
-
 */
 
 #include <stdio.h>
 #include <string.h>
-
 #include <assert.h>
 
 #include "bee_getopt.h"
@@ -211,7 +209,6 @@ static int find_long_option_by_subname(struct bee_option *options, char *name, c
 
 static int handle_option(struct bee_getopt_ctl *ctl, const int index)
 {
-
     struct bee_option *o = &(ctl->options[index]);
     int argc;
 
@@ -303,7 +300,6 @@ void bee_getopt_pop_current_argument(struct bee_getopt_ctl *optctl)
 
 //    fprintf(stderr, "popping %d %s\n", optctl->optind, optctl->argv[optctl->optind]);
 
-
     for(i=optctl->optind; i < optctl->argc; i++) {
         optctl->argv[i] = optctl->argv[i+1];
     }
@@ -344,7 +340,6 @@ static int _bee_getopt_long(struct bee_getopt_ctl *optctl, int *optindex)
     optctl->optarg = NULL;
 
     *optindex = -1;
-
 
     /* not an option: pop arguement */
 
@@ -463,7 +458,4 @@ void bee_getopt_print_quoted(char *s)
        s++;
     }
     putchar('\'');
-
-
 }
-
