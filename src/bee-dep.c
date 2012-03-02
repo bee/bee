@@ -34,6 +34,8 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <fcntl.h>
+#include <assert.h>
+#include <errno.h>
 
 #include "graph.h"
 
@@ -176,6 +178,39 @@ static void usage_conflicts(void)
 {
     usage_header();
     printf("Usage: bee dep conflicts [pkgname]\n");
+}
+
+/* create all directories in path with mode mode */
+int mkdirp(char *path, mode_t mode)
+{
+    char *dir, *pdir, *end;
+    int ret;
+
+    assert(path);
+
+    dir = end = path;
+
+    while (*dir) {
+        /* skip "/" */
+        dir = end + strspn(end, "/");
+
+        /* skip non-"/" */
+        end = dir + strcspn(dir, "/");
+
+        /* grab everything in path till current end */
+        if (!(pdir = strndup(path, end - path)))
+            return -1;
+
+        /* create the directory ; ignore err if it already exists */
+        ret = mkdir(pdir, mode);
+
+        free(pdir);
+
+        if (ret == -1 && errno != EEXIST)
+            return -1;
+    }
+
+    return 0;
 }
 
 void ensure_directories(void)
