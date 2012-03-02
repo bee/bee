@@ -162,17 +162,13 @@ int main(int argc, char *argv[])
                }
 
                break;
-
        }
-
-
    }
 
    if(!totalopts) {
        usage();
        exit(1);
    }
-
 
    beeopts = calloc(totalopts+1, sizeof(*beeopts));
 
