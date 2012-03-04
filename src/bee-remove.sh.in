@@ -123,7 +123,7 @@ usage() {
 	EOF
 }
 
-options=$(getopt -n bee_remove \
+options=$(getopt -n bee-remove \
                  -o n,h \
                  --long noop,help \
                  -- "$@")

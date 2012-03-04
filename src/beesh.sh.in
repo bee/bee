@@ -542,7 +542,7 @@ print_info "  BEE_TMP_BUILDROOT      ${BEE_TMP_BUILDROOT}"
 
 ###############################################################################
 
-OPTIONS=$(getopt -n bee-option-parser \
+OPTIONS=$(getopt -n beesh \
                  -o hifcs \
                  --long help,install,force-install,cleanup,silent-build,debug: \
                  --long archive-build,no-archive-build \
