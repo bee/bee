@@ -229,6 +229,9 @@ static struct hash *init_cache(void)
     struct stat st;
     struct hash *graph;
 
+    if (stat(bee_metadir(), &st) == -1)
+        return NULL;
+
     if ((pkg_cnt = scandir(bee_metadir(), &package, 0, alphasort)) < 0) {
         perror("bee-dep: init_cache: scandir");
         return NULL;
@@ -287,6 +290,9 @@ static int update_cache(struct hash *graph)
     char path[PATH_MAX + 1];
     struct stat st;
     struct tree_node *t;
+
+    if (stat(bee_metadir(), &st) == -1)
+        return 0;
 
     if ((pkg_cnt = scandir(bee_metadir(), &package, 0, alphasort)) < 0) {
         perror("bee-dep: update_cache: scandir");
