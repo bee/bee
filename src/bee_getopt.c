@@ -190,10 +190,12 @@ static int find_long_option_by_subname(struct bee_option *options, char *name, c
                 continue;
         }
 
-        if (idx >= 0)
-            return BEE_GETOPT_AMBIGUOUS;
-
-        idx = i;
+        if (idx >= 0) {
+            if (options[i].value != options[idx].value)
+                return BEE_GETOPT_AMBIGUOUS;
+        } else {
+            idx = i;
+        }
     }
 
     /* return error if option was not found */
