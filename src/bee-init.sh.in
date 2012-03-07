@@ -32,6 +32,8 @@ fi
 
 VERSION=${BEE_VERSION}
 
+: ${BEE_BINDIR:=@BINDIR@}
+
 function usage() {
     cat <<-EOF
 	bee-init v${VERSION} 2009-2011
@@ -226,16 +228,30 @@ function initialize() {
     chmod 755 ${beefile}
 }
 
-options=$(getopt -n beeinit \
-                 -o ht:f \
-                 --long disable-versionify \
-                 --long help,template:,force \
-                 --long configure: \
-                 --long prefix:,eprefix:,bindir:,sbindir:,libexecdir: \
-                 --long sysconfdir:,localstatedir:,sharedstatedir: \
-                 --long libdir:,includedir:,datarootdir:,datadir: \
-                 --long infodir:,mandir:,docdir:,localedir: \
-                 --long buildtype: \
+options=$(${BEE_BINDIR}/beegetopt --name bee-init \
+                 --option disable-versionify \
+                 --option help/h \
+                 --option version/V \
+                 --option template/t= \
+                 --option force/f \
+                 --option configure= \
+                 --option prefix= \
+                 --option eprefix= \
+                 --option bindir= \
+                 --option sbindir= \
+                 --option libexecdir= \
+                 --option sysconfdir= \
+                 --option localstatedir= \
+                 --option sharedstatedir= \
+                 --option libdir= \
+                 --option includedir= \
+                 --option datarootdir= \
+                 --option datadir= \
+                 --option infodir= \
+                 --option mandir= \
+                 --option docdir= \
+                 --option localedir= \
+                 --option buildtype= \
                  -- "$@")
 
 if [ $? != 0 ] ; then
@@ -249,17 +265,22 @@ eval set -- "${options}"
 
 while true ; do
     case "$1" in
-        -h|--help)
+        --help)
             usage
             exit 0
             ;;
 
-        -t|--template)
+        --version)
+            echo ${VERSION}
+            exit 0
+            ;;
+
+        --template)
             TEMPLATE=${2}
             shift 2
             ;;
 
-        -f|--force)
+        --force)
             shift
 
             OPT_FORCE="yes"
