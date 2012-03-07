@@ -131,7 +131,12 @@ config_init
 
 config_export
 
-if [ ${OPT_PRINTCONFIG} = 1 ] ; then
+if [ "${TOOL}" = "init" ] ; then
+    expand_prefix_variables_defaults
+    config_export_prefix_variables
+fi
+
+if [ "${OPT_PRINTCONFIG}" = "1" ] ; then
     config_print
     exit 0
 fi

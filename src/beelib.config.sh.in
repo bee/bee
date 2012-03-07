@@ -298,21 +298,24 @@ function config_verify_builtin_prefixes() {
     : ${LOCALEDIR:='${DATAROOTDIR}/locale'}
 }
 
-function expand_prefix_variables() {
+function expand_prefix_variables_defaults() {
     if [ "${SYSCONFDIR}" = "DEFAULT" ] ; then
         SYSCONFDIR="/etc"
         if [ "${PREFIX}" != "/usr" -a "${PREFIX}" != "/usr/local" ] ; then
-            SYSCONFDIR="${PREFIX}${SYSCONFDIR}"
+            SYSCONFDIR="\${PREFIX}${SYSCONFDIR}"
         fi
     fi
 
     if [ "${LOCALSTATEDIR}" = "DEFAULT" ] ; then
         LOCALSTATEDIR="/var"
         if [ "${PREFIX}" != "/usr" -a "${PREFIX}" != "/usr/local" ] ; then
-            LOCALSTATEDIR="${PREFIX}${LOCALSTATEDIR}"
+            LOCALSTATEDIR="\${PREFIX}${LOCALSTATEDIR}"
         fi
     fi
+}
 
+function expand_prefix_variables() {
+    expand_prefix_variables_defaults
     BEE_AUTO_EXCLUDE=""
     for var in PREFIX EPREFIX BINDIR SBINDIR LIBEXECDIR SYSCONFDIR \
                SHAREDSTATEDIR LOCALSTATEDIR LIBDIR INCLUDEDIR \
