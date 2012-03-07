@@ -36,19 +36,52 @@ VERSION=${BEE_VERSION}
 
 function usage() {
     cat <<-EOF
-	bee-init v${VERSION} 2009-2011
+	bee-init v${VERSION} 2009-2012
 	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
 	     Max Planck Institute for Molecular Genetics Berlin Dahlem
 
-	Usage:
-	bee init [options] <url>
-	bee init [options] <pkgname> [url]
-
-	Options:
-	    -t [xorg|default]    specify template used for beefile
-	    -f | --force         force overwriting of beefile
-	    -h | --help          display this help
-
+	  bee [bee-options] init [options] <url>
+	  bee [bee-options] init [options] <pkgname> [url]
+	
+	 Options:
+	   --configure=MODE       set configure mode:
+	                          'compat': disable --datarootdir option to be
+	                                    compatible with older ./configure scripts.
+	                          'none': disable configure at all.
+	   --disable-versionify   do not replace versionnumbers with variables
+	                          in the bee-file
+	   --buildtype=TYPE       force buildtype: configure, cmake, make, autogen,
+	                          perl-module, perl-module-makemaker, python-module
+	   -f  --force            force overwrite of bee-file.
+	   -h  --help             this little help.
+	   -V  --version          print version number.
+	
+	 Installation directories:
+	   --prefix=PREFIX        install architecture-independent files in PREFIX
+	                          [${PREFIX}]
+	   --exec-prefix=EPREFIX  install architecture-dependent files in EPREFIX
+	                          [${EPREFIX}]
+	
+	 Fine tuning of the installation directories:
+	   --bindir=DIR           user executables [${BINDIR}]
+	   --sbindir=DIR          system admin executables [${SBINDIR}]
+	   --libexecdir=DIR       program executables [${LIBEXECDIR}]
+	   --sysconfdir=DIR       read-only single-machine data [${SYSCONFDIR}]
+	   --sharedstatedir=DIR   modifiable architecture-independent data [${SHAREDSTATEDIR}]
+	   --localstatedir=DIR    modifiable single-machine data [${LOCALSTATEDIR}]
+	   --libdir=DIR           object code libraries [${LIBDIR}]
+	   --includedir=DIR       C header files [${INCLUDEDIR}]
+	   --datarootdir=DIR      read-only arch.-independent data root [${DATAROOTDIR}]
+	   --datadir=DIR          read-only architecture-independent data [${DATADIR}]
+	   --infodir=DIR          info documentation [${INFODIR}]
+	   --localedir=DIR        locale-dependent data [${LOCALEDIR}]
+	   --mandir=DIR           man documentation [${MANDIR}]
+	   --docdir=DIR           documentation root [${DOCDIR}]
+	
+	   Descritions taken from ./configure script - may vary depending on buildtype.
+	   Current values in [] (command line options are not evaluated).
+	   for [bee-options] see 'bee --help'.
+	
 	EOF
 }
 
