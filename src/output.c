@@ -166,6 +166,9 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
                 case 't':
                     printf("\t");
                     break;
+                case '0':
+                    printf("%c", '\0');
+                    break;
                 default:
                     printf("%c", *p);
                     break;
