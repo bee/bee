@@ -42,7 +42,7 @@ ARCH=$(arch)
 #
 usage() {
     cat <<-EOF
-	bee-list v${VERSION} 2009-2011
+	bee-list v${VERSION} 2009-2012
 	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
 	     Max Planck Institute for Molecular Genetics Berlin Dahlem
 
@@ -91,10 +91,15 @@ list_available() {
         return
     fi
 
-    find ${search} -mindepth 1 -maxdepth 1 -printf "%f\n" \
-        | sed -e "s@\.iee\.tar\..*\$@@" \
-              -e "s@\.bee\.tar\..*\$@@" \
-        | sort
+    if [ "${OPT_PATHNAME}" == "yes" ] ; then
+        find ${search} -mindepth 1 -maxdepth 1 -printf "%p\n" \
+            | sort
+    else
+        find ${search} -mindepth 1 -maxdepth 1 -printf "%f\n" \
+            | sed -e "s@\.iee\.tar\..*\$@@" \
+                  -e "s@\.bee\.tar\..*\$@@" \
+            | sort
+    fi
 }
 
 #
@@ -132,10 +137,12 @@ options=$(getopt -n bee-list \
                  --long available \
                  --long installed \
                  --long by-pkgfullname \
+                 --long display-pathname \
                  --long exact \
                  --long help \
                  --long debug \
                  -- "$@")
+
 if [ $? != 0 ] ; then
     usage
     exit 1
@@ -145,6 +152,7 @@ eval set -- "${options}"
 filter=""
 
 OPT_EXACT="no"
+OPT_PATHNAME="no"
 
 DEBUG=":"
 while true ; do
@@ -164,6 +172,10 @@ while true ; do
         --by-pkgfullname|--exact)
             shift
             OPT_EXACT="yes"
+            ;;
+        --display-pathname)
+            shift
+            OPT_PATHNAME="yes"
             ;;
         --debug)
             shift
