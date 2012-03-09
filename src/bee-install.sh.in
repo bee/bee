@@ -197,6 +197,7 @@ function do_remove() {
             echo "REMOVE ${p}"
             continue
         fi
+        echo "removing ${p} .."
         ${BEE_LIBEXECDIR}/bee/bee.d/bee-remove ${p}
     done
 }
@@ -340,15 +341,20 @@ function do_install_file() {
     local file=$1
     local beefile="$(${BEE_BINDIR}/beeversion ${pkg} --format='%F').bee"
     local pkg=$(${BEE_BINDIR}/beeversion --format='%A' $file)
+    local vv=""
 
     if [ "${OPT_NOOP}" = "yes" ] ; then
         echo "INSTALL ${file}"
         return
     fi
 
-    debug_msg "installing ${file} .."
+    echo "installing ${file} .."
 
-    start_cmd tar -x --dereference -vvPf ${file} \
+    if [ ${OPT_VERBOSE} -ge 1 ] ; then
+       vv="vv"
+    fi
+
+    start_cmd tar -x --dereference -${vv}Pf ${file} \
         --transform="s,^FILES$,${BEE_METADIR}/${pkg}/FILES," \
         --transform="s,^BUILD$,${BEE_METADIR}/${pkg}/${beefile}," \
         --transform="s,^META$,${BEE_METADIR}/${pkg}/META," \
