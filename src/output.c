@@ -145,6 +145,15 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
                 case 'v':
                     cut_and_print(v->version, '.', 0);
                     break;
+                case 'e':
+                    cut_and_print(v->extraversion, '_', 0);
+                    break;
+                case 'V':
+                    cut_and_print(v->version, '.', 1);
+                    break;
+                case 'E':
+                    cut_and_print(v->extraversion, '_', 1);
+                    break;
             }
             continue;
         } /* if '@' */
