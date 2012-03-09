@@ -30,23 +30,38 @@ fi
 
 VERSION=${BEE_VERSION}
 
-debug_msg() {
-    if [ "${OPT_DEBUG}" != "yes" ] ; then
+: ${BEE_BINDIR:=@BINDIR@}
+
+function debug_msg() {
+    if [ "${OPT_DEBUG}" != "1" ] ; then
         return
     fi
 
-    echo "#DEBUG# ${@}" >&2
+    info=( $(caller 0) )
+
+    echo "${info[2]}:${info[1]}:${info[0]}: ${@}" >&2
 }
 
-start_cmd() {
+function start_cmd() {
     debug_msg "executing '${@}'"
-    ${@}
+
+    if [ "${OPT_NOOP}" = "no" ] ; then
+        ${@}
+    fi
+}
+
+function assert() {
+    if [ ! ${@} ] ; then
+        local info=( $(caller 0) )
+        echo "${info[2]}:${info[1]}:${info[0]}: Assertion [ ${@} ] failed. exiting.." >&2
+        exit 250
+    fi
 }
 
 ##### usage ###################################################################
-usage() {
+function usage() {
     cat <<-EOF
-	bee-install v${VERSION} 2009-2011
+	bee-install v${VERSION} 2009-2012
 	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
 	     Max Planck Institute for Molecular Genetics Berlin Dahlem
 
@@ -55,7 +70,7 @@ usage() {
 	Options:
 	    -f | --force      can be used to force installation come what may
 	    -v | --verbose    bee more verbose (can be used twice e.g. -vv)
-	    -u | --upgrade    install a package and remove all other versions afterwards
+	    -u | --update     install a package and remove all other versions afterwards
 	    -h | --help       display this help
 
 	EOF
@@ -64,13 +79,13 @@ usage() {
 ###############################################################################
 ##
 ##
-pkg_install_all() {
+function pkg_install_all() {
     for pkg in ${@} ; do
         pkg_install ${pkg}
     done
 }
 
-begins_with() {
+function begins_with() {
     string=${1}
     substring=${2}
 
@@ -96,8 +111,10 @@ begins_with() {
 ##
 ## DESCRIPTION: ...
 ##
-pkg_install() {
+function pkg_install() {
     search=${1}
+
+    assert "x${search}" != "x"
 
     # install specific package
     if [ -f "${search}" ] ; then
@@ -105,10 +122,10 @@ pkg_install() {
          return
     fi
 
-    # if search is relative or absolute path to file -> exit
-    if [ "${search:0:2}" = "./" -o "${search%/*}" != "${search}" ] ; then
-        echo "${search}: Uncorrect search patter / No such file or directory"
-        exit 1
+    # if search is path do nothing..
+    if [[ "${search}" =~ "/" ]] ; then
+        echo >&2 "${search}: No such file or directory"
+        return
     fi
 
     # install package from repository
@@ -117,115 +134,72 @@ pkg_install() {
          return
     fi
 
-    for e in "" ".$(arch)" ".noarch" ".any" ; do
-        if [ -f "${BEE_PKGDIR}/${search}${e}.bee.tar.bz2" ] ; then
-            do_install "${BEE_PKGDIR}/${search}${e}.bee.tar.bz2"
-            return
-        elif [ -f "${BEE_PKGDIR}/${search}${e}.iee.tar.bz2" ] ; then
-            do_install "${BEE_PKGDIR}/${search}${e}.iee.tar.bz2"
-            return
-        fi
-    done
+    # pkg not found yet - lets search a little deeper
+    available=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --available "${search}") )
 
-    available=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --available "${search}")
-    subsearch=( $(@BINDIR@/beecut -d '-' "${search}") )
-    nss=${#subsearch[*]}
-
-    install_candidate=
-
-    for i in $(seq $(($nss-1)) -1 1) ; do
-        debug_msg "checking subsearch $i: ${subsearch[$i]}"
-
-        sss=${subsearch[$i]}
-
-        found=
-        for a in ${available} ; do
-            p=$(@BINDIR@/beeversion --pkgfullname "${a}")
-            debug_msg "  against $p ($a)"
-
-            if [ "${p}" = "${sss}" ] ; then
-                debug_msg "FOUND: pkgfullname(${p}): ${a}"
-                if [ "${p}" = "${search}" ] ; then
-                    debug_msg "  => INSTALL(max of ${a})"
-                    install_candidate="${install_candidate} ${a}"
-                elif begins_with "${a}" "${search}" ; then
-                    debug_msg "  => MAY INSTALL(max of ${a})"
-                    install_candidate="${install_candidate} ${a}"
-                fi
-            elif begins_with "${p}" "${sss}" ; then
-                debug_msg "FOUND: submatch(${p}): ${a}"
-                install_match="${install_match} ${a}"
-            fi
-        done
-
-        if [ -n "${install_candidate}" ] ; then
-            debug_msg "install candidates: ${install_candidate}"
-            to_bee_installed=$(@BINDIR@/beeversion -max ${install_candidate})
-            debug_msg "   => and the winner is:  ${to_bee_installed}"
-            pkg_install ${to_bee_installed}
-            break
-        fi
-
-        if [ -n "${install_match}" ] ; then
-            debug_msg "matches: ${install_match}"
-            print_pkg_list $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list -a "${search}")
-            break
-        fi
-    done
-}
-
-###############################################################################
-### get_installed_versions ###
-##
-## IN: full_packagename
-##
-## OUT: list of installed packages matching pkgname(full_packagename)
-##
-## DESCRIPTION: ...
-##
-get_installed_versions() {
-    local pkg=${1}
-
-    local pname=$(@BINDIR@/beeversion --pkgfullname ${pkg})
-    local list
-
-    for i in $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list -i "${pname}") ; do
-        local installed=$(@BINDIR@/beeversion --pkgfullname ${i})
-        if [ "${installed}" = "${pname}" ] ; then
-            list="${list:+${list} }${i}"
-        fi
-    done
-
-    echo "${list}"
-}
-
-###############################################################################
-### check_installed ###
-##
-## IN: full_packagename
-##
-## OUT: n/a - only returns if package is not installed in any version
-##
-## DESCRIPTION:
-##     - print installed versions of "full_packagename"
-##     - exit(2) if installed version of "full_packagename" exists
-##
-check_installed() {
-    local pkgname=${1}
-
-    local installed=$(get_installed_versions ${pkgname})
-
-    if [ "${installed}" != "" ] ; then
-        echo "would install ${pkgname} .."
-        for i in ${installed} ; do
-            if [ "${i}" = "${pkgname}" ] ; then
-                echo "[  already installed  ] ${i}"
-            else
-                echo "[alternative installed] ${i}"
-            fi
-        done
-        exit 2;
+    if [ ${#available[@]} -eq 0 ] ; then
+        echo >&2 "bee-install: ${search}: No matching available package found."
+        return
     fi
+
+    sfullname=$(${BEE_BINDIR}/beeversion --pkgfullname ${search%%-} 2>/dev/null)
+
+    availpkgs=()
+    fullname=
+    for i in ${available[@]} ; do
+        f=$(${BEE_BINDIR}/beeversion --pkgfullname ${i})
+        availpkgs=( ${availpkgs[@]} ${f} )
+
+        if [ "${f}" = "${search%%-}" -o "${f}" = "${sfullname}" ] ; then
+            fullname=${f}
+            break
+        fi
+    done
+
+    availpkgs=( $(${BEE_BINDIR}/beeuniq ${availpkgs[@]}) )
+    if [ -z "${fullname}" -a ${#availpkgs[@]} -gt 1 ] ; then
+        echo >&2 "bee-install: Your query (${search}) is ambiguous. Available packages matching your query:"
+        for i in $(${BEE_BINDIR}/beeuniq ${availpkgs[@]}) ; do
+           echo >&2 "  ${i}"
+        done
+        return
+    fi
+
+    if [ -z "${fullname}" ] ; then
+        echo >&2 "bee-install: Your query (${search}) is too loose (fullpackagename needed). Did you mean: "
+        echo >&2 "  bee install ${availpkgs}"
+        return
+    fi
+
+    fullname=${availpkgs}
+
+    #  funtkion, wie verhaelt sich das zu installierende zum installierten..
+    #  funktion zum installieren von file XXX
+
+#    echo "XXXX f=$fullname avail=${availpkgs[@]} available=${available[@]}"
+
+    available=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --available --exact "${fullname}" | grep ${search}) )
+
+    maxavail=$(${BEE_BINDIR}/beeversion -max ${available[@]})
+
+    fileavail=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --available --display-pathname ${maxavail}) )
+
+    assert "${#fileavail[@]}" = 1
+
+    do_install ${fileavail}
+    return
+
+}
+
+function do_remove() {
+    for p in "${@}" ; do
+        if [ "${OPT_NOOP}" = "yes" ] ; then
+            echo "REMOVE ${p}"
+            continue
+        fi
+        echo "removing ${p} .."
+        ${BEE_LIBEXECDIR}/bee/bee.d/bee-remove ${p}
+    done
 }
 
 ###############################################################################
@@ -236,69 +210,161 @@ check_installed() {
 ## OUT: n/a
 ##
 ## DESCRIPTION:
-##     - calls check_installed which exits if package is already installed
-##       (skip test if -f option was given on commandline)
 ##     - installs package
 ##
-do_install() {
+function do_install() {
     local file=${1}
-    local pkg=$(echo ${file} |
-                  sed -e 's,\.tar,,g;s,\.bz2,,g;s,\.gz,,g' \
-                      -e 's,\.[bi]ee,,g' \
-                      -e 's,.*/,,')
+
+    assert "x${file}" != "x"
+
+    local pkg=$(${BEE_BINDIR}/beeversion --format="%A" ${file})
+    local fullname=$(${BEE_BINDIR}/beeversion --pkgfullname ${file})
+    local maxinst=
+    local maxall=${pkg}
+
+    assert "y${pkg}" != "y"
+    assert "z${fullname}" != "z"
+
     debug_msg "do_install file=${file}"
     debug_msg "do_install pkg=${pkg}"
 
-    eval $(@BINDIR@/beeversion ${pkg})
-    installed=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list -i ${PKGNAME}) )
-    debug_msg "installed=${installed[@]}"
-    debug_msg "OPT_F=${OPT_F}"
+    installed=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --exact "${fullname}" | grep -v "${pkg}") )
+    isinstalled=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --exact "${pkg}") )
 
-    do_upgrade=0
-    if [ "${OPT_UPGRADE}" = "yes" \
-      -a "${pkg}" = "$(@BINDIR@/beeversion -max ${pkg} ${installed[@]})" \
-      -a "$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list -i ${pkg})" = "" ] ; then
-        do_upgrade=1
+    assert ${#isinstalled[@]} -le 1
+
+    if [ -n "${installed}" -o -n "${isinstalled}" ] ; then
+        maxinst=$(${BEE_BINDIR}/beeversion -max ${installed[@]} ${isinstalled})
+        maxall=$(${BEE_BINDIR}/beeversion -max ${pkg} ${maxinst})
     fi
 
-    if [ "${OPT_F}" = "0" -a "${do_upgrade}" = "0" ] ; then
-        check_installed ${pkg}
+    debug_msg "installed[@]=${installed[@]}"
+    debug_msg "isinstalled[@]=${isinstalled[@]}"
+    debug_msg "maxinst=${maxinst}"
+    debug_msg "maxall=${maxall}"
+
+    # no version of this package is already installed?
+    if [ -z "${maxinst}" ] ; then
+        debug_msg "==> INSTALL NEW ${pkg}"
+        do_install_file ${file}
+        return
     fi
 
-    # create bee-filename
-    BEE="$(@BINDIR@/beeversion ${pkg} --format="%F").bee"
+    # !--update and --force => just install it..
+    if [ "${OPT_FORCE}" = "yes" -a "${OPT_UPDATE}" = "no" ] ; then
+        debug_msg "==> INSTALL FORCE ${pkg}"
+        do_install_file ${file}
+        return
+    fi
 
-    taraction="-x"
+    if [ -n "${isinstalled}" ] ; then
+        if [ "${OPT_FORCE}" = "no" ] ; then
+           echo >&2 "Installation of ${pkg} failed: ${pkg} is already installed"
+           echo >&2 "  use --force (-f) to force reinstallation."
+           if [ ${#installed[@]} -eq 1 ] ; then
+              echo >&2 "  use --update --force (-u -f) to update and to remove other versions."
+           elif [ ${#installed[@]} -gt 1 ] ; then
+              echo >&2 "  use --update --force --remove-all (-u -f -r) to update and to remove all other versions."
+           fi
+           return
+        fi
+    fi
 
-    [ "${OPT_NOOP}" = "yes" ] && taraction="-t"
+    # isinstalled XNOR force
+
+    # multiple alternative versions of this pkg are installed
+    # warn --update --remove-all => install and remove all alternatives
+    # warn --force !--update => just install it.. (handled above)
+    if [ ${#installed[@]} -gt 1 ] ; then
+        debug_msg "more than one (excluding this) package already installed.."
+        if [ "${OPT_UPDATE}" = "yes" -a "${OPT_REMOVEALL}" = "no" ] ; then
+             echo >&2 "Installation of ${pkg} failed: multiple versions are installed."
+             echo >&2 "  use --update --remove-all (-u -r) to update and to remove all other versions."
+             echo >&2 "  use --force to (re)install without removing."
+             return
+        fi
+    fi
+
+    if [ "${maxinst}" = "${pkg}" ] ; then
+
+        # isinstalled && force && update
+        assert -n "${isinstalled}" -a "${OPT_FORCE}" = "yes" -a "${OPT_UPDATE}" = "yes"
+
+        # ${#installed[@]} -gt 1  => update && removeall
+        debug_msg "REINSTALL UPDATE ${file}"
+        do_install_file ${file}
+
+        do_remove "${installed[@]}"
+
+        return
+    fi
+
+    if [ "${maxall}" = "${pkg}" ] ; then
+        if [ "${OPT_UPDATE}" = "no" ] ; then
+            echo >&2 "Installation of ${pkg} failed: ${maxinst} is already installed."
+            echo >&2 "  use --update (-u) to update to ${pkg}."
+            echo >&2 "  use --force  (-f) to install as additional version. (not recommended)"
+            return
+        fi
+        debug_msg "UPDATE ${file}"
+        do_install_file ${file}
+        do_remove "${installed[@]}"
+
+        return
+    fi
+
+    if [ "${maxall}" = "${maxinst}" ] ; then
+#        if [ "${OPT_DOWNGRADE}" = "no" ] ; then
+#            debug_msg "Use --update --downgrade to downgrade or just --force to install without removing."
+#            return
+#        fi
+        if [ "${OPT_UPDATE}" = "no" -o "${OPT_FORCE}" = "no" ] ; then
+            echo >&2 "Installation of ${pkg} failed: ${maxinst} has a higher version."
+            echo >&2 "  use --update --force to downgrade"
+            echo >&2 "  use --force to install as additional version. (not recommended)"
+            return
+        fi
+
+        debug_msg "DOWNGRADE ${file}"
+        do_install_file ${file}
+        do_remove "${installed[@]}"
+        return
+    fi
+
+
+    echo >&2 "YOU HIT A BUG #101: you shoul have never reached this point"
+    return
+}
+
+
+function do_install_file() {
+    local file=$1
+    local beefile="$(${BEE_BINDIR}/beeversion ${pkg} --format='%F').bee"
+    local pkg=$(${BEE_BINDIR}/beeversion --format='%A' $file)
+    local vv=""
+
+    if [ "${OPT_NOOP}" = "yes" ] ; then
+        echo "INSTALL ${file}"
+        return
+    fi
 
     echo "installing ${file} .."
 
-    start_cmd tar ${taraction} --dereference -vvPf ${file} \
+    if [ ${OPT_VERBOSE} -ge 1 ] ; then
+       vv="vv"
+    fi
+
+    start_cmd tar -x --dereference -${vv}Pf ${file} \
         --transform="s,^FILES$,${BEE_METADIR}/${pkg}/FILES," \
-        --transform="s,^BUILD$,${BEE_METADIR}/${pkg}/${BEE}," \
+        --transform="s,^BUILD$,${BEE_METADIR}/${pkg}/${beefile}," \
         --transform="s,^META$,${BEE_METADIR}/${pkg}/META," \
         --transform="s,^PATCHES,${BEE_METADIR}/${pkg}/PATCHES," \
         --transform="s,^DEPENDENCIES$,${BEE_METADIR}/${pkg}/DEPENDENCIES," \
         --show-transformed-names
 
-    if [ "${OPT_NOOP}" != "yes" ]; then
-        ${BEE_LIBEXECDIR}/bee/bee.d/bee-check -d ${pkg} > ${BEE_METADIR}/${pkg}/DEPENDENCIES
-        run_hooks post-install ${pkg}
-        ${BEE_LIBEXECDIR}/bee/bee.d/bee-dep update ${pkg}
-    fi
-
-    if [ "${OPT_UPGRADE}" != "yes" ] ; then
-        return
-    fi
-
-    for p in ${installed[@]} ; do
-        if [ "${p}" = "${pkg}" ] ; then
-            continue
-        fi
-        echo "removing ${p} .."
-        ${OPT_NOOP:+echo} ${BEE_LIBEXECDIR}/bee/bee.d/bee-remove ${p}
-    done
+    run_hooks post-install ${pkg}
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-check -d ${pkg} > ${BEE_METADIR}/${pkg}/DEPENDENCIES
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-dep update ${pkg}
 }
 
 function run_hooks() {
@@ -311,112 +377,78 @@ function run_hooks() {
 }
 
 ###############################################################################
-### print_pkg_list ###
-##
-## args: $LIST
-##
-##
-##
-print_pkg_list() {
-    local -i f=0
-
-    if [ ! "${1}" ] ; then
-        echo "no matching packages found in repository.."
-        exit 4
-    fi
-
-    for p in ${@} ; do
-        local pkgname
-        local installed
-
-        pkgname=${p##*/}
-        pkgname=${pkgname%.bz2}
-        pkgname=${pkgname%.gz}
-        pkgname=${pkgname%.tar}
-        pkgname=${pkgname%.iee}
-        pkgname=${pkgname%.bee}
-
-        installed=$(get_installed_versions ${pkgname})
-
-        local status
-        for i in ${installed} ; do
-            if [ "${i}" = "${pkgname}" ] ; then
-                status="*"
-            else
-                status=${status:--}
-            fi
-        done
-        status=${status:- }
-        if [ "${status}" = " " -o ${OPT_A} -gt 0 ] ; then
-            echo " [${status}] ${pkgname}"
-            f=$f+1
-        fi
-        unset status
-    done
-
-    echo "${f} of ${#} packages displayed matching search criteria."
-
-    if [ ${f} -eq 0 ] ; then
-        echo "no new packages found in repository. try -v to list already installed packages."
-        exit 5
-    fi
-}
-
-###############################################################################
 ###############################################################################
 ###############################################################################
 
 
-options=$(getopt -n bee_install \
-                 -o iavfuh \
-                 --long install,upgrade,verbose,all,force,help \
-                 --long debug,noop \
+options=$(${BEE_BINDIR}/beegetopt --name bee-install \
+                 --no-skip-unknown-option \
+                 --option update/upgrade/u \
+                 --option verbose/v \
+                 --option force/f \
+                 --option help/h \
+                 --option debug/D \
+                 --option downgrade/d \
+                 --option noop/n \
+                 --option remove-all/r \
                  -- "$@")
+
 if [ $? != 0 ] ; then
     usage
     exit 1
 fi
 eval set -- "${options}"
 
-declare -i OPT_A=0
-declare -i OPT_F=0
-
-DEBUG=":"
+declare -i OPT_VERBOSE=0
+declare -i OPT_DEBUG=0
+declare OPT_NOOP="no"
+declare OPT_UPDATE="no"
+declare OPT_DOWNGRADE="no"
+declare OPT_FORCE="no"
+declare OPT_REMOVEALL="no"
 
 while true ; do
-  case "$1" in
-    -a|--all|-v|--verbose)
-      shift;
-      OPT_A=$OPT_A+1
-      ;;
-    -f|--force)
-      shift;
-      OPT_F=$OPT_F+1
-      ;;
-    -h|--help)
-      usage
-      exit 0
-      ;;
-    -u|--upgrade)
+    case "$1" in
+      --verbose)
         shift
-        OPT_UPGRADE="yes"
+        OPT_VERBOSE=${OPT_VERBOSE}+1
         ;;
-    --debug)
+      --force)
         shift
-        OPT_DEBUG="yes"
+        OPT_FORCE="yes"
         ;;
-    --noop)
+      --help)
+        usage
+        exit 0
+        ;;
+      --update)
+        shift
+        OPT_UPDATE="yes"
+        ;;
+      --downgrade)
+        shift
+        OPT_DOWNGRADE="yes"
+        ;;
+      --debug)
+        shift
+        OPT_DEBUG=${OPT_DEBUG}+1
+        ;;
+      --noop)
         shift
         OPT_NOOP="yes"
         ;;
-    *)
-      shift
-      if [ -z "${1}" ] ; then
-           usage
-           exit 1
-      fi
-      pkg_install_all ${@}
-      exit 0;
-      ;;
-  esac
+      --remove-all)
+        OPT_REMOVEALL="yes"
+        shift
+        ;;
+      --)
+        shift
+        if [ -z "${1}" ] ; then
+            usage
+            exit 1
+        fi
+        pkg_install_all ${@}
+        exit 0
+        ;;
+    esac
 done
