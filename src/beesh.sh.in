@@ -373,6 +373,11 @@ function bee_pkg_pack() {
 
     beefind.pl --dump ${D}/FILES | sed -e "s,^,${D}," - > ${DUMP}
 
+    if [ ! -s "${D}/FILES" ]; then
+        print_error "ERROR: empty image directory"
+        exit 1
+    fi
+
     cp ${BEE} ${D}/BUILD
 
     create_meta
