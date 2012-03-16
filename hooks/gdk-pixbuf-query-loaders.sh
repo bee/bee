@@ -37,6 +37,10 @@ fi
 gdk_pixbuf_moduledir=$(pkg-config --variable=gdk_pixbuf_moduledir gdk-pixbuf-2.0)
 gdk_pixbuf_cache_file=$(pkg-config --variable=gdk_pixbuf_cache_file gdk-pixbuf-2.0)
 
+if [ -z "${gdk_pixbuf_moduledir}" -o -z "${gdk_pixbuf_cache_file}" ]; then
+    exit 0
+fi
+
 if grep -q "file=${gdk_pixbuf_moduledir}" ${BEE_METADIR}/${pkg}/FILES ; then
     case "${action}" in
         "post-install")
