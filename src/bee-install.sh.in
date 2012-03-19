@@ -354,7 +354,12 @@ function do_install_file() {
        vv="vv"
     fi
 
+    if [ -n "${BEE_BEEDESTDIR}" ] ; then
+        changedir="--transform=s,^/,${BEE_BEEDESTDIR}/,"
+    fi
+
     start_cmd tar -x --dereference -${vv}Pf ${file} \
+        ${changedir} \
         --transform="s,^FILES$,${BEE_METADIR}/${pkg}/FILES," \
         --transform="s,^BUILD$,${BEE_METADIR}/${pkg}/${beefile}," \
         --transform="s,^META$,${BEE_METADIR}/${pkg}/META," \
