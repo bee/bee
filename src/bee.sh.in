@@ -59,6 +59,7 @@ function print_usage() {
 	  bee --print-config
 	  bee --help
 	  bee --version  
+	  bee --destdir=/path/to/destdir
 	EOF
 }
 
@@ -83,6 +84,23 @@ function search_tool_cmd {
     done
 }
 
+options=$(${BEE_BINDIR}/beegetopt --name=bee \
+    --option=destdir/d= \
+    -- "${@}")
+
+eval set -- ${options}
+
+while true ; do
+    case "${1}" in
+        --destdir)
+            BEE_BEEDESTDIR=${2}
+            shift 2
+            ;;
+        --)
+            shift
+            break;
+    esac
+done
 
 options=$(${BEE_BINDIR}/beegetopt --name=bee \
     --stop-on-no-option \
