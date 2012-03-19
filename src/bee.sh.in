@@ -154,6 +154,9 @@ if [ "${TOOL}" = "init" ] ; then
     config_export_prefix_variables
 fi
 
+BEE_METADIR=${BEE_BEEDESTDIR}${BEE_METADIR}
+BEE_CACHEDIR=${BEE_BEEDESTDIR}${BEE_CACHEDIR}
+
 if [ "${OPT_PRINTCONFIG}" = "1" ] ; then
     config_print
     exit 0
