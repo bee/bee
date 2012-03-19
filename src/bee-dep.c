@@ -34,6 +34,8 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <fcntl.h>
+#include <assert.h>
+#include <errno.h>
 
 #include "graph.h"
 
@@ -178,28 +180,44 @@ static void usage_conflicts(void)
     printf("Usage: bee dep conflicts [pkgname]\n");
 }
 
+/* create all directories in path with mode mode */
+int mkdirp(char *path, mode_t mode)
+{
+    char *dir, *pdir, *end;
+    int ret;
+
+    assert(path);
+
+    dir = end = path;
+
+    while (*dir) {
+        /* skip "/" */
+        dir = end + strspn(end, "/");
+
+        /* skip non-"/" */
+        end = dir + strcspn(dir, "/");
+
+        /* grab everything in path till current end */
+        if (!(pdir = strndup(path, end - path)))
+            return -1;
+
+        /* create the directory ; ignore err if it already exists */
+        ret = mkdir(pdir, mode);
+
+        free(pdir);
+
+        if (ret == -1 && errno != EEXIST)
+            return -1;
+    }
+
+    return 0;
+}
+
 void ensure_directories(void)
 {
-    char *c;
-    int i;
-    char dir[PATH_MAX + 1] = {0};
-    struct stat st;
-
-    c = bee_cachedir();
-    i = 0;
-
-    while (*c) {
-        dir[i] = *c;
-        c++;
-
-        if (*c == '/' || !(*c)) {
-            if (stat(dir, &st) == -1 && mkdir(dir, 0755) == -1) {
-                perror("mkdir");
-                exit(EXIT_FAILURE);
-            }
-        }
-
-        i++;
+    if (mkdirp(bee_cachedir(), 0755) == -1) {
+        perror("bee-dep: mkdirp");
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -210,6 +228,9 @@ static struct hash *init_cache(void)
     char path[PATH_MAX + 1];
     struct stat st;
     struct hash *graph;
+
+    if (stat(bee_metadir(), &st) == -1)
+        return NULL;
 
     if ((pkg_cnt = scandir(bee_metadir(), &package, 0, alphasort)) < 0) {
         perror("bee-dep: init_cache: scandir");
@@ -269,6 +290,9 @@ static int update_cache(struct hash *graph)
     char path[PATH_MAX + 1];
     struct stat st;
     struct tree_node *t;
+
+    if (stat(bee_metadir(), &st) == -1)
+        return 0;
 
     if ((pkg_cnt = scandir(bee_metadir(), &package, 0, alphasort)) < 0) {
         perror("bee-dep: update_cache: scandir");

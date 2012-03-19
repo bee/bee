@@ -26,7 +26,7 @@
 set -e
 
 #architecture
-ARCH=$(arch)
+ARCH=$(uname -m)
 
 # Version
 BEE_VERSION="@BEE_VERSION@"
@@ -373,6 +373,11 @@ function bee_pkg_pack() {
 
     beefind.pl --dump ${D}/FILES | sed -e "s,^,${D}," - > ${DUMP}
 
+    if [ ! -s "${D}/FILES" ]; then
+        print_error "ERROR: empty image directory"
+        exit 1
+    fi
+
     cp ${BEE} ${D}/BUILD
 
     create_meta
@@ -534,15 +539,9 @@ config_init
 
 config_set_skiplist
 
-print_info "  BEE_SKIPLIST           ${BEE_SKIPLIST}"
-print_info "  BEE_REPOSITORY_PREFIX  ${BEE_REPOSITORY_PREFIX}"
-print_info "  BEE_METADIR            ${BEE_METADIR}"
-print_info "  BEE_TMP_TMPDIR         ${BEE_TMP_TMPDIR}"
-print_info "  BEE_TMP_BUILDROOT      ${BEE_TMP_BUILDROOT}"
-
 ###############################################################################
 
-OPTIONS=$(getopt -n bee-option-parser \
+OPTIONS=$(getopt -n beesh \
                  -o hifcs \
                  --long help,install,force-install,cleanup,silent-build,debug: \
                  --long archive-build,no-archive-build \
@@ -600,6 +599,12 @@ while true ; do
             ;;
     esac
 done
+
+print_info "  BEE_SKIPLIST           ${BEE_SKIPLIST}"
+print_info "  BEE_REPOSITORY_PREFIX  ${BEE_REPOSITORY_PREFIX}"
+print_info "  BEE_METADIR            ${BEE_METADIR}"
+print_info "  BEE_TMP_TMPDIR         ${BEE_TMP_TMPDIR}"
+print_info "  BEE_TMP_BUILDROOT      ${BEE_TMP_BUILDROOT}"
 
 ###############################################################################
 ###############################################################################

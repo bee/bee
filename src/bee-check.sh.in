@@ -291,7 +291,7 @@ usage() {
 ###############################################################################
 ##
 ##
-options=$(getopt -n bee_check \
+options=$(getopt -n bee-check \
                  -o advfh \
                  --long verbose,all,force,help,deps \
                  -- "$@")
