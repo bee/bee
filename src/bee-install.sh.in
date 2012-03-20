@@ -171,11 +171,6 @@ function pkg_install() {
         return
     fi
 
-    #  funtkion, wie verhaelt sich das zu installierende zum installierten..
-    #  funktion zum installieren von file XXX
-
-#    echo "XXXX f=$fullname avail=${availpkgs[@]} available=${available[@]}"
-
     available=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --available --exact "${fullname}" | grep ${search}) )
 
     maxavail=$(${BEE_BINDIR}/beeversion -max ${available[@]})
