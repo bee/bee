@@ -171,8 +171,6 @@ function pkg_install() {
         return
     fi
 
-    fullname=${availpkgs}
-
     #  funtkion, wie verhaelt sich das zu installierende zum installierten..
     #  funktion zum installieren von file XXX
 
