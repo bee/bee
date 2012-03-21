@@ -353,6 +353,68 @@ function bee_install() {
     print_info "action 'install' not defined: skipping.."
 }
 
+#### bee_crosscheck() #########################################################
+
+function bee_crosscheck() {
+
+    directories=( $(find ${D} -type d -printf "/%P\n") )
+    for d in ${directories[@]} ; do
+        if [ ! -e "${d}" -o -d "${d}" -a ! -L "${d}" ] ; then
+           # its ok
+           continue
+        fi
+        print_warning "WARNING: system and image files named '${d}' differ"
+        print_warning "         image : $(file -b ${D}${d})"
+        print_warning "         system: $(file -b ${d})"
+    done
+
+    links=( $(find ${D} -type l -printf "%p\n") )
+    for imagefilename in ${links[@]} ; do
+        target="$(readlink ${imagefilename})"
+
+        if [ "${target#${D}}" != "${target}" ] ; then
+            print_warning "WARNING: image: target of ${imagefilename#${D}} contains path to image directory"
+            imagetarget="${target}"
+        elif [ "${target:0:1}" = "/" ] ; then
+            imagetarget="${D}${target}"
+        else
+            imagetarget="${imagefilename%/*}/${target}"
+        fi
+
+        if [ ! -d "${imagetarget}" ] ; then
+            # dont care
+            continue
+        fi
+
+        systemfilename="${imagefilename#${D}}"
+
+        if [ ! -e "${systemfilename}" ] ; then
+            # its ok
+            continue
+        fi
+
+        if [ -L "${systemfilename}" ] ; then
+            target="$(readlink ${systemfilename})"
+
+            if [ "${target:0:1}" = "/" ] ; then
+                systemtarget=${target}
+            else
+                systemtarget="${systemfilename%/*}/${target}"
+            fi
+
+            if [ -d "${systemtarget}" -a "${imagetarget#${D}}" = "${systemtarget}" ] ; then
+                #its ok
+                continue
+            fi
+        fi
+
+        print_warning "WARNING: system and image files named '${systemfilename}' differ"
+        print_warning "         image : $(file -b ${imagefilename})"
+        print_warning "         system: $(file -b ${systemfilename})"
+
+    done
+}
+
 #### bee_pkg_pack() ###########################################################
 
 # $EXCLUDE is read from .bee file
@@ -711,6 +773,8 @@ bee_run install
 
 print_info "changing to image directory: ${D}"
 cd ${D}
+
+bee_crosscheck
 
 bee_pkg_pack
 
