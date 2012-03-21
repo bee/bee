@@ -352,6 +352,8 @@ function config_export() {
     export BEE_DATADIR
     export BEE_LIBEXECDIR
 
+    export BEE_BEEDESTDIR
+
     export BEE_VERSION
 
     export XDG_CONFIG_HOME
