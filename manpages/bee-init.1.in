@@ -13,11 +13,6 @@ bee\-init \- Create a bee file for building a bee package
 .P
 .B bee-init
 is used to create a file, that is run in order to build a bee package.
-.P
-As part of the bee package management
-.B bee-init
-is invoked by the wrapper tool
-.BR bee (1) .
 .SH "OPTIONS"
 .TP
 .B \-f

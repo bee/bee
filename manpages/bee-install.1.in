@@ -21,11 +21,6 @@ for
 but you can use
 .BI /path/to/ bee-package .bee.tar.bz2
 too.
-.P
-As part of the bee package management
-.B bee-install
-is invoked by the wrapper tool
-.BR bee (1) .
 .SH "OPTIONS"
 .TP
 .B \-a

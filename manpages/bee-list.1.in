@@ -11,11 +11,6 @@ bee\-list \- List installed and available bee packages
 .P
 .B bee-list
 is used to display all bee packages that are installed or available for installation.
-.P
-As part of the bee package management
-.B bee-list
-is invoked by the wrapper tool
-.BR bee (1) .
 .SH "OPTIONS"
 .TP
 .B \-a

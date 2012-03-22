@@ -13,11 +13,6 @@ Use
 to remove installed bee packages. If
 .I bee-package
 does not match the full name of a bee package, all matching packages will be displayed.
-.P
-As part of the bee package management
-.B bee-remove
-is invoked by the wrapper tool
-.BR bee (1) .
 .SH "OPTIONS"
 .TP
 .B \-h

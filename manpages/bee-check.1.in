@@ -11,11 +11,6 @@ bee\-check \- Perform some consistency checks on a bee package
 .B bee-check
 is used to perform consistency checks on a bee package and shows missing link targets,
 missing files and directories or changed md5 sums.
-.P
-As part of the bee package management
-.B bee-check
-is invoked by the wrapper tool
-.BR bee (1) .
 .SH "OPTIONS"
 .TP
 .B \-d

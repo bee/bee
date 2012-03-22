@@ -16,11 +16,6 @@ If
 .I patten
 matches the full name of an installed package, all related files, otherwise all
 matching files and the related packages will be displayed.
-.P
-As part of the bee package management
-.B bee-query
-is invoked by the wrapper tool
-.BR bee (1) .
 .SH "OPTIONS"
 .TP
 .B \-h
