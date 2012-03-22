@@ -79,17 +79,6 @@ Directory searched for available bee packages
 root-user: /usr/src/bee/pkgs
 .IP
 other:     ${HOME}/.local/beeroot/pkgs
-.SH "DIAGNOSTICS"
-Following error message may be seen:
-.TP
-.B "BEE-ERROR: please call bee-install from bee .."
-.B bee-install
-must be run by the wrapper
-.BR bee .
-Just call
-.B bee install
-.OP options
-.I pattern
 .\" .SH "BUGS"
 .SH "AUTHORS"
 .P

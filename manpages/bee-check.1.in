@@ -47,17 +47,6 @@ Directory searched for installed bee packages
 root-user: /usr/share/bee
 .IP
 other:     ${HOME}/.local/share/beemeta
-.SH "DIAGNOSTICS"
-Following error message may be seen:
-.TP
-.B "BEE-ERROR: please call bee-check from bee .."
-.B bee-check
-must be run by the wrapper
-.BR bee .
-Just call
-.B bee check
-.OP options
-.I pattern
 .\" .SH "BUGS"
 .SH "AUTHORS"
 .P

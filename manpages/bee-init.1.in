@@ -84,17 +84,6 @@ Set these directories, if you do not want to install to the default locations.
 The main config files. Use these to change
 .BR bee-init 's
 environment variables.
-.SH "DIAGNOSTICS"
-Following error message may be seen:
-.TP
-.B "BEE-ERROR: please call bee-init from bee .."
-.B bee-init
-must be run by the wrapper
-.BR bee .
-Just call
-.B bee init
-.OP options
-.I url-to-file
 .\" .SH "BUGS"
 .SH "AUTHORS"
 .P
