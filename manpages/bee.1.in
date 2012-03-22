@@ -86,6 +86,7 @@ Marius Tolzmann
 Tobias Dreyer
 .ME
 .SH "SEE ALSO"
+.BR beesh (1)
 .BR bee-check (1)
 .BR bee-init (1)
 .BR bee-install (1)

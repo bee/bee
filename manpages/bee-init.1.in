@@ -96,6 +96,7 @@ Tobias Dreyer
 .ME
 .SH "SEE ALSO"
 .BR bee (1)
+.BR beesh (1)
 .BR bee-check (1)
 .BR bee-install (1)
 .BR bee-list (1)
