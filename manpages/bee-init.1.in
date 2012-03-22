@@ -32,7 +32,7 @@ Print a little help screen.
 .BI \-\-configure " mode"
 Set
 .I mode
-to 'compat' if ${DATAROOTDIR} is not supported in your build process
+to 'compat' if DATAROOTDIR is not supported in your build process
 .TP
 .B \-\-disable-versionify
 Enable this flag, if you do not want that version numbers in your source url are substituted for
@@ -80,7 +80,7 @@ Set these directories, if you do not want to install to the default locations.
 .TP
 .B /etc/bee/beerc
 .TQ
-.B ${HOME}/.beerc
+.B ~/.beerc
 The main config files. Use these to change
 .BR bee-init 's
 environment variables.

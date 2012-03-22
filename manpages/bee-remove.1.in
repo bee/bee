@@ -30,18 +30,22 @@ just print.
 .TP
 .B /etc/bee/beerc
 .TQ
-.B ${HOME}/.beerc
+.B ~/.beerc
 The main config files. Use these to change
 .BR bee-remove 's
 environment variables.
 .SH "ENVIRONMENT"
 .TP
-.B ${BEE_METADIR}
+.B BEE_METADIR
+.RS
 Directory searched for installed bee packages
-.IP
+.P
+Defaults:
+.TQ
 root-user: /usr/share/bee
-.IP
-other:     ${HOME}/.local/share/beemeta
+.TQ
+other:     ~/.local/share/bee
+.RE
 .SH "DIAGNOSTICS"
 Following error message may be seen:
 .TP
