@@ -37,6 +37,7 @@
 #define BEE_FLAG_SKIPUNKNOWN   (1<<0)
 #define BEE_FLAG_STOPONNOOPT   (1<<1)
 #define BEE_FLAG_STOPONUNKNOWN (1<<2)
+#define BEE_FLAG_KEEPOPTIONEND (1<<3)
 
 #define BEE_OPT_LONG(name)     .long_opt      = (name)
 #define BEE_OPT_SHORT(short)   .short_opt     = (short)
@@ -165,13 +166,15 @@ struct bee_getopt_ctl {
     int   _argc;
     int   _optcnt;
     char *_unhandled_shortopts;
+
+    int flags;
 };
 
 void bee_getopt_pop_current_argument(struct bee_getopt_ctl *optctl);
 
 int bee_getopt_init(struct bee_getopt_ctl *ctl, int argc, char **argv, struct bee_option *optv);
 int bee_getopt_long(struct bee_getopt_ctl *optctl, int *optindex);
-int bee_getopt(struct bee_getopt_ctl *optctl, int *optindex, int flags);
+int bee_getopt(struct bee_getopt_ctl *optctl, int *optindex);
 
 void bee_getopt_print_quoted(char *s);
 

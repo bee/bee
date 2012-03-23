@@ -49,6 +49,7 @@ void usage(void)
       "                                  by default unknown options are skipped\n"
       "                                  and handled as non-option argument.\n"
       "                                  -S is ignored if -U is given.\n"
+      "  -k | --keep-option-end          respect but keep '--' at it's position\n"
       "\n"
       "  -h | --help                     print this little help\n"
       "  -V | --version                  print version\n"
@@ -81,6 +82,7 @@ int main(int argc, char *argv[])
        BEE_OPTION_REQUIRED_ARG("name", 'n'),
        BEE_OPTION_NO_ARG("stop-on-unknown-option",  'U'),
        BEE_OPTION_NO_ARG("stop-on-no-option",  'N'),
+       BEE_OPTION_NO_ARG("keep-option-end",  'k'),
        BEE_OPTION_NO_ARG("no-skip-unknown-option",  'S'),
        BEE_OPTION_END
    };
@@ -105,7 +107,7 @@ int main(int argc, char *argv[])
 
    optctl.program = "beegetopt";
 
-   while((opt=bee_getopt(&optctl, &i, 0)) != BEE_GETOPT_END) {
+   while((opt=bee_getopt(&optctl, &i)) != BEE_GETOPT_END) {
 
        if (opt == BEE_GETOPT_ERROR) {
            exit(1);
@@ -129,6 +131,10 @@ int main(int argc, char *argv[])
 
            case 'U':
                flags |= BEE_FLAG_STOPONUNKNOWN;
+               break;
+
+           case 'k':
+               flags |= BEE_FLAG_KEEPOPTIONEND;
                break;
 
            case 'S':
@@ -236,9 +242,9 @@ int main(int argc, char *argv[])
     bee_getopt_init(&optctl, optctl.argc-optctl.optind, &argv[optctl.optind+1], beeopts);
 
     optctl.program = name?name:"program";
+    optctl.flags = flags;
 
-    while((opt=bee_getopt(&optctl, &i, flags)) != BEE_GETOPT_END) {
-
+    while((opt=bee_getopt(&optctl, &i)) != BEE_GETOPT_END) {
        if (opt == BEE_GETOPT_ERROR) {
            exit(1);
        }

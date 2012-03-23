@@ -85,6 +85,7 @@ function search_tool_cmd {
 }
 
 options=$(${BEE_BINDIR}/beegetopt --name=bee \
+    --keep-option-end \
     --option=destdir/d= \
     -- "${@}")
 
@@ -105,6 +106,7 @@ done
 options=$(${BEE_BINDIR}/beegetopt --name=bee \
     --stop-on-no-option \
     --no-skip-unknown-option \
+    --keep-option-end \
     --option=print-config \
     --option=help/h \
     --option=version/V \

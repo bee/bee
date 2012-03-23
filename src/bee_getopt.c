@@ -73,6 +73,8 @@ int bee_getopt_init(struct bee_getopt_ctl *ctl, int argc, char **argv, struct be
     ctl->_argc  = argc;
     ctl->_unhandled_shortopts = NULL;
 
+    ctl->flags = 0;
+
     return err?0:1;
 }
 
@@ -353,7 +355,8 @@ static int _bee_getopt_long(struct bee_getopt_ctl *optctl, int *optindex)
     /* match & skip '--' and pop all remaining arguments */
 
     if(maybe_long && (optctl->argv[this][2] == '\0')) {
-        optctl->optind++;
+        if(!(optctl->flags & BEE_FLAG_KEEPOPTIONEND))
+            optctl->optind++;
         bee_getopt_pop_all_arguments(optctl);
         return BEE_GETOPT_END;
     }
@@ -394,7 +397,7 @@ int bee_getopt_long(struct bee_getopt_ctl *optctl, int *optindex)
     return _bee_getopt_long(optctl, optindex);
 }
 
-int bee_getopt(struct bee_getopt_ctl *optctl, int *optindex, int flags)
+int bee_getopt(struct bee_getopt_ctl *optctl, int *optindex)
 {
     int opt;
 
@@ -404,7 +407,7 @@ int bee_getopt(struct bee_getopt_ctl *optctl, int *optindex, int flags)
                 return BEE_GETOPT_NOVALUE;
 
             case BEE_GETOPT_NOOPT:
-                if (flags & BEE_FLAG_STOPONNOOPT) {
+                if (optctl->flags & BEE_FLAG_STOPONNOOPT) {
                     bee_getopt_pop_all_arguments(optctl);
                     return BEE_GETOPT_END;
                 }
@@ -417,11 +420,11 @@ int bee_getopt(struct bee_getopt_ctl *optctl, int *optindex, int flags)
                 return BEE_GETOPT_ERROR;
 
             case BEE_GETOPT_OPTUNKNOWN:
-                if (flags & BEE_FLAG_STOPONUNKNOWN) {
+                if (optctl->flags & BEE_FLAG_STOPONUNKNOWN) {
                     bee_getopt_pop_all_arguments(optctl);
                     return BEE_GETOPT_END;
                 }
-                if (!(flags & BEE_FLAG_SKIPUNKNOWN)) {
+                if (!(optctl->flags & BEE_FLAG_SKIPUNKNOWN)) {
                     if (optctl->program)
                         fprintf(stderr, "%s: ", optctl->program);
                     fprintf(stderr, "unrecognized option '%s'.\n", optctl->argv[optctl->optind]);
