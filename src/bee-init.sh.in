@@ -41,7 +41,6 @@ function usage() {
 	     Max Planck Institute for Molecular Genetics Berlin Dahlem
 
 	  bee [bee-options] init [options] <url>
-	  bee [bee-options] init [options] <pkgname> [url]
 	
 	 Options:
 	   --configure=MODE       set configure mode:
@@ -57,6 +56,7 @@ function usage() {
 	   -V  --version          print version number.
 	   -D  --define=A=B       define ENV variables with the bee-file.
 	                          (extra (over)quoting may be needed if B contains spaces.)
+	   -o  --output=bee-file  name of new bee-file
 	
 	 Installation directories:
 	   --prefix=PREFIX        install architecture-independent files in PREFIX
@@ -151,23 +151,15 @@ function create_beefile_from_template {
 }
 
 function initialize() {
-    # get arguments starting with '--'
-    while [ -n "${1}" ] ; do
-        if [ "${1:0:2}" == "--" ] ; then
-            DEFAULT_CONFIGURE_OPTIONS="${DEFAULT_CONFIGURE_OPTIONS:+${DEFAULT_CONFIGURE_OPTIONS} }${1}"
-        else
-            PP="${PP:+${PP} }${1}"
-        fi
-        shift
-    done
+    surl=${1}
 
-    # set positional parameters to arguments not starting with '--'
-    set -- ${PP}
-    pname=$1
-    surl=$2
+    shift
 
-    if [ -z "${surl}" ] ; then
-        surl=${pname}
+    pname=${OPT_OUTPUT}
+
+    DEFAULT_CONFIGURE_OPTIONS="${@}"
+
+    if [ -z "${pname}" ] ; then
 
         # fix sourceforge urls for automatic pkgname generation
         if [[ $surl = *://sourceforge.net/*/files/*/download ]] ; then
@@ -182,8 +174,6 @@ function initialize() {
 
             # strip /download basename
             surl=${surl%/download}
-
-            pname=${surl}
         fi
 
         # start auto packagename generation with surl basename
@@ -277,6 +267,7 @@ options=$(${BEE_BINDIR}/beegetopt --name bee-init \
                  --option disable-versionify \
                  --option help/h \
                  --option version/V \
+                 --option output/o= \
                  --option define/D= \
                  --option template/t= \
                  --option force/f \
@@ -306,6 +297,7 @@ if [ $? != 0 ] ; then
 fi
 
 OPT_VERSIONIFY="yes"
+OPT_OUTPUT=
 
 eval set -- "${options}"
 
@@ -366,6 +358,11 @@ while true ; do
         --docdir|\
         --localedir)
             eval OPT_${1:2}="${2}"
+            shift 2
+            ;;
+
+        --output)
+            OPT_OUTPUT=${2}
             shift 2
             ;;
 
