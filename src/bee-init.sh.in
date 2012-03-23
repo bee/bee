@@ -55,6 +55,8 @@ function usage() {
 	   -f  --force            force overwrite of bee-file.
 	   -h  --help             this little help.
 	   -V  --version          print version number.
+	   -D  --define=A=B       define ENV variables with the bee-file.
+	                          (extra (over)quoting may be needed if B contains spaces.)
 	
 	 Installation directories:
 	   --prefix=PREFIX        install architecture-independent files in PREFIX
@@ -240,6 +242,9 @@ function initialize() {
     sed -e "s,@DEFAULT_PREFIX_VARS@,${DEFAULT_PREFIX_VARS}," \
         -i ${beefile}
 
+    sed -e "s,@BEE_DEFINES@,${OPT_DEFINE}," \
+        -i ${beefile}
+
     if [ "${CONFIGURE_BEEHAVIOR}" ] ; then
         sed -e "s,@BEE_CONFIGURE@,BEE_CONFIGURE=${CONFIGURE_BEEHAVIOR}," \
             -i ${beefile}
@@ -265,6 +270,7 @@ options=$(${BEE_BINDIR}/beegetopt --name bee-init \
                  --option disable-versionify \
                  --option help/h \
                  --option version/V \
+                 --option define/D= \
                  --option template/t= \
                  --option force/f \
                  --option configure= \
@@ -353,6 +359,11 @@ while true ; do
         --docdir|\
         --localedir)
             eval OPT_${1:2}="${2}"
+            shift 2
+            ;;
+
+        --define)
+            OPT_DEFINE="${OPT_DEFINE}\n${2}"
             shift 2
             ;;
 
