@@ -366,7 +366,7 @@ while true ; do
             ;;
 
         --define)
-            OPT_DEFINE="${OPT_DEFINE}\n${2}"
+            OPT_DEFINE="${OPT_DEFINE}\nexport ${2}"
             shift 2
             ;;
 
