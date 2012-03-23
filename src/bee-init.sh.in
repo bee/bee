@@ -54,7 +54,7 @@ function usage() {
 	   -f  --force            force overwrite of bee-file.
 	   -h  --help             this little help.
 	   -V  --version          print version number.
-	   -D  --define=A=B       define ENV variables with the bee-file.
+	   -D  --define=A=B       define ENV variables within the bee-file.
 	                          (extra (over)quoting may be needed if B contains spaces.)
 	   -o  --output=bee-file  name of new bee-file
 	
@@ -320,7 +320,6 @@ while true ; do
 
         --force)
             shift
-
             OPT_FORCE="yes"
             ;;
 
