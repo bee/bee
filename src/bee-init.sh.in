@@ -227,7 +227,14 @@ function initialize() {
     sed -e "s,@SRCURL@,SRCURL[0]=\"${surl}\"," \
         -i ${beefile}
 
+    if [ -z "${DEFAULT_CONFIGURE_OPTIONS}" ] ; then
+        DEFAULT_CONFIGURE_OPTIONS_NOTSET="#"
+    else
+        DEFAULT_CONFIGURE_OPTIONS_NOTSET=""
+    fi
+
     sed -e "s,@DEFAULT_CONFIGURE_OPTIONS@,${DEFAULT_CONFIGURE_OPTIONS}," \
+        -e "s,@DEFAULT_CONFIGURE_OPTIONS_NOTSET@,${DEFAULT_CONFIGURE_OPTIONS_NOTSET}," \
         -i ${beefile}
 
     for i in prefix eprefix bindir sbindir libexecdir sysconfdir \
