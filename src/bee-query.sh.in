@@ -114,7 +114,7 @@ while true ; do
            usage
            exit 1
       fi
-      query ${@}
+      query "${@}"
       exit 0;
       ;;
   esac

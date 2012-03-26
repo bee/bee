@@ -31,8 +31,8 @@ fi
 VERSION=${BEE_VERSION}
 
 pkg_remove_all() {
-    for pkg in ${@} ; do
-        pkg_remove ${pkg}
+    for pkg in "${@}" ; do
+        pkg_remove "${pkg}"
     done
 }
 

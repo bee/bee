@@ -17,11 +17,11 @@ PATCHURL[0]=""
 @BEE_DEFINES@
 
 #mee_extract() {
-#    bee_extract ${@}
+#    bee_extract "${@}"
 #}
 
 #mee_patch() {
-#    bee_patch ${@}
+#    bee_patch "${@}"
 #}
 
 @DEFAULT_CONFIGURE_OPTIONS_NOTSET@mee_configure() {

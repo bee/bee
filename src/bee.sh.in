@@ -168,7 +168,7 @@ search_tool_cmd ${TOOL}
 
 if [ ! -z  "${CMD}" ] ; then
     shift
-    exec ${CMD} ${@}
+    exec ${CMD} "${@}"
     exit 1
 fi
 

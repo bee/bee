@@ -46,12 +46,12 @@ function start_cmd() {
     debug_msg "executing '${@}'"
 
     if [ "${OPT_NOOP}" = "no" ] ; then
-        ${@}
+        "${@}"
     fi
 }
 
 function assert() {
-    if [ ! ${@} ] ; then
+    if [ ! "${@}" ] ; then
         local info=( $(caller 0) )
         echo "${info[2]}:${info[1]}:${info[0]}: Assertion [ ${@} ] failed. exiting.." >&2
         exit 250
@@ -80,8 +80,8 @@ function usage() {
 ##
 ##
 function pkg_install_all() {
-    for pkg in ${@} ; do
-        pkg_install ${pkg}
+    for pkg in "${@}" ; do
+        pkg_install "${pkg}"
     done
 }
 
@@ -179,7 +179,7 @@ function pkg_install() {
 
     assert "${#fileavail[@]}" = 1
 
-    do_install ${fileavail}
+    do_install "${fileavail}"
     return
 
 }
@@ -445,7 +445,7 @@ while true ; do
             usage
             exit 1
         fi
-        pkg_install_all ${@}
+        pkg_install_all "${@}"
         exit 0
         ;;
     esac

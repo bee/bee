@@ -46,8 +46,8 @@ pkg_check_all() {
         return
     fi
 
-    for pkg in ${@} ; do
-        pkg_check ${pkg}
+    for pkg in "${@}" ; do
+        pkg_check "${pkg}"
     done
 }
 
@@ -316,7 +316,7 @@ while true ; do
       ;;
     -d|--deps)
       shift 2;
-      pkg_check_deps ${@}
+      pkg_check_deps "${@}"
       exit 0
       ;;
     -h|--help)
@@ -325,7 +325,7 @@ while true ; do
     ;;
     *)
       shift
-      pkg_check_all ${@}
+      pkg_check_all "${@}"
       exit 0;
       ;;
   esac

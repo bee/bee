@@ -113,7 +113,7 @@ list_beepackages() {
 
     # if more then one pattern is given all pattern have to match (AND)
     thegrep=""
-    for p in ${@} ; do
+    for p in "${@}" ; do
         thegrep="${thegrep} | grep -i -F -e '${p}' "
     done
 
@@ -212,5 +212,5 @@ if [ "${OPT_EXACT}" = "yes" ] ; then
 fi
 
 # mach et einfach.. (just do it)
-list_beepackages "${filter}" ${@}
+list_beepackages "${filter}" "${@}"
 
