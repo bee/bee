@@ -52,7 +52,7 @@ Print a little help screen.
 .TP
 .B \-u
 .TQ
-.B \-\-upgrade
+.B \-\-update
 Install
 .I bee\-package
 and remove all other installed versions of this package.
@@ -61,8 +61,7 @@ Downgrades are possible by forcing the installation of lower versions with the
 option.
 .TP
 .B \-\-noop
-Do not install anything. Just show files related to
-.IR bee-package .
+Run bee in noop mode.
 .SH "FILES"
 .TP
 .B /etc/bee/beerc

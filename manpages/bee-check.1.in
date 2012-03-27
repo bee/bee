@@ -31,6 +31,11 @@ if it does not match a full packagename.
 .TQ
 .B \-\-help
 Print a little help screen.
+.TP
+.B \-v
+.TQ
+.B \-\-verbose
+bee more verbose (can be used twice e.g. -vv)
 .SH "FILES"
 .TP
 .B /etc/bee/beerc

@@ -15,6 +15,24 @@ bee\-init \- Create a bee file for building a bee package
 is used to create a file, that is run in order to build a bee package.
 .SH "OPTIONS"
 .TP
+.BI \-\-configure " mode"
+Set
+.I mode
+to 'compat' if DATAROOTDIR is not supported in your build process
+.TP
+.BI \-\-buildtype " TYPE"
+force buildtype: configure, cmake, make, autogen, perl-module, perl-module-makemaker, python-module
+.TP
+.B \-\-disable-versionify
+Enable this flag, if you do not want that version numbers in your source url are substituted for
+bee variables.
+.TP
+.BI -t " template"
+.TQ
+.BI --template " template"
+Create bee file with template
+.IR template .
+.TP
 .B \-f
 .TQ
 .B \-\-force
@@ -29,20 +47,10 @@ to ignore the warning and override the old file.
 .B \-\-help
 Print a little help screen.
 .TP
-.BI \-\-configure " mode"
-Set
-.I mode
-to 'compat' if DATAROOTDIR is not supported in your build process
-.TP
-.B \-\-disable-versionify
-Enable this flag, if you do not want that version numbers in your source url are substituted for
-bee variables.
-.TP
-.BI -t " template"
+.B \-V
 .TQ
-.BI --template " template"
-Create bee file with template
-.IR template .
+.B \-\-version
+print version number
 .TP
 .B \-\-prefix
 .TQ
