@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# bee-check - check consistancy of installed bee-pkgs
+# bee-check - check consistency of installed bee-pkgs
 #
 # Copyright (C) 2009-2011
 #       Marius Tolzmann <tolzmann@molgen.mpg.de>
@@ -242,7 +242,7 @@ do_check() {
             else
                 sdest=$(readlink ${file})
                 if [ "${sdest}"  != "${symlink}" ] ; then
-                    echo "  [changed] <symlink desitination '${symlink}' != '${sdest}'> ${file}"
+                    echo "  [changed] <symlink destination '${symlink}' != '${sdest}'> ${file}"
                 fi
                 #echo "  [ DEBUG ] <OK> ${file} -> ${symlink}"
             fi

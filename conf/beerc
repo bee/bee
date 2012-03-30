@@ -19,7 +19,7 @@
 
 #if [ ${UID} -eq 0 ] ; then
     # BEE_METADIR
-    #   - installation directory of data about currently intsalled packages
+    #   - installation directory of data about currently installed packages
     #: ${BEE_METADIR=${BEE_DATADIR}/bee}
 
     # BEE_REPOSITORY_*

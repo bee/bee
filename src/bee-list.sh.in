@@ -74,7 +74,7 @@ list_installed() {
 #
 list_available() {
     local IFS=":${IFS}"
-    # preapre for repository pathes..
+    # prepare for repository paths..
     : ${BEE_PKGPATH:=${BEE_PKGDIR}}
 
     # replace all ':' with ' ' in BEE_PKGPATH
@@ -111,7 +111,7 @@ list_beepackages() {
     mode=${1}
     shift
 
-    # if more then one pattern is given all pattern have to match (AND)
+    # if more than one pattern is given all patterns have to match (AND)
     thegrep=""
     for p in "${@}" ; do
         thegrep="${thegrep} | grep -i -F -e '${p}' "

@@ -325,7 +325,7 @@ function do_install() {
     fi
 
 
-    echo >&2 "YOU HIT A BUG #101: you shoul have never reached this point"
+    echo >&2 "YOU HIT A BUG #101: you should have never reached this point"
     return
 }
 

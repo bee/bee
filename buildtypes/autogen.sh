@@ -49,7 +49,7 @@ bee_install() {
 
 # check IGNORE_DATAROOTDIR for compatibility with old bee-files
 if [ ${IGNORE_DATAROOTDIR} ] ; then
-    print_error "IGNORE_DATAROOTDIR is deprecated! pleade use BEE_CONFIGURE='compat' instead." >&2
+    print_error "IGNORE_DATAROOTDIR is deprecated! please use BEE_CONFIGURE='compat' instead." >&2
     BEE_CONFIGURE='compat'
 fi
 
@@ -69,5 +69,5 @@ if [ -z "${DEFCONFIG}" ] ; then
     DEFCONFIG="${DEFCONFIG} \${EPREFIX:+--exec-prefix=\${EPREFIX}}"
 fi
 
-# expand default confidure options
+# expand default configure options
 eval DEFCONFIG=\"${DEFCONFIG}\"
