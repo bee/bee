@@ -171,6 +171,7 @@ static void usage_list(void)
            "    --required-by  <pkg|file>\n"
            "    --removable    <pkg>\n"
            "    --provider-of  <file>\n"
+           "    --not-cached   <filename>\n"
            "    --count\n");
 }
 
@@ -558,7 +559,8 @@ static int bee_dep_remove(int argc, char *argv[])
 static int bee_dep_list(int argc, char *argv[])
 {
     int c, i, opt_count, help, files, packages, count,
-        depending_on, required_by, removable, provider_of;
+        depending_on, required_by, removable, provider_of,
+        not_cached;
     struct hash *graph;
     char *name;
     struct option long_options[] = {
@@ -570,11 +572,12 @@ static int bee_dep_list(int argc, char *argv[])
         {"required-by",  0, &required_by,  1},
         {"removable",    0, &removable,    1},
         {"provider-of",  0, &provider_of,  1},
+        {"not-cached",   0, &not_cached,   1},
         {0, 0, 0, 0}
     };
 
     opt_count = help         = files       = packages  = provider_of =
-    count     = depending_on = required_by = removable = 0;
+    count     = depending_on = required_by = removable = not_cached  = 0;
 
     while ((c = getopt_long(argc, argv, "", long_options, NULL)) != -1) {
         switch (c) {
@@ -689,6 +692,18 @@ static int bee_dep_list(int argc, char *argv[])
                 hash_free(graph);
                 return 1;
             }
+        }
+
+        if (not_cached) {
+            c = print_not_cached(graph, name, !count);
+
+            if (c < 0) {
+                hash_free(graph);
+                return 1;
+            }
+
+            if (count)
+                printf("%d\n", c);
         }
     }
 

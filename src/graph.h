@@ -53,6 +53,7 @@ extern void list_packages(struct hash *hash);
 extern int count_packages(struct hash *hash);
 extern int remove_package(struct hash *hash, char *pkgname);
 extern int print_conflicts(struct hash *hash);
+extern int print_not_cached(struct hash *hash, char *filename, char print);
 extern int save_cache(struct hash *hash, char *path);
 extern struct hash *load_cache(char *filename);
 extern unsigned long count_providedby(struct hash *hash, char *count);

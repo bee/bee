@@ -1159,3 +1159,41 @@ int print_conflicts(struct hash *hash)
 
     return 0;
 }
+
+int print_not_cached(struct hash *hash, char *filename, char print)
+{
+    int c;
+    FILE *file;
+    char lookup[PATH_MAX];
+
+    c = 0;
+
+    if ((file = fopen(filename, "r")) == NULL) {
+        perror("bee-dep: print_not_cached: fopen");
+        return -1;
+    }
+
+    while (fgets(lookup, PATH_MAX, file) != NULL) {
+        /* skip empty lines */
+        if (lookup[0] == '\n')
+            continue;
+
+        /* remove trailing '\n' */
+        lookup[strlen(lookup) - 1] = '\0';
+
+        if (hash_search(hash, lookup))
+            continue;
+
+        if (print)
+            puts(lookup);
+
+        c++;
+    }
+
+    if (fclose(file) == EOF) {
+        perror("bee-dep: print_not_cached: fclose");
+        return -1;
+    }
+
+    return c;
+}
