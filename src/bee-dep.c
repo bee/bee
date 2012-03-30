@@ -122,7 +122,7 @@ static void usage_header(void)
     printf("bee-dep v%s 2011\n"
            "  by Matthias Ruester and Lucas Schwass\n"
            "     Max Planck Institute for Molecular Genetics Berlin Dahlem\n\n",
-           getenv("BEE_VERSION"));
+           bee_version());
 }
 
 static void usage(void)
