@@ -676,7 +676,7 @@ int count_providers(struct hash *hash, char *name)
 
     if (IS_PKG(n)) {
         fprintf(stderr,
-                "bee-dep: count_providers: \"%s\" is a package\n",
+                "bee-dep: count_providers: error: \"%s\" is a package\n",
                 name);
         return -1;
     }
