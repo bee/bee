@@ -283,7 +283,6 @@ usage() {
 
 	Options:
 	    -f | --force      can be used to force check come what may
-	    -v | --verbose    bee more verbose (can be used twice e.g. -vv)
 
 	EOF
 }
@@ -292,8 +291,8 @@ usage() {
 ##
 ##
 options=$(getopt -n bee-check \
-                 -o advfh \
-                 --long verbose,all,force,help,deps \
+                 -o dfh \
+                 --long force,help,deps \
                  -- "$@")
 if [ $? != 0 ] ; then
   usage
@@ -301,15 +300,10 @@ if [ $? != 0 ] ; then
 fi
 eval set -- "${options}"
 
-declare -i OPT_A=0
 declare -i OPT_F=0
 
 while true ; do
   case "$1" in
-    -a|--all|-v|--verbose)
-      shift;
-      OPT_A=$OPT_A+1
-      ;;
     -f|--force)
       shift;
       OPT_F=$OPT_F+1
