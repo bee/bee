@@ -1,7 +1,7 @@
 /*
-** beedep - dependency tool for bee
+** bee-dep - dependency tool for bee
 **
-** Copyright (C) 2009-2011
+** Copyright (C) 2009-2012
 **       Matthias Ruester <ruester@molgen.mpg.de>
 **       Lucas Schwass <schwass@molgen.mpg.de>
 **       Marius Tolzmann <tolzmann@molgen.mpg.de>
