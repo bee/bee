@@ -49,6 +49,16 @@ bee variables.
 Create bee file with template
 .IR template .
 .TP
+.B \-e
+.TQ
+.B \-\-exec
+execute bee-file after creation
+.TP
+.B \-i
+.TQ
+.B \-\-install
+execute bee-file and install software
+.TP
 .B \-\-prefix
 .TQ
 .B \-\-eprefix
