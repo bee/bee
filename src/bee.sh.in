@@ -86,7 +86,7 @@ function search_tool_cmd {
 
 options=$(${BEE_BINDIR}/beegetopt --name=bee \
     --keep-option-end \
-    --option=destdir/d= \
+    --option=destdir= \
     -- "${@}")
 
 eval set -- ${options}
