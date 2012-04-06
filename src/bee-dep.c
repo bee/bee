@@ -119,7 +119,7 @@ static char *lock_filename(void)
 
 static void usage_header(void)
 {
-    printf("bee-dep v%s 2011\n"
+    printf("bee-dep v%s 2011-2012\n"
            "  by Matthias Ruester and Lucas Schwass\n"
            "     Max Planck Institute for Molecular Genetics Berlin Dahlem\n\n",
            bee_version());
@@ -128,57 +128,70 @@ static void usage_header(void)
 static void usage(void)
 {
     usage_header();
-    printf("Usage: bee dep <command> [<args>]\n\n"
+    puts("Usage: bee dep <command> [<args>]\n\n"
 
-           "Commands:\n"
-           "    rebuild      rebuild the cache\n"
-           "    update       update the cache for a specific package\n"
-           "    remove       remove a package from the cache\n"
-           "    list         list information\n"
-           "    conflicts    show conflicting packages\n");
+         "Commands:\n"
+         "    rebuild      rebuild the cache\n"
+         "    update       update the cache for a specific package\n"
+         "    remove       remove a package from the cache\n"
+         "    list         list information\n"
+         "    conflicts    show conflicting packages\n\n"
+
+         "See 'bee dep <command> --help' for more information on a specific command.");
 }
 
 static void usage_rebuild(void)
 {
     usage_header();
-    printf("Usage: bee dep rebuild\n");
+    puts("Usage: bee dep rebuild\n\n"
+
+         "Rebuild the cache.\n");
 }
 
 static void usage_update(void)
 {
     usage_header();
-    printf("Usage: bee dep update [pkgname]\n");
+    puts("Usage: bee dep update <pkgname>\n\n"
+
+         "Update the information about a package.\n");
 }
 
 static void usage_remove(void)
 {
     usage_header();
-    printf("Usage: bee dep remove [options] <pkgname>\n\n"
+    puts("Usage: bee dep remove [options] <pkgname>\n\n"
 
-           "Options:\n"
-           "    --print    print which files can be deleted from the hard drive\n");
+         "Remove a package from the cache.\n\n"
+
+         "Options:\n"
+         "    --print    print which files can be deleted from the hard drive\n");
 }
 
 static void usage_list(void)
 {
     usage_header();
-    printf("Usage: bee dep list [options]\n\n"
+    puts("Usage: bee dep list [options]\n\n"
 
-           "Options:\n"
-           "    --packages\n"
-           "    --files        <pkg>\n"
-           "    --depending-on <pkg|file>\n"
-           "    --required-by  <pkg|file>\n"
-           "    --removable    <pkg>\n"
-           "    --provider-of  <file>\n"
-           "    --not-cached   <filename>\n"
-           "    --count\n");
+         "Get information from the cache.\n\n"
+
+         "Options:\n"
+         "    --packages                   list all packages\n"
+         "    --files        <pkg>         list all files of a package\n"
+         "    --depending-on <pkg|file>    list packages depending on a pkg or file\n"
+         "    --required-by  <pkg|file>    list packages required by a pkg or file\n"
+         "    --removable    <pkg>         show all removable files of a package\n"
+         "    --provider-of  <file>        show the providers of a file\n"
+         "    --not-cached   <file>        print files which are not in the cache;\n"
+         "                                 check those files which are listed in <file>\n"
+         "    --count                      do not print results; just count\n");
 }
 
 static void usage_conflicts(void)
 {
     usage_header();
-    printf("Usage: bee dep conflicts [pkgname]\n");
+    puts("Usage: bee dep conflicts\n\n"
+
+         "Print conflicting packages.\n");
 }
 
 /* create all directories in path with mode mode */
