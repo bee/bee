@@ -89,7 +89,7 @@ function show_help() {
 	    -c | --cleanup          may be used to clean up <pkg>-related
 	                            directory tree before build process is started
 	    -i | --install          after build process is successful and <pkg> is
-	                            built, <pkg>.tgz is install by bee_install
+	                            built, <pkg>.tgz is installed by bee_install
 	    -f | --force-install    same as -i; bee_install is invoked with --force
 	    -h | --help             display this help
 
@@ -678,7 +678,7 @@ if [ "${BEE:0:1}" != "/" ] ; then
 fi
 
 if [ ! -f "${BEE}" ] ; then
-    print_error "${BEE}: No such File."
+    print_error "${BEE}: No such file."
     exit 1
 fi
 

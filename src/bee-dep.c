@@ -1,7 +1,7 @@
 /*
-** beedep - dependency tool for bee
+** bee-dep - dependency tool for bee
 **
-** Copyright (C) 2009-2011
+** Copyright (C) 2009-2012
 **       Matthias Ruester <ruester@molgen.mpg.de>
 **       Lucas Schwass <schwass@molgen.mpg.de>
 **       Marius Tolzmann <tolzmann@molgen.mpg.de>
@@ -119,65 +119,79 @@ static char *lock_filename(void)
 
 static void usage_header(void)
 {
-    printf("bee-dep v%s 2011\n"
+    printf("bee-dep v%s 2011-2012\n"
            "  by Matthias Ruester and Lucas Schwass\n"
            "     Max Planck Institute for Molecular Genetics Berlin Dahlem\n\n",
-           getenv("BEE_VERSION"));
+           bee_version());
 }
 
 static void usage(void)
 {
     usage_header();
-    printf("Usage: bee dep <command> [<args>]\n\n"
+    puts("Usage: bee dep <command> [<args>]\n\n"
 
-           "Commands:\n"
-           "    rebuild      rebuild the cache\n"
-           "    update       update the cache for a specific package\n"
-           "    remove       remove a package from the cache\n"
-           "    list         list information\n"
-           "    conflicts    show conflicting packages\n");
+         "Commands:\n"
+         "    rebuild      rebuild the cache\n"
+         "    update       update the cache for a specific package\n"
+         "    remove       remove a package from the cache\n"
+         "    list         list information\n"
+         "    conflicts    show conflicting packages\n\n"
+
+         "See 'bee dep <command> --help' for more information on a specific command.");
 }
 
 static void usage_rebuild(void)
 {
     usage_header();
-    printf("Usage: bee dep rebuild\n");
+    puts("Usage: bee dep rebuild\n\n"
+
+         "Rebuild the cache.\n");
 }
 
 static void usage_update(void)
 {
     usage_header();
-    printf("Usage: bee dep update [pkgname]\n");
+    puts("Usage: bee dep update <pkgname>\n\n"
+
+         "Update the information about a package.\n");
 }
 
 static void usage_remove(void)
 {
     usage_header();
-    printf("Usage: bee dep remove [options] <pkgname>\n\n"
+    puts("Usage: bee dep remove [options] <pkgname>\n\n"
 
-           "Options:\n"
-           "    --print    print which files can be deleted from the hard drive\n");
+         "Remove a package from the cache.\n\n"
+
+         "Options:\n"
+         "    --print    print which files can be deleted from the hard drive\n");
 }
 
 static void usage_list(void)
 {
     usage_header();
-    printf("Usage: bee dep list [options]\n\n"
+    puts("Usage: bee dep list [options]\n\n"
 
-           "Options:\n"
-           "    --packages\n"
-           "    --files        <pkg>\n"
-           "    --depending-on <pkg|file>\n"
-           "    --required-by  <pkg|file>\n"
-           "    --removable    <pkg>\n"
-           "    --provider-of  <file>\n"
-           "    --count\n");
+         "Get information from the cache.\n\n"
+
+         "Options:\n"
+         "    --packages                   list all packages\n"
+         "    --files        <pkg>         list all files of a package\n"
+         "    --depending-on <pkg|file>    list packages depending on a pkg or file\n"
+         "    --required-by  <pkg|file>    list packages required by a pkg or file\n"
+         "    --removable    <pkg>         show all removable files of a package\n"
+         "    --provider-of  <file>        show the providers of a file\n"
+         "    --not-cached   <file>        print files which are not in the cache;\n"
+         "                                 check those files which are listed in <file>\n"
+         "    --count                      do not print results; just count\n");
 }
 
 static void usage_conflicts(void)
 {
     usage_header();
-    printf("Usage: bee dep conflicts [pkgname]\n");
+    puts("Usage: bee dep conflicts\n\n"
+
+         "Print conflicting packages.\n");
 }
 
 /* create all directories in path with mode mode */
@@ -558,7 +572,8 @@ static int bee_dep_remove(int argc, char *argv[])
 static int bee_dep_list(int argc, char *argv[])
 {
     int c, i, opt_count, help, files, packages, count,
-        depending_on, required_by, removable, provider_of;
+        depending_on, required_by, removable, provider_of,
+        not_cached;
     struct hash *graph;
     char *name;
     struct option long_options[] = {
@@ -570,11 +585,12 @@ static int bee_dep_list(int argc, char *argv[])
         {"required-by",  0, &required_by,  1},
         {"removable",    0, &removable,    1},
         {"provider-of",  0, &provider_of,  1},
+        {"not-cached",   0, &not_cached,   1},
         {0, 0, 0, 0}
     };
 
     opt_count = help         = files       = packages  = provider_of =
-    count     = depending_on = required_by = removable = 0;
+    count     = depending_on = required_by = removable = not_cached  = 0;
 
     while ((c = getopt_long(argc, argv, "", long_options, NULL)) != -1) {
         switch (c) {
@@ -689,6 +705,18 @@ static int bee_dep_list(int argc, char *argv[])
                 hash_free(graph);
                 return 1;
             }
+        }
+
+        if (not_cached) {
+            c = print_not_cached(graph, name, !count);
+
+            if (c < 0) {
+                hash_free(graph);
+                return 1;
+            }
+
+            if (count)
+                printf("%d\n", c);
         }
     }
 

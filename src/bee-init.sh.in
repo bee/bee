@@ -80,7 +80,7 @@ function usage() {
 	   --mandir=DIR           man documentation [${MANDIR}]
 	   --docdir=DIR           documentation root [${DOCDIR}]
 	
-	   Descritions taken from ./configure script - may vary depending on buildtype.
+	   Descriptions taken from ./configure script - may vary depending on buildtype.
 	   Current values in [] (command line options are not evaluated).
 	   for [bee-options] see 'bee --help'.
 	

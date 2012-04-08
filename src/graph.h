@@ -1,7 +1,7 @@
 /*
-** beedep - dependency tool for bee
+** bee-dep - dependency tool for bee
 **
-** Copyright (C) 2009-2011
+** Copyright (C) 2009-2012
 **       Matthias Ruester <ruester@molgen.mpg.de>
 **       Lucas Schwass <schwass@molgen.mpg.de>
 **       Marius Tolzmann <tolzmann@molgen.mpg.de>
@@ -53,6 +53,7 @@ extern void list_packages(struct hash *hash);
 extern int count_packages(struct hash *hash);
 extern int remove_package(struct hash *hash, char *pkgname);
 extern int print_conflicts(struct hash *hash);
+extern int print_not_cached(struct hash *hash, char *filename, char print);
 extern int save_cache(struct hash *hash, char *path);
 extern struct hash *load_cache(char *filename);
 extern unsigned long count_providedby(struct hash *hash, char *count);

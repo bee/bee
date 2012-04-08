@@ -325,7 +325,6 @@ static int _bee_getopt_long(struct bee_getopt_ctl *optctl, int *optindex)
 
     short maybe_option = 0;
     short maybe_long   = 0;
-    short maybe_short  = 0;
     char *name;
     int idx;
 
@@ -338,7 +337,6 @@ static int _bee_getopt_long(struct bee_getopt_ctl *optctl, int *optindex)
 
     maybe_option = (optctl->argv[this][0] == '-');
     maybe_long   = maybe_option && (optctl->argv[this][1] == '-');
-    maybe_short  = maybe_option && !maybe_long;
     name         = &(optctl->argv[this][maybe_option+maybe_long]);
 
     optctl->optarg = NULL;

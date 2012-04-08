@@ -1,7 +1,7 @@
 /*
-** beedep - dependency tool for bee
+** bee-dep - dependency tool for bee
 **
-** Copyright (C) 2009-2011
+** Copyright (C) 2009-2012
 **       Matthias Ruester <ruester@molgen.mpg.de>
 **       Lucas Schwass <schwass@molgen.mpg.de>
 **       Marius Tolzmann <tolzmann@molgen.mpg.de>
@@ -676,7 +676,7 @@ int count_providers(struct hash *hash, char *name)
 
     if (IS_PKG(n)) {
         fprintf(stderr,
-                "bee-dep: count_providers: \"%s\" is a package\n",
+                "bee-dep: count_providers: error: \"%s\" is a package\n",
                 name);
         return -1;
     }
@@ -1158,4 +1158,42 @@ int print_conflicts(struct hash *hash)
     }
 
     return 0;
+}
+
+int print_not_cached(struct hash *hash, char *filename, char print)
+{
+    int c;
+    FILE *file;
+    char lookup[PATH_MAX];
+
+    c = 0;
+
+    if ((file = fopen(filename, "r")) == NULL) {
+        perror("bee-dep: print_not_cached: fopen");
+        return -1;
+    }
+
+    while (fgets(lookup, PATH_MAX, file) != NULL) {
+        /* skip empty lines */
+        if (lookup[0] == '\n')
+            continue;
+
+        /* remove trailing '\n' */
+        lookup[strlen(lookup) - 1] = '\0';
+
+        if (hash_search(hash, lookup))
+            continue;
+
+        if (print)
+            puts(lookup);
+
+        c++;
+    }
+
+    if (fclose(file) == EOF) {
+        perror("bee-dep: print_not_cached: fclose");
+        return -1;
+    }
+
+    return c;
 }
