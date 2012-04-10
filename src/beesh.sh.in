@@ -635,6 +635,11 @@ while true ; do
             OPT_FORCE="yes"
             shift
             ;;
+        -u|--update)
+            OPT_INSTALL="yes"
+            OPT_UPDATE="yes"
+            shift
+            ;;
         -c|--cleanup)
             OPT_CLEANUP="yes"
             shift
@@ -799,5 +804,5 @@ echo
 
 if [ "${OPT_INSTALL}" = "yes" ] ; then
     print_info "installing ${PKGALLPKG} .."
-    bee install ${OPT_FORCE:+-f} ${BEE_PKGDIR}/${PKGALLPKG}.bee.tar.bz2
+    bee install ${OPT_FORCE:+-f} ${OPT_UPDATE:+-u} ${BEE_PKGDIR}/${PKGALLPKG}.bee.tar.bz2
 fi
