@@ -17,30 +17,63 @@ bee \- Run a bee tool
 is a wrapper tool that is used to run all bee tools. All options known by these bee tools can be passed
 to
 .BR bee .
-.\" .SH "OPTIONS"
+.SH "OPTIONS"
+.TP
+.B \-\-destdir <BEE_BEEDESTDIR>
+Run
+.B bee
+as if
+.B BEE_BEEDESTDIR
+is your system's root directory. That means
+.B BEE_BEEDESTDIR
+is prepended to
+.B BEE_METADIR
+and
+.B BEE_CACHEDIR
+and in case you run
+.BR bee\-install (1)
+all files are extracted under
+.BR BEE_BEEDESTDIR .
+.TP
+.B \-\-print-config
+Dispays all bee relevant variables.
+.TP
+.B \-\-help
+Prints a little help screen.
+.TP
+.B \-\-version
+Prints bee's version.
 .SH "FILES"
 .TP
 .B /etc/bee/beerc
 .TQ
-.B ${HOME}/.beerc
+.B ~/.beerc
 The main config files. Use these to change
 .BR bee 's
 environment variables.
 .SH "ENVIRONMENT"
 .TP
-.B ${BEE_METADIR}
+.B BEE_METADIR
+.RS
 Directory searched for installed bee packages
-.IP
+.P
+Defaults:
+.TQ
 root-user: /usr/share/bee
-.IP
-other:     ${HOME}/.local/share/beemeta
+.TQ
+other:     ~/.local/share/bee
+.RE
 .TP
-.B ${BEE_REPOSITORY_PREFIX}/pkgs
+.B BEE_PKGDIR
+.RS
 Directory searched for available bee packages
-.IP
-root-user: /usr/src/bee/pkgs
-.IP
-other:     ${HOME}/.local/beeroot/pkgs
+.P
+Defaults:
+.TQ
+root-user: /usr/src/bee/packages
+.TQ
+other:     ~/.local/src/bee/packages
+.RE
 .\" .SH "DIAGNOSTICS"
 .\" .SH "BUGS"
 .SH "AUTHORS"
@@ -53,6 +86,7 @@ Marius Tolzmann
 Tobias Dreyer
 .ME
 .SH "SEE ALSO"
+.BR beesh (1)
 .BR bee-check (1)
 .BR bee-init (1)
 .BR bee-install (1)

@@ -11,11 +11,6 @@ bee\-check \- Perform some consistency checks on a bee package
 .B bee-check
 is used to perform consistency checks on a bee package and shows missing link targets,
 missing files and directories or changed md5 sums.
-.P
-As part of the bee package management
-.B bee-check
-is invoked by the wrapper tool
-.BR bee (1) .
 .SH "OPTIONS"
 .TP
 .B \-d
@@ -36,33 +31,31 @@ if it does not match a full packagename.
 .TQ
 .B \-\-help
 Print a little help screen.
+.TP
+.B \-v
+.TQ
+.B \-\-verbose
+bee more verbose (can be used twice e.g. -vv)
 .SH "FILES"
 .TP
 .B /etc/bee/beerc
 .TQ
-.B ${HOME}/.beerc
+.B ~/.beerc
 The main config files. Use these to change
 .BR bee-check 's
 environment variables.
 .SH "ENVIRONMENT"
 .TP
-.B ${BEE_METADIR}
+.B BEE_METADIR
+.RS
 Directory searched for installed bee packages
-.IP
+.P
+Defaults:
+.TQ
 root-user: /usr/share/bee
-.IP
-other:     ${HOME}/.local/share/beemeta
-.SH "DIAGNOSTICS"
-Following error message may be seen:
-.TP
-.B "BEE-ERROR: please call bee-check from bee .."
-.B bee-check
-must be run by the wrapper
-.BR bee .
-Just call
-.B bee check
-.OP options
-.I pattern
+.TQ
+other:     ~/.local/share/bee
+.RE
 .\" .SH "BUGS"
 .SH "AUTHORS"
 .P
@@ -75,6 +68,7 @@ Tobias Dreyer
 .ME
 .SH "SEE ALSO"
 .BR bee (1)
+.BR beesh (1)
 .BR bee-init (1)
 .BR bee-install (1)
 .BR bee-list (1)

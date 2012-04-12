@@ -13,11 +13,6 @@ Use
 to remove installed bee packages. If
 .I bee-package
 does not match the full name of a bee package, all matching packages will be displayed.
-.P
-As part of the bee package management
-.B bee-remove
-is invoked by the wrapper tool
-.BR bee (1) .
 .SH "OPTIONS"
 .TP
 .B \-h
@@ -35,18 +30,22 @@ just print.
 .TP
 .B /etc/bee/beerc
 .TQ
-.B ${HOME}/.beerc
+.B ~/.beerc
 The main config files. Use these to change
 .BR bee-remove 's
 environment variables.
 .SH "ENVIRONMENT"
 .TP
-.B ${BEE_METADIR}
+.B BEE_METADIR
+.RS
 Directory searched for installed bee packages
-.IP
+.P
+Defaults:
+.TQ
 root-user: /usr/share/bee
-.IP
-other:     ${HOME}/.local/share/beemeta
+.TQ
+other:     ~/.local/share/bee
+.RE
 .SH "DIAGNOSTICS"
 Following error message may be seen:
 .TP
@@ -70,6 +69,7 @@ Tobias Dreyer
 .ME
 .SH "SEE ALSO"
 .BR bee (1)
+.BR beesh (1)
 .BR bee-check (1)
 .BR bee-init (1)
 .BR bee-install (1)

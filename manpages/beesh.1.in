@@ -1,0 +1,67 @@
+.TH "beesh" "1" "2012-03-22" "bee @BEE_VERSION@" "bee package management"
+.SH "HOWTO WRITE A BEE-FILE"
+.SS "I have an url and want to build that stuff."
+The simplest way to create a bee file is to run
+.BR "bee init <url-to-sources>" .
+This will end up in a bee-file looking like
+.P
+.RS
+.TQ
+#!/bin/env beesh
+.TQ
+SRCURL[0]="http://<url-to-sources>"
+.RE
+.P
+To make it easier to you to apply changes to your build your bee-file contains some commented stuff too.
+.SS "Is there a way to customize the build process?"
+.P
+We provide you with a set of functions that you may adjust for your needs. These are
+.BR mee_patch ", " mee_configure ", " mee_build " and " mee_install .
+To each of these functions you may append
+.BR _pre " or " _post .
+Use these functions to adjust the build process to your needs.
+.SS "Where are my .la files? or I don't want that documentation stuff!"
+.B bee
+supports two ways of excluding files so they won't appear in your final bee-package. On the one hand there are many files
+that are automatically excluded by bee and one the other hand you can specify files that you wnat to exclude from your
+bee-package.
+.P
+To disable the bee built-in auto exclusion add
+.B disable_autoexclusion
+to your bee-file.
+.P
+To exclude files use
+.B EXCLUDE
+and provide a quoted 'space' separated list of regular expressions.
+.P
+.RS
+EXCLUDE="^/usr/share/gtk-doc ^/usr/share/doc"
+.RE
+.SS "Argh! My build takes so much time.."
+You might discover that
+.B bee
+takes quiet a lot time after packaging your software. This is because
+.B bee
+creates an archive of all build process related files (sources, patches, ..). If you don't want this run your bee-file with
+.P
+.RS
+bee-file-1.0-0.bee
+.B \-\-no-archive-build
+.RE
+.SH "AUTHORS"
+.P
+.MT tolzmann@molgen.mpg.de
+Marius Tolzmann
+.ME
+.P
+.MT dreyer@molgen.mpg.de
+Tobias Dreyer
+.ME
+.SH "SEE ALSO"
+.BR bee (1)
+.BR bee-check (1)
+.BR bee-init (1)
+.BR bee-install (1)
+.BR bee-list (1)
+.BR bee-query (1)
+.BR bee-remove (1)

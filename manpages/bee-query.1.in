@@ -16,11 +16,6 @@ If
 .I patten
 matches the full name of an installed package, all related files, otherwise all
 matching files and the related packages will be displayed.
-.P
-As part of the bee package management
-.B bee-query
-is invoked by the wrapper tool
-.BR bee (1) .
 .SH "OPTIONS"
 .TP
 .B \-h
@@ -31,18 +26,22 @@ Print a little help screen.
 .TP
 .B /etc/bee/beerc
 .TQ
-.B ${HOME}/.beerc
+.B ~/.beerc
 The main config files. Use these to change
 .BR bee-query 's
 environment variables.
 .SH "ENVIRONMENT"
 .TP
-.B ${BEE_METADIR}
+.B BEE_METADIR
+.RS
 Directory searched for installed bee packages
-.IP
+.P
+Defaults:
+.TQ
 root-user: /usr/share/bee
-.IP
-other:     ${HOME}/.local/share/beemeta
+.TQ
+other:     ~/.local/share/bee
+.RE
 .SH "DIAGNOSTICS"
 Following error message may be seen:
 .TP
@@ -66,6 +65,7 @@ Tobias Dreyer
 .ME
 .SH "SEE ALSO"
 .BR bee (1)
+.BR beesh (1)
 .BR bee-check (1)
 .BR bee-init (1)
 .BR bee-install (1)

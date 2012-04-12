@@ -13,12 +13,25 @@ bee\-init \- Create a bee file for building a bee package
 .P
 .B bee-init
 is used to create a file, that is run in order to build a bee package.
-.P
-As part of the bee package management
-.B bee-init
-is invoked by the wrapper tool
-.BR bee (1) .
 .SH "OPTIONS"
+.TP
+.BI \-\-configure " mode"
+Set
+.I mode
+to 'compat' if DATAROOTDIR is not supported in your build process
+.TP
+.BI \-\-buildtype " TYPE"
+force buildtype: configure, cmake, make, autogen, perl-module, perl-module-makemaker, python-module
+.TP
+.B \-\-disable-versionify
+Enable this flag, if you do not want that version numbers in your source url are substituted for
+bee variables.
+.TP
+.BI -t " template"
+.TQ
+.BI --template " template"
+Create bee file with template
+.IR template .
 .TP
 .B \-f
 .TQ
@@ -34,20 +47,10 @@ to ignore the warning and override the old file.
 .B \-\-help
 Print a little help screen.
 .TP
-.BI \-\-configure " mode"
-Set
-.I mode
-to 'compat' if ${DATAROOTDIR} is not supported in your build process
-.TP
-.B \-\-disable-versionify
-Enable this flag, if you do not want that version numbers in your source url are substituted for
-bee variables.
-.TP
-.BI -t " template"
+.B \-V
 .TQ
-.BI --template " template"
-Create bee file with template
-.IR template .
+.B \-\-version
+print version number
 .TP
 .B \-e
 .TQ
@@ -95,21 +98,10 @@ Set these directories, if you do not want to install to the default locations.
 .TP
 .B /etc/bee/beerc
 .TQ
-.B ${HOME}/.beerc
+.B ~/.beerc
 The main config files. Use these to change
 .BR bee-init 's
 environment variables.
-.SH "DIAGNOSTICS"
-Following error message may be seen:
-.TP
-.B "BEE-ERROR: please call bee-init from bee .."
-.B bee-init
-must be run by the wrapper
-.BR bee .
-Just call
-.B bee init
-.OP options
-.I url-to-file
 .\" .SH "BUGS"
 .SH "AUTHORS"
 .P
@@ -122,6 +114,7 @@ Tobias Dreyer
 .ME
 .SH "SEE ALSO"
 .BR bee (1)
+.BR beesh (1)
 .BR bee-check (1)
 .BR bee-install (1)
 .BR bee-list (1)

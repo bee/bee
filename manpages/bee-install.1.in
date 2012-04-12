@@ -15,17 +15,12 @@ is used to install a bee package.
 Normally
 .B bee-install
 searches
-.B ${BEE_REPOSITORY_PREFIX}/pkgs
+.B BEE_PKGDIR
 for
 .I bee-package
 but you can use
 .BI /path/to/ bee-package .bee.tar.bz2
 too.
-.P
-As part of the bee package management
-.B bee-install
-is invoked by the wrapper tool
-.BR bee (1) .
 .SH "OPTIONS"
 .TP
 .B \-a
@@ -57,7 +52,7 @@ Print a little help screen.
 .TP
 .B \-u
 .TQ
-.B \-\-upgrade
+.B \-\-update
 Install
 .I bee\-package
 and remove all other installed versions of this package.
@@ -66,35 +61,27 @@ Downgrades are possible by forcing the installation of lower versions with the
 option.
 .TP
 .B \-\-noop
-Do not install anything. Just show files related to
-.IR bee-package .
+Run bee in noop mode.
 .SH "FILES"
 .TP
 .B /etc/bee/beerc
 .TQ
-.B ${HOME}/.beerc
+.B ~/.beerc
 The main config files. Use these to change
 .BR bee-install 's
 environment variables.
 .SH "ENVIRONMENT"
 .TP
-.B ${BEE_REPOSITORY_PREFIX}/pkgs
+.B BEE_PKGDIR
+.RS
 Directory searched for available bee packages
-.IP
-root-user: /usr/src/bee/pkgs
-.IP
-other:     ${HOME}/.local/beeroot/pkgs
-.SH "DIAGNOSTICS"
-Following error message may be seen:
-.TP
-.B "BEE-ERROR: please call bee-install from bee .."
-.B bee-install
-must be run by the wrapper
-.BR bee .
-Just call
-.B bee install
-.OP options
-.I pattern
+.P
+Defaults:
+.TQ
+root-user: /usr/src/bee/packages
+.TQ
+other:     ~/.local/src/bee/packages
+.RE
 .\" .SH "BUGS"
 .SH "AUTHORS"
 .P
@@ -107,6 +94,7 @@ Tobias Dreyer
 .ME
 .SH "SEE ALSO"
 .BR bee (1)
+.BR beesh (1)
 .BR bee-check (1)
 .BR bee-init (1)
 .BR bee-list (1)
