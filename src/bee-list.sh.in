@@ -30,6 +30,8 @@ fi
 
 VERSION=${BEE_VERSION}
 
+: ${BEE_BINDIR:=@BINDIR@}
+
 #
 # BUGS TO FIX/FEATURES TO ADD:
 #   - lists are alpha-num sorted and not as pkg-versions ..
@@ -132,21 +134,20 @@ list_beepackages() {
 ################################################################################
 ################################################################################
 
-options=$(getopt -n bee-list \
-                 -o aih \
-                 --long available \
-                 --long installed \
-                 --long by-pkgfullname \
-                 --long display-pathname \
-                 --long exact \
-                 --long help \
-                 --long debug \
+options=$(${BEE_BINDIR}/beegetopt --name bee-list \
+                 --option available/a \
+                 --option installed/i \
+                 --option display-pathname \
+                 --option exact/by-pkgfullname \
+                 --option help/h \
+                 --option debug \
                  -- "$@")
 
 if [ $? != 0 ] ; then
     usage
     exit 1
 fi
+
 eval set -- "${options}"
 
 filter=""
@@ -157,19 +158,19 @@ OPT_PATHNAME="no"
 DEBUG=":"
 while true ; do
     case "$1" in
-        -h|--help)
+        --help)
             usage
             exit 0
             ;;
-        -a|--available)
+        --available)
             shift
             filter="available"
             ;;
-        -i|--installed)
+        --installed)
             shift
             filter="installed"
             ;;
-        --by-pkgfullname|--exact)
+        --exact)
             shift
             OPT_EXACT="yes"
             ;;
