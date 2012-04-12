@@ -213,6 +213,10 @@ if [ "${OPT_EXACT}" = "yes" ] ; then
 fi
 
 # mach et einfach.. (just do it)
+if [ ! ${#@} -gt 0 ] ; then
+    list_beepackages "${filter}"
+fi
+
 for p in "${@}" ; do
     list_beepackages "${filter}" ${p}
 done
