@@ -57,6 +57,8 @@ function usage() {
 	   -D  --define=A=B       define ENV variables within the bee-file.
 	                          (extra (over)quoting may be needed if B contains spaces.)
 	   -o  --output=bee-file  name of new bee-file
+	   -e  --exec             execute bee-file after creation
+	   -i  --install          execute bee-file and install software
 	
 	 Installation directories:
 	   --prefix=PREFIX        install architecture-independent files in PREFIX
@@ -261,6 +263,10 @@ function initialize() {
     bee_versionify ${beefile}
 
     chmod 755 ${beefile}
+
+    if [ "${OPT_EXEC}" = "yes" ] ; then
+        ${BEE_BINDIR}/beesh ${beefile} ${OPT_INSTALL}
+    fi
 }
 
 options=$(${BEE_BINDIR}/beegetopt --name bee-init \
@@ -289,6 +295,8 @@ options=$(${BEE_BINDIR}/beegetopt --name bee-init \
                  --option docdir= \
                  --option localedir= \
                  --option buildtype= \
+                 --option exec/e \
+                 --option install/i \
                  -- "$@")
 
 if [ $? != 0 ] ; then
@@ -298,6 +306,8 @@ fi
 
 OPT_VERSIONIFY="yes"
 OPT_OUTPUT=
+OPT_EXEC="no"
+OPT_INSTALL=
 
 eval set -- "${options}"
 
@@ -373,6 +383,17 @@ while true ; do
         --buildtype)
             OPT_BUILDTYPE="${2}"
             shift 2
+            ;;
+
+        --exec)
+            OPT_EXEC="yes"
+            shift
+            ;;
+
+        --install)
+            OPT_EXEC="yes"
+            OPT_INSTALL="--install"
+            shift
             ;;
 
         *)
