@@ -212,5 +212,6 @@ if [ "${OPT_EXACT}" = "yes" ] ; then
 fi
 
 # mach et einfach.. (just do it)
-list_beepackages "${filter}" "${@}"
-
+for p in "${@}" ; do
+    list_beepackages "${filter}" ${p}
+done
