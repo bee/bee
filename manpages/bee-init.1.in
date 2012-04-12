@@ -54,7 +54,7 @@ print version number
 .TP
 .B \-e
 .TQ
-.B \-\-exec
+.B \-\-execute
 execute bee-file after creation
 .TP
 .B \-i

@@ -57,7 +57,7 @@ function usage() {
 	   -D  --define=A=B       define ENV variables within the bee-file.
 	                          (extra (over)quoting may be needed if B contains spaces.)
 	   -o  --output=bee-file  name of new bee-file
-	   -e  --exec             execute bee-file after creation
+	   -e  --execute          execute bee-file after creation
 	   -i  --install          execute bee-file and install software
 	
 	 Installation directories:
@@ -277,6 +277,8 @@ options=$(${BEE_BINDIR}/beegetopt --name bee-init \
                  --option define/D= \
                  --option template/t= \
                  --option force/f \
+                 --option execute/e \
+                 --option install/i \
                  --option configure= \
                  --option prefix= \
                  --option eprefix= \
@@ -295,8 +297,6 @@ options=$(${BEE_BINDIR}/beegetopt --name bee-init \
                  --option docdir= \
                  --option localedir= \
                  --option buildtype= \
-                 --option exec/e \
-                 --option install/i \
                  -- "$@")
 
 if [ $? != 0 ] ; then
@@ -385,7 +385,7 @@ while true ; do
             shift 2
             ;;
 
-        --exec)
+        --execute)
             OPT_EXEC="yes"
             shift
             ;;
