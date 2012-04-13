@@ -40,7 +40,7 @@
 #define IS_PKG(a) (!strcmp((a)->type, PACKAGE))
 
 extern int graph_insert_nodes(struct hash *hash, char *filename);
-extern void print_broken(struct hash *hash, char *remove);
+extern int print_broken(struct hash *hash, char print);
 extern int print_removable(struct hash *hash, char *remove);
 extern int count_removable(struct hash *hash, char *remove);
 extern int list_files(struct hash *hash, char *pkgname);

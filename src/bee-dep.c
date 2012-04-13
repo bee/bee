@@ -183,6 +183,7 @@ static void usage_list(void)
          "    --provider-of  <file>        show the providers of a file\n"
          "    --not-cached   <file>        print files which are not in the cache;\n"
          "                                 check those files which are listed in <file>\n"
+         "    --broken                     list all broken dependencies\n"
          "    --count                      do not print results; just count\n");
 }
 
@@ -573,7 +574,7 @@ static int bee_dep_list(int argc, char *argv[])
 {
     int c, i, opt_count, help, files, packages, count,
         depending_on, required_by, removable, provider_of,
-        not_cached;
+        not_cached, broken;
     struct hash *graph;
     char *name;
     struct option long_options[] = {
@@ -586,11 +587,13 @@ static int bee_dep_list(int argc, char *argv[])
         {"removable",    0, &removable,    1},
         {"provider-of",  0, &provider_of,  1},
         {"not-cached",   0, &not_cached,   1},
+        {"broken",       0, &broken,       1},
         {0, 0, 0, 0}
     };
 
     opt_count = help         = files       = packages  = provider_of =
-    count     = depending_on = required_by = removable = not_cached  = 0;
+    count     = depending_on = required_by = removable = not_cached  =
+    broken    = 0;
 
     while ((c = getopt_long(argc, argv, "", long_options, NULL)) != -1) {
         switch (c) {
@@ -633,7 +636,12 @@ static int bee_dep_list(int argc, char *argv[])
         return 0;
     }
 
-    if (optind == argc) {
+    if (broken && optind < argc) {
+        fprintf(stderr, "bee-dep: too many arguments\n");
+        return 1;
+    }
+
+    if (optind == argc && !broken) {
         fprintf(stderr, "bee-dep: arguments needed\n");
         return 1;
     }
@@ -718,6 +726,18 @@ static int bee_dep_list(int argc, char *argv[])
             if (count)
                 printf("%d\n", c);
         }
+    }
+
+    if (broken) {
+        c = print_broken(graph, !count);
+
+        if (c < 0) {
+            hash_free(graph);
+            return 1;
+        }
+
+        if (count)
+            printf("%d\n", c);
     }
 
     hash_free(graph);

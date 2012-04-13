@@ -344,43 +344,78 @@ void check_remove(struct hash *hash, struct node *n, struct tree *r)
         add_all_neededby(hash, n, r);
 }
 
-void print_broken(struct hash *hash, char *remove)
+void print_broken_nodes(struct node *n, int *count,
+                        char *header, char print,
+                        struct tree *dry)
 {
-    struct node *n;
-    struct tree *t;
-    struct tree_node *e;
+    struct tree_node *t;
+    char *pkgname;
 
-    if ((n = hash_search(hash, remove)) == NULL) {
-        fprintf(stderr,
-                "bee-dep: print_broken: cannot find \"%s\"\n",
-                remove);
+    t = tree_first(n->provide->root);
+
+    while (t) {
+        print_broken_nodes(t->n, count, header, print, dry);
+        t = tree_next(t);
+    }
+
+    /* for the next step we have to assert
+       that n is a virtual file */
+    if (!is_virtual_file(n->name))
         return;
+
+    t = tree_first(n->need->root);
+
+    while (t) {
+        if (!tree_count(t->n->providedby)) {
+            (*count)++;
+
+            if (print) {
+                if (!*(header)) {
+                    (*header) = 1;
+                    pkgname = get_pkgname(n->name);
+                    printf("%s:\n", pkgname);
+                    free(pkgname);
+                }
+
+                /* don't repeat yourself */
+                if (!tree_search_tree_node(dry, t->n)) {
+                    printf("  %s -> %s\n",
+                           get_filename(n->name), t->n->name);
+                    tree_insert(dry, t->n);
+                }
+            }
+        }
+
+        t = tree_next(t);
+    }
+}
+
+int print_broken(struct hash *hash, char print)
+{
+    int c, i;
+    char h;
+    struct tree_node *t;
+    struct tree *dry;
+
+    c = 0;
+
+    for (i = 0; i < TBLSIZE; i++) {
+        t = tree_first(hash->tbl[i]->root);
+
+        while (t) {
+            h = 0;
+
+            if (IS_PKG(t->n)) {
+                dry = tree_new();
+                print_broken_nodes(t->n, &c, &h, print, dry);
+                tree_free(dry);
+            }
+
+            t = tree_next(t);
+        }
     }
 
-    if (!IS_PKG(n)) {
-        fprintf(stderr,
-                "bee-dep: print_broken: \"%s\": no such package\n",
-                remove);
-        return;
-    }
-
-    t = tree_new();
-
-    check_remove(hash, n, t);
-
-    e = tree_first(t->root);
-
-    if (!e)
-        puts("none");
-
-    while (e) {
-        if (strcmp(remove, e->n->name) != 0)
-            puts(e->n->name);
-
-        e = tree_next(e);
-    }
-
-    tree_free(t);
+    return c;
 }
 
 void sort_dirs(char **dirs, int dir_cnt)
