@@ -57,6 +57,40 @@ usage() {
 	EOF
 }
 
+function config_init_colors() {
+    if [ -t 1 ] ; then
+        COLOR_NORMAL="\\033[0;39m\\033[0;22m"
+        COLOR_GREEN="\\033[0;32m"
+        COLOR_YELLOW="\\033[0;33m"
+        COLOR_RED="\\033[0;31m"
+        COLOR_CYAN="\\033[0;36m"
+        COLOR_BLUE="\\033[0;34m"
+        COLOR_PURPLE="\\033[0;35m"
+        COLOR_BRACKET=${COLOR_PURPLE}
+        COLOR_BRCONTENT=${COLOR_YELLOW}
+        COLOR_INFO=${COLOR_GREEN}
+        COLOR_ERROR=${COLOR_RED}
+        COLOR_WARN=${COLOR_YELLOW}
+        COLOR_INSTALLABLE="${COLOR_YELLOW}installable${COLOR_NORMAL} "
+        COLOR_UPDATEABLE=" ${COLOR_GREEN}updateable${COLOR_NORMAL} "
+    else
+        COLOR_NORMAL=""
+        COLOR_GREEN=""
+        COLOR_YELLOW=""
+        COLOR_RED=""
+        COLOR_CYAN=""
+        COLOR_BLUE=""
+        COLOR_PURPLE=""
+        COLOR_BRACKET=""
+        COLOR_BRCONTENT=""
+        COLOR_INFO="**INFO** "
+        COLOR_ERROR="**ERROR** "
+        COLOR_WARN="**WARNING** "
+        COLOR_INSTALLABLE="installable "
+        COLOR_UPDATEABLE=" updateable "
+    fi
+}
+
 #
 # lists installed packages
 #   RETURNS a sorted list of installed packages
@@ -137,6 +171,7 @@ list_beepackages() {
 options=$(${BEE_BINDIR}/beegetopt --name bee-list \
                  --option available/a \
                  --option installed/i \
+                 --option updateable/u \
                  --option display-pathname \
                  --option exact/by-pkgfullname \
                  --option help/h \
@@ -154,6 +189,7 @@ filter=""
 
 OPT_EXACT="no"
 OPT_PATHNAME="no"
+OPT_UPDATEABLE="no"
 
 DEBUG=":"
 while true ; do
@@ -169,6 +205,10 @@ while true ; do
         --installed)
             shift
             filter="installed"
+            ;;
+        --updateable)
+            shift;
+            OPT_UPDATEABLE="yes"
             ;;
         --exact)
             shift
@@ -189,6 +229,7 @@ while true ; do
     esac
 done
 
+config_init_colors
 
 if [ "${OPT_EXACT}" = "yes" ] ; then
     if [ ! -z ${2} ] ; then
@@ -211,6 +252,43 @@ if [ "${OPT_EXACT}" = "yes" ] ; then
     done
     exit 0
 fi
+
+function list_updateable() {
+    local search=${1}
+
+    pkgs=$(list_beepackages "available" ${search})
+
+    if [ -z "${pkgs}" ] ; then
+        return
+    fi
+
+    pkgs=$(${BEE_BINDIR}/beeversion --max ${pkgs})
+    for a in ${pkgs} ; do
+        pname=$(${BEE_BINDIR}/beeversion --pkgfullname "${a}")
+        installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --exact "${pname}")
+        if [ -z "${installed}" ] ; then
+           echo -e "${COLOR_INSTALLABLE}${a}${COLOR_NORMAL}"
+           continue
+        fi
+        maxinstalled=$(${BEE_BINDIR}/beeversion --max ${installed})
+        maxall=$(${BEE_BINDIR}/beeversion --max ${maxinstalled} ${a})
+        if [ "${maxall}" != "${maxinstalled}" ] ; then
+            echo -e "${COLOR_UPDATEABLE}${a}${COLOR_NORMAL}"
+        fi
+    done
+}
+
+if [ "${OPT_UPDATEABLE}" = "yes" ] ; then
+    if [ ! ${#@} -gt 0 ] ; then
+        list_updateable
+    fi
+
+    for p in "${@}" ; do
+        list_updateable ${p}
+    done
+    exit 0
+fi
+
 
 # mach et einfach.. (just do it)
 if [ ! ${#@} -gt 0 ] ; then
