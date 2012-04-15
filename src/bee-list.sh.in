@@ -23,6 +23,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#
+#  bee list -i - list installed
+#  bee list -a - list available
+#  bee list -u - list updateable
+#  bee list -U - list uninstalled
+#  bee list -s - list status (installed, uninstalled, updateable, available)
+#  --sorted    - pipe through beesort
+#  --max       - only list highest versions
+#  --format "" - print formated
+#
+
+
 if [ -z "${BEE_VERSION}" ] ; then
     echo >&2 "BEE-ERROR: please call $0 from bee .."
     exit 1
