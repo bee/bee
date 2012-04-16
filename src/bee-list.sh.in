@@ -43,6 +43,7 @@ fi
 VERSION=${BEE_VERSION}
 
 : ${BEE_BINDIR:=@BINDIR@}
+: ${BEESORT:=${BEE_BINDIR}/beesort}
 
 #
 # BUGS TO FIX/FEATURES TO ADD:
@@ -103,33 +104,20 @@ function config_init_colors() {
     fi
 }
 
-#
-# lists installed packages
-#   RETURNS a sorted list of installed packages
-#
-list_installed() {
+function list_installed_packages() {
     if [ ! -r "${BEE_METADIR}" ] ; then
         return
     fi
-    find ${BEE_METADIR} -mindepth 1 -maxdepth 1 -type d -printf "%f\n" \
-        | sort
+    find ${BEE_METADIR} -mindepth 1 -maxdepth 1 -type d -printf "%f\n"
 }
 
-#
-# lists available packages
-#   RETURNS a sorted list of packages available in ${BEE_PKGDIR}
-#   or in any directory in ${BEE_PKGPATH}
-#
-list_available() {
-    local IFS=":${IFS}"
-    # prepare for repository paths..
+function list_available_packages() {
     : ${BEE_PKGPATH:=${BEE_PKGDIR}}
 
-    # replace all ':' with ' ' in BEE_PKGPATH
     path=${BEE_PKGPATH//:/ }
 
     search=""
-    for p in $path ; do
+    for p in ${path} ; do
         if [ -r "${p}" ] ; then
             search="${search} ${p}"
         fi
@@ -140,14 +128,20 @@ list_available() {
     fi
 
     if [ "${OPT_PATHNAME}" == "yes" ] ; then
-        find ${search} -mindepth 1 -maxdepth 1 -printf "%p\n" \
-            | sort
+        find ${search} -mindepth 1 -maxdepth 1 -printf "%p\n"
     else
         find ${search} -mindepth 1 -maxdepth 1 -printf "%f\n" \
             | sed -e "s@\.iee\.tar\..*\$@@" \
-                  -e "s@\.bee\.tar\..*\$@@" \
-            | sort
+                  -e "s@\.bee\.tar\..*\$@@"
     fi
+}
+
+function list_installed() {
+    list_installed_packages | ${BEESORT}
+}
+
+function list_available() {
+    list_available_packages | ${BEESORT}
 }
 
 #
