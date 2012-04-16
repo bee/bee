@@ -134,13 +134,13 @@ int main(int argc, char *argv[])
         s = line;
         p = line+l-1;
 
-        while (p-s && *p && (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r'))
+        while (p > s && (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r'))
             *(p--) = 0;
 
-        while (*s && (*s == ' ' || *s == '\t' || *s == '\n' || *s == '\r'))
+        while (*s && (*s == ' ' || *s == '\t'))
             s++;
 
-        if(p-s < 0)
+        if(p < s)
             continue;
 
         v = calloc(1, sizeof(*v));
