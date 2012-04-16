@@ -152,6 +152,7 @@ int main(int argc, char *argv[])
         }
 
         if(parse_version(s, v) != 0) {
+            free(v->string);
             init_version(s, v);
             v->pkgname = v->string;
         }
