@@ -153,15 +153,20 @@ function list_available() {
 }
 
 function bee_list_packages() {
-    filter=$1
+    local lister="list_beepackages"
+    local filter=$1
     shift
 
+    if [ "${OPT_EXACT}" = "yes" ] ; then
+        lister="bee_list_exact"
+    fi
+
     if [ ! ${#@} -gt 0 ] ; then
-        list_beepackages "${filter}"
+        ${lister} "${filter}"
     fi
 
     for p in "${@}" ; do
-        list_beepackages "${filter}" ${p}
+        ${lister} "${filter}" ${p}
     done
 }
 
@@ -216,7 +221,6 @@ function bee_list_exact() {
             echo "${p}"
         fi
     done
-    exit 0
 }
 
 ################################################################################
@@ -286,14 +290,10 @@ done
 
 config_init_colors
 
-if [ "${OPT_EXACT}" = "yes" ] ; then
-    bee_list_exact ${filter} "${@}"
-fi
-
 function list_updateable() {
     local search=${1}
 
-    pkgs=$(list_beepackages "available" ${search})
+    pkgs=$(bee_list_packages "available" ${search})
 
     if [ -z "${pkgs}" ] ; then
         return
