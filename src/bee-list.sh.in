@@ -47,7 +47,6 @@ VERSION=${BEE_VERSION}
 
 #
 # BUGS TO FIX/FEATURES TO ADD:
-#   - lists are alpha-num sorted and not as pkg-versions ..
 #   - check for grep -P support and use it..
 
 ARCH=$(uname -m)
@@ -55,7 +54,7 @@ ARCH=$(uname -m)
 #
 # print usage information
 #
-usage() {
+function usage() {
     cat <<-EOF
 	bee-list v${VERSION} 2009-2012
 	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
@@ -108,7 +107,7 @@ function print_warning() {
     echo >&2 -e "WARNING: ${@}"
 }
 
-function list_installed_packages() {
+function bee_list_installed_packages() {
     if [ ! -r "${BEE_METADIR}" ] ; then
         print_warning "can't read BEE_METADIR '${BEE_METADIR}' .. aborting"
         return
@@ -175,7 +174,7 @@ function bee_list_packages() {
 #   ARGUMENTS are $mode (installed|available) and a list of $patterns
 #   RETURNS a list of $mode packages matching all given $patterns
 #
-list_beepackages() {
+function list_beepackages() {
     mode=${1}
     shift
 
@@ -223,6 +222,35 @@ function bee_list_exact() {
     done
 }
 
+function list_updateable() {
+    local search=${1}
+
+    pkgs=$(bee_list_packages "available" ${search})
+
+    if [ -z "${pkgs}" ] ; then
+        return
+    fi
+
+    pkgs=$(${BEE_BINDIR}/beeversion --max ${pkgs})
+    for a in ${pkgs} ; do
+        pname=$(${BEE_BINDIR}/beeversion --pkgfullname "${a}")
+        installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --exact "${pname}")
+        if [ -z "${installed}" ] ; then
+            if [ "${OPT_UNINSTALLED}" = "yes" ] ; then
+                echo -e "${COLOR_INSTALLABLE}${a}${COLOR_NORMAL}"
+            fi
+            continue
+        fi
+        maxinstalled=$(${BEE_BINDIR}/beeversion --max ${installed})
+        maxall=$(${BEE_BINDIR}/beeversion --max ${maxinstalled} ${a})
+        if [ "${maxall}" != "${maxinstalled}" ] ; then
+            if [ "${OPT_UPDATEABLE}" = "yes" ] ; then
+                echo -e "${COLOR_UPDATEABLE}${a}${COLOR_NORMAL}"
+            fi
+        fi
+    done
+}
+
 ################################################################################
 ################################################################################
 ################################################################################
@@ -235,7 +263,6 @@ options=$(${BEE_BINDIR}/beegetopt --name bee-list \
                  --option display-pathname \
                  --option exact/by-pkgfullname \
                  --option help/h \
-                 --option debug \
                  -- "$@")
 
 if [ $? != 0 ] ; then
@@ -252,7 +279,6 @@ OPT_PATHNAME="no"
 OPT_UPDATEABLE="no"
 OPT_UNINSTALLED="no"
 
-DEBUG=":"
 while true ; do
     case "$1" in
         --help)
@@ -283,10 +309,6 @@ while true ; do
             shift
             OPT_PATHNAME="yes"
             ;;
-        --debug)
-            shift
-            DEBUG="echo"
-            ;;
         --)
             shift
             break
@@ -295,35 +317,6 @@ while true ; do
 done
 
 config_init_colors
-
-function list_updateable() {
-    local search=${1}
-
-    pkgs=$(bee_list_packages "available" ${search})
-
-    if [ -z "${pkgs}" ] ; then
-        return
-    fi
-
-    pkgs=$(${BEE_BINDIR}/beeversion --max ${pkgs})
-    for a in ${pkgs} ; do
-        pname=$(${BEE_BINDIR}/beeversion --pkgfullname "${a}")
-        installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --exact "${pname}")
-        if [ -z "${installed}" ] ; then
-            if [ "${OPT_UNINSTALLED}" = "yes" ] ; then
-                echo -e "${COLOR_INSTALLABLE}${a}${COLOR_NORMAL}"
-            fi
-            continue
-        fi
-        maxinstalled=$(${BEE_BINDIR}/beeversion --max ${installed})
-        maxall=$(${BEE_BINDIR}/beeversion --max ${maxinstalled} ${a})
-        if [ "${maxall}" != "${maxinstalled}" ] ; then
-            if [ "${OPT_UPDATEABLE}" = "yes" ] ; then
-                echo -e "${COLOR_UPDATEABLE}${a}${COLOR_NORMAL}"
-            fi
-        fi
-    done
-}
 
 if [ "${OPT_UPDATEABLE}" = "yes" -o "${OPT_UNINSTALLED}" = "yes" ] ; then
     if [ ! ${#@} -gt 0 ] ; then
