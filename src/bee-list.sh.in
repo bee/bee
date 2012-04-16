@@ -231,6 +231,7 @@ options=$(${BEE_BINDIR}/beegetopt --name bee-list \
                  --option available/a \
                  --option installed/i \
                  --option updateable/u \
+                 --option uninstalled/U \
                  --option display-pathname \
                  --option exact/by-pkgfullname \
                  --option help/h \
@@ -249,6 +250,7 @@ filter=""
 OPT_EXACT="no"
 OPT_PATHNAME="no"
 OPT_UPDATEABLE="no"
+OPT_UNINSTALLED="no"
 
 DEBUG=":"
 while true ; do
@@ -268,6 +270,10 @@ while true ; do
         --updateable)
             shift;
             OPT_UPDATEABLE="yes"
+            ;;
+        --uninstalled)
+            shift;
+            OPT_UNINSTALLED="yes"
             ;;
         --exact)
             shift
@@ -304,18 +310,22 @@ function list_updateable() {
         pname=$(${BEE_BINDIR}/beeversion --pkgfullname "${a}")
         installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --exact "${pname}")
         if [ -z "${installed}" ] ; then
-           echo -e "${COLOR_INSTALLABLE}${a}${COLOR_NORMAL}"
-           continue
+            if [ "${OPT_UNINSTALLED}" = "yes" ] ; then
+                echo -e "${COLOR_INSTALLABLE}${a}${COLOR_NORMAL}"
+            fi
+            continue
         fi
         maxinstalled=$(${BEE_BINDIR}/beeversion --max ${installed})
         maxall=$(${BEE_BINDIR}/beeversion --max ${maxinstalled} ${a})
         if [ "${maxall}" != "${maxinstalled}" ] ; then
-            echo -e "${COLOR_UPDATEABLE}${a}${COLOR_NORMAL}"
+            if [ "${OPT_UPDATEABLE}" = "yes" ] ; then
+                echo -e "${COLOR_UPDATEABLE}${a}${COLOR_NORMAL}"
+            fi
         fi
     done
 }
 
-if [ "${OPT_UPDATEABLE}" = "yes" ] ; then
+if [ "${OPT_UPDATEABLE}" = "yes" -o "${OPT_UNINSTALLED}" = "yes" ] ; then
     if [ ! ${#@} -gt 0 ] ; then
         list_updateable
     fi
