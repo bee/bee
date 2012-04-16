@@ -265,15 +265,19 @@ if [ "${OPT_EXACT}" = "yes" ] ; then
     fi
 
     for p in $(list_beepackages "${filter}" ${1}) ; do
+        if [ "${1}" = "${p}" ] ; then
+            echo "${p}"
+            continue
+        fi
+
         pname=$(@BINDIR@/beeversion --pkgfullname "${p}")
-        pfull=$(@BINDIR@/beeversion --pkgfullpkg  "${p}")
         if [ "${1}" = "${pname}"  ] ; then
             echo "${p}"
+            continue
         fi
+
+        pfull=$(@BINDIR@/beeversion --pkgfullpkg  "${p}")
         if [ "${1}" = "${pfull}"  ] ; then
-            echo "${p}"
-        fi
-        if [ "${1}" = "${p}" ] ; then
             echo "${p}"
         fi
     done
