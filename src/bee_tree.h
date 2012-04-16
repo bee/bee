@@ -1,9 +1,9 @@
 
-#ifndef MX_TREE_H
-#define MX_TREE_H 1
+#ifndef _BEE_BEE_TREE_H
+#define _BEE_BEE_TREE_H 1
 
-struct tree {
-    struct tree_node *root;
+struct bee_tree {
+    struct bee_subtree *root;
 
     void   (*free_data)(void *data);
 
@@ -14,10 +14,10 @@ struct tree {
     void   (*print_key)(void *key);
 };
 
-struct tree_node {
-    struct tree_node *parent;
-    struct tree_node *left;
-    struct tree_node *right;
+struct bee_subtree {
+    struct bee_subtree *parent;
+    struct bee_subtree *left;
+    struct bee_subtree *right;
 
     unsigned char height;
     char balance_factor;
@@ -26,17 +26,17 @@ struct tree_node {
     void *data;
 };
 
-#define MAX(a,b)  (((a) > (b)) ? (a) : (b))
-#define TREE_HEIGHT(t) ((t) ? ((t)->height) : 0)
+#define BEE_TREE_MAX(a,b)  (((a) > (b)) ? (a) : (b))
+#define BEE_TREE_HEIGHT(t) ((t) ? ((t)->height) : 0)
 
-struct tree *tree_allocate(void);
-void tree_free(struct tree *tree);
-struct tree_node *tree_insert(struct tree *tree, void *data);
+struct bee_tree *bee_tree_allocate(void);
+void bee_tree_free(struct bee_tree *tree);
+struct bee_subtree *bee_tree_insert(struct bee_tree *tree, void *data);
 
-void *tree_search(struct tree *tree, void *key);
-void *tree_delete(struct tree *tree, void *key);
+void *bee_tree_search(struct bee_tree *tree, void *key);
+void *bee_tree_delete(struct bee_tree *tree, void *key);
 
-void tree_print(struct tree *tree);
-void tree_print_plain(struct tree *tree);
+void bee_tree_print(struct bee_tree *tree);
+void bee_tree_print_plain(struct bee_tree *tree);
 
 #endif

@@ -6,14 +6,14 @@
 
 #include "bee_tree.h"
 
-static void *tree_generate_key_default(void *data)
+static void *bee_tree_generate_key_default(void *data)
 {
     assert(data);
 
     return data;
 }
 
-static int tree_compare_key_default(void *a, void *b)
+static int bee_tree_compare_key_default(void *a, void *b)
 {
     assert(a);
     assert(b);
@@ -21,30 +21,30 @@ static int tree_compare_key_default(void *a, void *b)
     return strcmp(a, b);
 }
 
-static void tree_print_key_default(void *key)
+static void bee_tree_print_key_default(void *key)
 {
     assert(key);
 
     fputs(key, stdout);
 }
 
-struct tree *tree_allocate(void)
+struct bee_tree *bee_tree_allocate(void)
 {
-    struct tree *t;
+    struct bee_tree *t;
 
     if(!(t = calloc(1, sizeof(*t))))
         return NULL;
 
-    t->generate_key = &tree_generate_key_default;
-    t->compare_key  = &tree_compare_key_default;
-    t->print_key    = &tree_print_key_default;
+    t->generate_key = &bee_tree_generate_key_default;
+    t->compare_key  = &bee_tree_compare_key_default;
+    t->print_key    = &bee_tree_print_key_default;
 
     return t;
 }
 
-static struct tree_node *subtree_allocate(void)
+static struct bee_subtree *bee_subtree_allocate(void)
 {
-    struct tree_node *t;
+    struct bee_subtree *t;
 
     if(!(t = calloc(1, sizeof(*t))))
         return NULL;
@@ -54,7 +54,7 @@ static struct tree_node *subtree_allocate(void)
     return t;
 }
 
-static void node_free_content(struct tree *tree, struct tree_node *node)
+static void bee_node_free_content(struct bee_tree *tree, struct bee_subtree *node)
 {
     assert(tree);
     assert(node);
@@ -73,43 +73,43 @@ static void node_free_content(struct tree *tree, struct tree_node *node)
     node->key  = NULL;
 }
 
-static void subtree_free(struct tree *tree, struct tree_node *this)
+static void bee_subtree_free(struct bee_tree *tree, struct bee_subtree *this)
 {
     if (!this)
         return;
 
     assert(tree);
 
-    subtree_free(tree, this->left);
-    subtree_free(tree, this->right);
+    bee_subtree_free(tree, this->left);
+    bee_subtree_free(tree, this->right);
 
-    node_free_content(tree, this);
+    bee_node_free_content(tree, this);
     free(this);
 }
 
-void tree_free(struct tree *tree)
+void bee_tree_free(struct bee_tree *tree)
 {
      assert(tree);
-     subtree_free(tree, tree->root);
+     bee_subtree_free(tree, tree->root);
      free(tree);
 }
 
-static void tree_update_node(struct tree_node *node)
+static void bee_tree_update_node(struct bee_subtree *node)
 {
     unsigned char l, r;
 
     assert(node);
 
-    l = TREE_HEIGHT(node->left);
-    r = TREE_HEIGHT(node->right);
+    l = BEE_TREE_HEIGHT(node->left);
+    r = BEE_TREE_HEIGHT(node->right);
 
-    node->height         = 1 + MAX(l,r);
+    node->height         = 1 + BEE_TREE_MAX(l,r);
     node->balance_factor = l - r;
 }
 
-static struct tree_node *subtree_rotate_left(struct tree_node *root)
+static struct bee_subtree *bee_subtree_rotate_left(struct bee_subtree *root)
 {
-    struct tree_node *pivot;
+    struct bee_subtree *pivot;
 
     assert(root);
 
@@ -136,8 +136,8 @@ static struct tree_node *subtree_rotate_left(struct tree_node *root)
 
     /* finish rotation by updating parents reference of pivot root if needed */
 
-    tree_update_node(root);
-    tree_update_node(pivot);
+    bee_tree_update_node(root);
+    bee_tree_update_node(pivot);
 
     if (!pivot->parent)
         return pivot;
@@ -149,15 +149,15 @@ static struct tree_node *subtree_rotate_left(struct tree_node *root)
 
     while (root->parent) {
         root = root->parent;
-        tree_update_node(root);
+        bee_tree_update_node(root);
     }
 
     return pivot;
 }
 
-static struct tree_node *subtree_rotate_right(struct tree_node *root)
+static struct bee_subtree *bee_subtree_rotate_right(struct bee_subtree *root)
 {
-    struct tree_node *pivot;
+    struct bee_subtree *pivot;
 
     assert(root);
 
@@ -184,8 +184,8 @@ static struct tree_node *subtree_rotate_right(struct tree_node *root)
 
     /* finish rotation by updating parents reference of pivot root if needed */
 
-    tree_update_node(root);
-    tree_update_node(pivot);
+    bee_tree_update_node(root);
+    bee_tree_update_node(pivot);
 
     if (!pivot->parent)
         return pivot;
@@ -197,20 +197,20 @@ static struct tree_node *subtree_rotate_right(struct tree_node *root)
 
     while (root->parent) {
         root = root->parent;
-        tree_update_node(root);
+        bee_tree_update_node(root);
     }
 
     return pivot;
 }
 
-static struct tree_node *tree_rotate_left(struct tree *tree, struct tree_node *node)
+static struct bee_subtree *bee_tree_rotate_left(struct bee_tree *tree, struct bee_subtree *node)
 {
-    struct tree_node *root;
+    struct bee_subtree *root;
 
     assert(tree);
     assert(node);
 
-    root = subtree_rotate_left(node);
+    root = bee_subtree_rotate_left(node);
 
     if (!root->parent)
         tree->root = root;
@@ -218,14 +218,14 @@ static struct tree_node *tree_rotate_left(struct tree *tree, struct tree_node *n
     return root;
 }
 
-static struct tree_node *tree_rotate_right(struct tree *tree, struct tree_node *node)
+static struct bee_subtree *bee_tree_rotate_right(struct bee_tree *tree, struct bee_subtree *node)
 {
-    struct tree_node *root;
+    struct bee_subtree *root;
 
     assert(tree);
     assert(node);
 
-    root = subtree_rotate_right(node);
+    root = bee_subtree_rotate_right(node);
 
     if (!root->parent)
         tree->root = root;
@@ -233,7 +233,7 @@ static struct tree_node *tree_rotate_right(struct tree *tree, struct tree_node *
     return root;
 }
 
-static void node_print(struct tree *tree, struct tree_node *node, int depth, int dir)
+static void bee_node_print(struct bee_tree *tree, struct bee_subtree *node, int depth, int dir)
 {
     int i;
 
@@ -261,12 +261,12 @@ static void node_print(struct tree *tree, struct tree_node *node, int depth, int
     putchar('\n');
 }
 
-static void tree_balance_node(struct tree *tree, struct tree_node *node)
+static void bee_tree_balance_node(struct bee_tree *tree, struct bee_subtree *node)
 {
-    struct tree_node *child;
+    struct bee_subtree *child;
 
     while (node) {
-        tree_update_node(node);
+        bee_tree_update_node(node);
 
 #ifdef TREE_DEBUG
         printf("balancing ");
@@ -277,17 +277,17 @@ static void tree_balance_node(struct tree *tree, struct tree_node *node)
             child = node->right;
 
             if (child->balance_factor == 1)
-                tree_rotate_right(tree, child);
+                bee_tree_rotate_right(tree, child);
 
-            tree_rotate_left(tree, node);
+            bee_tree_rotate_left(tree, node);
 
         } else if (node->balance_factor == 2) {
             child = node->left;
 
             if (child->balance_factor == -1)
-                tree_rotate_left(tree, child);
+                bee_tree_rotate_left(tree, child);
 
-            tree_rotate_right(tree, node);
+            bee_tree_rotate_right(tree, node);
 
         }
 
@@ -295,9 +295,9 @@ static void tree_balance_node(struct tree *tree, struct tree_node *node)
     }
 }
 
-static struct tree_node *tree_insert_node(struct tree *tree, struct tree_node *node)
+static struct bee_subtree *bee_tree_insert_node(struct bee_tree *tree, struct bee_subtree *node)
 {
-    struct tree_node *current;
+    struct bee_subtree *current;
     int    cmp;
 
     assert(tree);
@@ -338,35 +338,35 @@ static struct tree_node *tree_insert_node(struct tree *tree, struct tree_node *n
         node->parent   = current;
     }
 
-    tree_balance_node(tree, current);
+    bee_tree_balance_node(tree, current);
 
     return node;
 }
 
-struct tree_node *tree_insert(struct tree *tree, void *data)
+struct bee_subtree *bee_tree_insert(struct bee_tree *tree, void *data)
 {
-    struct tree_node *node;
+    struct bee_subtree *node;
 
     assert(tree);
     assert(data);
 
     assert(tree->generate_key);
 
-    node = subtree_allocate();
+    node = bee_subtree_allocate();
     if (!node)
         return NULL;
 
     node->data = data;
     node->key  = tree->generate_key(data);
 
-    tree_insert_node(tree, node);
+    bee_tree_insert_node(tree, node);
 
     return node;
 }
 
-static struct tree_node *tree_search_node_by_key(struct tree *tree, void *key)
+static struct bee_subtree *bee_tree_search_node_by_key(struct bee_tree *tree, void *key)
 {
-    struct tree_node *node;
+    struct bee_subtree *node;
     int cmp;
 
     assert(tree);
@@ -387,14 +387,14 @@ static struct tree_node *tree_search_node_by_key(struct tree *tree, void *key)
 }
 
 /* search key in tree and return it's data*/
-void *tree_search(struct tree *tree, void *key)
+void *bee_tree_search(struct bee_tree *tree, void *key)
 {
-    struct tree_node *node;
+    struct bee_subtree *node;
 
     assert(tree);
     assert(key);
 
-    node = tree_search_node_by_key(tree, key);
+    node = bee_tree_search_node_by_key(tree, key);
 
     if(node == NULL)
         return NULL;
@@ -404,7 +404,7 @@ void *tree_search(struct tree *tree, void *key)
     return node->data;
 }
 
-static struct tree_node *subtree_successor(struct tree_node *node)
+static struct bee_subtree *bee_subtree_successor(struct bee_subtree *node)
 {
     node = node->right;
 
@@ -417,7 +417,7 @@ static struct tree_node *subtree_successor(struct tree_node *node)
     return node;
 }
 
-static void node_copy_content(struct tree *tree, struct tree_node *from, struct tree_node *to)
+static void bee_node_copy_content(struct bee_tree *tree, struct bee_subtree *from, struct bee_subtree *to)
 {
     assert(to);
     assert(from);
@@ -426,28 +426,28 @@ static void node_copy_content(struct tree *tree, struct tree_node *from, struct 
     printf("copying '%s'\n", (char *)from->key);
 #endif
 
-    node_free_content(tree, to);
+    bee_node_free_content(tree, to);
 
     to->key  = from->key;
     to->data = from->data;
 }
 
-static void subtree_delete_node(struct tree *tree, struct tree_node *node)
+static void bee_subtree_delete_node(struct bee_tree *tree, struct bee_subtree *node)
 {
-    struct tree_node *n = NULL;
+    struct bee_subtree *n = NULL;
 
     assert(tree);
     assert(node);
 
     if (node->left && node->right) {
-        n = subtree_successor(node);
-        node_copy_content(tree, n, node);
+        n = bee_subtree_successor(node);
+        bee_node_copy_content(tree, n, node);
         node = n;
         n = NULL;
         assert(!node->left || !node->right);
     }
 
-    node_free_content(tree, node);
+    bee_node_free_content(tree, node);
 
     if (node->left)
         n = node->left;
@@ -472,59 +472,59 @@ static void subtree_delete_node(struct tree *tree, struct tree_node *node)
 
     free(node);
 
-    tree_balance_node(tree, n);
+    bee_tree_balance_node(tree, n);
 }
 
 
-void *tree_delete(struct tree *tree, void *key)
+void *bee_tree_delete(struct bee_tree *tree, void *key)
 {
-    struct tree_node *node;
+    struct bee_subtree *node;
 
     assert(tree);
     assert(key);
 
-    node = tree_search_node_by_key(tree, key);
+    node = bee_tree_search_node_by_key(tree, key);
 
     if (node)
-        subtree_delete_node(tree, node);
+        bee_subtree_delete_node(tree, node);
 
     return NULL;
 }
 
-static void subtree_print(struct tree *tree, struct tree_node *node, int depth, int dir)
+static void bee_subtree_print(struct bee_tree *tree, struct bee_subtree *node, int depth, int dir)
 {
     assert(tree);
 
     if (!node)
         return;
 
-    subtree_print(tree, node->left,  depth+1, -1);
-    node_print(tree, node, depth, dir);
-    subtree_print(tree, node->right, depth+1, 1);
+    bee_subtree_print(tree, node->left,  depth+1, -1);
+    bee_node_print(tree, node, depth, dir);
+    bee_subtree_print(tree, node->right, depth+1, 1);
 }
 
-static void subtree_print_plain(struct tree *tree, struct tree_node *node)
+static void bee_subtree_print_plain(struct bee_tree *tree, struct bee_subtree *node)
 {
     assert(tree);
 
     if (!node)
         return;
 
-    subtree_print_plain(tree, node->left);
-    node_print(tree, node, 0, 0);
-    subtree_print_plain(tree, node->right);
+    bee_subtree_print_plain(tree, node->left);
+    bee_node_print(tree, node, 0, 0);
+    bee_subtree_print_plain(tree, node->right);
 }
 
-void tree_print(struct tree *tree)
+void bee_tree_print(struct bee_tree *tree)
 {
     assert(tree);
 
-    subtree_print(tree, tree->root, 0, 0);
+    bee_subtree_print(tree, tree->root, 0, 0);
 }
 
-void tree_print_plain(struct tree *tree)
+void bee_tree_print_plain(struct bee_tree *tree)
 {
     assert(tree);
 
-    subtree_print_plain(tree, tree->root);
+    bee_subtree_print_plain(tree, tree->root);
 }
