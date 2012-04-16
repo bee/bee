@@ -78,6 +78,9 @@ int main(int argc, char *argv[])
     FILE *file;
     struct bee_tree *tree;
     struct beeversion *v;
+
+    char *filename;
+
     int l;
 
     int opt;
@@ -113,9 +116,11 @@ int main(int argc, char *argv[])
     argv   = optctl.argv;
 
     if(argc > optind) {
-        file = fopen(argv[optind], "r");
+        filename = argv[optind];
+        file     = fopen(filename, "r");
+
         if(file == NULL) {
-            perror(argv[optind]);
+            perror(filename);
             exit(EXIT_FAILURE);
         }
     } else {
