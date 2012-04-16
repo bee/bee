@@ -104,8 +104,13 @@ function config_init_colors() {
     fi
 }
 
+function print_warning() {
+    echo >&2 -e "WARNING: ${@}"
+}
+
 function list_installed_packages() {
     if [ ! -r "${BEE_METADIR}" ] ; then
+        print_warning "can't read BEE_METADIR '${BEE_METADIR}' .. aborting"
         return
     fi
     find ${BEE_METADIR} -mindepth 1 -maxdepth 1 -type d -printf "%f\n"
@@ -120,10 +125,13 @@ function list_available_packages() {
     for p in ${path} ; do
         if [ -r "${p}" ] ; then
             search="${search} ${p}"
+        else
+            print_warning "can't read BEE_PKGPATH element '${p}' .. skipping."
         fi
     done
 
     if [ -z "${search}" ] ; then
+        print_warning "empty search path .. aborting."
         return
     fi
 
