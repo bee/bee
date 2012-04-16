@@ -22,7 +22,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "beeversion.h"
+#include "bee_version.h"
 
 static void cut_and_print(char *string, char delimiter, char opt_short)
 {

@@ -26,7 +26,7 @@
 #include <ctype.h>
 #include <assert.h>
 
-#include "beeversion.h"
+#include "bee_version.h"
 
 int compare_version_strings(char *v1, char *v2) {
     char *a, *b;

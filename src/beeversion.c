@@ -27,10 +27,10 @@
 #include <getopt.h>
 #include <string.h>
 
-#include "beeversion.h"
-#include "parse.h"
-#include "compare.h"
-#include "output.h"
+#include "bee_version.h"
+#include "bee_version_parse.h"
+#include "bee_version_compare.h"
+#include "bee_version_output.h"
 
 #define TEST_BITS 3
 #define TYPE_BITS 2

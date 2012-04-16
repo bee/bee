@@ -28,11 +28,11 @@
 #include <limits.h>
 #include <getopt.h>
 
-#include "beeversion.h"
-#include "compare.h"
-#include "parse.h"
-#include "output.h"
-#include "tree.h"
+#include "bee_version.h"
+#include "bee_version_compare.h"
+#include "bee_version_parse.h"
+#include "bee_version_output.h"
+#include "bee_tree.h"
 
 void my_free_data(void *data)
 {
@@ -52,11 +52,11 @@ void my_print_key(void *key)
     print_format("%A", key, NULL);
 }
 
-struct tree *init_tree(void)
+struct bee_tree *init_tree(void)
 {
-    struct tree *tree;
+    struct bee_tree *tree;
 
-    tree = tree_allocate();
+    tree = bee_tree_allocate();
 
     if(tree == NULL) {
         perror("cannot allocate memory ..");
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 {
     char line[LINE_MAX], *s, *p;
     FILE *file;
-    struct tree *tree;
+    struct bee_tree *tree;
     struct beeversion *v;
     int l, opt, opt_uniq = 0, longindex;
     struct option long_options[] = {
@@ -128,16 +128,15 @@ int main(int argc, char *argv[])
             v->pkgname = v->string;
         }
 
-        if(!(opt_uniq && tree_search(tree, v)))
-            tree_insert(tree, v);
+        if(!(opt_uniq && bee_tree_search(tree, v)))
+            bee_tree_insert(tree, v);
     }
 
     fclose(file);
 
-    tree_print_plain(tree);
+    bee_tree_print_plain(tree);
 
-    tree_free(tree);
+    bee_tree_free(tree);
 
     return 0;
 }
-

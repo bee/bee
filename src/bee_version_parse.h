@@ -22,9 +22,8 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "beeversion.h"
+#include "bee_version.h"
 
-int compare_version_strings(char *v1, char *v2);
-int compare_beepackage_names(struct beeversion *v1, struct beeversion *v2);
-int compare_beeversions(struct beeversion *v1, struct beeversion *v2);
-int compare_beepackages(struct beeversion *v1, struct beeversion *v2);
+char parse_extra(struct beeversion *v);
+int parse_version(char *s,  struct beeversion *v);
+void init_version(char *s, struct beeversion *v);
