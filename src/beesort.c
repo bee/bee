@@ -33,6 +33,7 @@
 #include "bee_version_parse.h"
 #include "bee_version_output.h"
 #include "bee_tree.h"
+#include "bee_getopt.h"
 
 void my_free_data(void *data)
 {
@@ -77,19 +78,39 @@ int main(int argc, char *argv[])
     FILE *file;
     struct bee_tree *tree;
     struct beeversion *v;
-    int l, opt, opt_uniq = 0, longindex;
-    struct option long_options[] = {
-        {"unique", no_argument, NULL, 'u'},
-        {0, 0, 0, 0}
+    int l;
+
+    int opt;
+    int optindex;
+    int optind;
+
+    int opt_uniq  = 0;
+
+    struct bee_getopt_ctl optctl;
+    struct bee_option options[] = {
+        BEE_OPTION_NO_ARG("unique",   'u'),
+        BEE_OPTION_END
     };
 
-    while((opt = getopt_long(argc, argv, "u", long_options, &longindex)) != -1) {
+    bee_getopt_init(&optctl, argc-1, &argv[1], options);
+
+    optctl.program = "beesort";
+
+    while((opt=bee_getopt(&optctl, &optindex)) != BEE_GETOPT_END) {
+
+        if (opt == BEE_GETOPT_ERROR) {
+            exit(1);
+        }
+
         switch(opt) {
             case 'u':
                 opt_uniq = 1;
                 break;
         }
     }
+    optind = optctl.optind;
+    argc   = optctl.argc;
+    argv   = optctl.argv;
 
     tree = init_tree();
 
