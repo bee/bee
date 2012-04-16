@@ -190,6 +190,34 @@ list_beepackages() {
     eval ${list_cmd} ${thegrep}
 }
 
+function bee_list_exact() {
+    filter=${1}
+    shift
+
+    if [ ! -z ${2} ] ; then
+        echo >&2 "argument error: --by-pkgfullname only takes one package at a time .."
+        exit 1
+    fi
+
+    for p in $(list_beepackages "${filter}" ${1}) ; do
+        if [ "${1}" = "${p}" ] ; then
+            echo "${p}"
+            continue
+        fi
+
+        pname=$(@BINDIR@/beeversion --pkgfullname "${p}")
+        if [ "${1}" = "${pname}"  ] ; then
+            echo "${p}"
+            continue
+        fi
+
+        pfull=$(@BINDIR@/beeversion --pkgfullpkg  "${p}")
+        if [ "${1}" = "${pfull}"  ] ; then
+            echo "${p}"
+        fi
+    done
+    exit 0
+}
 
 ################################################################################
 ################################################################################
@@ -259,29 +287,7 @@ done
 config_init_colors
 
 if [ "${OPT_EXACT}" = "yes" ] ; then
-    if [ ! -z ${2} ] ; then
-        echo >&2 "argument error: --by-pkgfullname only takes one package at a time .."
-        exit 1
-    fi
-
-    for p in $(list_beepackages "${filter}" ${1}) ; do
-        if [ "${1}" = "${p}" ] ; then
-            echo "${p}"
-            continue
-        fi
-
-        pname=$(@BINDIR@/beeversion --pkgfullname "${p}")
-        if [ "${1}" = "${pname}"  ] ; then
-            echo "${p}"
-            continue
-        fi
-
-        pfull=$(@BINDIR@/beeversion --pkgfullpkg  "${p}")
-        if [ "${1}" = "${pfull}"  ] ; then
-            echo "${p}"
-        fi
-    done
-    exit 0
+    bee_list_exact ${filter} "${@}"
 fi
 
 function list_updateable() {
