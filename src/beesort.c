@@ -112,8 +112,6 @@ int main(int argc, char *argv[])
     argc   = optctl.argc;
     argv   = optctl.argv;
 
-    tree = init_tree();
-
     if(argc > optind) {
         file = fopen(argv[optind], "r");
         if(file == NULL) {
@@ -123,6 +121,8 @@ int main(int argc, char *argv[])
     } else {
         file = stdin;
     }
+
+    tree = init_tree();
 
     while(fgets(line, LINE_MAX, file)) {
         l = strlen(line);
