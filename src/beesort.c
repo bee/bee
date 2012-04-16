@@ -146,6 +146,8 @@ int main(int argc, char *argv[])
         v = calloc(1, sizeof(*v));
         if(v == NULL) {
             perror("cannot allocate memory ..");
+            bee_tree_free(tree);
+            fclose(file);
             exit(EXIT_FAILURE);
         }
 
