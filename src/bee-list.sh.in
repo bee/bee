@@ -152,6 +152,19 @@ function list_available() {
     list_available_packages | ${BEESORT}
 }
 
+function bee_list_packages() {
+    filter=$1
+    shift
+
+    if [ ! ${#@} -gt 0 ] ; then
+        list_beepackages "${filter}"
+    fi
+
+    for p in "${@}" ; do
+        list_beepackages "${filter}" ${p}
+    done
+}
+
 #
 # list bee packages
 #   ARGUMENTS are $mode (installed|available) and a list of $patterns
@@ -303,12 +316,5 @@ if [ "${OPT_UPDATEABLE}" = "yes" ] ; then
     exit 0
 fi
 
-
 # mach et einfach.. (just do it)
-if [ ! ${#@} -gt 0 ] ; then
-    list_beepackages "${filter}"
-fi
-
-for p in "${@}" ; do
-    list_beepackages "${filter}" ${p}
-done
+bee_list_packages "${filter}" "${@}"
