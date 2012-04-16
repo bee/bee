@@ -28,10 +28,10 @@
 #include <limits.h>
 #include <getopt.h>
 
-#include "beeversion.h"
-#include "compare.h"
-#include "parse.h"
-#include "output.h"
+#include "bee_version.h"
+#include "bee_version_compare.h"
+#include "bee_version_parse.h"
+#include "bee_version_output.h"
 #include "bee_tree.h"
 
 void my_free_data(void *data)

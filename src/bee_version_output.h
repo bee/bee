@@ -18,6 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "beeversion.h"
+#include "bee_version.h"
 
 void print_format(char* s, struct beeversion *v, char *filter_pkgfullname);

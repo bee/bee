@@ -30,7 +30,7 @@
 
 #include <sys/utsname.h>
 
-#include "beeversion.h"
+#include "bee_version.h"
 
 
 char parse_extra(struct beeversion *v)
