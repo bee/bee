@@ -32,7 +32,7 @@
 #include "compare.h"
 #include "parse.h"
 #include "output.h"
-#include "tree.h"
+#include "bee_tree.h"
 
 void my_free_data(void *data)
 {

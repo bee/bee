@@ -80,7 +80,7 @@ BEEVERSION_OBJECTS=beeversion.o parse.o compare.o output.o
 BEESEP_OBJECTS=beesep.o
 BEECUT_OBJECTS=beecut.o
 BEEUNIQ_OBJECTS=beeuniq.o
-BEESORT_OBJECTS=beesort.o compare.o output.o parse.o tree.o
+BEESORT_OBJECTS=bee_tree.o beesort.o compare.o output.o parse.o
 BEEDEP_OBJECTS=bee-dep.o graph.o hash.o beedep_tree.o node.o
 BEEGETOPT_OBJECTS=bee_getopt.o beegetopt.o
 

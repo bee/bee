@@ -4,7 +4,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "tree.h"
+#include "bee_tree.h"
 
 static void *tree_generate_key_default(void *data)
 {
