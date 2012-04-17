@@ -107,7 +107,7 @@ function print_warning() {
     echo >&2 -e "WARNING: ${@}"
 }
 
-function bee_list_installed_packages() {
+function list_installed_packages() {
     if [ ! -r "${BEE_METADIR}" ] ; then
         print_warning "can't read BEE_METADIR '${BEE_METADIR}' .. aborting"
         return
@@ -144,7 +144,7 @@ function list_available_packages() {
 }
 
 function list_installed() {
-    bee_list_installed_packages | ${BEESORT}
+    list_installed_packages | ${BEESORT}
 }
 
 function list_available() {
