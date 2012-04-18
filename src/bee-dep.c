@@ -520,7 +520,7 @@ static int bee_dep_update(int argc, char *argv[])
 
 static int bee_dep_remove(int argc, char *argv[])
 {
-    int c, help, print;
+    int i, c, help, print;
     struct hash *graph;
     char *pkg;
     struct option long_options[] = {
@@ -549,21 +549,23 @@ static int bee_dep_remove(int argc, char *argv[])
         return 1;
     }
 
-    if (optind < argc - 1) {
-        fprintf(stderr, "bee-dep: too many arguments\n");
-        return 1;
-    }
-
-    pkg   = argv[optind];
     graph = get_cache();
 
-    if (print && print_removable(graph, pkg)) {
-        hash_free(graph);
-        return 1;
+    for (i = optind; i < argc; i++) {
+        pkg = argv[i];
+
+        if (print && print_removable(graph, pkg)) {
+            hash_free(graph);
+            return 1;
+        }
+
+        if (remove_package(graph, pkg)) {
+            hash_free(graph);
+            return 1;
+        }
     }
 
-    if (remove_package(graph, pkg)
-        || save_cache(graph, cache_filename())) {
+    if (save_cache(graph, cache_filename())) {
         hash_free(graph);
         return 1;
     }
