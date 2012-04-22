@@ -136,6 +136,10 @@ function download_git() {
         pkgextraextraversion="_p${ahead}"
     else
         PKGFULLVERSION=0
+        commitdate=$(git log --format=format:"%ct" -1)
+        if [ ! -z "${commitdate}" ] ; then
+            pkgextraextraversion="_t${commitdate}"
+        fi
     fi
 
     pkgextraextraversion="${pkgextraextraversion}_${commit}"
