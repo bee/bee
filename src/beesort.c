@@ -48,9 +48,9 @@ int my_compare_key(void *a, void *b)
     return compare_beepackages(a, b);
 }
 
-void my_print_key(void *key)
+void my_print(void *key, void *data)
 {
-    print_format("%A", key, NULL);
+    print_format("%A", data, NULL);
 }
 
 struct bee_tree *init_tree(void)
@@ -66,7 +66,7 @@ struct bee_tree *init_tree(void)
 
     tree->free_data   = &my_free_data;
     tree->compare_key = &my_compare_key;
-    tree->print_key   = &my_print_key;
+    tree->print       = &my_print;
 
     return tree;
 }
