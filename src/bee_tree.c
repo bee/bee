@@ -3,14 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
 
 #include "bee_tree.h"
 
-static void *bee_tree_generate_key_default(void *data)
+static void *bee_tree_generate_key_default(const void *data)
 {
     assert(data);
 
-    return data;
+    return (void *)data;
 }
 
 static int bee_tree_compare_key_default(void *a, void *b)
@@ -240,7 +241,7 @@ static void bee_node_print(struct bee_tree *tree, struct bee_subtree *node, int 
     assert(tree);
     assert(node);
 
-    assert(tree->print_key);
+    assert(tree->print || tree->print_key);
 
     for (i = 0 ; i < depth ; i++) {
         putchar('-');
@@ -252,13 +253,15 @@ static void bee_node_print(struct bee_tree *tree, struct bee_subtree *node, int 
     if(dir < 0)
         putchar('/');
 
-    tree->print_key(node->key);
+    if (tree->print)
+        tree->print(node->key, node->data);
+    else
+        tree->print_key(node->key);
 
 #ifdef TREE_DEBUG
     printf(" [ h=%d bf=%d ]", node->height, node->balance_factor);
 #endif
 
-    putchar('\n');
 }
 
 static void bee_tree_balance_node(struct bee_tree *tree, struct bee_subtree *node)
@@ -318,6 +321,19 @@ static struct bee_subtree *bee_tree_insert_node(struct bee_tree *tree, struct be
     while (!node->parent) {
         cmp = tree->compare_key(node->key, current->key);
 
+        if ((cmp == 0) && (tree->flags & (BEE_TREE_FLAG_UNIQUE|BEE_TREE_FLAG_UNIQUE_DATA))) {
+            /* do not insert dupes */
+            if (!(tree->flags & BEE_TREE_FLAG_UNIQUE_DATA))
+                return NULL;
+
+            assert(tree->compare_data);
+
+            cmp = tree->compare_data(node->data, current->data);
+
+            if (cmp == 0)
+                return NULL;
+        }
+
         if (cmp < 0) {
             if (current->left) {
                 current = current->left;
@@ -352,6 +368,8 @@ struct bee_subtree *bee_tree_insert(struct bee_tree *tree, void *data)
 
     assert(tree->generate_key);
 
+    errno = 0;
+
     node = bee_subtree_allocate();
     if (!node)
         return NULL;
@@ -359,9 +377,21 @@ struct bee_subtree *bee_tree_insert(struct bee_tree *tree, void *data)
     node->data = data;
     node->key  = tree->generate_key(data);
 
-    bee_tree_insert_node(tree, node);
+    if (!node->key) {
+        free(node);
+        return NULL;
+    }
 
-    return node;
+    if(bee_tree_insert_node(tree, node))
+        return node;
+
+    if (tree->free_key)
+        tree->free_key(node->key);
+
+    free(node);
+
+    errno=EEXIST;
+    return NULL;
 }
 
 static struct bee_subtree *bee_tree_search_node_by_key(struct bee_tree *tree, void *key)
@@ -513,6 +543,32 @@ static void bee_subtree_print_plain(struct bee_tree *tree, struct bee_subtree *n
     bee_subtree_print_plain(tree, node->left);
     bee_node_print(tree, node, 0, 0);
     bee_subtree_print_plain(tree, node->right);
+}
+
+int bee_tree_set_flags(struct bee_tree *tree, int flags)
+{
+    int oflags;
+
+    assert(tree);
+    assert(flags);
+
+    oflags = tree->flags;
+    tree->flags |= flags;
+
+    return oflags;
+}
+
+int bee_tree_unset_flags(struct bee_tree *tree, int flags)
+{
+    int oflags;
+
+    assert(tree);
+    assert(flags);
+
+    oflags = tree->flags;
+    tree->flags &= ~flags;
+
+    return oflags;
 }
 
 void bee_tree_print(struct bee_tree *tree)

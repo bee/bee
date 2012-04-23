@@ -43,7 +43,7 @@ fi
 VERSION=${BEE_VERSION}
 
 : ${BEE_BINDIR:=@BINDIR@}
-: ${BEESORT:=sort}
+: ${BEESORT:=${BEE_BINDIR}/beesort}
 
 #
 # BUGS TO FIX/FEATURES TO ADD:
