@@ -240,7 +240,7 @@ static void bee_node_print(struct bee_tree *tree, struct bee_subtree *node, int 
     assert(tree);
     assert(node);
 
-    assert(tree->print_key);
+    assert(tree->print || tree->print_key);
 
     for (i = 0 ; i < depth ; i++) {
         putchar('-');
@@ -252,7 +252,10 @@ static void bee_node_print(struct bee_tree *tree, struct bee_subtree *node, int 
     if(dir < 0)
         putchar('/');
 
-    tree->print_key(node->key);
+    if (tree->print)
+        tree->print(node->key, node->data);
+    else
+        tree->print_key(node->key);
 
 #ifdef TREE_DEBUG
     printf(" [ h=%d bf=%d ]", node->height, node->balance_factor);

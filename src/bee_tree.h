@@ -11,7 +11,9 @@ struct bee_tree {
     void   (*free_key)(void *data);
 
     int    (*compare_key)(void *a, void *b);
+
     void   (*print_key)(void *key);
+    void   (*print)(void *key, void *data);
 };
 
 struct bee_subtree {
