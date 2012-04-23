@@ -262,7 +262,6 @@ static void bee_node_print(struct bee_tree *tree, struct bee_subtree *node, int 
     printf(" [ h=%d bf=%d ]", node->height, node->balance_factor);
 #endif
 
-    putchar('\n');
 }
 
 static void bee_tree_balance_node(struct bee_tree *tree, struct bee_subtree *node)

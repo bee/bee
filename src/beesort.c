@@ -27,6 +27,7 @@
 #include <string.h>
 #include <limits.h>
 #include <getopt.h>
+#include <errno.h>
 
 #include "bee_version.h"
 #include "bee_version_compare.h"
@@ -35,12 +36,17 @@
 #include "bee_tree.h"
 #include "bee_getopt.h"
 
-void my_free_data(void *data)
+void my_free_key(void *key)
 {
-    struct beeversion *v = data;
+    struct beeversion *v = key;
 
     free(v->string);
     free(v);
+}
+
+void my_free_data(void *data)
+{
+    free(data);
 }
 
 int my_compare_key(void *a, void *b)
@@ -48,9 +54,63 @@ int my_compare_key(void *a, void *b)
     return compare_beepackages(a, b);
 }
 
+int my_compare_data(void *a, void *b)
+{
+    return strcmp(a, b);
+}
+
 void my_print(void *key, void *data)
 {
-    print_format("%A", data, NULL);
+    fputs(data, stdout);
+}
+
+void *my_generate_key(const void *data)
+{
+    const char *line = data;
+    size_t l;
+    char *s, *p;
+    char *string;
+    struct beeversion *v;
+
+    string = strdup(line);
+
+    if(!string) {
+        perror("calloc(s)");
+        return NULL;
+    }
+
+    s = string;
+    l = strlen(s);
+    p = s+l-1;
+
+    while (p > s && (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r'))
+        *(p--) = 0;
+
+    while (*s && (*s == ' ' || *s == '\t'))
+        s++;
+
+    if(p < s) {
+        free(string);
+        errno = EINVAL;
+        return NULL;
+    }
+
+    v = calloc(1, sizeof(*v));
+    if(!v) {
+        perror("calloc(beeversion)");
+        free(s);
+        return NULL;
+    }
+
+    if(parse_version(s, v) != 0) {
+        free(v->string);
+        init_version(s, v);
+        v->pkgname = v->string;
+    }
+
+    free(string);
+
+    return v;
 }
 
 struct bee_tree *init_tree(void)
@@ -64,9 +124,12 @@ struct bee_tree *init_tree(void)
         exit(EXIT_FAILURE);
     }
 
-    tree->free_data   = &my_free_data;
-    tree->compare_key = &my_compare_key;
-    tree->print       = &my_print;
+    tree->generate_key = &my_generate_key;
+    tree->free_key     = &my_free_key;
+    tree->free_data    = &my_free_data;
+    tree->compare_key  = &my_compare_key;
+    tree->compare_data = &my_compare_data;
+    tree->print        = &my_print;
 
     return tree;
 }
@@ -74,14 +137,14 @@ struct bee_tree *init_tree(void)
 
 int main(int argc, char *argv[])
 {
-    char line[LINE_MAX], *s, *p;
+    char line[LINE_MAX];
+    char *data;
     FILE *file;
+
     struct bee_tree *tree;
-    struct beeversion *v;
+    struct bee_subtree *subtree;
 
     char *filename;
-
-    int l;
 
     int opt;
     int optindex;
@@ -133,34 +196,27 @@ int main(int argc, char *argv[])
         bee_tree_set_flags(tree, BEE_TREE_FLAG_UNIQUE);
 
     while(fgets(line, LINE_MAX, file)) {
-        l = strlen(line);
-        s = line;
-        p = line+l-1;
-
-        while (p > s && (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r'))
-            *(p--) = 0;
-
-        while (*s && (*s == ' ' || *s == '\t'))
-            s++;
-
-        if(p < s)
-            continue;
-
-        v = calloc(1, sizeof(*v));
-        if(v == NULL) {
-            perror("cannot allocate memory ..");
+        data = strdup(line);
+        if(!data) {
+            perror("strdup(data)");
             bee_tree_free(tree);
             fclose(file);
             exit(EXIT_FAILURE);
         }
 
-        if(parse_version(s, v) != 0) {
-            free(v->string);
-            init_version(s, v);
-            v->pkgname = v->string;
-        }
+        subtree = bee_tree_insert(tree, data);
+        if(subtree)
+            continue;
 
-        bee_tree_insert(tree, v);
+        if(errno == EINVAL)
+            continue;
+
+        if(errno == EEXIST)
+            continue;
+
+        bee_tree_free(tree);
+        fclose(file);
+        exit(EXIT_FAILURE);
     }
 
     fclose(file);
