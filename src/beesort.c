@@ -170,10 +170,11 @@ int main(int argc, char *argv[])
 
         switch(opt) {
             case 'u':
-                opt_uniq = 1;
+                opt_uniq++;
                 break;
         }
     }
+
     optind = optctl.optind;
     argc   = optctl.argc;
     argv   = optctl.argv;
@@ -192,7 +193,9 @@ int main(int argc, char *argv[])
 
     tree = init_tree();
 
-    if (opt_uniq)
+    if (opt_uniq == 1)
+        bee_tree_set_flags(tree, BEE_TREE_FLAG_UNIQUE_DATA);
+    else if (opt_uniq > 1)
         bee_tree_set_flags(tree, BEE_TREE_FLAG_UNIQUE);
 
     while(fgets(line, LINE_MAX, file)) {
