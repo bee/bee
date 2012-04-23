@@ -9,8 +9,8 @@ struct bee_tree {
 
     void   (*free_data)(void *data);
 
-    void * (*generate_key)(void *data);
-    void   (*free_key)(void *data);
+    void * (*generate_key)(const void *data);
+    void   (*free_key)(void *key);
 
     int    (*compare_key)(void *a, void *b);
     int    (*compare_data)(void *a, void *b);

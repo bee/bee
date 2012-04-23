@@ -7,11 +7,11 @@
 
 #include "bee_tree.h"
 
-static void *bee_tree_generate_key_default(void *data)
+static void *bee_tree_generate_key_default(const void *data)
 {
     assert(data);
 
-    return data;
+    return (void *)data;
 }
 
 static int bee_tree_compare_key_default(void *a, void *b)
