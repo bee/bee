@@ -369,12 +369,19 @@ struct bee_subtree *bee_tree_insert(struct bee_tree *tree, void *data)
 
     assert(tree->generate_key);
 
+    errno = 0;
+
     node = bee_subtree_allocate();
     if (!node)
         return NULL;
 
     node->data = data;
     node->key  = tree->generate_key(data);
+
+    if (!node->key) {
+        free(node);
+        return NULL;
+    }
 
     if(bee_tree_insert_node(tree, node))
         return node;
