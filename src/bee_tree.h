@@ -5,6 +5,8 @@
 struct bee_tree {
     struct bee_subtree *root;
 
+    int flags;
+
     void   (*free_data)(void *data);
 
     void * (*generate_key)(void *data);
@@ -40,5 +42,8 @@ void *bee_tree_delete(struct bee_tree *tree, void *key);
 
 void bee_tree_print(struct bee_tree *tree);
 void bee_tree_print_plain(struct bee_tree *tree);
+
+int bee_tree_set_flags(struct bee_tree *tree, int flags);
+int bee_tree_unset_flags(struct bee_tree *tree, int flags);
 
 #endif

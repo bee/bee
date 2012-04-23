@@ -518,6 +518,32 @@ static void bee_subtree_print_plain(struct bee_tree *tree, struct bee_subtree *n
     bee_subtree_print_plain(tree, node->right);
 }
 
+int bee_tree_set_flags(struct bee_tree *tree, int flags)
+{
+    int oflags;
+
+    assert(tree);
+    assert(flags);
+
+    oflags = tree->flags;
+    tree->flags |= flags;
+
+    return oflags;
+}
+
+int bee_tree_unset_flags(struct bee_tree *tree, int flags)
+{
+    int oflags;
+
+    assert(tree);
+    assert(flags);
+
+    oflags = tree->flags;
+    tree->flags &= ~flags;
+
+    return oflags;
+}
+
 void bee_tree_print(struct bee_tree *tree)
 {
     assert(tree);
