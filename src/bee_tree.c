@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
 
 #include "bee_tree.h"
 
@@ -321,6 +322,19 @@ static struct bee_subtree *bee_tree_insert_node(struct bee_tree *tree, struct be
     while (!node->parent) {
         cmp = tree->compare_key(node->key, current->key);
 
+        if ((cmp == 0) && (tree->flags & (BEE_TREE_FLAG_UNIQUE|BEE_TREE_FLAG_UNIQUE_DATA))) {
+            /* do not insert dupes */
+            if (!(tree->flags & BEE_TREE_FLAG_UNIQUE_DATA))
+                return NULL;
+
+            assert(tree->compare_data);
+
+            cmp = tree->compare_data(node->data, current->data);
+
+            if (cmp == 0)
+                return NULL;
+        }
+
         if (cmp < 0) {
             if (current->left) {
                 current = current->left;
@@ -362,9 +376,16 @@ struct bee_subtree *bee_tree_insert(struct bee_tree *tree, void *data)
     node->data = data;
     node->key  = tree->generate_key(data);
 
-    bee_tree_insert_node(tree, node);
+    if(bee_tree_insert_node(tree, node))
+        return node;
 
-    return node;
+    if (tree->free_key)
+        tree->free_key(node->key);
+
+    free(node);
+
+    errno=EEXIST;
+    return NULL;
 }
 
 static struct bee_subtree *bee_tree_search_node_by_key(struct bee_tree *tree, void *key)
