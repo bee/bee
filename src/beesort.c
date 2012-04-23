@@ -129,6 +129,9 @@ int main(int argc, char *argv[])
 
     tree = init_tree();
 
+    if (opt_uniq)
+        bee_tree_set_flags(tree, BEE_TREE_FLAG_UNIQUE);
+
     while(fgets(line, LINE_MAX, file)) {
         l = strlen(line);
         s = line;
@@ -157,8 +160,7 @@ int main(int argc, char *argv[])
             v->pkgname = v->string;
         }
 
-        if(!(opt_uniq && bee_tree_search(tree, v)))
-            bee_tree_insert(tree, v);
+        bee_tree_insert(tree, v);
     }
 
     fclose(file);
