@@ -24,6 +24,8 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
