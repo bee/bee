@@ -1,4 +1,4 @@
-BEE_VERSION = 1.0_rc28
+BEE_VERSION = 1.0_rc29
 
 CC=gcc
 CFLAGS=-Wall -g
