@@ -49,6 +49,10 @@ sed-rules = -e 's,@PREFIX@,${PREFIX},g' \
 	    -e 's,@BEE_VERSION@,${BEE_VERSION},g' \
 	    -e 's,@DATADIR@,${DATADIR},g'
 
+sed-compat-bashlt4 = -e 'sx\$${\([a-zA-Z_]*\),,}x\$$(tr A-Z a-z <<<\$${\1})xg' \
+                     -e 'sx\$${\([a-zA-Z_]*\)^^}x\$$(tr a-z A-Z <<<\$${\1})xg'
+
+
 PROGRAMS_C=beeversion beesep beecut beeuniq beesort beegetopt
 PROGRAMS_SHELL=bee beesh
 PROGRAMS_PERL=beefind.pl
@@ -68,11 +72,19 @@ BEE_MANPAGES=bee.1 bee-check.1 bee-init.1 bee-install.1 bee-list.1 bee-query.1 b
 CONFIG_TEMPLATES=fallback
 CONFIG_FILES=skiplist beerc
 
+COMPAT_BASHLT4=buildtypes/autogen.sh buildtypes/configure.sh buildtypes/make.sh \
+               src/beesh.sh.in src/bee-check.sh.in
+
 .SUFFIXES: .in .sh .sh.in .pl
 
 all: build
 
 build: shellscripts perlscripts cprograms manpages
+
+compat: compat-bashlt4
+
+compat-bashlt4:
+	$(call quiet-command, sed ${sed-compat-bashlt4} -i ${COMPAT_BASHLT4}, "SED	$@" )
 
 SHELLSCRIPTS=$(PROGRAMS_SHELL) $(HELPER_BEE_SHELL)
 
