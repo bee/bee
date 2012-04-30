@@ -153,7 +153,7 @@ do_check_deps_of_file() {
             | sed -e 's,.*Shared library: \[\(.*\)\].*,    needs    = \1,' \
                   -e 's,.*Library soname: \[\(.*\)\].*,    provides = \1,'
         if [ "${type:5:2}" = "SO" ] ; then
-            echo "provides = ${file##*/}"
+            echo "    provides = ${file##*/}"
         fi
     fi
 
