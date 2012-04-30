@@ -62,7 +62,7 @@ HELPER_BEE_C=bee-dep
 
 LIBRARY_SHELL=beelib.config.sh
 
-HELPER_BEESH_SHELL=configure cmake autogen perl-module perl-module-makemaker make python-module
+BUILDTYPES=configure cmake autogen perl-module perl-module-makemaker make python-module
 
 HELPER_HOOKS_SHELL=update-mime-database glib-compile-schemas mkfontdir-mkfontscale gtk-update-icon-cache \
                    ldconfig update-desktop-database gdk-pixbuf-query-loaders mandb systemd-tmpfiles
@@ -79,12 +79,12 @@ COMPAT_BASHLT4=buildtypes/autogen.sh buildtypes/configure.sh buildtypes/make.sh 
 
 all: build
 
-build: shellscripts perlscripts cprograms manpages
+build: shellscripts buildtypes perlscripts cprograms manpages
 
 compat: compat-bashlt4
 
-compat-bashlt4:
-	$(call quiet-command, sed ${sed-compat-bashlt4} -i ${COMPAT_BASHLT4}, "SED	$@" )
+compat-bashlt4: ${COMPAT_BASHLT4}
+	$(call quiet-command, sed ${sed-compat-bashlt4} -i ${COMPAT_BASHLT4}, "COMPAT	$^" )
 
 SHELLSCRIPTS=$(PROGRAMS_SHELL) $(HELPER_BEE_SHELL)
 
@@ -97,6 +97,7 @@ BEEDEP_OBJECTS=bee-dep.o graph.o hash.o beedep_tree.o node.o
 BEEGETOPT_OBJECTS=bee_getopt.o beegetopt.o
 
 shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS)) $(LIBRARY_SHELL)
+buildtypes:   $(addsuffix .sh,$(addprefix buildtypes/,$(BUILDTYPES)))
 perlscripts:  $(PROGRAMS_PERL)
 cprograms:    $(PROGRAMS_C) ${HELPER_BEE_C}
 manpages:     ${BEE_MANPAGES}
@@ -132,6 +133,9 @@ beegetopt: $(addprefix src/, ${BEEGETOPT_OBJECTS})
 	$(call quiet-command,cp $< $@,"CP	$@")
 
 %.1: manpages/%.1.in
+	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
+
+buildtypes/%: buildtypes/%.in
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
 
 clean:
@@ -176,7 +180,7 @@ install-dir-beeshlib:
 ${DESTDIR}${LIBEXECDIR}/bee/%: % install-dir-beeshlib
 	$(call quiet-install,0755,$<,$@)
 
-install-buildtypes: $(addsuffix .sh,$(addprefix ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/,${HELPER_BEESH_SHELL}))
+install-buildtypes: $(addsuffix .sh,$(addprefix ${DESTDIR}${LIBEXECDIR}/bee/beesh.d/,${BUILDTYPES}))
 
 install-dir-buildtypes:
 	$(call quiet-installdir,0755,${DESTDIR}${LIBEXECDIR}/bee/beesh.d)
