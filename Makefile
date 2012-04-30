@@ -67,7 +67,7 @@ BUILDTYPES=configure cmake autogen perl-module perl-module-makemaker make python
 HELPER_HOOKS_SHELL=update-mime-database glib-compile-schemas mkfontdir-mkfontscale gtk-update-icon-cache \
                    ldconfig update-desktop-database gdk-pixbuf-query-loaders mandb systemd-tmpfiles
 
-BEE_MANPAGES=bee.1 bee-check.1 bee-init.1 bee-install.1 bee-list.1 bee-query.1 bee-remove.1 bee-dep.1
+MANPAGES=bee.1 bee-check.1 bee-init.1 bee-install.1 bee-list.1 bee-query.1 bee-remove.1 bee-dep.1
 
 CONFIG_TEMPLATES=fallback
 CONFIG_FILES=skiplist beerc
@@ -96,11 +96,14 @@ BEESORT_OBJECTS=bee_tree.o bee_version_compare.o bee_version_output.o bee_versio
 BEEDEP_OBJECTS=bee-dep.o graph.o hash.o beedep_tree.o node.o
 BEEGETOPT_OBJECTS=bee_getopt.o beegetopt.o
 
+bee_MANPAGES=$(addprefix manpages/,${MANPAGES})
+bee_BUILDTYPES=$(addsuffix .sh,$(addprefix buildtypes/,$(BUILDTYPES)))
+
 shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS)) $(LIBRARY_SHELL)
-buildtypes:   $(addsuffix .sh,$(addprefix buildtypes/,$(BUILDTYPES)))
 perlscripts:  $(PROGRAMS_PERL)
 cprograms:    $(PROGRAMS_C) ${HELPER_BEE_C}
-manpages:     ${BEE_MANPAGES}
+manpages:     ${bee_MANPAGES}
+buildtypes:   ${bee_BUILDTYPES}
 
 beesep: $(addprefix src/, ${BEESEP_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
@@ -132,20 +135,20 @@ beegetopt: $(addprefix src/, ${BEEGETOPT_OBJECTS})
 %.pl: src/%.pl
 	$(call quiet-command,cp $< $@,"CP	$@")
 
-%.1: manpages/%.1.in
+%.1: %.1.in
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
 
-buildtypes/%.sh: buildtypes/%.sh.in
+%.sh: %.sh.in
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
 
 clean:
-	$(call quiet-command,rm -f $(addsuffix .sh,${SHELLSCRIPTS}) $(LIBRARY_SHELL),"RM	<various>.sh")
-	$(call quiet-command,rm -f ${PROGRAMS_PERL},"RM	${PROGRAMS_PERL}")
-	$(call quiet-command,rm -f ${PROGRAMS_C},"RM	${PROGRAMS_C}")
-	$(call quiet-command,rm -f ${HELPER_BEE_C},"RM	${HELPER_BEE_C}")
-	$(call quiet-command,rm -f src/*.o,"RM	src/*.o")
-	$(call quiet-command,rm -f ${BEE_MANPAGES},"RM	${BEE_MANPAGES}")
-	$(call quiet-command,rm -f buildtypes/*.sh,"RM	buildtypes/*.sh")
+	$(call quiet-command,rm -f $(addsuffix .sh,${SHELLSCRIPTS}) $(LIBRARY_SHELL),"CLEAN	<various>.sh")
+	$(call quiet-command,rm -f ${PROGRAMS_PERL},"CLEAN	${PROGRAMS_PERL}")
+	$(call quiet-command,rm -f ${PROGRAMS_C},"CLEAN	${PROGRAMS_C}")
+	$(call quiet-command,rm -f ${HELPER_BEE_C},"CLEAN	${HELPER_BEE_C}")
+	$(call quiet-command,rm -f src/*.o,"CLEAN	c object files")
+	$(call quiet-command,rm -f ${bee_MANPAGES},"CLEAN	manpages")
+	$(call quiet-command,rm -f ${bee_BUILDTYPES},"CLEAN	buildtypes")
 
 install: install-core install-config
 
@@ -197,12 +200,12 @@ install-dir-hookdir:
 ${DESTDIR}${LIBEXECDIR}/bee/hooks.d/%: hooks/%.sh install-dir-hookdir
 	$(call quiet-install,0755,$<,$@)
 
-install-man: $(addprefix ${DESTDIR}${MANDIR}/man1/,${BEE_MANPAGES})
+install-man: $(addprefix ${DESTDIR}${MANDIR}/man1/,${MANPAGES})
 
 install-dir-mandir:
 	$(call quiet-installdir,0755,${DESTDIR}${MANDIR}/man1)
 
-${DESTDIR}${MANDIR}/man1/%.1: %.1 install-dir-mandir
+${DESTDIR}${MANDIR}/man1/%.1: manpages/%.1 install-dir-mandir
 	$(call quiet-install,0644,$<,$@)
 
 install-dir-config:
