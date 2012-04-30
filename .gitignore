@@ -25,6 +25,7 @@
 /bee-remove.1
 /bee-dep.1
 /buildtypes/*.sh
+/manpages/*.1
 /.beerc
 *.tar.gz
 *.o
