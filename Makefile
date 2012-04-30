@@ -73,7 +73,7 @@ CONFIG_TEMPLATES=fallback
 CONFIG_FILES=skiplist beerc
 
 COMPAT_BASHLT4=buildtypes/autogen.sh buildtypes/configure.sh buildtypes/make.sh \
-               src/beesh.sh.in src/bee-check.sh.in
+               beesh.sh bee-check.sh
 
 .SUFFIXES: .in .sh .sh.in .pl
 
@@ -135,7 +135,7 @@ beegetopt: $(addprefix src/, ${BEEGETOPT_OBJECTS})
 %.1: manpages/%.1.in
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
 
-buildtypes/%: buildtypes/%.in
+buildtypes/%.sh: buildtypes/%.sh.in
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
 
 clean:
@@ -145,6 +145,7 @@ clean:
 	$(call quiet-command,rm -f ${HELPER_BEE_C},"RM	${HELPER_BEE_C}")
 	$(call quiet-command,rm -f src/*.o,"RM	src/*.o")
 	$(call quiet-command,rm -f ${BEE_MANPAGES},"RM	${BEE_MANPAGES}")
+	$(call quiet-command,rm -f buildtypes/*.sh,"RM	buildtypes/*.sh")
 
 install: install-core install-config
 
