@@ -226,6 +226,16 @@ function fetch_one_archive() {
 function fetch_one_patch() {
     fetch_one_file $@
 
+    if [ "${bee_FETCHED_FILE: -3:3}" = ".gz" ] ; then
+        if gunzip "${bee_FETCHED_FILE}" -c >"${bee_FETCHED_FILE%.gz}" ; then
+            bee_FETCHED_FILE=${bee_FETCHED_FILE%.gz}
+        fi
+    elif [ "${bee_FETCHED_FILE: -4:4}" = ".bz2" ] ; then
+        if bunzip2 "${bee_FETCHED_FILE}" -c >"${bee_FETCHED_FILE%.bz2}" ; then
+            bee_FETCHED_FILE=${bee_FETCHED_FILE%.bz2}
+        fi
+    fi
+
     bee_PATCHFILES=( ${bee_PATCHFILES[@]} ${bee_FETCHED_FILE} )
 }
 
