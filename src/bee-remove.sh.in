@@ -68,12 +68,14 @@ do_remove() {
 
     [ "${NOOP}" != "yes" ] && run_hooks pre-remove ${pkg}
 
+    echo "removing package '${pkg##*/}'"
+
     # removing files
     for f in $FILES ; do
         if [ -d "${f}" -a ! -h "$f" ] ; then
-            ${NOOP:+echo} rmdir -v ${f}
+            ${NOOP:+echo} rmdir ${OPT_VERBOSE:+-v} ${f}
         else
-            ${NOOP:+echo} rm -fv ${f}
+            ${NOOP:+echo} rm -f ${OPT_VERBOSE:+-v} ${f}
         fi
     done
 
@@ -88,14 +90,14 @@ do_remove() {
         dirs=$(for var in ${!PKG_*} ; do eval echo \${${var}} ; done | sort -ur)
         for dir in ${dirs} ; do
             if [ -d "${dir}" -a -z "$(${BEE_LIBEXECDIR}/bee/bee.d/bee-query ${dir} | head -1)" ] ; then
-                ${NOOP:+echo} rmdir ${dir}
+                ${NOOP:+echo} rmdir ${OPT_VERBOSE:+-v} ${dir}
             fi
         done
     fi
 
     #cleaning up meta directory
     if [ -d "${pkg}" ] ; then
-        ${NOOP:+echo} rm -vfr ${pkg}
+        ${NOOP:+echo} rm -fr ${OPT_VERBOSE:+-v} ${pkg}
     fi
 }
 
@@ -124,8 +126,8 @@ usage() {
 }
 
 options=$(getopt -n bee-remove \
-                 -o n,h \
-                 --long noop,help \
+                 -o n,h,v \
+                 --long noop,help,verbose \
                  -- "$@")
 if [ $? != 0 ] ; then
     usage
@@ -142,6 +144,10 @@ while true ; do
         -h|--help)
             usage
             exit
+            ;;
+        -v|--verbose)
+            OPT_VERBOSE="yes"
+            shift
             ;;
         --)
             shift
