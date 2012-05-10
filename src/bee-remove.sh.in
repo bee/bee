@@ -30,6 +30,8 @@ fi
 
 VERSION=${BEE_VERSION}
 
+: ${BEE_BINDIR:=@BINDIR@}
+
 pkg_remove_all() {
     for pkg in "${@}" ; do
         pkg_remove "${pkg}"
@@ -125,9 +127,10 @@ usage() {
 	EOF
 }
 
-options=$(getopt -n bee-remove \
-                 -o n,h,v \
-                 --long noop,help,verbose \
+options=$(${BEE_BINDIR}/beegetopt --name bee-remove \
+                 --option noop/n \
+                 --option verbose/v \
+                 --option help/h \
                  -- "$@")
 if [ $? != 0 ] ; then
     usage
@@ -137,15 +140,15 @@ eval set -- "${options}"
 
 while true ; do
     case "$1" in
-        -n|--noop)
+        --noop)
             shift
             NOOP="yes"
             ;;
-        -h|--help)
+        --help)
             usage
             exit
             ;;
-        -v|--verbose)
+        --verbose)
             OPT_VERBOSE="yes"
             shift
             ;;

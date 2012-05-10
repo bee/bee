@@ -29,7 +29,10 @@ if [ -z "${BEE_VERSION}" ] ; then
 fi
 
 VERSION=${BEE_VERSION}
-BEESEP=@BINDIR@/beesep
+
+: ${BEE_BINDIR:=@BINDIR@}
+
+BEESEP=${BEE_BINDIR}/beesep
 
 ##### usage ###################################################################
 usage() {
@@ -51,7 +54,7 @@ query() {
         # otherwise list pkg
         base=${f##*/}
         if [ ! -z "${base}" -a -d "${BEE_METADIR}/${base}" ] ; then
-            eval $(@BINDIR@/beeversion $base)
+            eval $(${BEE_BINDIR}/beeversion $base)
             get_files "${PKGALLPKG}"
         else
             get_pkgs ${f}
@@ -92,9 +95,8 @@ get_pkgs() {
 ###############################################################################
 ###############################################################################
 
-options=$(getopt -n bee-query \
-                 -o h \
-                 --long help \
+options=$(${BEE_BINDIR}/beegetopt --name bee-query \
+                 --option help/h \
                  -- "$@")
 if [ $? != 0 ] ; then
     usage
@@ -104,7 +106,7 @@ eval set -- "${options}"
 
 while true ; do
   case "$1" in
-    -h|--help)
+    --help)
       usage
       exit 0
     ;;

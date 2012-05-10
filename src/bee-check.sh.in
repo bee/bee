@@ -36,6 +36,8 @@ fi
 
 VERSION=${BEE_VERSION}
 
+: ${BEE_BINDIR:=@BINDIR@}
+
 ###############################################################################
 ##
 ##
@@ -293,10 +295,12 @@ usage() {
 ###############################################################################
 ##
 ##
-options=$(getopt -n bee-check \
-                 -o dfh \
-                 --long force,help,deps \
+options=$(${BEE_BINDIR}/beegetopt --name bee-check \
+                 --option force/f \
+                 --option help/h \
+                 --option dependencies/deps/d \
                  -- "$@")
+
 if [ $? != 0 ] ; then
   usage
   exit 1
@@ -307,19 +311,19 @@ declare -i OPT_F=0
 
 while true ; do
   case "$1" in
-    -f|--force)
+    --force)
       shift;
       OPT_F=$OPT_F+1
       ;;
-    -d|--deps)
+    --dependencies)
       shift 2;
       pkg_check_deps "${@}"
       exit 0
       ;;
-    -h|--help)
+    --help)
       usage
       exit 0
-    ;;
+      ;;
     *)
       shift
       pkg_check_all "${@}"

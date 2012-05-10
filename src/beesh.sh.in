@@ -37,6 +37,7 @@ VERSION=${BEE_VERSION}
 : ${BEE_DATADIR:=@DATADIR@}
 : ${BEE_LIBDIR:=@LIBDIR@}
 : ${BEE_LIBEXECDIR:=@LIBEXECDIR@}
+: ${BEE_BINDIR:=@BINDIR@}
 
 # load libs
 . ${BEE_LIBEXECDIR}/bee/beelib.config.sh
@@ -101,7 +102,7 @@ function disable_autoexclusion() {
 }
 
 function require_version() {
-    if @BINDIR@/beeversion "${VERSION}" -lt "${1}" ; then
+    if ${BEE_BINDIR}/beeversion "${VERSION}" -lt "${1}" ; then
         print_error "this bee-file requires at least bee v${1} .."
         exit 1;
     fi
@@ -431,7 +432,7 @@ function bee_crosscheck() {
 # $BEE_SKIPLIST is found in $BEEFAULTS
 function bee_pkg_pack() {
 
-    aex=$(@BINDIR@/beecut -d '/' -p '^' -a '$' -n ${BEE_AUTO_EXCLUDE} | sort -u)
+    aex=$(${BEE_BINDIR}/beecut -d '/' -p '^' -a '$' -n ${BEE_AUTO_EXCLUDE} | sort -u)
 
     for e in ${EXCLUDE} ${aex} ; do
         exargs="${exargs} --exclude=${e}";
@@ -613,10 +614,14 @@ config_set_skiplist
 
 ###############################################################################
 
-OPTIONS=$(getopt -n beesh \
-                 -o hifcs \
-                 --long help,install,force-install,cleanup,silent-build,debug: \
-                 --long archive-build,no-archive-build \
+OPTIONS=$(${BEE_BINDIR}/beegetopt --name beesh \
+                 --option help/h \
+                 --option install/i \
+                 --option force-install/f \
+                 --option cleanup/c \
+                 --option debug= \
+                 --option archive-build \
+                 --option no-archive-build \
                  -- "$@")
 
 if [ $? != 0 ] ; then
@@ -632,25 +637,25 @@ eval set -- "${OPTIONS}"
 
 while true ; do
     case "$1" in
-        -h|--help)
+        --help)
             show_help
             exit 0
             ;;
-        -i|--install)
+        --install)
             OPT_INSTALL="yes"
             shift
             ;;
-        -f|--force-install)
+        --force-install)
             OPT_INSTALL="yes"
             OPT_FORCE="yes"
             shift
             ;;
-        -u|--update)
+        --update)
             OPT_INSTALL="yes"
             OPT_UPDATE="yes"
             shift
             ;;
-        -c|--cleanup)
+        --cleanup)
             OPT_CLEANUP="yes"
             shift
             ;;
@@ -702,7 +707,7 @@ PKGNAME=
 PKGVERSION=
 PKGREVISION=
 
-eval $(@BINDIR@/beeversion ${BEE})
+eval $(${BEE_BINDIR}/beeversion ${BEE})
 
 if [ -z "${PKGNAME}" -o -z "${PKGVERSION}" -o -z "${PKGREVISION}" ] ; then
     print_error "${BEE}: please use the proper package versioning (e.g. package-1.0-0)"
@@ -762,7 +767,7 @@ cd ${S}
 
 bee_run patch ${bee_PATCHFILES[@]}
 
-bee_buildmagic=$(@BINDIR@/beeuniq ${BEE_BUILDTYPE[@]} \
+bee_buildmagic=$(${BEE_BINDIR}/beeuniq ${BEE_BUILDTYPE[@]} \
                                cmake \
                                configure \
                                autogen \
