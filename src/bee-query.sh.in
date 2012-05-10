@@ -29,7 +29,10 @@ if [ -z "${BEE_VERSION}" ] ; then
 fi
 
 VERSION=${BEE_VERSION}
-BEESEP=@BINDIR@/beesep
+
+: ${BEE_BINDIR:=@BINDIR@}
+
+BEESEP=${BEE_BINDIR}/beesep
 
 ##### usage ###################################################################
 usage() {
@@ -51,7 +54,7 @@ query() {
         # otherwise list pkg
         base=${f##*/}
         if [ ! -z "${base}" -a -d "${BEE_METADIR}/${base}" ] ; then
-            eval $(@BINDIR@/beeversion $base)
+            eval $(${BEE_BINDIR}/beeversion $base)
             get_files "${PKGALLPKG}"
         else
             get_pkgs ${f}
