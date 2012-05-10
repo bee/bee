@@ -95,9 +95,8 @@ get_pkgs() {
 ###############################################################################
 ###############################################################################
 
-options=$(getopt -n bee-query \
-                 -o h \
-                 --long help \
+options=$(${BEE_BINDIR}/beegetopt --name bee-query \
+                 --option help/h \
                  -- "$@")
 if [ $? != 0 ] ; then
     usage
@@ -107,7 +106,7 @@ eval set -- "${options}"
 
 while true ; do
   case "$1" in
-    -h|--help)
+    --help)
       usage
       exit 0
     ;;
