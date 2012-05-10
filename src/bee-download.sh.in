@@ -166,7 +166,7 @@ options=$(${BEE_BINDIR}/beegetopt --name bee-download \
                  --option type/t= \
                  --option help/h \
                  --option pkgname/n= \
-                 --option version/v= \
+                 --option pkgversion/v= \
                  --option commit/c= \
                  -- "$@")
 
@@ -187,7 +187,7 @@ while true ; do
             OPT_PKGNAME="${2}"
             shift 2
             ;;
-        --version)
+        --pkgversion)
             OPT_VERSION="${2}"
             shift 2
             ;;
