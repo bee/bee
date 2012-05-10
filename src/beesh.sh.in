@@ -614,10 +614,14 @@ config_set_skiplist
 
 ###############################################################################
 
-OPTIONS=$(getopt -n beesh \
-                 -o hifcs \
-                 --long help,install,force-install,cleanup,silent-build,debug: \
-                 --long archive-build,no-archive-build \
+OPTIONS=$(${BEE_BINDIR}/beegetopt --name beesh \
+                 --option help/h \
+                 --option install/i \
+                 --option force-install/f \
+                 --option cleanup/c \
+                 --option debug= \
+                 --option archive-build \
+                 --option no-archive-build \
                  -- "$@")
 
 if [ $? != 0 ] ; then
@@ -633,25 +637,25 @@ eval set -- "${OPTIONS}"
 
 while true ; do
     case "$1" in
-        -h|--help)
+        --help)
             show_help
             exit 0
             ;;
-        -i|--install)
+        --install)
             OPT_INSTALL="yes"
             shift
             ;;
-        -f|--force-install)
+        --force-install)
             OPT_INSTALL="yes"
             OPT_FORCE="yes"
             shift
             ;;
-        -u|--update)
+        --update)
             OPT_INSTALL="yes"
             OPT_UPDATE="yes"
             shift
             ;;
-        -c|--cleanup)
+        --cleanup)
             OPT_CLEANUP="yes"
             shift
             ;;
