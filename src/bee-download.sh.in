@@ -32,6 +32,8 @@ fi
 
 VERSION=${BEE_VERSION}
 
+: ${BEE_BINDIR:=@BINDIR@}
+
 function usage() {
     cat <<-EOF
 	bee-download v${VERSION} 2009-2011
@@ -160,13 +162,12 @@ function download_git() {
     echo ${BEE_DOWNLOADDIR}/${filename}.tar.bz2
 }
 
-options=$(getopt -n bee-download \
-                 -o hn:v:c:t: \
-                 --long type: \
-                 --long help \
-                 --long pkgname: \
-                 --long version: \
-                 --long commit: \
+options=$(${BEE_BINDIR}/beegetopt --name bee-download \
+                 --option type/t= \
+                 --option help/h \
+                 --option pkgname/n= \
+                 --option version/v= \
+                 --option commit/c= \
                  -- "$@")
 
 if [ $? -ne 0 ] ; then
@@ -178,23 +179,23 @@ eval set -- "${options}"
 
 while true ; do
     case "$1" in
-        -h|--help)
+        --help)
             usage
             exit 0
             ;;
-        -n|--pkgname)
+        --pkgname)
             OPT_PKGNAME="${2}"
             shift 2
             ;;
-        -v|--version)
+        --version)
             OPT_VERSION="${2}"
             shift 2
             ;;
-        -c|--commit)
+        --commit)
             OPT_COMMIT="${2}"
             shift 2
             ;;
-        -t|--type)
+        --type)
             OPT_TYPE="${2}"
             shift 2
             ;;
