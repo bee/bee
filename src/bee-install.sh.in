@@ -66,6 +66,9 @@ function usage() {
 	     Max Planck Institute for Molecular Genetics Berlin Dahlem
 
 	Usage: bee install [options] <package>
+	Usage: bee update [options] <package>
+
+	'bee update' is short form of 'bee install --update'
 
 	Options:
 	    -f | --force      can be used to force installation come what may
@@ -253,11 +256,11 @@ function do_install() {
     if [ -n "${isinstalled}" ] ; then
         if [ "${OPT_FORCE}" = "no" ] ; then
            echo >&2 "Installation of ${pkg} failed: ${pkg} is already installed"
-           echo >&2 "  use --force (-f) to force reinstallation."
+           echo >&2 "  use bee install --force (-f) to force reinstallation."
            if [ ${#installed[@]} -eq 1 ] ; then
-              echo >&2 "  use --update --force (-u -f) to update and to remove other versions."
+              echo >&2 "  use bee update --force (-f) to update and to remove other versions."
            elif [ ${#installed[@]} -gt 1 ] ; then
-              echo >&2 "  use --update --force --remove-all (-u -f -r) to update and to remove all other versions."
+              echo >&2 "  use bee update --force --remove-all (-f -r) to update and to remove all other versions."
            fi
            return
         fi
@@ -272,8 +275,8 @@ function do_install() {
         debug_msg "more than one (excluding this) package already installed.."
         if [ "${OPT_UPDATE}" = "yes" -a "${OPT_REMOVEALL}" = "no" ] ; then
              echo >&2 "Installation of ${pkg} failed: multiple versions are installed."
-             echo >&2 "  use --update --remove-all (-u -r) to update and to remove all other versions."
-             echo >&2 "  use --force to (re)install without removing."
+             echo >&2 "  use bee update --remove-all (-r) to update and to remove all other versions."
+             echo >&2 "  use bee install --force to (re)install without removing."
              return
         fi
     fi
@@ -295,8 +298,8 @@ function do_install() {
     if [ "${maxall}" = "${pkg}" ] ; then
         if [ "${OPT_UPDATE}" = "no" ] ; then
             echo >&2 "Installation of ${pkg} failed: ${maxinst} is already installed."
-            echo >&2 "  use --update (-u) to update to ${pkg}."
-            echo >&2 "  use --force  (-f) to install as additional version. (not recommended)"
+            echo >&2 "  use bee update to update to ${pkg}."
+            echo >&2 "  use bee install --force  (-f) to install as additional version. (not recommended)"
             return
         fi
         debug_msg "UPDATE ${file}"
@@ -313,8 +316,8 @@ function do_install() {
 #        fi
         if [ "${OPT_UPDATE}" = "no" -o "${OPT_FORCE}" = "no" ] ; then
             echo >&2 "Installation of ${pkg} failed: ${maxinst} has a higher version."
-            echo >&2 "  use --update --force to downgrade"
-            echo >&2 "  use --force to install as additional version. (not recommended)"
+            echo >&2 "  use bee update --force to downgrade"
+            echo >&2 "  use bee install --force to install as additional version. (not recommended)"
             return
         fi
 

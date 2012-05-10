@@ -6,6 +6,7 @@
 /bee-query.sh
 /bee-remove.sh
 /bee-download.sh
+/bee-update.sh
 /beecut
 /beeuniq
 /beefind.pl
