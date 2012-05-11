@@ -35,7 +35,7 @@ To exclude files use
 and provide a quoted 'space' separated list of regular expressions.
 .P
 .RS
-EXCLUDE="^/usr/share/gtk-doc ^/usr/share/doc"
+EXCLUDE=( ^/usr/share/gtk-doc ^/usr/share/doc )
 .RE
 .SS "Argh! My build takes so much time.."
 You might discover that

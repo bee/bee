@@ -8,7 +8,7 @@ PATCHURL[0]=""
 
 @BEE_BUILDTYPE@
 
-# EXCLUDE=""
+# EXCLUDE=()
 
 # build_in_sourcedir
 
