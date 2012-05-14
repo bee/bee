@@ -37,7 +37,7 @@ int main(int argc, char** argv)
         if(argc<2)
         {
                 fprintf(stderr,"beesep: missing argument\n");
-                return -1;
+                return 2;
         }
         
         while(argv[1][i]!='\0')
@@ -66,7 +66,7 @@ int main(int argc, char** argv)
         if(!gl)
         {
                 fprintf(stderr,"beesep: there is no '='\n");
-                return -1;
+                return 1;
         }
         
         /* save tokens in an array and print them */
@@ -80,7 +80,7 @@ int main(int argc, char** argv)
                 if(!gl && !isalnum(argv[1][i]) && argv[1][i]!='=')
                 {
                         fprintf(stderr,"\nbeesep: '%c' only alpha numeric characters are allowed in the key\n",argv[1][i]);
-                        return -1;
+                        return 1;
                 }
                 if(argv[1][i]=='\0')
                 {       
