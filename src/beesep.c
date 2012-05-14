@@ -36,7 +36,7 @@ int main(int argc, char** argv)
         int i=0;
         if(argc<2)
         {
-                fprintf(stderr,"Parameter fehlt\n");
+                fprintf(stderr,"beesep: missing argument\n");
                 return -1;
         }
         
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
         }
         if(!gl)
         {
-                fprintf(stderr,"Es ist kein '=' vorhanden\n");
+                fprintf(stderr,"beesep: there is no '='\n");
                 return -1;
         }
         
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
                 fflush(stdout);
                 if(!gl && !isalnum(argv[1][i]) && argv[1][i]!='=')
                 {
-                        fprintf(stderr,"\nFehler: %c   Key darf nur alphanumerische Zeichen enthalten.\n",argv[1][i]);
+                        fprintf(stderr,"\nbeesep: '%c' only alpha numeric characters are allowed in the key\n",argv[1][i]);
                         return -1;
                 }
                 if(argv[1][i]=='\0')
