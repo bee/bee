@@ -431,15 +431,14 @@ function bee_crosscheck() {
 # $EXCLUDE is read from .bee file
 # $BEE_SKIPLIST is found in $BEEFAULTS
 function bee_pkg_pack() {
-
-    aex=$(${BEE_BINDIR}/beecut -d '/' -p '^' -a '$' -n ${BEE_AUTO_EXCLUDE} | sort -u)
-
-    for e in ${EXCLUDE} ${aex} ; do
-        exargs="${exargs} --exclude=${e}";
-    done
-
-    beefind.pl ${BEE_SKIPLIST:+--excludelist=${BEE_SKIPLIST}} \
-               --exclude='^/FILES$' ${exargs} \
+    beefind.pl --exclude='^/FILES$' \
+               --excludelist=<(
+                   if [ -n "${BEE_SKIPLIST}" ] ; then
+                       cat ${BEE_SKIPLIST}
+                   fi
+                   for pattern in "${EXCLUDE[@]}" "${BEE_AUTO_EXCLUDE[@]}" ; do
+                      echo "${pattern}"
+                   done ) \
                --cutroot=${D} ${D} > ${D}/FILES 2>/dev/null
 
     DUMP=${BEE_TMP_TMPDIR}/bee.$$.dump
@@ -746,6 +745,7 @@ PKGALLPKG=
 # since PKGARCH is now known reconstruct PKGALLPKG
 : ${PKGALLPKG:=${PKGFULLPKG}.${PKGARCH}}
 
+config_handle_deprecated_beefile
 expand_prefix_variables
 
 ###############################################################################
