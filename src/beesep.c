@@ -28,10 +28,10 @@
 #include <ctype.h>
 int main(int argc, char** argv)
 {
-        char gl=0;      //gibt an, ob ein Gleichzeichen gefunden wurde
-        char dp=0;      //gibt an, ob ein Doppelpunkt gefunden wurde
-        int dp_pos=0;   //gibt die Position des letzten Doppelpunktes an
-        int segmente=0; //Anzahl der Segmente, in die der String sich teilen laesst
+        char gl=0;      /* equal sign */
+        char dp=0;      /* colon */
+        int dp_pos=0;   /* position of last colon */
+        int segmente=0; /* number of tokens */
         int strlaenge=0;
         int i=0;
         if(argc<2)
@@ -42,18 +42,18 @@ int main(int argc, char** argv)
         
         while(argv[1][i]!='\0')
         {       
-                //bevor nicht ein = gekommen ist, kann kein Trenner( : ) kommen
+                /* no ':' before '=' */
                 if(argv[1][i]=='=')
                 {
                         gl=1;
                 }
-                //wenn ein Doppelpunkt kommt, merken dass einer da war und wo
+                /* save occurrence and position of ':' */
                 if(gl && argv[1][i]==':')
                 {
                         dp_pos=i;
                         dp=1;
                 }
-                //wenn das naechste = kommt, dann war der letzte Doppelpunkt Trenner
+                /* last ':' was a delimiter if there is a '=' */
                 if(gl && dp && argv[1][i]=='=')
                 {
                         argv[1][dp_pos]='\0';
@@ -69,7 +69,7 @@ int main(int argc, char** argv)
                 return -1;
         }
         
-        //Zerlegten String in Array von Strings speichern und ausgeben
+        /* save tokens in an array and print them */
         strlaenge=i;
         i=0;
         gl=0;
