@@ -325,12 +325,15 @@ static struct bee_subtree *bee_tree_insert_node(struct bee_tree *tree, struct be
             /* do not insert dupes */
             if (!(tree->flags & BEE_TREE_FLAG_UNIQUE_DATA))
                 return NULL;
+        }
+
+        if (tree->flags & (BEE_TREE_FLAG_UNIQUE_DATA|BEE_TREE_FLAG_COMPARE_DATA_ON_EQUAL_KEY)) {
 
             assert(tree->compare_data);
 
             cmp = tree->compare_data(node->data, current->data);
 
-            if (cmp == 0)
+            if (cmp == 0 && (tree->flags & BEE_TREE_FLAG_UNIQUE_DATA))
                 return NULL;
         }
 

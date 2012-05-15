@@ -36,6 +36,7 @@ struct bee_subtree {
 
 #define BEE_TREE_FLAG_UNIQUE      (1<<0)
 #define BEE_TREE_FLAG_UNIQUE_DATA (1<<1)
+#define BEE_TREE_FLAG_COMPARE_DATA_ON_EQUAL_KEY (1<<2)
 
 struct bee_tree *bee_tree_allocate(void);
 void bee_tree_free(struct bee_tree *tree);

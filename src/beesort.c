@@ -198,6 +198,8 @@ int main(int argc, char *argv[])
     else if (opt_uniq > 1)
         bee_tree_set_flags(tree, BEE_TREE_FLAG_UNIQUE);
 
+    bee_tree_set_flags(tree, BEE_TREE_FLAG_COMPARE_DATA_ON_EQUAL_KEY);
+
     while(fgets(line, LINE_MAX, file)) {
         data = strdup(line);
         if(!data) {
