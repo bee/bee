@@ -98,7 +98,7 @@ void *my_generate_key(const void *data)
     v = calloc(1, sizeof(*v));
     if(!v) {
         perror("calloc(beeversion)");
-        free(s);
+        free(string);
         return NULL;
     }
 
