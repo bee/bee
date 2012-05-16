@@ -54,7 +54,7 @@ sed-compat-bashlt4 = -e 'sx\$${\([a-zA-Z_]*\),,}x\$$(tr A-Z a-z <<<\$${\1})xg' \
 
 
 PROGRAMS_C=beeversion beesep beecut beeuniq beesort beegetopt
-PROGRAMS_SHELL=bee beesh
+PROGRAMS_SHELL=bee beesh beefind
 PROGRAMS_PERL=beefind.pl
 
 HELPER_BEE_SHELL=bee-init bee-check bee-remove bee-install bee-list bee-query bee-download bee-update
