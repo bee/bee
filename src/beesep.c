@@ -31,8 +31,7 @@ int main(int argc, char** argv)
         char gl=0;      /* equal sign */
         char dp=0;      /* colon */
         int dp_pos=0;   /* position of last colon */
-        int segmente=0; /* number of tokens */
-        int strlaenge=0;
+        int length=0;
         int i=0;
         if(argc<2)
         {
@@ -57,7 +56,6 @@ int main(int argc, char** argv)
                 if(gl && dp && argv[1][i]=='=')
                 {
                         argv[1][dp_pos]='\0';
-                        segmente++;
                         gl=1;
                         dp=0;
                 }
@@ -70,10 +68,10 @@ int main(int argc, char** argv)
         }
         
         /* save tokens in an array and print them */
-        strlaenge=i;
+        length=i;
         i=0;
         gl=0;
-        while(i<strlaenge)
+        while(i<length)
         {
                 printf("%c",argv[1][i]);
                 fflush(stdout);
