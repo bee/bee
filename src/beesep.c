@@ -31,7 +31,7 @@ int main(int argc, char** argv)
         char gl=0;      /* equal sign */
         char dp=0;      /* colon */
         int dp_pos=0;   /* position of last colon */
-        int strlaenge=0;
+        int length=0;
         int i=0;
         if(argc<2)
         {
@@ -68,10 +68,10 @@ int main(int argc, char** argv)
         }
         
         /* save tokens in an array and print them */
-        strlaenge=i;
+        length=i;
         i=0;
         gl=0;
-        while(i<strlaenge)
+        while(i<length)
         {
                 printf("%c",argv[1][i]);
                 fflush(stdout);
