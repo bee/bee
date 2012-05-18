@@ -1,12 +1,14 @@
-.TH "bee-install" "1" "2011-08-11" "bee @BEE_VERSION@" "bee package management"
+.TH "bee-install" "1" "2012-05-18" "bee @BEE_VERSION@" "bee - bau et einfach"
+
 .SH "NAME"
 bee\-install \- Install a bee package
+
 .SH "SYNOPSIS"
 .SY "bee install"
-.OP \-afhuv
-.OP \-\-noop
-.I bee-package
+.OP options
+.I <bee-package>
 .YS
+
 .SH "DESCRIPTION"
 .P
 .B bee-install
@@ -17,86 +19,83 @@ Normally
 searches
 .B BEE_PKGDIR
 for
-.I bee-package
+.I <bee-package>
 but you can use
-.BI /path/to/ bee-package .bee.tar.bz2
+.BI /path/to/ <bee-package> .bee.tar.bz2
 too.
+
 .SH "OPTIONS"
 .TP
-.B \-a
-.TQ
-.B \-\-all
+.B \-\-verbose
 .TQ
 .B \-v
-.TQ
-.B \-\-verbose
 Run
 .B bee-install
 in verbose mode.
 .TP
-.B \-f
-.TQ
 .B \-\-force
-Use
+.TQ
 .B \-f
+Use
+.B \-\-force
 to prevent
 .B bee-install
 from checking whether
-.I bee-package
+.I <bee-package>
 is already installed.
 .TP
-.B \-h
-.TQ
 .B \-\-help
+.TQ
+.B \-h
 Print a little help screen.
 .TP
-.B \-u
-.TQ
 .B \-\-update
-Install
-.I bee\-package
-and remove all other installed versions of this package.
-Downgrades are possible by forcing the installation of lower versions with the
-.B \-f
-option.
+.TQ
+.B \-u
+Update an install
+.IR <bee-package> .
 .TP
 .B \-\-noop
-Run bee in noop mode.
-.SH "FILES"
-.TP
-.B /etc/bee/beerc
-.TQ
-.B ~/.beerc
-The main config files. Use these to change
-.BR bee-install 's
-environment variables.
+Run
+.B bee-install
+in noop mode.
+
 .SH "ENVIRONMENT"
 .TP
 .B BEE_PKGDIR
 .RS
 Directory searched for available bee packages
-.P
-Defaults:
-.TQ
-root-user: /usr/src/bee/packages
-.TQ
-other:     ~/.local/src/bee/packages
-.RE
-.\" .SH "BUGS"
+
 .SH "AUTHORS"
 .P
 .MT tolzmann@molgen.mpg.de
 Marius Tolzmann
 .ME
-.P
+.br
 .MT dreyer@molgen.mpg.de
 Tobias Dreyer
 .ME
+.br
+.MT ruester@molgen.mpg.de
+Matthias Ruester
+.ME
+.br
+and other bee developers
+
+.SH "BEE"
+.P
+This file is part of bee.
+.P
+Please report bugs to bee-dev@googlegroups.com or directly to the authors.
+
 .SH "SEE ALSO"
 .BR bee (1)
-.BR beesh (1)
-.BR bee-check (1)
-.BR bee-init (1)
-.BR bee-list (1)
-.BR bee-query (1)
-.BR bee-remove (1)
+.BR bee\-check (1) 
+.BR bee\-dep (1)
+.BR bee\-download (1)
+.BR bee\-init (1)
+.BR bee\-install (1)
+.BR bee\-list (1)
+.BR bee\-query (1)
+.BR bee\-remove (1)
+.BR bee\-update (1)

@@ -1,65 +1,64 @@
-.TH "bee-init" "1" "2011-07-25" "bee @BEE_VERSION@" "bee package management"
+.TH "bee-init" "1" "2012-05-18" "bee @BEE_VERSION@" "bee - bau et einfach"
+
 .SH "NAME"
 bee\-init \- Create a bee file for building a bee package
+
 .SH "SYNOPSIS"
 .SY "bee init"
-.OP \-fh
-.OP \-\-configure mode
-.OP \-\-disable-versionify
-.OP \-t template
-.I url-to-file
+.OP options
+.I <url-to-sources>
+.OP "-- configure options" 
 .YS
+
 .SH "DESCRIPTION"
 .P
 .B bee-init
 is used to create a file, that is run in order to build a bee package.
+
 .SH "OPTIONS"
 .TP
-.BI \-\-configure " mode"
-Set
-.I mode
-to 'compat' if DATAROOTDIR is not supported in your build process
+.BI \-\-configure " <mode>"
+Set <mode> to 'compat' if DATAROOTDIR is not supported in your build process
 .TP
-.BI \-\-buildtype " TYPE"
+.BI \-\-buildtype " <type>"
 force buildtype: configure, cmake, make, autogen, perl-module, perl-module-makemaker, python-module
 .TP
 .B \-\-disable-versionify
 Enable this flag, if you do not want that version numbers in your source url are substituted for
 bee variables.
 .TP
-.BI -t " template"
+.BI --template " <template>"
 .TQ
-.BI --template " template"
-Create bee file with template
-.IR template .
+.BI -t " <template>"
+Create bee file with template <template>.
 .TP
-.B \-f
-.TQ
 .B \-\-force
+.TQ
+.B \-f
 Normally
 .B bee-init
 warns you, if that bee file you want to create already exists. Use
-.B \-f
+.B \-\-force
 to ignore the warning and override the old file.
 .TP
-.B \-h
-.TQ
 .B \-\-help
+.TQ
+.B \-h
 Print a little help screen.
 .TP
-.B \-V
-.TQ
 .B \-\-version
+.TQ
+.B \-v
 print version number
 .TP
-.B \-e
-.TQ
 .B \-\-execute
+.TQ
+.B \-e
 execute bee-file after creation
 .TP
-.B \-i
-.TQ
 .B \-\-install
+.TQ
+.B \-i
 execute bee-file and install software
 .TP
 .B \-\-prefix
@@ -94,29 +93,48 @@ execute bee-file and install software
 .TQ
 .B \-\-localedir
 Set these directories, if you do not want to install to the default locations.
-.SH "FILES"
-.TP
-.B /etc/bee/beerc
-.TQ
-.B ~/.beerc
-The main config files. Use these to change
-.BR bee-init 's
-environment variables.
-.\" .SH "BUGS"
+
+.SH "CONFIGURE OPTIONS"
+.P
+Package specific configure options may be appended at the end of your bee-init line, e.g.
+.B bee init http://ftp.gnome.org/pub/gnome/sources/gtk+/3.5/gtk+-3.5.2.tar.xz
+.B -- --enable-introspection --enable-xinerama
+will automatically append
+.B --enable-introspection --enable-xinerama
+to the
+.B bee_configure
+call in your bee file.
+
 .SH "AUTHORS"
 .P
 .MT tolzmann@molgen.mpg.de
 Marius Tolzmann
 .ME
-.P
+.br
 .MT dreyer@molgen.mpg.de
 Tobias Dreyer
 .ME
+.br
+.MT ruester@molgen.mpg.de
+Matthias Ruester
+.ME
+.br
+and other bee developers
+
+.SH "BEE"
+.P
+This file is part of bee.
+.P
+Please report bugs to bee-dev@googlegroups.com or directly to the authors.
+
 .SH "SEE ALSO"
 .BR bee (1)
-.BR beesh (1)
-.BR bee-check (1)
-.BR bee-install (1)
-.BR bee-list (1)
-.BR bee-query (1)
-.BR bee-remove (1)
+.BR bee\-check (1) 
+.BR bee\-dep (1)
+.BR bee\-download (1)
+.BR bee\-init (1)
+.BR bee\-install (1)
+.BR bee\-list (1)
+.BR bee\-query (1)
+.BR bee\-remove (1)
+.BR bee\-update (1)

@@ -1,85 +1,81 @@
-.TH "bee-list" "1" "2011-07-25" "bee @BEE_VERSION@" "bee package management"
+.TH "bee-list" "1" "2012-05-18" "bee @BEE_VERSION@" "bee - bau et einfach"
+
 .SH "NAME"
 bee\-list \- List installed and available bee packages
+
 .SH "SYNOPSIS"
 .SY "bee list"
-.OP \-ahi
-.OP \-\-by\-pkgfullname
-.I pattern
+.OP options
+.I <pattern>
 .YS
+
 .SH "DESCRIPTION"
 .P
 .B bee-list
 is used to display all bee packages that are installed or available for installation.
+
 .SH "OPTIONS"
 .TP
-.B \-a
-.TQ
 .B \-\-available
+.TQ
+.B \-a
 List all bee packages available for installation that match
-.IR pattern .
+.IR <pattern> .
 .TP
 .B \-\-by\-pkgfullname
 Use this flag, if you want that
-.I pattern
+.I <pattern>
 has to match the full packagename.
 .TP
-.B \-i
-.TQ
 .B \-\-installed
+.TQ
+.B \-i
 List all installed bee packages that match
-.IR pattern .
+.IR <pattern> .
 .TP
 .B \-h
 .TQ
 .B \-\-help
 Print a little help screen.
-.SH "FILES"
-.TP
-.B /etc/bee/beerc
-.TQ
-.B ~/.beerc
-The main config files. Use these to change
-.BR bee-list 's
-environment variables.
+
 .SH "ENVIRONMENT"
 .TP
 .B BEE_METADIR
-.RS
 Directory searched for installed bee packages
-.P
-Defaults:
-.TQ
-root-user: /usr/share/bee
-.TQ
-other:     ~/.local/share/bee
-.RE
 .TP
 .B BEE_PKGDIR
-.RS
 Directory searched for available bee packages
-.P
-Defaults:
-.TQ
-root-user: /usr/src/bee/packages
-.TQ
-other:     ~/.local/src/bee/packages
-.RE
-.\" .SH "BUGS"
+
 .SH "AUTHORS"
 .P
 .MT tolzmann@molgen.mpg.de
 Marius Tolzmann
 .ME
-.P
+.br
 .MT dreyer@molgen.mpg.de
 Tobias Dreyer
 .ME
+.br
+.MT ruester@molgen.mpg.de
+Matthias Ruester
+.ME
+.br
+and other bee developers
+
+.SH "BEE"
+.P
+This file is part of bee.
+.P
+Please report bugs to bee-dev@googlegroups.com or directly to the authors.
+
 .SH "SEE ALSO"
 .BR bee (1)
-.BR beesh (1)
-.BR bee-check (1)
-.BR bee-init (1)
-.BR bee-install (1)
-.BR bee-query (1)
-.BR bee-remove (1)
+.BR bee\-check (1) 
+.BR bee\-dep (1)
+.BR bee\-download (1)
+.BR bee\-init (1)
+.BR bee\-install (1)
+.BR bee\-list (1)
+.BR bee\-query (1)
+.BR bee\-remove (1)
+.BR bee\-update (1)
