@@ -44,10 +44,11 @@ function usage() {
 	bee download [options] <repository-url>
 
 	Options:
-	    -h | --help        display this help
-	    -n | --pkgname     specifiy a package name
-	    -v | --pkgversion  specifiy a package version
-	    -c | --commit      use a certain commit as HEAD revision
+	    -h, --help        display this help
+	    -n, --pkgname     specify a package name
+	    -v, --pkgversion  specify a package version
+	    -t, --type        specify type of download (http, https or git)
+	    -c, --commit      use a certain commit as HEAD revision
 
 	EOF
 }

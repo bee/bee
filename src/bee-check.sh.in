@@ -283,11 +283,12 @@ usage() {
 	Usage: bee check [options] [action] <package>
 
 	Actions:
-	    -d | --deps       print dependencies of the package
-	    -h | --help       display this help
+	    -d, --deps,
+	        --dependencies    print dependencies of the package
+	    -h, --help            display this help
 
 	Options:
-	    -f | --force      can be used to force check come what may
+	    -f, --force           can be used to force check come what may
 
 	EOF
 }

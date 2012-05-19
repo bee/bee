@@ -87,12 +87,13 @@ function show_help() {
 	Usage: beesh [options] <pkg>.bee
 
 	Options:
-	    -c | --cleanup          may be used to clean up <pkg>-related
-	                            directory tree before build process is started
-	    -i | --install          after build process is successful and <pkg> is
-	                            built, <pkg>.tgz is installed by bee_install
-	    -f | --force-install    same as -i; bee_install is invoked with --force
-	    -h | --help             display this help
+	    -c, --cleanup          may be used to clean up <pkg>-related
+	                           directory tree before build process is started
+	    -i, --install          after build process is successful and <pkg> is
+	                           built, <pkg>.tgz is installed by bee_install
+	    -f, --force-install    same as -i; bee_install is invoked with --force
+	    -h, --help             display this help
+	    --no-archive-build     do not archive the build directory
 
 	EOF
 }
@@ -600,17 +601,6 @@ function bee_run() {
     fi
 }
 
-config_init_colors
-
-echo -e "${COLOR_CYAN}BEE v${BEE_VERSION} 2009-2011"
-echo -e "  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>"
-echo -e "     Max Planck Institute for Molecular Genetics Berlin Dahlem"
-echo -e "${COLOR_NORMAL}"
-
-config_init
-
-config_set_skiplist
-
 ###############################################################################
 
 OPTIONS=$(${BEE_BINDIR}/beegetopt --name beesh \
@@ -680,6 +670,17 @@ while true ; do
             ;;
     esac
 done
+
+config_init_colors
+
+echo -e "${COLOR_CYAN}BEE v${BEE_VERSION} 2009-2011"
+echo -e "  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>"
+echo -e "     Max Planck Institute for Molecular Genetics Berlin Dahlem"
+echo -e "${COLOR_NORMAL}"
+
+config_init
+
+config_set_skiplist
 
 print_info "  BEE_SKIPLIST           ${BEE_SKIPLIST}"
 print_info "  BEE_REPOSITORY_PREFIX  ${BEE_REPOSITORY_PREFIX}"
