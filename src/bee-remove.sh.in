@@ -121,8 +121,9 @@ usage() {
 	Usage: bee remove [options] <package>
 
 	Options:
-	    -h | --help    display this help
-	    -n | --noop    do not actually remove; just print
+	    -h, --help        display this help
+	    -n, --noop        do not actually remove; just print
+	    -v, --verbose     print removed files and directories
 
 	EOF
 }

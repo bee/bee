@@ -63,8 +63,13 @@ function usage() {
 	Usage: bee list <action> [pattern list]
 
 	Actions:
-	    -i | --installed (default) list installed pkgs matching pattern list
-	    -a | --available           list available pkgs matching pattern list
+	    -i, --installed (default)    list installed packages
+	    -a, --available              list available packages
+	    -u, --updateable             list packages that can be updated
+	    -U, --uninstalled            list uninstalled packages
+	    --exact, --by-pkgfullname    exact match
+	    --display-pathname           print pathname
+	    -h, --help                   display this help
 
 	EOF
 }
