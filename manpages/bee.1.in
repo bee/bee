@@ -1,22 +1,22 @@
-.TH "bee" "1" "2011-07-25" "bee @BEE_VERSION@" "bee package management"
+.TH "bee" "1" "2012-05-18" "bee @BEE_VERSION@" "bee - bau et einfach"
+
 .SH "NAME"
 bee \- Run a bee tool
+
 .SH "SYNOPSIS"
 .SY "bee "
-.OP check
-.OP init
-.OP install
-.OP list
-.OP query
-.OP remove
-.I arguments
+.OP options
+.I <command>
+.OP args
 .YS
+
 .SH "DESCRIPTION"
 .P
 .B bee
 is a wrapper tool that is used to run all bee tools. All options known by these bee tools can be passed
 to
 .BR bee .
+
 .SH "OPTIONS"
 .TP
 .B \-\-destdir <BEE_BEEDESTDIR>
@@ -39,57 +39,53 @@ all files are extracted under
 Dispays all bee relevant variables.
 .TP
 .B \-\-help
-Prints a little help screen.
+.TQ
+.B \-h
+Prints a little help screen and all available commands.
 .TP
 .B \-\-version
-Prints bee's version.
-.SH "FILES"
-.TP
-.B /etc/bee/beerc
 .TQ
-.B ~/.beerc
-The main config files. Use these to change
-.BR bee 's
-environment variables.
+.B \-V
+Prints bee's version.
+
 .SH "ENVIRONMENT"
 .TP
 .B BEE_METADIR
-.RS
 Directory searched for installed bee packages
-.P
-Defaults:
-.TQ
-root-user: /usr/share/bee
-.TQ
-other:     ~/.local/share/bee
-.RE
 .TP
 .B BEE_PKGDIR
-.RS
 Directory searched for available bee packages
-.P
-Defaults:
-.TQ
-root-user: /usr/src/bee/packages
-.TQ
-other:     ~/.local/src/bee/packages
-.RE
-.\" .SH "DIAGNOSTICS"
-.\" .SH "BUGS"
+
 .SH "AUTHORS"
 .P
 .MT tolzmann@molgen.mpg.de
 Marius Tolzmann
 .ME
-.P
+.br
 .MT dreyer@molgen.mpg.de
 Tobias Dreyer
 .ME
+.br
+.MT ruester@molgen.mpg.de
+Matthias Ruester
+.ME
+.br
+and other bee developers
+
+.SH "BEE"
+.P
+This file is part of bee.
+.P
+Please report bugs to bee-dev@googlegroups.com or directly to the authors.
+
 .SH "SEE ALSO"
-.BR beesh (1)
-.BR bee-check (1)
-.BR bee-init (1)
-.BR bee-install (1)
-.BR bee-list (1)
-.BR bee-query (1)
-.BR bee-remove (1)
+.BR bee (1)
+.BR bee\-check (1) 
+.BR bee\-dep (1)
+.BR bee\-download (1)
+.BR bee\-init (1)
+.BR bee\-install (1)
+.BR bee\-list (1)
+.BR bee\-query (1)
+.BR bee\-remove (1)
+.BR bee\-update (1)

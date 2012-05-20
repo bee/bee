@@ -1,41 +1,44 @@
-.TH "bee-remove" "1" "2012-05-18" "bee @BEE_VERSION@" "bee - bau et einfach"
+.TH "bee-download" "1" "2012-05-18" "bee @BEE_VERSION@" "bee - bau et einfach"
 
 .SH "NAME"
-bee\-remove \- Remove an installed bee package
+bee\-download \- Download a repository and convert it into a source tarball
 
 .SH "SYNOPSIS"
-.SY "bee remove"
+.SY "bee download"
 .OP options
-.I <bee-package>
+.I <repository-url>
 .YS
 
 .SH "DESCRIPTION"
 .P
-Use
-.B bee-remove
-to remove installed bee packages. If
-.I <bee-package>
-does not match the full name of a bee package, all matching packages will be displayed.
+.B bee-download
+is used to download a repository and convert it into a source tarball. This tarball can be used to
+create a beefile via
+.BR "bee init" .
 
 .SH "OPTIONS"
+.TP
+.BI \-\-pkgname " <name>"
+Specifiy the tarballs package name.
+.TP
+.BI \-\-pkgversion " <version>"
+Specifiy the tarballs package version.
+.TP
+.BI \-\-commit " <rev>"
+Use a certain
+.I <rev>
+as HEAD revision.
 .TP
 .B \-\-help
 .TQ
 .B \-h
 Print a little help screen.
-.TP
-.B \-\-noop
-.TQ
-.B \-n
-Do not actually remove
-.IR <bee-package> ,
-just print.
 
 .SH "ENVIRONMENT"
 .TP
-.B BEE_METADIR
+.B BEE_DOWNLOADDIR
 .RS
-Directory searched for installed bee packages
+The source tarball is placed here.
 
 .SH "AUTHORS"
 .P
