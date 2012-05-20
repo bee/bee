@@ -52,7 +52,7 @@ Print a little help screen.
 .B \-\-update
 .TQ
 .B \-u
-Update an install
+Update an installed
 .IR <bee-package> .
 .TP
 .B \-\-noop
