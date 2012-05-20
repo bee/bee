@@ -129,9 +129,27 @@ function download_git() {
     eval $(@BINDIR@/beeversion ${tag} 2>/dev/null)
     if [ -z "${PKGNAME}" ] ; then
         PKGNAME=${reponame}
-        PKGFULLVERSION=${tag##${reponame}}
-        PKGFULLVERSION=${PKGFULLVERSION//-/}
-        PKGFULLVERSION=${PKGFULLVERSION//[^0-9.]/}
+        # how tag2version conversion works:
+        # 1) remove traling 'v' in potential version numbers
+        #    ^[vV]([0-9][-_.].*)$ -> $1
+        # 2) remove trailing 'v' after trailing package name (.*)
+        #    ^.*[-_][vV]([0-9][-_.].*)$ -> $1
+        # 3) remove trailing package name (globally, recursive)
+        #    (where '-v[0-9]' won't indicate version start)
+        #    ^[A-Za-z]+[0-0]*[-_] -> ''
+        # 4) handle special case
+        #    ^[vV]([0-9]+)$ -> $1
+        # 5) cleanup result: convert all '-' to '_'
+        # 6) cleanup result: _([0-9]) -> .$1
+        # 7) cleanup result: lowercase [A-Z]+
+        PKGFULLVERSION=$( sed \
+            -e      's,^[vV]\([0-9]\+[-_\.]\),\1,' \
+            -e 's,.*[-_][vV]\([0-9]\+[-_\.]\),\1,' \
+            -e 's,^\(\([A-Za-z]\+[0-9]*\)\+[-_]\)\+,,' \
+            -e 's,^[vV]\([0-9]\+\)$,\1,' \
+            -e 's,-,_,g' \
+            -e 's,_\([0-9]\),.\1,g' \
+            -e 's,\([A-Z]\+\),\L\1,g' <<< "${tag}" )
     fi
 
     if [ "$ahead" != "$gd" ] ; then
