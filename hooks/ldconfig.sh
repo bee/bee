@@ -38,7 +38,7 @@ if ! which ldconfig >/dev/null 2>&1 ; then
     exit 0
 fi
 
-if grep -q "/lib/" ${BEE_METADIR}/${pkg}/FILES ; then
+if grep -q "/lib/" ${BEE_METADIR}/${pkg}/CONTENT ; then
     case "${action}" in
         "post-install")
             ldconfig
