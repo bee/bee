@@ -65,8 +65,14 @@ query() {
 get_files() {
     pkg=${1}
 
+    if [ ! -e "${BEE_METADIR}/${pkg}/CONTENT" ] ; then
+        ${BEE_LIBEXECDIR}/bee/compat-filesfile2contentfile \
+           ${BEE_METADIR}/${pkg}/FILES \
+           >${BEE_METADIR}/${pkg}/CONTENT
+    fi
+
     for s in "" "${BEE_METADIR}" ; do
-        ff="${s}/${pkg}/FILES"
+        ff="${s}/${pkg}/CONTENT"
         if [ -e "${ff}" ] ; then
             for line in $(cat ${ff}) ; do
                 eval $(${BEESEP} ${line})
@@ -79,10 +85,16 @@ get_files() {
 get_pkgs() {
     f=$1
 
-    for i in $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed) ; do
-        if egrep -q "file=.*${f}" ${BEE_METADIR}/${i}/FILES ; then
-            echo ${i}
-            for line in $(egrep "file=.*${f}" ${BEE_METADIR}/${i}/FILES) ; do
+    for pkg in $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed) ; do
+        if [ ! -e "${BEE_METADIR}/${pkg}/CONTENT" ] ; then
+            ${BEE_LIBEXECDIR}/bee/compat-filesfile2contentfile \
+               ${BEE_METADIR}/${pkg}/FILES \
+               >${BEE_METADIR}/${pkg}/CONTENT
+        fi
+
+        if egrep -q "file=.*${f}" ${BEE_METADIR}/${pkg}/CONTENT ; then
+            echo ${pkg}
+            for line in $(egrep "file=.*${f}" ${BEE_METADIR}/${pkg}/CONTENT) ; do
                 eval $(${BEESEP} ${line})
                 echo "  ${file}"
             done
