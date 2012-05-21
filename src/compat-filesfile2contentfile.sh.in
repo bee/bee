@@ -1,0 +1,85 @@
+#!/bin/bash
+#
+# bee-check - check consistency of installed bee-pkgs
+#
+# Copyright (C) 2009-2011
+#       Marius Tolzmann <tolzmann@molgen.mpg.de>
+#       Tobias Dreyer <dreyer@molgen.mpg.de>
+#       and other bee developers
+#
+# This file is part of bee.
+#
+# bee is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+: ${BEESEP=@BINDIR@/beesep}
+
+declare -A hardlink
+
+while read line ; do
+   md5=""
+   data=$(${BEESEP} ${line} 2>/dev/null)
+
+   if [ $? -ne '0' ] ; then
+      echo >&2 "**ERROR** INVALID CONTENT: ${line}"
+      exit 1
+   fi
+
+   eval ${data}
+   
+   if [ $? -ne '0' -o -z "${md5}" ] ; then
+       echo >&2 "**ERROR** UNPARSABLE CONTENT: ${line}"
+       exit 1
+   fi
+
+   if [ "${md5}" = "directory" ] ; then
+       type='directory'
+       unset md5
+   elif [ "${md5}" = "link" ] ; then
+       type='symlink'
+       unset md5
+   elif [ "${md5}" = "block" ] ; then
+       type='block'
+       unset md5
+   elif [ "${md5}" = "char" ] ; then
+       type='char'
+       unset md5
+   else
+       type='regular'
+   fi
+
+   if [ -z "${nlink}" ] ; then
+       nlink=1
+   fi
+
+   if [ "${type}" = "regular" -a ${nlink} -gt 1 ] ; then
+      key=$md5-$size-$nlink
+      if [ -n "${hardlink[$key]}" ] ; then
+         type=hardlink
+         file=${file}//${hardlink[$key]}
+      else
+         hardlink[$key]=$file
+      fi
+   fi
+
+   echo -n "type=${type}"
+   printf  ":mode=0%o"   ${mode} 
+   printf  ":access=0%o" $(( ${mode} & 07777 ))
+   echo -n ":nlink=${nlink}:uid=${uid}:gid=${gid}:size=${size}:mtime=${mtime}"
+   if [ -n "${md5}" ] ; then
+      echo -n ":md5=${md5}"
+   fi
+   echo ":file=${file}"
+   
+done < <(cat $@)
