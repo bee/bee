@@ -65,8 +65,14 @@ pkg_check_deps() {
     fi
 
     if [ "${installed}" ] ; then
-        for i in ${installed} ; do
-            do_check_deps "${i}"
+        for pkg in ${installed} ; do
+            if [ ! -e "${BEE_METADIR}/${pkg}/CONTENT" ] ; then
+                ${BEE_LIBEXECDIR}/bee/compat-filesfile2contentfile \
+                    ${BEE_METADIR}/${pkg}/FILES \
+                    >${BEE_METADIR}/${pkg}/CONTENT
+            fi
+
+            do_check_deps "${pkg}"
         done
     fi
     exit 0
@@ -83,8 +89,13 @@ pkg_check() {
     fi
 
     if [ "${installed}" ] ; then
-        for i in ${installed} ; do
-            do_check "${i}"
+        for pkg in ${installed} ; do
+            if [ ! -e "${BEE_METADIR}/${pkg}/CONTENT" ] ; then
+                ${BEE_LIBEXECDIR}/bee/compat-filesfile2contentfile \
+                    ${BEE_METADIR}/${pkg}/FILES \
+                    >${BEE_METADIR}/${pkg}/CONTENT
+            fi
+            do_check "${pkg}"
         done
         return 0
     fi
@@ -177,7 +188,7 @@ do_check_deps_of_file() {
 ##
 do_check_deps() {
     local pkg=${1}
-    local filesfile=${BEE_METADIR}/${pkg}/FILES
+    local filesfile=${BEE_METADIR}/${pkg}/CONTENT
 
     echo -e "[${pkg}]"
 
@@ -208,9 +219,9 @@ do_check_deps() {
         echo "    size     = ${size}"
         echo "    mtime    = ${mtime}"
 
-        if [ "${md5}" = "link" ] ; then
+        if [ "${type}" = "symlink" ] ; then
             echo "    symlink  = ${symlink}"
-        elif [ "${md5}" != "directory" ] ; then
+        elif [ "${type}" = "regular" -o "${type}" = "hardlink" ] ; then
             echo "    md5      = ${md5}"
         fi
 
@@ -225,7 +236,7 @@ do_check_deps() {
 do_check() {
     local pkg=${1}
 
-    local filesfile=${BEE_METADIR}/${pkg}/FILES
+    local filesfile=${BEE_METADIR}/${pkg}/CONTENT
 
     echo "checking ${pkg} .."
 
@@ -241,7 +252,7 @@ do_check() {
             continue
         fi
 
-        if [ "${md5}" = "link" ] ; then
+        if [ "${type}" = "symlink" ] ; then
             if [ ! -h "${file}" ] ; then
                 echo "  [changed] <was symlink to ${symlink}> ${file}"
             else
@@ -254,7 +265,7 @@ do_check() {
             continue
         fi
 
-        if [ "${md5}" = "directory" ] ; then
+        if [ "${type}" = "directory" ] ; then
             if [ ! -d "${file}" ] ; then
                 echo "  [changed] <was directory> ${file}"
             fi
