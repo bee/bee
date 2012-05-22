@@ -39,6 +39,8 @@ VERSION=${BEE_VERSION}
 : ${BEE_LIBEXECDIR:=@LIBEXECDIR@}
 : ${BEE_BINDIR:=@BINDIR@}
 
+: ${BEEFIND:=${BEE_BINDIR}/beefind}
+
 # load libs
 . ${BEE_LIBEXECDIR}/bee/beelib.config.sh
 
@@ -432,21 +434,23 @@ function bee_crosscheck() {
 # $EXCLUDE is read from .bee file
 # $BEE_SKIPLIST is found in $BEEFAULTS
 function bee_pkg_pack() {
-    beefind.pl --exclude='^/FILES$' \
-               --excludelist=<(
+    ${BEEFIND} --exclude='^/CONTENT$' \
+               --exclude-list=<(
                    if [ -n "${BEE_SKIPLIST}" ] ; then
                        cat ${BEE_SKIPLIST}
                    fi
                    for pattern in "${EXCLUDE[@]}" "${BEE_AUTO_EXCLUDE[@]}" ; do
                       echo "${pattern}"
                    done ) \
-               --cutroot=${D} ${D} > ${D}/FILES 2>/dev/null
+               --cutroot \
+               ${D} | \
+                   ${BEE_LIBEXECDIR}/bee/filelist2content --root ${D} > ${D}/CONTENT
 
     DUMP=${BEE_TMP_TMPDIR}/bee.$$.dump
 
-    beefind.pl --dump ${D}/FILES | sed -e "s,^,${D}," - > ${DUMP}
+    ${BEE_LIBEXECDIR}/bee/content2filelist ${D}/CONTENT | sed -e "s,^,${D}," - > ${DUMP}
 
-    if [ ! -s "${D}/FILES" ]; then
+    if [ ! -s "${D}/CONTENT" ]; then
         print_error "ERROR: empty image directory"
         exit 1
     fi
@@ -479,11 +483,11 @@ function bee_pkg_pack() {
         --sparse \
         --absolute-names \
         --no-recursion \
-        --transform="s,^/FILES$,FILES," \
+        --transform="s,^/CONTENT$,CONTENT," \
         --transform="s,^/BUILD$,BUILD," \
         --transform="s,^/META$,META," \
         --transform="s,^/PATCHES,PATCHES," \
-        ${D}/{FILES,BUILD,META} \
+        ${D}/{CONTENT,BUILD,META} \
         ${bee_PATCHFILES:+${D}/PATCHES} \
         ${bee_PATCHFILES:+${D}/PATCHES/*}
 
