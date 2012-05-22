@@ -1,0 +1,30 @@
+Some dependencies we know about:
+
+bash-4:
+  we nee bash version for:
+    - declare -A 
+    - ${var,,}
+    - ${var^^}
+
+tar-1.26:
+  we know this version works, we don't know which version does not work
+  but we need support for (unbroken) --tranform
+  (we will add exact version at a later time)
+
+coreutils:
+  for various small linux tools
+  - env needs to be available as /usr/bin/env
+
+wget:
+  for downloading software
+
+gzip, bzip2, xz, ..:
+  to extract source code archives
+  
+  tar decides which compress utility to use - so any utility
+  supported by your tar is also supported by bee (tar xf)
+
+man:
+  to read our minimalistic manpages 8)
+
+to be continued - please let us know if you find additional dependencies.
