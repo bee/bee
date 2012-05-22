@@ -1,7 +1,6 @@
-for release 1.0:
+fix issues on https://github.com/bee/bee/issues
+
+for release 2.0:
     - search and fix bugs
-    - make build magic overwritable "force configure" ..
-    - auto-triggers to update various databases like mime/icons/mandb
     - auto detect old configure and auto switch to compat mode
-    - add PREFIX-vars to PKG and try to remove them when not used in othe pkg and empty
     - configurable owner/group of files in resulting bee-pkg

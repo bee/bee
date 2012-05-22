@@ -1,0 +1,51 @@
+How to install bee:
+
+   make install
+
+This will install bee to PREFIX=/usr
+
+Change installation prefix:
+
+   make PREFIX=/usr/local install
+
+   Be sure to provide installation prefixes during 
+   make and make install if you want to first build and
+   later install bee 
+   (e.g. make PREFIX=/usr/local && make PREFIX=/usr/local install)
+
+
+Change destination directory for temporary installation 
+and later packaging:
+
+   make DESTDIR=/path/to/destdir PREFIX=/usr/local install
+
+All variables available to change installation directories:
+
+   PREFIX     = /usr
+   EPREFIX    = ${PREFIX}
+   SBINDIR    = ${EPREFIX}/sbin
+   BINDIR     = ${EPREFIX}/bin
+   LIBDIR     = ${EPREFIX}/lib
+   LIBEXECDIR = ${EPREFIX}/libexec
+   DATADIR    = ${PREFIX}/share
+   MANDIR     = ${DATADIR}/man
+   SYSCONFDIR = ${PREFIX}/etc
+   
+   DESTDIR    =
+
+Cleanup build: e.g. after building with wrong prefixes
+
+   make clean
+
+Rebuild and install with new prefix in destdir:
+
+   make clean install PREFIX=/usr/local DESTDIR=/tmp/destdir
+
+Install latest bee with bee (requires git to be installed):
+
+   bee init $(bee download git://github.com/bee/bee.git) \
+            --execute \
+            --prefix=/usr/local
+
+   bee update bee
+

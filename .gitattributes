@@ -1,2 +1,4 @@
 * whitespace=space-before-tab,tab-in-indent,trailing-space,cr-at-eol
 Makefile whitespace=indent-with-non-tab
+.gitignore export-ignore
+.gitattributes export-ignore
