@@ -94,6 +94,7 @@ function show_help() {
 	    -f, --force-install    same as -i; bee_install is invoked with --force
 	    -h, --help             display this help
 	    --no-archive-build     do not archive the build directory
+	    --check                run mee_check, mee_check_pre and mee_check_post
 
 	EOF
 }
@@ -611,6 +612,7 @@ OPTIONS=$(${BEE_BINDIR}/beegetopt --name beesh \
                  --option debug= \
                  --option archive-build \
                  --option no-archive-build \
+                 --option check \
                  -- "$@")
 
 if [ $? != 0 ] ; then
@@ -622,6 +624,7 @@ eval set -- "${OPTIONS}"
 
 : ${OPT_INSTALL:="no"}
 : ${OPT_CLEANUP:="no"}
+: ${OPT_CHECK:="no"}
 : ${OPT_ARCHIVE_BUILD:="yes"}
 
 while true ; do
@@ -654,6 +657,10 @@ while true ; do
             ;;
         --archive-build)
             OPT_ARCHIVE_BUILD="yes"
+            shift
+            ;;
+        --check)
+            OPT_CHECK="yes"
             shift
             ;;
         --debug)
@@ -790,6 +797,11 @@ cd ${B}
 
 bee_run configure
 bee_run build
+
+if [ "${OPT_CHECK}" != "no" ] ; then
+    bee_run check
+fi
+
 bee_run install
 
 print_info "changing to image directory: ${D}"
