@@ -1,0 +1,160 @@
+#!/bin/bash
+#
+# filelist2content - create content file output to specified files
+#
+# Copyright (C) 2009-2012
+#       Tobias Dreyer <dreyer@molgen.mpg.de>
+#       Marius Tolzmann <tolzmann@molgen.mpg.de>
+#       and other bee developers
+#
+# This file is part of bee.
+#
+# bee is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+: ${BEE_GETOPT:=@BINDIR@/beegetopt}
+
+function get_format_string() {
+    local format_string
+
+    format_string="type=\"%F\""
+    format_string="${format_string} mode=%f"
+    format_string="${format_string} uid=%u"
+    format_string="${format_string} user=%U"
+    format_string="${format_string} gid=%g"
+    format_string="${format_string} group=%G"
+    format_string="${format_string} size=%s"
+    format_string="${format_string} mtime=%Y"
+    format_string="${format_string} nlink=%h"
+    format_string="${format_string} inode=%i"
+    format_string="${format_string} major=%t"
+    format_string="${format_string} minor=%T"
+    format_string="${format_string} device=%d"
+
+    echo ${format_string}
+}
+
+function get_type() {
+    local type=${1}
+
+    if [ "${type}" = "symbolic" ] ; then
+        type="symlink"
+    fi
+
+    echo ${type}
+}
+
+function do_f2c() {
+    local filelist=${1}
+    local root=${2}
+    declare -A hardlinks
+
+    if [ ! -r "${filelist}" ] ; then
+        print_error "internal error: failed to read filelist"
+        exit 1
+    fi
+
+    while read filename ; do
+        data=$(stat --format "$(get_format_string)" ${root}${filename})
+
+        if [ "$?" -gt 0 ] ; then
+            echo >&2 "**ERROR** stat failed"
+            exit 1
+        fi
+
+        eval ${data}
+        file=${filename}
+
+        if [ "$?" -gt 0 ] ; then
+            echo >&2 "**ERROR** eval failed"
+            exit 1
+        fi
+
+        type=$(get_type ${type})
+
+        if [ ${nlink} -gt 1 ] ; then
+            key="${inode}-${device}"
+            if [ -z "${hardlinks[${key}]}" ] ; then
+                hardlinks[${key}]=${filename}
+            else
+                type=hardlink
+                file="${file}//${hardlinks[${key}]}"
+            fi
+        fi
+
+        echo -n "type=${type}"
+
+        printf ":mode=0%o" "0x${mode}"
+        printf ":access=0%o" $(( 0x${mode} & 07777 ))
+
+        echo -n ":uid=${uid}"
+        echo -n ":user=${user}"
+        echo -n ":gid=${gid}"
+        echo -n ":group=${group}"
+        echo -n ":size=${size}"
+        echo -n ":mtime=${mtime}"
+        echo -n ":nlink=${nlink}"
+
+        if [ "${type}" = "regular" -o "${type}" = "hardlink" ] ; then
+            md5=$(md5sum ${root}${filename})
+
+            if [ "$?" -gt 0 ] ; then
+                echo >&2 "**ERROR** md5sum failed"
+                exit 1
+            fi
+
+            echo -n ":md5=${md5%% *}"        
+        elif [ "${type}" = "symlink" ] ; then
+            file="${file}//$(readlink ${file})"
+        elif [ "${type}" = "block" -o "${type}" = "char" ] ; then
+            echo -n ":major=${major}"
+            echo -n ":minor=${minor}"
+        fi
+
+        echo -n ":file=${file}"
+        echo ""
+
+    done < "${filelist}"
+}
+
+###############################################################################
+###############################################################################
+###############################################################################
+
+options=$(${BEE_GETOPT} --name filelist2content \
+                 --option root/r= \
+                 -- "${@}")
+
+if [ $? != 0 ] ; then
+    echo >&2 "**ERROR** beegetopt failed"
+    exit 1
+fi
+
+eval set -- "${options}"
+
+declare OPT_ROOT=
+
+while true ; do
+    case "${1}" in
+        --root)
+            OPT_ROOT="${2}"
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+    esac
+done
+
+do_f2c <(cat ${@}) "${OPT_ROOT}"
