@@ -55,7 +55,6 @@ sed-compat-bashlt4 = -e 'sx\$${\([a-zA-Z_]*\),,}x\$$(tr A-Z a-z <<<\$${\1})xg' \
 
 PROGRAMS_C=beeversion beesep beecut beeuniq beesort beegetopt
 PROGRAMS_SHELL=bee beesh beefind
-PROGRAMS_PERL=beefind.pl
 
 HELPER_BEE_SHELL=bee-init bee-check bee-remove bee-install bee-list bee-query bee-download bee-update
 HELPER_BEE_C=bee-dep
@@ -83,7 +82,7 @@ COMPAT_BASHLT4=buildtypes/autogen.sh buildtypes/configure.sh buildtypes/make.sh 
 
 all: build
 
-build: shellscripts buildtypes perlscripts cprograms manpages
+build: shellscripts buildtypes cprograms manpages
 
 compat: compat-bashlt4
 
@@ -104,7 +103,6 @@ bee_MANPAGES=$(addprefix manpages/,${MANPAGES})
 bee_BUILDTYPES=$(addsuffix .sh,$(addprefix buildtypes/,$(BUILDTYPES)))
 
 shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS)) $(LIBRARY_SHELL)
-perlscripts:  $(PROGRAMS_PERL)
 cprograms:    $(PROGRAMS_C) ${HELPER_BEE_C}
 manpages:     ${bee_MANPAGES}
 buildtypes:   ${bee_BUILDTYPES}
@@ -147,7 +145,6 @@ beegetopt: $(addprefix src/, ${BEEGETOPT_OBJECTS})
 
 clean:
 	$(call quiet-command,rm -f $(addsuffix .sh,${SHELLSCRIPTS}) $(LIBRARY_SHELL) $(HELPER_SHELL),"CLEAN	<various>.sh")
-	$(call quiet-command,rm -f ${PROGRAMS_PERL},"CLEAN	${PROGRAMS_PERL}")
 	$(call quiet-command,rm -f ${PROGRAMS_C},"CLEAN	${PROGRAMS_C}")
 	$(call quiet-command,rm -f ${HELPER_BEE_C},"CLEAN	${HELPER_BEE_C}")
 	$(call quiet-command,rm -f src/*.o,"CLEAN	c object files")
@@ -158,7 +155,7 @@ install: install-core install-config
 
 install-core: build install-man install-hooks install-buildtypes install-beeshlib install-tools install-helper install-bin
 
-install-bin: $(addprefix ${DESTDIR}${BINDIR}/,${PROGRAMS_PERL} ${PROGRAMS_C} ${PROGRAMS_SHELL})
+install-bin: $(addprefix ${DESTDIR}${BINDIR}/,${PROGRAMS_C} ${PROGRAMS_SHELL})
 
 install-dir-bindir:
 	$(call quiet-installdir,0755,${DESTDIR}${BINDIR})
