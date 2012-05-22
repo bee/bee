@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# beefind - scan directory and print files and metadata
+# beefind - scan directory and print files
 #
 # Copyright (C) 2009-2012
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
@@ -31,6 +31,7 @@ BEE_VERSION="@BEE_VERSION@"
 
 : ${BEEVERSION:=${BEE_BINDIR}/beeversion}
 : ${BEESEP=${BEE_BINDIR}/beesep}
+: ${BEEGETOPT:=${BEE_BINDIR}/beegetopt}
 
 function usage() {
     cat <<-EOF
@@ -38,70 +39,22 @@ function usage() {
 	  by Tobias Dreyer and Marius Tolzmann <{dreyer,tolzmann}@molgen.mpg.de>
 	     Max Planck Institute for Molecular Genetics Berlin Dahlem
 
-	Usage: beefind [options] <files>
+	Usage: beefind [options] <directory>
 
 	Options:
-	    -c | --cutroot <path>     strip <path> from displayed files
-	    -e | --exclude <pattern>  ignore files matching <pattern>
-	    -s | --skiplist <file>    ignore files matching pattern described in <file>
+	    -c, --cutroot <path>       strip <path> from printed files
+	    -e, --exclude <pattern>    ignore files matching <pattern>
+	    -s, --skiplist <file>      ignore files matching pattern described in <file>
 
-	    -o | --output <file>      output is redirected into <file> instead of <stdout>
-	    -d | --dump-files <file>  read <file> and just display files; <file> must contain
-	                              beefind output
+	    -o, --output <file>        output is redirected into <file> instead of <stdout>
 
-	    -h | --help               display this help
+	    -h, --help                 display this help
 
 	EOF
 }
 
-function dump_files() {
-    local infile=${1}
-
-    if [ ! -r "${infile}" ] ; then
-        print_warning "cannot read file '${infile}'"
-        exit 1
-    fi
-
-    for line in $(cat ${infile}) ; do
-        eval $(${BEESEP} ${line})
-
-        echo ${file%//*}
-    done
-}
-
-function get_md5() {
-    local file=${1}
-
-    if [ -L "${file}" ] ; then
-        md5='link'
-    elif [ -d "${file}" ] ; then
-        md5='directory'
-    elif [ -f "${file}" ] ; then
-        md5=$(md5sum ${file})
-        md5=${md5%% *}
-        if [ "$?" != 0 -o -z "${md5}" ] ; then
-            print_warning "failed to create md5 sum for ${file}"
-            md5='#MD5ERROR#'
-        fi
-    elif [ -p "${file}" ] ; then
-        md5='pipe'
-    elif [ -S "${file}" ] ; then
-        md5='socket'
-    elif [ -b "${file}" ] ; then
-        md5='block'
-    elif [ -c "${file}" ] ; then
-        md5='char'
-    elif [ -S "${file}" ] ; then
-        md5='socket'
-    else
-        md5='#MD5UNKNOWN#'
-    fi
-
-    echo ${md5}
-}
-
 function bee_find() {
-    local options=$(${BEE_BINDIR}/beegetopt --name beefind \
+    local options=$(${BEEGETOPT} --name beefind \
                         --option exclude/e= \
                         --option skiplist/s= \
                         -- "${@}")
@@ -114,7 +67,7 @@ function bee_find() {
     eval set -- "${options}"
 
     declare -a OPT_EXCLUDE
-    declare -a OPT_SKIPLSIT
+    declare -a OPT_SKIPLIST
 
     while true ; do
         case "${1}" in
@@ -134,7 +87,7 @@ function bee_find() {
     done
 
     if [ -z "${1}" ] ; then
-        print_warning "no directory to scan specified"
+        usage
         exit 1
     fi
 
@@ -151,7 +104,7 @@ function bee_find() {
 }
 
 function do_beefind() {
-    local options=$(${BEE_BINDIR}/beegetopt --name beefind \
+    local options=$(${BEEGETOPT} --name beefind \
                         --option cutroot/c= \
                         -- "${@}")
 
@@ -177,44 +130,17 @@ function do_beefind() {
         esac
     done
 
-    for f in $(cat <(bee_find ${@})) ; do
-        md5=$(get_md5 ${f})
-
-        data=( $(stat -c "%05a %h %u %g %s %Y" ${f}) )
-        if [ "$?" != 0 -o -z "${data}" ] ; then
-            print_warning "can't stat ${f}"
-            exit 1
-        fi
-
-        echo -n "md5=${md5}:"
-        echo -n "omode=${data[0]}:"
-        echo -n "nlink=${data[1]}:"
-        echo -n "uid=${data[2]}:"
-        echo -n "gid=${data[3]}:"
-        echo -n "size=${data[4]}:"
-        echo -n "mtime=${data[5]}:"
-
-        filename=${f}
-        if [ -n "${OPT_CUTROOT}" ] ; then
-            filename=${f#${OPT_CUTROOT}}
-        fi
-        echo -n "file=${filename}"
-
-        if [ "${md5}" = "link" ] ; then
-            echo -n "//$(readlink ${f})"
-        fi
-
-        echo ""
-    done
+    while read line ; do
+        echo ${line#${OPT_CUTROOT}}
+    done < <(bee_find ${@})
 }
 
 ###############################################################################
 ###############################################################################
 ###############################################################################
 
-options=$(${BEE_BINDIR}/beegetopt --name beefind \
+options=$(${BEEGETOPT} --name beefind \
                  --option output/o= \
-                 --option dump-files/d= \
                  --option help/h \
                  -- "${@}")
 
@@ -226,16 +152,11 @@ fi
 eval set -- "${options}"
 
 declare OPT_OUTPUT=
-declare OPT_DUMPFILES=
 
 while true ; do
     case "${1}" in
         --output)
             OPT_OUTPUT="${2}"
-            shift 2
-            ;;
-        --dump-files)
-            OPT_DUMPFILES="${2}"
             shift 2
             ;;
         --help)
@@ -254,16 +175,6 @@ if [ -n "${OPT_OUTPUT}" ] ; then
         print_warning "can't write to ${OPT_OUTPUT}"
         exit 1
     fi
-fi
-
-if [ -n "${OPT_DUMPFILES}" ] ; then
-    if [ ! -r "${OPT_DUMPFILES}" ] ; then
-        print_warning "cannot read file '${OPT_DUMPFILES}'"
-        exit 1
-    fi
-
-    dump_files ${OPT_DUMPFILES}
-    exit 0
 fi
 
 do_beefind ${@}
