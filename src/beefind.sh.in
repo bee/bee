@@ -53,8 +53,9 @@ function usage() {
 	EOF
 }
 
-function bee_find() {
+function do_beefind() {
     local options=$(${BEEGETOPT} --name beefind \
+                        --option cutroot/c \
                         --option exclude/e= \
                         --option skiplist/s= \
                         -- "${@}")
@@ -66,11 +67,16 @@ function bee_find() {
 
     eval set -- "${options}"
 
+    declare    find_format="%p\n"
     declare -a OPT_EXCLUDE
     declare -a OPT_SKIPLIST
 
     while true ; do
         case "${1}" in
+            --cutroot)
+                find_format="/%P\n"
+                shift 1
+                ;;
             --exclude)
                 OPT_EXCLUDE=( ${OPT_EXCLUDE:+${OPT_EXCLUDE[@]}} "${2}" )
                 shift 2
@@ -86,53 +92,23 @@ function bee_find() {
         esac
     done
 
-    if [ -z "${1}" ] ; then
+    if [ -z "${@}" ] ; then
         usage
         exit 1
     fi
 
-    find ${1} -mindepth 1 | \
-        grep \
-            --extended-regexp \
-            --invert-match \
-            --file=<(if [ "${#OPT_SKIPLIST[@]}" -gt 0 ] ; then
-                         grep --invert-match --regexp="^ *$" ${OPT_SKIPLIST[@]}
-                     fi) \
-            --file=<(for p in ${OPT_EXCLUDE[@]} ; do
-                         echo ${p}
-                     done)
-}
+    dirs=( "${@}" )
 
-function do_beefind() {
-    local options=$(${BEEGETOPT} --name beefind \
-                        --option cutroot/c= \
-                        -- "${@}")
-
-    if [ $? != 0 ] ; then
-        usage
-        exit 1
-    fi
-
-    eval set -- "${options}"
-
-    declare OPT_CUTROOT=
-
-    while true ; do
-        case "${1}" in
-            --cutroot)
-                OPT_CUTROOT="${2}"
-                shift 2
-                ;;
-            --)
-                shift
-                break
-                ;;
-        esac
-    done
-
-    while read line ; do
-        echo ${line#${OPT_CUTROOT}}
-    done < <(bee_find ${@})
+    grep \
+        --extended-regexp \
+        --invert-match \
+        --file=<(if [ "${#OPT_SKIPLIST[@]}" -gt 0 ] ; then
+                     grep --invert-match --regexp="^ *$" ${OPT_SKIPLIST[@]}
+                 fi) \
+        --file=<(for p in ${OPT_EXCLUDE[@]} ; do
+                     echo ${p}
+                 done) \
+        <(find ${dirs[@]} -mindepth 1 -xdev -printf ${find_format})
 }
 
 ###############################################################################
