@@ -835,6 +835,8 @@ echo
 
 
 if [ "${OPT_INSTALL}" = "yes" ] ; then
+    config_export
+
     print_info "installing ${PKGALLPKG} .."
-    bee install ${OPT_FORCE:+-f} ${OPT_UPDATE:+-u} ${BEE_PKGDIR}/${PKGALLPKG}.bee.tar.bz2
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-install ${OPT_FORCE:+-f} ${OPT_UPDATE:+-u} ${BEE_PKGDIR}/${PKGALLPKG}.bee.tar.bz2
 fi
