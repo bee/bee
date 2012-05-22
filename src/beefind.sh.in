@@ -42,13 +42,13 @@ function usage() {
 	Usage: beefind [options] <directory>
 
 	Options:
-	    -c, --cutroot <path>       strip <path> from printed files
-	    -e, --exclude <pattern>    ignore files matching <pattern>
-	    -s, --skiplist <file>      ignore files matching pattern described in <file>
+	    -c, --cutroot <path>         strip <path> from printed files
+	    -e, --exclude <pattern>      ignore files matching <pattern>
+	    -s, --exclude-list <file>    ignore files matching pattern described in <file>
 
-	    -o, --output <file>        output is redirected into <file> instead of <stdout>
+	    -o, --output <file>          output is redirected into <file> instead of <stdout>
 
-	    -h, --help                 display this help
+	    -h, --help                   display this help
 
 	EOF
 }
@@ -57,7 +57,7 @@ function do_beefind() {
     local options=$(${BEEGETOPT} --name beefind \
                         --option cutroot/c \
                         --option exclude/e= \
-                        --option skiplist/s= \
+                        --option exclude-list/E= \
                         -- "${@}")
 
     if [ $? != 0 ] ; then
@@ -69,7 +69,7 @@ function do_beefind() {
 
     declare    find_format="%p\n"
     declare -a OPT_EXCLUDE
-    declare -a OPT_SKIPLIST
+    declare -a OPT_EXCLUDELIST
 
     while true ; do
         case "${1}" in
@@ -78,11 +78,11 @@ function do_beefind() {
                 shift 1
                 ;;
             --exclude)
-                OPT_EXCLUDE=( ${OPT_EXCLUDE:+${OPT_EXCLUDE[@]}} "${2}" )
+                OPT_EXCLUDE=( "${OPT_EXCLUDE[@]}" "${2}" )
                 shift 2
                 ;;
-            --skiplist)
-                OPT_SKIPLIST=( ${OPT_SKIPLIST:+${OPT_SKIPLIST[@]}} "${2}" )
+            --exclude-list)
+                OPT_EXCLUDELIST=( "${OPT_EXCLUDELIST[@]}" "${2}" )
                 shift 2
                 ;;
             --)
@@ -102,8 +102,8 @@ function do_beefind() {
     grep \
         --extended-regexp \
         --invert-match \
-        --file=<(if [ "${#OPT_SKIPLIST[@]}" -gt 0 ] ; then
-                     grep --invert-match --regexp="^ *$" ${OPT_SKIPLIST[@]}
+        --file=<(if [ "${#OPT_EXCLUDELIST[@]}" -gt 0 ] ; then
+                     grep --invert-match --regexp="^ *$" ${OPT_EXCLUDELIST[@]}
                  fi) \
         --file=<(for p in ${OPT_EXCLUDE[@]} ; do
                      echo ${p}
