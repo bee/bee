@@ -360,11 +360,18 @@ function do_install_file() {
     start_cmd tar -x --dereference -${vv}Pf ${file} \
         ${changedir} \
         --transform="s,^FILES$,${BEE_METADIR}/${pkg}/FILES," \
+        --transform="s,^CONTENT$,${BEE_METADIR}/${pkg}/CONTENT," \
         --transform="s,^BUILD$,${BEE_METADIR}/${pkg}/${beefile}," \
         --transform="s,^META$,${BEE_METADIR}/${pkg}/META," \
         --transform="s,^PATCHES,${BEE_METADIR}/${pkg}/PATCHES," \
         --transform="s,^DEPENDENCIES$,${BEE_METADIR}/${pkg}/DEPENDENCIES," \
         --show-transformed-names
+
+    if [ ! -e "${BEE_METADIR}/${pkg}/CONTENT" ] ; then
+        ${BEE_LIBEXECDIR}/bee/compat-filesfile2contentfile \
+           ${BEE_METADIR}/${pkg}/FILES \
+           >${BEE_METADIR}/${pkg}/CONTENT
+    fi
 
     run_hooks post-install ${pkg}
     ${BEE_LIBEXECDIR}/bee/bee.d/bee-check -d ${pkg} > ${BEE_METADIR}/${pkg}/DEPENDENCIES

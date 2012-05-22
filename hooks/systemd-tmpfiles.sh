@@ -40,7 +40,7 @@ fi
 
 case "${action}" in
     "post-install")
-        if egrep --max-count=1 "file=(/etc|/lib|/usr/lib)/tmpfiles.d" ${BEE_METADIR}/${pkg}/FILES >/dev/null 2>&1 ; then
+        if egrep --max-count=1 "file=(/etc|/lib|/usr/lib)/tmpfiles.d" ${BEE_METADIR}/${pkg}/CONTENT >/dev/null 2>&1 ; then
             systemd-tmpfiles --create
         fi
         ;;

@@ -38,7 +38,7 @@ fi
 
 case "${action}" in
     "post-install")
-        for s in $(grep -o "/.*gconf.*\.schemas" ${BEE_METADIR}/${pkg}/FILES 2>/dev/null) ; do
+        for s in $(grep -o "/.*gconf.*\.schemas" ${BEE_METADIR}/${pkg}/CONTENT 2>/dev/null) ; do
             echo "installing schema '${s##*/}'"
             ${GCONFTOOL} --install-schema-file ${s} >/dev/null
         done

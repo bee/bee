@@ -50,13 +50,13 @@ fi
 
 case "${action}" in
     "post-install")
-        for i in $(grep -o "${PKG_INFODIR}.*\.info.*" ${BEE_METADIR}/${pkg}/FILES 2>/dev/null) ; do
+        for i in $(grep -o "${PKG_INFODIR}.*\.info.*" ${BEE_METADIR}/${pkg}/CONTENT 2>/dev/null) ; do
             echo "adding ${i##*/} to ${DIRFILE}"
             ${INSTALLINFO} ${i} ${DIRFILE} >/dev/null
         done
         ;;
     "pre-remove")
-        for i in $(grep -o "${PKG_INFODIR}.*\.info.*" ${BEE_METADIR}/${pkg}/FILES 2>/dev/null) ; do
+        for i in $(grep -o "${PKG_INFODIR}.*\.info.*" ${BEE_METADIR}/${pkg}/CONTENT 2>/dev/null) ; do
             echo "removing ${i##*/} from ${DIRFILE}"
             ${INSTALLINFO} --delete ${i} ${DIRFILE} >/dev/null
         done

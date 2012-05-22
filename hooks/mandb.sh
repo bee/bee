@@ -44,7 +44,7 @@ fi
 for man_dir in $(beeuniq ${man_dirs//:/ }) ; do
     case "${action}" in
         "post-install")
-            for line in $(grep "file=${man_dir}" ${BEE_METADIR}/${pkg}/FILES) ; do
+            for line in $(grep "file=${man_dir}" ${BEE_METADIR}/${pkg}/CONTENT) ; do
                 eval $(beesep ${line})
                 if [ -f "${file}" -o -L "${file}" ] ; then
                     if  [ -f "/var/cache/man/index.db" ] ; then
@@ -58,7 +58,7 @@ for man_dir in $(beeuniq ${man_dirs//:/ }) ; do
             done
             ;;
         "post-remove")
-            if grep -q "file=${man_dir}" ${BEE_METADIR}/${pkg}/FILES ; then
+            if grep -q "file=${man_dir}" ${BEE_METADIR}/${pkg}/CONTENT ; then
                 echo "updating manual index cache for ${man_dir} .."
                 mandb -q ${man_dir}
             fi

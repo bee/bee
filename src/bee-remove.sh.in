@@ -41,15 +41,9 @@ pkg_remove_all() {
 pkg_remove() {
     search=$1
 
-    # pattern is absolute path to pkg
-    if [ -d "${search}" ] ; then
-        do_remove "${search}"
-        return
-    fi
-
     # pattern is a pkg in BEE_METADIR
     if [ -d "${BEE_METADIR}/${search}" ] ; then
-        do_remove ${BEE_METADIR}/${search}
+        do_remove ${search}
         return
     fi
 
@@ -62,15 +56,21 @@ pkg_remove() {
 do_remove() {
     pkg=${1}
 
-    FILES=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-dep remove --print ${pkg##*/})
+    if [ ! -e "${BEE_METADIR}/${pkg}/CONTENT" ] ; then
+        ${BEE_LIBEXECDIR}/bee/compat-filesfile2contentfile \
+           ${BEE_METADIR}/${pkg}/FILES \
+           >${BEE_METADIR}/${pkg}/CONTENT
+    fi
+
+    FILES=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-dep remove --print ${pkg})
     if [ $? -ne 0 ] ; then
-        echo "removal of ${pkg##*/} failed"
+        echo "removal of ${pkg} failed"
         exit 1
     fi
 
     [ "${NOOP}" != "yes" ] && run_hooks pre-remove ${pkg}
 
-    echo "removing package '${pkg##*/}'"
+    echo "removing package '${pkg}'"
 
     # removing files
     for f in $FILES ; do
@@ -83,8 +83,8 @@ do_remove() {
 
     [ "${NOOP}" != "yes" ] && run_hooks post-remove ${pkg}
 
-    if [ -r "${pkg}/META" ] ; then
-        . ${pkg}/META
+    if [ -r "${BEE_METADIR}/${pkg}/META" ] ; then
+        . "${BEE_METADIR}/${pkg}/META"
     fi
 
     # removing empty basedirs
@@ -97,15 +97,13 @@ do_remove() {
         done
     fi
 
-    #cleaning up meta directory
-    if [ -d "${pkg}" ] ; then
-        ${NOOP:+echo} rm -fr ${OPT_VERBOSE:+-v} ${pkg}
-    fi
+    #cleanup meta directory
+    ${NOOP:+echo} rm -fr ${OPT_VERBOSE:+-v} ${BEE_METADIR}/${pkg}
 }
 
 function run_hooks() {
     local action=${1}
-    local pkg=${2##*/}
+    local pkg=${2}
 
     for t in ${BEE_LIBEXECDIR}/bee/hooks.d/* ; do
         ${t} ${action} ${pkg}
@@ -133,6 +131,7 @@ options=$(${BEE_BINDIR}/beegetopt --name bee-remove \
                  --option verbose/v \
                  --option help/h \
                  -- "$@")
+
 if [ $? != 0 ] ; then
     usage
     exit 1

@@ -36,7 +36,7 @@ fi
 
 for dir in ${XDG_DATA_DIRS//:/ } ; do
     icon_base_dir=${dir}/icons
-    for line in $(grep -h "file=${icon_base_dir}/.*/index.theme" ${BEE_METADIR}/${pkg}/FILES) ; do
+    for line in $(grep -h "file=${icon_base_dir}/.*/index.theme" ${BEE_METADIR}/${pkg}/CONTENT) ; do
         eval $(beesep ${line})
         icon_dir=${file%%/index.theme}
         case "${action}" in
