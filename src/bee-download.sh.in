@@ -116,7 +116,7 @@ function download_git() {
     cd ${tmp_path}/${reponame}
 
     if [ -n "${OPT_COMMIT}" ] ; then
-        git reset ${OPT_COMMIT} >/dev/null 2>&1
+        git checkout ${OPT_COMMIT} >/dev/null 2>&1
     fi
 
     gd=$(git describe --tags --long --always)
