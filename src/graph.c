@@ -189,12 +189,6 @@ int graph_insert_nodes(struct hash *hash, char *filename)
 
         l = p - a + 1;
 
-        if (!l) {
-            fprintf(stderr,
-                    "bee-dep: warning: %s: line %d: missing value "
-                    "for property \"%s\"\n", filename, line_cnt, prop);
-        }
-
         memset(value, '\0', LINE_MAX);
         strncpy(value, a, l * sizeof(char));
 
