@@ -65,9 +65,17 @@ LIBRARY_SHELL=beelib.config.sh
 
 BUILDTYPES=configure cmake autogen perl-module perl-module-makemaker make python-module
 
-HELPER_HOOKS_SHELL=update-mime-database glib-compile-schemas mkfontdir-mkfontscale gtk-update-icon-cache \
-                   ldconfig update-desktop-database gdk-pixbuf-query-loaders mandb systemd-tmpfiles \
-                   gconf-install-schemas info-dir
+HELPER_HOOKS_SHELL=\
+    update-mime-database \
+    glib-compile-schemas \
+    mkfontdir-mkfontscale \
+    gtk-update-icon-cache \
+    ldconfig \
+    update-desktop-database \
+    gdk-pixbuf-query-loaders \
+    mandb \
+    systemd-tmpfiles \
+    gconf-install-schemas
 
 MANPAGES=bee.1 bee-check.1 bee-init.1 bee-install.1 bee-list.1 bee-query.1 bee-remove.1 bee-dep.1 \
          bee-update.1 bee-download.1
