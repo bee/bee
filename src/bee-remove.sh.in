@@ -89,9 +89,34 @@ do_remove() {
 
     # removing empty basedirs
     if [ "${BEEMETAFORMAT}" = "2" ] ; then
-        dirs=$(for var in ${!PKG_*} ; do eval echo \${${var}} ; done | sort -ur)
-        for dir in ${dirs} ; do
-            if [ -d "${dir}" -a -z "$(${BEE_LIBEXECDIR}/bee/bee.d/bee-query ${dir} | head -1)" ] ; then
+        vars=( PREFIX EPREFIX BINDIR SBINDIR LIBEXECDIR SYSCONFDIR \
+               SHAREDSTATEDIR LOCALSTATEDIR LIBDIR INCLUDEDIR \
+               DATAROOTDIR DATADIR INFODIR LOCALEDIR MANDIR DOCDIR )
+        dirs=( $(for var in ${vars[@]} ; do eval echo \${PKG_${var}} ; done | sort -ur) )
+        for dir in "${dirs[@]}" ; do
+            # if dir does not exist -> skip it
+            if [ ! -d "${dir}" ] ; then
+                continue
+            fi
+
+            # if dir does is not part of package -> skip it
+            content_file="${BEE_METADIR}/${pkg}/CONTENT"
+            if ! grep -q -l -E ":file=${dir}(/|$)" "${content_file}" ; then
+                continue
+            fi
+
+            # if dir is not empty -> skip it
+            nlinks=$( stat "${dir}" --printf "%h" )
+            if [ "${nlinks}" -gt 2 ] ; then
+                continue
+            fi
+
+            # dir is empty so let's check if it is still owned by some package
+            # isn't this always true since current package is still available?
+            # this may be fixed automatically once bee query doesn't scan the
+            # filesystem anymore and we have an index db 8)
+            # using bee dep here is currently to slow 8(
+            if [ -z "$(${BEE_LIBEXECDIR}/bee/bee.d/bee-query ${dir} | head -1)" ] ; then
                 ${NOOP:+echo} rmdir ${OPT_VERBOSE:+-v} ${dir}
             fi
         done
