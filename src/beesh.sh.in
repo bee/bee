@@ -478,7 +478,6 @@ function bee_pkg_pack() {
     print_info "${COLOR_CYAN}${pkgfile}"
 
     tar cjvvf ${pkgfile} \
-        -T ${DUMP} \
         --transform="s,${D},," \
         --show-transformed-names \
         --sparse \
@@ -490,7 +489,8 @@ function bee_pkg_pack() {
         --transform="s,^/PATCHES,PATCHES," \
         ${D}/{CONTENT,BUILD,META} \
         ${bee_PATCHFILES:+${D}/PATCHES} \
-        ${bee_PATCHFILES:+${D}/PATCHES/*}
+        ${bee_PATCHFILES:+${D}/PATCHES/*} \
+        -T ${DUMP}
 
     rm ${DUMP}
 
