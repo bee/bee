@@ -137,6 +137,20 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
                         printf(".%s", v->arch);
                     break;
             }
+            if (*p) {
+                switch(*(p+1)) {
+                    case 'x':
+                        if (*(v->subname))
+                            printf("%c%s", *p, v->subname);
+                        p++;
+                        continue;
+                    case 'e':
+                        if (*(v->extraversion))
+                            printf("%c%s", *p, v->extraversion);
+                        p++;
+                        continue;
+                }
+            }
             continue;
         } /* if '%' */
 
