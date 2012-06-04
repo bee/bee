@@ -252,8 +252,12 @@ int main(int argc, char *argv[])
     
     keyvalue = "PKGNAME=%p\n"
                "PKGEXTRANAME=%x\n"
+               "PKGEXTRANAME_UNDERSCORE=%_x\n"
+               "PKGEXTRANAME_DASH=%-x\n"
                "PKGVERSION=( @v )\n"
                "PKGEXTRAVERSION=%e\n"
+               "PKGEXTRAVERSION_UNDERSCORE=%_e\n"
+               "PKGEXTRAVERSION_DASH=%-e\n"
                "PKGREVISION=%r\n"
                "PKGARCH=%a\n"
                "PKGFULLNAME=%P\n"
