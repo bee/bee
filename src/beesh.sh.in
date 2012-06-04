@@ -785,8 +785,9 @@ bee_buildmagic=$(${BEE_BINDIR}/beeuniq ${BEE_BUILDTYPE[@]} \
                                autogen \
                                perl-module \
                                perl-module-makemaker \
+                               python-module \
                                make \
-                               python-module)
+                               )
 
 BEE_BUILDTYPE=""
 for t in ${bee_buildmagic[@]} ; do
