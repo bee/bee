@@ -207,7 +207,8 @@ function bee_list_exact() {
     fi
 
     for p in $(list_beepackages "${filter}" ${1}) ; do
-        if [ "${1}" = "${p}" ] ; then
+        pall=$(@BINDIR@/beeversion --pkgallpkg "${p}")
+        if [ "${1}" = "${pall}" ] ; then
             echo "${p}"
             continue
         fi
