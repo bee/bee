@@ -181,7 +181,7 @@ function pkg_install() {
 
     maxavail=$(${BEE_BINDIR}/beeversion -max ${available[@]})
 
-    fileavail=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --available --display-pathname ${maxavail}) )
+    fileavail=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --available --exact --display-pathname ${maxavail}) )
 
     assert "${#fileavail[@]}" = 1
 
