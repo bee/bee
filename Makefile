@@ -63,7 +63,7 @@ HELPER_SHELL=compat-filesfile2contentfile filelist2content content2filelist
 
 LIBRARY_SHELL=beelib.config.sh
 
-BUILDTYPES=configure cmake autogen perl-module perl-module-makemaker make python-module
+BUILDTYPES=configure cmake autogen perl-module perl-module-makemaker make python-module jb
 
 HELPER_HOOKS_SHELL=\
     update-mime-database \

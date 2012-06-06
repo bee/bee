@@ -787,6 +787,7 @@ bee_buildmagic=$(${BEE_BINDIR}/beeuniq ${BEE_BUILDTYPE[@]} \
                                perl-module-makemaker \
                                python-module \
                                make \
+                               jb \
                                )
 
 BEE_BUILDTYPE=""
