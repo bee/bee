@@ -132,6 +132,7 @@ function do_f2c() {
 ###############################################################################
 
 options=$(${BEE_GETOPT} --name filelist2content \
+                 --no-skip-unknown-option \
                  --option root/r= \
                  -- "${@}")
 
