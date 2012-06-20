@@ -359,7 +359,7 @@ function do_install_file() {
 
     start_cmd tar -x --dereference -${vv}Pf ${file} \
         ${changedir} \
-        --transform="s,^FILES$,${BEE_METADIR}/${pkg}/FILES," \
+        --transform="s,^FILES$,${BEE_METADIR}/${pkg}/CONTENT.FILES," \
         --transform="s,^CONTENT$,${BEE_METADIR}/${pkg}/CONTENT," \
         --transform="s,^BUILD$,${BEE_METADIR}/${pkg}/${beefile}," \
         --transform="s,^META$,${BEE_METADIR}/${pkg}/META," \
@@ -368,9 +368,11 @@ function do_install_file() {
         --show-transformed-names
 
     if [ ! -e "${BEE_METADIR}/${pkg}/CONTENT" ] ; then
+        # create CONTENT from CONTENT.FILES
         ${BEE_LIBEXECDIR}/bee/compat-filesfile2contentfile \
-           ${BEE_METADIR}/${pkg}/FILES \
+           ${BEE_METADIR}/${pkg}/CONTENT.FILES \
            >${BEE_METADIR}/${pkg}/CONTENT
+        rm ${BEE_METADIR}/${pkg}/CONTENT.FILES
     fi
 
     run_hooks post-install ${pkg}
