@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# Fix deprecated stuff in METADIR
+#
+# Copyright (C) 2012
+#       Marius Tolzmann <tolzmann@molgen.mpg.de>
+#       and other bee developers
+#
+# This file is part of bee.
+#
+# bee is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+: ${BEE_LIBEXECDIR=@LIBEXECDIR@}
+
+function fix_deprecated_FILES_file() {
+   local dir=${1}
+   local ff
+   local pkg
+   local cf
+
+   for ff in $(find ${dir} \
+                     -mindepth 2 \
+                     -maxdepth 2 \
+                     -type f \
+                     -name FILES \
+                     -printf "%P\n") ; do
+
+        pkg=${ff%/FILES}
+        cf="${pkg}/CONTENT"
+
+        if [ ! -e "${dir}/${cf}" ] ; then
+            ${BEE_LIBEXECDIR}/bee/compat-filesfile2contentfile \
+               "${dir}/${ff}" \
+               >"${dir}/${cf}.$$"
+            mv "${dir}/${cf}.$$" "${dir}/${cf}"
+        fi
+        mv "${dir}/${ff}" "${dir}/${ff}.deprecated"
+    done
+}
+
+############################################################################
+
+metadirs=( "${@}" )
+
+: ${metadirs=${BEE_METADIR}}
+
+if [ -z "${metadirs}" ] ; then
+    echo >&2 "$0: BEE_METADIR not set"
+    exit 1
+fi
+
+for dir in "${metadirs[@]}" ; do
+    if [ ! -d "${dir}" ] ; then
+        continue
+    fi
+    fix_deprecated_FILES_file "${dir}"
+done

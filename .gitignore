@@ -27,6 +27,7 @@
 /bee-dep.1
 /beefind.sh
 /compat-filesfile2contentfile.sh
+/compat-fixmetadir.sh
 /content2filelist.sh
 /filelist2content.sh
 /buildtypes/*.sh

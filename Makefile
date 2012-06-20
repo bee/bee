@@ -59,7 +59,7 @@ PROGRAMS_SHELL=bee beesh beefind
 HELPER_BEE_SHELL=bee-init bee-check bee-remove bee-install bee-list bee-query bee-download bee-update
 HELPER_BEE_C=bee-dep
 
-HELPER_SHELL=compat-filesfile2contentfile filelist2content content2filelist
+HELPER_SHELL=compat-filesfile2contentfile filelist2content content2filelist compat-fixmetadir
 
 LIBRARY_SHELL=beelib.config.sh
 
