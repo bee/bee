@@ -66,12 +66,6 @@ pkg_check_deps() {
 
     if [ "${installed}" ] ; then
         for pkg in ${installed} ; do
-            if [ ! -e "${BEE_METADIR}/${pkg}/CONTENT" ] ; then
-                ${BEE_LIBEXECDIR}/bee/compat-filesfile2contentfile \
-                    ${BEE_METADIR}/${pkg}/FILES \
-                    >${BEE_METADIR}/${pkg}/CONTENT
-            fi
-
             do_check_deps "${pkg}"
         done
     fi
@@ -90,11 +84,6 @@ pkg_check() {
 
     if [ "${installed}" ] ; then
         for pkg in ${installed} ; do
-            if [ ! -e "${BEE_METADIR}/${pkg}/CONTENT" ] ; then
-                ${BEE_LIBEXECDIR}/bee/compat-filesfile2contentfile \
-                    ${BEE_METADIR}/${pkg}/FILES \
-                    >${BEE_METADIR}/${pkg}/CONTENT
-            fi
             do_check "${pkg}"
         done
         return 0

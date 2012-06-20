@@ -56,12 +56,6 @@ pkg_remove() {
 do_remove() {
     pkg=${1}
 
-    if [ ! -e "${BEE_METADIR}/${pkg}/CONTENT" ] ; then
-        ${BEE_LIBEXECDIR}/bee/compat-filesfile2contentfile \
-           ${BEE_METADIR}/${pkg}/FILES \
-           >${BEE_METADIR}/${pkg}/CONTENT
-    fi
-
     FILES=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-dep remove --print ${pkg})
     if [ $? -ne 0 ] ; then
         echo "removal of ${pkg} failed"
