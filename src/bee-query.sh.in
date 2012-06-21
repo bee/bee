@@ -65,12 +65,6 @@ query() {
 get_files() {
     pkg=${1}
 
-    if [ ! -e "${BEE_METADIR}/${pkg}/CONTENT" ] ; then
-        ${BEE_LIBEXECDIR}/bee/compat-filesfile2contentfile \
-           ${BEE_METADIR}/${pkg}/FILES \
-           >${BEE_METADIR}/${pkg}/CONTENT
-    fi
-
     for s in "" "${BEE_METADIR}" ; do
         ff="${s}/${pkg}/CONTENT"
         if [ -e "${ff}" ] ; then
@@ -86,11 +80,6 @@ get_pkgs() {
     f=$1
 
     for pkg in $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed) ; do
-        if [ ! -e "${BEE_METADIR}/${pkg}/CONTENT" ] ; then
-            ${BEE_LIBEXECDIR}/bee/compat-filesfile2contentfile \
-               ${BEE_METADIR}/${pkg}/FILES \
-               >${BEE_METADIR}/${pkg}/CONTENT
-        fi
 
         if egrep -q "file=.*${f}" ${BEE_METADIR}/${pkg}/CONTENT ; then
             echo ${pkg}

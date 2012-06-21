@@ -168,6 +168,10 @@ search_tool_cmd ${TOOL}
 
 if [ ! -z  "${CMD}" ] ; then
     shift
+
+    # remove this for >= 2.0 ?? since this is compat mode for pre 1.0
+    ${BEE_LIBEXECDIR}/bee/compat-fixmetadir ${BEE_METADIR}
+
     exec ${CMD} "${@}"
     exit 1
 fi
