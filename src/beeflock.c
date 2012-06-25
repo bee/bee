@@ -260,6 +260,11 @@ int main(int argc, char *argv[])
        BEE_EXIT(USAGE);
     }
 
+    res = setenv("BEE_BEEFLOCK_LOCKEDFILE", lockfilename, 0);
+    if (res < 0) {
+        BEE_EXIT(OSERR);
+    }
+
     fd = bee_flock(lockfilename, operation, 0);
     if (fd < 0) {
         BEE_EXIT(SOFTWARE);
