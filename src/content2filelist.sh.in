@@ -22,23 +22,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-: ${BEESEP=@BINDIR@/beesep}
-
-while read line ; do
-    unset type
-    data=$(${BEESEP} ${line})
-
-    if [ "$?" -gt 0 ] ; then
-        echo >&2 "**ERROR** INVALID CONTENT: ${line}"
-        exit 1
-    fi
-
-    eval ${data}
-
-    if [ "$?" -gt 0 -o -z "${type}" ] ; then
-        echo >&2 "**ERROR** UNPARSABLE CONTENT: ${line}"
-        exit 1
-    fi
-
-    echo ${file%//*}
-done < <(cat ${@})
+cat ${@} | sed \
+   -e 's,^.*:file=,,' \
+   -e 's,\(^.*\)//.*$,\1,'
