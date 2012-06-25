@@ -480,7 +480,9 @@ function bee_pkg_pack() {
 
     DUMP=${BEE_TMP_TMPDIR}/bee.$$.dump
 
-    ${BEE_LIBEXECDIR}/bee/content2filelist ${D}/CONTENT | sed -e "s,^,${D}," - > ${DUMP}
+    ${BEE_LIBEXECDIR}/bee/content2filelist > ${DUMP} \
+        --prepend="${D}" \
+        ${D}/CONTENT
 
     if [ ! -s "${D}/CONTENT" ]; then
         print_error "ERROR: empty image directory"
