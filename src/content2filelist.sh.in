@@ -22,6 +22,59 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-cat ${@} | sed \
-   -e 's,^.*:file=,,' \
-   -e 's,\(^.*\)//.*$,\1,'
+: ${BEE_BINDIR=@BINDIR@}
+
+options=$(${BEE_BINDIR}/beegetopt --name content2filelist \
+                 --option append/a= \
+                 --option prepend/p= \
+                 --option sort/s: \
+                 -- "$@")
+
+if [ $? != 0 ] ; then
+  exit 1
+fi
+
+eval set -- "${options}"
+
+declare append=""
+declare prepend=""
+declare sortopts=""
+declare -i opt_sort=0
+declare dosort=""
+
+while true ; do
+  case "$1" in
+    --append)
+      append=${2}
+      shift 2
+      ;;
+    --prepend)
+      prepend=${2}
+      shift 2
+      ;;
+    --sort)
+      opt_sort=1
+      sortopts=${2}
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+  esac
+done
+
+function do_convert()
+{
+    cat "${@}" | sed \
+       -e 's,^.*:file=,,' \
+       -e 's,\(^.*\)//.*$,\1,' \
+       -e "s,^,${prepend}," \
+       -e "s,\$,${append},"
+}
+
+if [ "${opt_sort}" = "1" ] ; then
+    do_convert "${@}" | sort ${sortopts}
+else
+    do_convert "${@}"
+fi
