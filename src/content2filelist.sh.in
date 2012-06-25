@@ -22,23 +22,59 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-: ${BEESEP=@BINDIR@/beesep}
+: ${BEE_BINDIR=@BINDIR@}
 
-while read line ; do
-    unset type
-    data=$(${BEESEP} ${line})
+options=$(${BEE_BINDIR}/beegetopt --name content2filelist \
+                 --option append/a= \
+                 --option prepend/p= \
+                 --option sort/s: \
+                 -- "$@")
 
-    if [ "$?" -gt 0 ] ; then
-        echo >&2 "**ERROR** INVALID CONTENT: ${line}"
-        exit 1
-    fi
+if [ $? != 0 ] ; then
+  exit 1
+fi
 
-    eval ${data}
+eval set -- "${options}"
 
-    if [ "$?" -gt 0 -o -z "${type}" ] ; then
-        echo >&2 "**ERROR** UNPARSABLE CONTENT: ${line}"
-        exit 1
-    fi
+declare append=""
+declare prepend=""
+declare sortopts=""
+declare -i opt_sort=0
+declare dosort=""
 
-    echo ${file%//*}
-done < <(cat ${@})
+while true ; do
+  case "$1" in
+    --append)
+      append=${2}
+      shift 2
+      ;;
+    --prepend)
+      prepend=${2}
+      shift 2
+      ;;
+    --sort)
+      opt_sort=1
+      sortopts=${2}
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+  esac
+done
+
+function do_convert()
+{
+    cat "${@}" | sed \
+       -e 's,^.*:file=,,' \
+       -e 's,\(^.*\)//.*$,\1,' \
+       -e "s,^,${prepend}," \
+       -e "s,\$,${append},"
+}
+
+if [ "${opt_sort}" = "1" ] ; then
+    do_convert "${@}" | sort ${sortopts}
+else
+    do_convert "${@}"
+fi
