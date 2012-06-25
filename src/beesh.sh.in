@@ -478,12 +478,6 @@ function bee_pkg_pack() {
                ${D} | \
                    ${BEE_LIBEXECDIR}/bee/filelist2content --root ${D} > ${D}/CONTENT
 
-    DUMP=${BEE_TMP_TMPDIR}/bee.$$.dump
-
-    ${BEE_LIBEXECDIR}/bee/content2filelist > ${DUMP} \
-        --prepend="${D}" \
-        ${D}/CONTENT
-
     if [ ! -s "${D}/CONTENT" ]; then
         print_error "ERROR: empty image directory"
         exit 1
@@ -523,9 +517,9 @@ function bee_pkg_pack() {
         ${D}/{CONTENT,BUILD,META} \
         ${bee_PATCHFILES:+${D}/PATCHES} \
         ${bee_PATCHFILES:+${D}/PATCHES/*} \
-        -T ${DUMP}
-
-    rm ${DUMP}
+        -T <( ${BEE_LIBEXECDIR}/bee/content2filelist \
+                --prepend="${D}" \
+                ${D}/CONTENT )
 
     beefilename=${BEE##*/}
     beefiledest=${BEE_BEEDIR}/${beefilename}
