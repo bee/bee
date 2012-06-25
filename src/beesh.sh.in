@@ -40,6 +40,8 @@ VERSION=${BEE_VERSION}
 : ${BEE_BINDIR:=@BINDIR@}
 
 : ${BEEFIND:=${BEE_BINDIR}/beefind}
+: ${BEEVERSION:=${BEE_BINDIR}/beeversion}
+: ${BEESORT:=${BEE_BINDIR}/beesort}
 
 # load libs
 . ${BEE_LIBEXECDIR}/bee/beelib.config.sh
@@ -110,6 +112,35 @@ function require_version() {
         print_error "this bee-file requires at least bee v${1} .."
         exit 1;
     fi
+}
+
+function check_rebuild() {
+    local beefile=${1}
+    local beepkgallpkg=${2}
+
+    if [ -f "${BEE_PKGDIR}/${beepkgallpkg}.bee.tar.bz2" ] ; then
+        print_warning "package already exists: ${BEE_PKGDIR}/${beepkgallpkg}.bee.tar.bz2"
+    elif [ -f "${BEE_BEEDIR}/${beefile##*/}" ] ; then
+        print_warning "bee-file already exists: ${BEE_BEEDIR}/${beefile##*/}"
+    else
+        return 0
+    fi
+
+    print_warning "please increase revision number"
+
+    beefile_dir=${beefile%/*}
+    eval $(${BEEVERSION} ${beefile}})
+
+    beefile_pattern="${PKGFULLNAME}-${PKGFULLVERSION}"
+    beefile_max=$(for bf in $(ls ${beefile%/*}/${beefile_pattern}*.bee ${BEE_BEEDIR}/${beefile_pattern}*.bee |\
+                              grep -E "/${beefile_pattern}-[0-9]+.bee") ; do
+                      echo "${bf}"
+                  done | ${BEESORT} | tail -1)
+
+    eval $(${BEEVERSION} ${beefile_max})
+    print_warning "cp ${beefile} ${PWD}/${beefile_pattern}-$((PKGREVISION + 1)).bee"
+
+    exit 1
 }
 
 function check_repositories() {
@@ -447,10 +478,6 @@ function bee_pkg_pack() {
                ${D} | \
                    ${BEE_LIBEXECDIR}/bee/filelist2content --root ${D} > ${D}/CONTENT
 
-    DUMP=${BEE_TMP_TMPDIR}/bee.$$.dump
-
-    ${BEE_LIBEXECDIR}/bee/content2filelist ${D}/CONTENT | sed -e "s,^,${D}," - > ${DUMP}
-
     if [ ! -s "${D}/CONTENT" ]; then
         print_error "ERROR: empty image directory"
         exit 1
@@ -490,9 +517,9 @@ function bee_pkg_pack() {
         ${D}/{CONTENT,BUILD,META} \
         ${bee_PATCHFILES:+${D}/PATCHES} \
         ${bee_PATCHFILES:+${D}/PATCHES/*} \
-        -T ${DUMP}
-
-    rm ${DUMP}
+        -T <( ${BEE_LIBEXECDIR}/bee/content2filelist \
+                --prepend="${D}" \
+                ${D}/CONTENT )
 
     beefilename=${BEE##*/}
     beefiledest=${BEE_BEEDIR}/${beefilename}
@@ -761,6 +788,8 @@ config_handle_deprecated_beefile
 expand_prefix_variables
 
 ###############################################################################
+
+check_rebuild "${BEE}" "${PKGALLPKG}"
 
 print_info "current working directory: ${PWD}"
 
