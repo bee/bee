@@ -53,7 +53,7 @@ sed-compat-bashlt4 = -e 'sx\$${\([a-zA-Z_]*\),,}x\$$(tr A-Z a-z <<<\$${\1})xg' \
                      -e 'sx\$${\([a-zA-Z_]*\)^^}x\$$(tr a-z A-Z <<<\$${\1})xg'
 
 
-PROGRAMS_C=beeversion beesep beecut beeuniq beesort beegetopt beeflock
+PROGRAMS_C=beeversion beesep beecut beeuniq beesort beegetopt beeflock bee-cache-inventory
 PROGRAMS_SHELL=bee beesh beefind
 
 HELPER_BEE_SHELL=bee-init bee-check bee-remove bee-install bee-list bee-query bee-download bee-update
@@ -107,6 +107,7 @@ BEESORT_OBJECTS=bee_tree.o bee_version_compare.o bee_version_output.o bee_versio
 BEEDEP_OBJECTS=bee-dep.o graph.o hash.o beedep_tree.o node.o
 BEEGETOPT_OBJECTS=bee_getopt.o beegetopt.o
 BEEFLOCK_OBJECTS=bee_getopt.o beeflock.o
+BEECACHEINVENTORY_OBJECTS=bee-cache-inventory.o bee_getopt.o
 
 bee_MANPAGES=$(addprefix manpages/,${MANPAGES})
 bee_BUILDTYPES=$(addsuffix .sh,$(addprefix buildtypes/,$(BUILDTYPES)))
@@ -139,6 +140,9 @@ beegetopt: $(addprefix src/, ${BEEGETOPT_OBJECTS})
 
 beeflock: $(addprefix src/, ${BEEFLOCK_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
+
+bee-cache-inventory: $(addprefix src/, ${BEECACHEINVENTORY_OBJECTS})
+	$(call quiet-command,${CC} ${LDFLAGS} -lcrypt -o $@ $^,"LD	$@")
 
 %.o: %.c
 	$(call quiet-command,${CC} ${CFLAGS} -o $@ -c $^,"CC	$@")
