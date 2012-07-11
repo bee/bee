@@ -342,7 +342,7 @@ int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
     while((dirent = readdir(dir)) != NULL) {
         dirname = dirent->d_name;
 
-        if(strcmp(dirname, ".") == 0 || strcmp(dirname, "..") == 0)
+        if (*dirname == '.')
             continue;
 
         length = strlen(path) + 1 + strlen(dirname) + 1 + strlen("CONTENT") + 1;
