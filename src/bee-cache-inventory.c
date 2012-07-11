@@ -44,6 +44,8 @@
 #define ISFILE 1
 #define ISDIR  2
 
+#define BEE_STATIC_INLINE __attribute__((always_inline)) static inline
+
 /* <pkg> <mtime> <uid> <gid> <mode> <size> <md5/md5 of symlink destination/type> <file without link destination> */
 struct item {
     char *data;
@@ -145,33 +147,45 @@ int substitute(char *data, char from, char to)
     return 1;
 }
 
-#define EXTRACT_PATTERN(p, string, fallback, pattern) do { \
-                                                p = strstr(string, pattern); \
-                                                if(p == NULL) { \
-                                                    p = strstr(fallback, pattern); \
-                                                } \
-                                                if(p == NULL) { \
-                                                    fprintf(stderr, "syntax error in line '%s': no field named %s found\n", fallback, pattern); \
-                                                    free(fallback); \
-                                                    return 0; \
-                                                } \
-                                            } while(0);
+BEE_STATIC_INLINE char *_extract_pattern(struct item *item, char **dest, char *hint, char *pattern, char size, int failok)
+{
+    char *p;
+
+    p = strstr(hint, pattern);
+    if (!p)
+       p = strstr(item->data, pattern);
+    if (!p) {
+       if (failok)
+           return NULL;
+       fprintf(stderr, "syntax error while searching '%s' in '%s'\n", item->data, pattern);
+       free(item->data);
+       item->data = NULL;
+       return NULL;
+    }
+    p += size;
+    *dest = p;
+    return p;
+}
+
+#define EXTRACT_PATTERN(item, dest, hint, size, failok) \
+        ((hint) = _extract_pattern((item), &((item)->dest), (hint), #dest "=", (size)+1, (failok)))
 
 int do_separation(char *line, struct item *item)
 {
     char *p = NULL;
 
     /* type,mode,access,uid,user,gid,group,size,mtime,nlink,md5,file(//dest) */
-
     item->data = strdup(line);
     if(item->data == NULL) {
         fprintf(stderr, "failed to duplicate data: %s\n", strerror(errno));
         return 0;
     }
 
-    EXTRACT_PATTERN(p, item->data, item->data, ":file=")
-    item->filename = p + 6;
-    *p = '\0';
+    p = _extract_pattern(item, &(item->filename), item->data, ":file=", 6, 0);
+    if (!p)
+       return 0;
+
+    *(p-6) = 0;
 
     /* get possible symlink destination */
     p = strstr(item->filename, "//");
@@ -180,28 +194,20 @@ int do_separation(char *line, struct item *item)
         *p = '\0';
     }
 
-    EXTRACT_PATTERN(p, item->data, item->data, "type=")
-    item->type = p + 5;
-
-    EXTRACT_PATTERN(p, p, item->data, "mode=")
-    item->mode = p + 5;
-
-    EXTRACT_PATTERN(p, p, item->data, "uid=")
-    item->uid = p + 4;
-
-    EXTRACT_PATTERN(p, p, item->data, "gid=")
-    item->gid = p + 4;
-
-    EXTRACT_PATTERN(p, p, item->data, "size=")
-    item->size = p + 5;
-
-    EXTRACT_PATTERN(p, p, item->data, "mtime=")
-    item->mtime = p + 6;
-
-    p = strstr(item->data, "md5=");
-    if(p != NULL) {
-        item->md5 = p + 4;
-    }
+    p = item->data;
+    if (!EXTRACT_PATTERN(item, type, p, 4, 0))
+        return 0;
+    if (!EXTRACT_PATTERN(item, mode, p, 4, 0))
+        return 0;
+    if (!EXTRACT_PATTERN(item, uid, p, 3, 0))
+        return 0;
+    if (!EXTRACT_PATTERN(item, gid, p, 3, 0))
+        return 0;
+    if (!EXTRACT_PATTERN(item, size, p, 4, 0))
+        return 0;
+    if (!EXTRACT_PATTERN(item, mtime, p, 5, 0))
+        return 0;
+    EXTRACT_PATTERN(item, md5, p, 3, 1);
 
     substitute(item->data, ':', '\0');
 
