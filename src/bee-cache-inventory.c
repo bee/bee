@@ -118,16 +118,14 @@ int init_inventory_meta(struct inventory_meta *meta)
     return 1;
 }
 
-int chomp(char *line)
+short chomp(char *line)
 {
-    char *newline = NULL;
-
-    if(line == NULL)
-        return 0;
+    char *newline;
 
     newline = strrchr(line, '\n');
+    assert(newline);
 
-    if(newline == NULL)
+    if (!newline)
         return 0;
 
     *newline = '\0';
