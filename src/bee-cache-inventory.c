@@ -158,7 +158,6 @@ BEE_STATIC_INLINE char *_extract_pattern(struct item *item, char **dest, char *h
        if (failok)
            return NULL;
        fprintf(stderr, "syntax error while searching '%s' in '%s'\n", item->data, pattern);
-       free(item->data);
        item->data = NULL;
        return NULL;
     }
@@ -175,11 +174,7 @@ int do_separation(char *line, struct item *item)
     char *p = NULL;
 
     /* type,mode,access,uid,user,gid,group,size,mtime,nlink,md5,file(//dest) */
-    item->data = strdup(line);
-    if(item->data == NULL) {
-        fprintf(stderr, "failed to duplicate data: %s\n", strerror(errno));
-        return 0;
-    }
+    item->data = line;
 
     p = _extract_pattern(item, &(item->filename), item->data, ":file=", 6, 0);
     if (!p)
@@ -301,7 +296,6 @@ int inventarize_file(char *path, struct inventory_meta meta, FILE *outfile)
 
         print_item(outfile, item, meta);
 
-        free(item.data);
         init_item(&item);
     }
 
