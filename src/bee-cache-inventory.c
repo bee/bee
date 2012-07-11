@@ -236,6 +236,9 @@ int print_item(FILE *out, struct item item, struct inventory_meta meta)
     fputs(item.gid, out);
 
     fputc(' ', out);
+    fputs(item.mode, out);
+
+    fputc(' ', out);
     fputs(item.size, out);
 
     if(item.md5) {
