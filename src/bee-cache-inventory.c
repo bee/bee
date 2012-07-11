@@ -362,7 +362,7 @@ int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
 
         snprintf(buf, bufsize, "%s/%s/CONTENT", path, dirname);
 
-        meta.package = strdup(dirname);
+        meta.package = dirname;
 
         out = outfile;
         if (!out && meta.outfile) {
@@ -375,7 +375,6 @@ int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
             if (meta.multiplefiles && packagename) {
                 if (asprintf(&filename, "%s/%s.inv", meta.outfile, packagename) < 0) {
                     fprintf(stderr, "failed to create filename %s: %m\n", filename);
-                    free(meta.package);
                     closedir(dir);
                     return 0;
                 }
@@ -385,12 +384,10 @@ int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
             if (!out) {
                 fprintf(stderr, "failed to open '%s' for appending: %m\n", filename);
                 free(filename);
-                free(meta.package);
                 closedir(dir);
                 return 0;
             }
         } else if (!out) {
-            free(meta.package);
             closedir(dir);
             return 0;
         }
@@ -399,13 +396,11 @@ int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
             fprintf(stderr, "inventarization of '%s' failed\n", buf);
             free(buf);
             free(filename);
-            free(meta.package);
             closedir(dir);
             if (!outfile)
                 fclose(out);
             return 0;
         }
-        free(meta.package);
     }
 
     free(buf);
