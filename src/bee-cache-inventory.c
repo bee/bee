@@ -334,12 +334,13 @@ int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
     char *packagename = NULL;
     char *filename    = NULL;
 
-    if((dir = opendir(path)) == NULL) {
-        fprintf(stderr, "failed to open '%s': %s", path, strerror(errno));
+    dir = opendir(path);
+    if (!dir) {
+        fprintf(stderr, "failed to open '%s': %m", path);
         return 0;
     }
 
-    while((dirent = readdir(dir)) != NULL) {
+    while ((dirent = readdir(dir))) {
         dirname = dirent->d_name;
 
         if (*dirname == '.')
@@ -349,8 +350,9 @@ int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
         if(length > bufsize) {
             free(buf);
 
-            if((buf = calloc(length, sizeof(char))) == NULL) {
-                fprintf(stderr, "failed to allocate memory: %s", strerror(errno));
+            buf = calloc(length, sizeof(char));
+            if (!buf) {
+                fprintf(stderr, "failed to allocate memory: %m");
                 closedir(dir);
                 return 0;
             }
@@ -363,42 +365,43 @@ int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
         meta.package = strdup(dirname);
 
         out = outfile;
-        if(!out && meta.outfile) {
+        if (!out && meta.outfile) {
             packagename = meta.package;
-            if(!meta.package) {
+            if (!meta.package) {
                 packagename = "content";
             }
 
             filename = meta.outfile;
-            if(meta.multiplefiles && packagename) {
-                if(asprintf(&filename, "%s/%s.inv", meta.outfile, packagename) < 0) {
-                    fprintf(stderr, "failed to create filename %s: %s\n", filename, strerror(errno));
+            if (meta.multiplefiles && packagename) {
+                if (asprintf(&filename, "%s/%s.inv", meta.outfile, packagename) < 0) {
+                    fprintf(stderr, "failed to create filename %s: %m\n", filename);
                     free(meta.package);
                     closedir(dir);
                     return 0;
                 }
             }
 
-            if((out = fopen(filename, "w")) == NULL) {
-                fprintf(stderr, "failed to open '%s' for appending: %s\n", filename, strerror(errno));
+            out = fopen(filename, "w");
+            if (!out) {
+                fprintf(stderr, "failed to open '%s' for appending: %m\n", filename);
                 free(filename);
                 free(meta.package);
                 closedir(dir);
                 return 0;
             }
-        } else if(!out) {
+        } else if (!out) {
             free(meta.package);
             closedir(dir);
             return 0;
         }
 
-        if(!inventarize_file(buf, meta, out)) {
+        if (!inventarize_file(buf, meta, out)) {
             fprintf(stderr, "inventarization of '%s' failed\n", buf);
             free(buf);
             free(filename);
             free(meta.package);
             closedir(dir);
-            if(!outfile)
+            if (!outfile)
                 fclose(out);
             return 0;
         }
@@ -407,7 +410,7 @@ int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
 
     free(buf);
     closedir(dir);
-    if(!outfile)
+    if (!outfile)
         fclose(out);
 
     return 1;
