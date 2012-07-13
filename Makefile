@@ -142,10 +142,10 @@ beeflock: $(addprefix src/, ${BEEFLOCK_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 bee-cache-inventory: $(addprefix src/, ${BEECACHEINVENTORY_OBJECTS})
-	$(call quiet-command,${CC} ${LDFLAGS} -lcrypt -o $@ $^,"LD	$@")
+	$(call quiet-command,${CC} ${LDFLAGS} -pg -lcrypt -o $@ $^,"LD	$@")
 
 %.o: %.c
-	$(call quiet-command,${CC} ${CFLAGS} -o $@ -c $^,"CC	$@")
+	$(call quiet-command,${CC} ${CFLAGS} -pg -o $@ -c $^,"CC	$@")
 
 %.sh: src/%.sh.in
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
