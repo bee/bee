@@ -224,7 +224,8 @@ do_check_deps() {
 ##
 do_check() {
     local pkg=${1}
-
+    local stat
+    local full
     local filesfile=${BEE_METADIR}/${pkg}/CONTENT
 
     echo "checking ${pkg} .."
@@ -257,17 +258,33 @@ do_check() {
         if [ "${type}" = "directory" ] ; then
             if [ ! -d "${file}" ] ; then
                 echo "  [changed] <was directory> ${file}"
+                continue
             fi
-            continue
+        else
+            # regular file - check md5sum..
+            md5now=$(md5sum ${file} | sed -e 's,^\([a-z0-9]*\).*$,\1,')
+
+            if [ "${md5}" != "${md5now}" ] ; then
+                echo "  [changed] <md5 ${md5} != ${md5now}> ${file}"
+            fi
         fi
 
-        # regular file - check md5sum..
+        # check mode, uid and gid of directory/file
 
-        md5now=$(md5sum ${file} | sed -e 's,^\([a-z0-9]*\).*$,\1,')
+        stat=( $(stat ${file} --printf "%f %u %g %U %G") )
 
-        if [ "${md5}" != "${md5now}" ] ; then
-            echo "  [changed] <${md5} != ${md5now}> ${file}"
-            continue
+        full=$(printf "0%o" 0x${stat[0]})
+
+        if [ "${mode}" != "${full}" ] ; then
+            echo "  [changed] <mode ${mode} != ${full}> ${file}"
+        fi
+
+        if [ "${uid}" != "${stat[1]}" ] ; then
+            echo "  [changed] <uid ${uid} (${user}) != ${stat[1]} (${stat[3]})> ${file}"
+        fi
+
+        if [ "${gid}" != "${stat[2]}" ] ; then
+            echo "  [changed] <gid ${gid} (${group}) != ${stat[2]} (${stat[4])})> ${file}"
         fi
     done
 
