@@ -289,7 +289,7 @@ int inventarize_file(char *path, struct inventory_meta meta, FILE *outfile)
     while(fgets(line, LINE_MAX, cf) != NULL) {
         chomp(line);
         if(! do_separation(line, &item)) {
-            fprintf(stderr, "failed to separate '%s'\n", line);
+            fprintf(stderr, "bee-cache-inventory: syntax error in '%s'\n", line);
             fclose(cf);
             return 0;
         }
@@ -387,7 +387,7 @@ int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
         }
 
         if (!inventarize_file(buf, meta, out)) {
-            fprintf(stderr, "inventarization of '%s' failed\n", buf);
+            fprintf(stderr, "bee-cache-inventory: %s: Inventarization failed\n", buf);
             free(buf);
             free(filename);
             closedir(dir);
@@ -576,7 +576,7 @@ int main(int argc, char *argv[])
     meta.infile = argv[0];
 
     if(!inventarize(meta)) {
-        fprintf(stderr, "inventarization failed for '%s'\n", meta.infile);
+        fprintf(stderr, "bee-cache-inventory: %s: Inventarization failed\n", meta.infile);
         return 1;
     }
 
