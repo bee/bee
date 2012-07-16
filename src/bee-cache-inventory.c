@@ -238,11 +238,10 @@ int print_item(FILE *out, struct item item, struct inventory_meta meta)
     fputc(' ', out);
     fputs(item.size, out);
 
+    fputc(' ', out);
     if(item.md5) {
-        fputc(' ', out);
         fputs(item.md5, out);
     } else if(strcmp(item.type, "symlink") == 0) {
-        fputc(' ', out);
         c = item.destination;
         while(*c != '\0') {
             if(*c == '%')
@@ -255,7 +254,6 @@ int print_item(FILE *out, struct item item, struct inventory_meta meta)
             c++;
         }
     } else {
-        fputc(' ', out);
         fputs(item.type, out);
     }
 
