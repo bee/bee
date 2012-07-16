@@ -169,7 +169,7 @@ BEE_STATIC_INLINE char *_extract_pattern(struct item *item, char **dest, char *h
 
 int do_separation(char *line, struct item *item)
 {
-    char *p = NULL;
+    char *p, *q;
 
     /* type,mode,access,uid,user,gid,group,size,mtime,nlink,md5,file(//dest) */
     item->data = line;
@@ -178,14 +178,18 @@ int do_separation(char *line, struct item *item)
     if (!p)
        return 0;
 
-    *(p-6) = 0;
-
     /* get possible symlink destination */
-    p = strstr(item->filename, "//");
-    if(p != NULL) {
-        item->destination = p + 2;
-        *p = '\0';
+    q = strstr(item->filename, "//");
+    if (q) {
+        item->destination = q + 2;
+        if (!*item->destination) {
+            fprintf (stderr, "bee-cache-inventory: syntax error: empty destination for file '%s'\n", item->filename);
+            return 0;
+        }
+        *q = '\0';
     }
+
+    *(p-6) = 0;
 
     p = item->data;
     if (!EXTRACT_PATTERN(item, type, p, 4, 0))
