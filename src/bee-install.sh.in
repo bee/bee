@@ -375,6 +375,25 @@ function do_install_file() {
         rm ${BEE_METADIR}/${pkg}/CONTENT.FILES
     fi
 
+    egrep "//$" ${BEE_METADIR}/${pkg}/CONTENT.INSTALL \
+        >${BEE_METADIR}/${pkg}/CONTENT.FIX
+
+    if [ -s ${BEE_METADIR}/${pkg}/CONTENT.FIX ] ; then
+        ${BEE_LIBEXECDIR}/bee/content2filelist \
+            ${BEE_METADIR}/${pkg}/CONTENT.FIX \
+            | ${BEE_LIBEXECDIR}/bee/filelist2content \
+            >> ${BEE_METADIR}/${pkg}/CONTENT.INSTALL
+
+        sed -i ${BEE_METADIR}/${pkg}/CONTENT.INSTALL \
+            -e '/\/\/$/d'
+
+        echo >&2 "bee-install: WARNING: corrupted CONTENT file found and fixed."
+        echo >&2 "bee-install:   this may be caused by a bug in bee-1.0 and can be fixed permanently"
+        echo >&2 "bee-install:   by rebuilding the package with bee-1.1 or newer."
+    else
+        rm ${BEE_METADIR}/${pkg}/CONTENT.FIX
+    fi
+
     # create CONTENT file from CONTENT.INSTALL
     mv ${BEE_METADIR}/${pkg}/CONTENT{.INSTALL,}
 
