@@ -15,6 +15,7 @@
 /beesort
 /beeversion
 /beegetopt
+/beeflock
 /bee-dep
 /beelib.config.sh
 /bee.1
