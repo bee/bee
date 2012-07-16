@@ -124,7 +124,7 @@ COMPAT_BASHLT4+=buildtypes/autogen.sh
 COMPAT_BASHLT4+=buildtypes/configure.sh
 COMPAT_BASHLT4+=buildtypes/make.sh
 
-.SUFFIXES: .in .sh .sh.in .pl
+.SUFFIXES: .in .sh .sh.in
 
 all: build
 
@@ -183,9 +183,6 @@ beeflock: $(addprefix src/, ${BEEFLOCK_OBJECTS})
 
 %.sh: src/%.sh.in
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
-
-%.pl: src/%.pl
-	$(call quiet-command,cp $< $@,"CP	$@")
 
 %.1: %.1.in
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
