@@ -65,7 +65,7 @@ function do_f2c() {
     fi
 
     while read filename ; do
-        data=$(stat --format "$(get_format_string)" ${root}${filename})
+        data=$(stat --format "$(get_format_string)" "${root}${filename}")
 
         if [ "$?" -gt 0 ] ; then
             echo >&2 "**ERROR** stat failed"
@@ -106,7 +106,7 @@ function do_f2c() {
         echo -n ":nlink=${nlink}"
 
         if [ "${type}" = "regular" -o "${type}" = "hardlink" ] ; then
-            md5=$(md5sum ${root}${filename})
+            md5=$(md5sum "${root}${filename}")
 
             if [ "$?" -gt 0 ] ; then
                 echo >&2 "**ERROR** md5sum failed"
