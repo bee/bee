@@ -317,6 +317,21 @@ int inventarize_file(char *path, struct inventory_meta meta, FILE *outfile)
     return 1;
 }
 
+static void _strip_trailing(char *in, char c)
+{
+    char *p;
+    size_t len;
+
+    assert(in);
+
+    len = strlen(in);
+    p   = in+len-1;
+
+    while (p > in && *p == '/')
+        *(p--) = 0;
+
+}
+
 int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
 {
     DIR *dir = NULL;
@@ -327,6 +342,8 @@ int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
     char *buf = NULL;
     char *packagename = NULL;
     char *filename    = NULL;
+
+    _strip_trailing(path, '/');
 
     dir = opendir(path);
     if (!dir) {
