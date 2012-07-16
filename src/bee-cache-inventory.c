@@ -333,6 +333,34 @@ FILE *fopen_outfname(char *mode, char *format, ...)
     return outfh;
 }
 
+int renamef(char *dest, char *source, ...)
+{
+    int res;
+    char *srcfname;
+    va_list list;
+
+    assert(source);
+
+    va_start(list, source);
+
+    res = vasprintf(&srcfname, source, list);
+    if(!res) {
+        perror("vasprintf");
+        return 0;
+    }
+
+    res = rename(srcfname, dest);
+    if(res) {
+        perror("rename failed");
+        free(srcfname);
+        return 0;
+    }
+
+    free(srcfname);
+
+    return 1;
+}
+
 int inventory_fhfh(FILE *infh, FILE *outfh, struct inventory_meta meta)
 {
     char line[LINE_MAX];
@@ -361,6 +389,7 @@ int inventory_filefile(char *infname, char *outfname, struct inventory_meta meta
     int res = 1;
     FILE *infh;
     FILE *outfh;
+    pid_t pid;
 
     assert(infname);
 
@@ -370,7 +399,8 @@ int inventory_filefile(char *infname, char *outfname, struct inventory_meta meta
     }
 
     if (outfname) {
-        outfh = fopen_outfname("w", "%s", outfname);
+        pid = getpid();
+        outfh = fopen_outfname("w", "%s.%d", outfname, pid);
         if (!outfh) {
             fclose(infh);
             return 0;
@@ -380,6 +410,12 @@ int inventory_filefile(char *infname, char *outfname, struct inventory_meta meta
     }
 
     res = inventory_fhfh(infh, outfh, meta);
+
+    if (outfname) {
+        res = renamef(outfname, "%s.%d", outfname, pid);
+        if(!res)
+            perror("rename failed");
+    }
 
     fclose(infh);
     fclose(outfh);
@@ -410,6 +446,7 @@ int inventory_dirfile(char *indname, char *outfname, struct inventory_meta meta)
     char *dirname;
     FILE *infh;
     FILE *outfh;
+    pid_t pid;
 
     assert(indname);
 
@@ -422,7 +459,8 @@ int inventory_dirfile(char *indname, char *outfname, struct inventory_meta meta)
     }
 
     if (outfname) {
-        outfh = fopen_outfname("w", "%s", outfname);
+        pid = getpid();
+        outfh = fopen_outfname("w", "%s.%d", outfname, pid);
         if (!outfh) {
             res = 0;
             goto closedir;
@@ -455,6 +493,12 @@ int inventory_dirfile(char *indname, char *outfname, struct inventory_meta meta)
         }
 
         fclose(infh);
+    }
+
+    if (outfname) {
+        res = renamef(outfname, "%s.%d", outfname, pid);
+        if(!res)
+            perror("rename failed");
     }
 
 closeoutfh:
