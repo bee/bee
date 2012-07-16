@@ -44,6 +44,8 @@
 #define ISFILE 1
 #define ISDIR  2
 
+#define BEE_STATIC_INLINE __attribute__((always_inline)) static inline
+
 /* <pkg> <mtime> <uid> <gid> <mode> <size> <md5/md5 of symlink destination/type> <file without link destination> */
 struct item {
     char *data;
@@ -116,16 +118,14 @@ int init_inventory_meta(struct inventory_meta *meta)
     return 1;
 }
 
-int chomp(char *line)
+short chomp(char *line)
 {
-    char *newline = NULL;
-
-    if(line == NULL)
-        return 0;
+    char *newline;
 
     newline = strrchr(line, '\n');
+    assert(newline);
 
-    if(newline == NULL)
+    if (!newline)
         return 0;
 
     *newline = '\0';
@@ -145,63 +145,66 @@ int substitute(char *data, char from, char to)
     return 1;
 }
 
-#define EXTRACT_PATTERN(p, string, fallback, pattern) do { \
-                                                p = strstr(string, pattern); \
-                                                if(p == NULL) { \
-                                                    p = strstr(fallback, pattern); \
-                                                } \
-                                                if(p == NULL) { \
-                                                    fprintf(stderr, "syntax error in line '%s': no field named %s found\n", fallback, pattern); \
-                                                    free(fallback); \
-                                                    return 0; \
-                                                } \
-                                            } while(0);
+BEE_STATIC_INLINE char *_extract_pattern(struct item *item, char **dest, char *hint, char *pattern, char size, int failok)
+{
+    char *p;
+
+    p = strstr(hint, pattern);
+    if (!p)
+       p = strstr(item->data, pattern);
+    if (!p) {
+       if (failok)
+           return NULL;
+       fprintf(stderr, "syntax error while searching '%s' in '%s'\n", item->data, pattern);
+       item->data = NULL;
+       return NULL;
+    }
+    p += size;
+    *dest = p;
+    return p;
+}
+
+#define EXTRACT_PATTERN(item, dest, hint, size, failok) \
+        ((hint) = _extract_pattern((item), &((item)->dest), (hint), #dest "=", (size)+1, (failok)))
 
 int do_separation(char *line, struct item *item)
 {
-    char *p = NULL;
+    char *p, *q;
 
     /* type,mode,access,uid,user,gid,group,size,mtime,nlink,md5,file(//dest) */
+    item->data = line;
 
-    item->data = strdup(line);
-    if(item->data == NULL) {
-        fprintf(stderr, "failed to duplicate data: %s\n", strerror(errno));
-        return 0;
-    }
-
-    EXTRACT_PATTERN(p, item->data, item->data, ":file=")
-    item->filename = p + 6;
-    *p = '\0';
+    p = _extract_pattern(item, &(item->filename), item->data, ":file=", 6, 0);
+    if (!p)
+       return 0;
 
     /* get possible symlink destination */
-    p = strstr(item->filename, "//");
-    if(p != NULL) {
-        item->destination = p + 2;
-        *p = '\0';
+    q = strstr(item->filename, "//");
+    if (q) {
+        item->destination = q + 2;
+        if (!*item->destination) {
+            fprintf (stderr, "bee-cache-inventory: syntax error: empty destination for file '%s'\n", item->filename);
+            return 0;
+        }
+        *q = '\0';
     }
 
-    EXTRACT_PATTERN(p, item->data, item->data, "type=")
-    item->type = p + 5;
+    *(p-6) = 0;
 
-    EXTRACT_PATTERN(p, p, item->data, "mode=")
-    item->mode = p + 5;
-
-    EXTRACT_PATTERN(p, p, item->data, "uid=")
-    item->uid = p + 4;
-
-    EXTRACT_PATTERN(p, p, item->data, "gid=")
-    item->gid = p + 4;
-
-    EXTRACT_PATTERN(p, p, item->data, "size=")
-    item->size = p + 5;
-
-    EXTRACT_PATTERN(p, p, item->data, "mtime=")
-    item->mtime = p + 6;
-
-    p = strstr(item->data, "md5=");
-    if(p != NULL) {
-        item->md5 = p + 4;
-    }
+    p = item->data;
+    if (!EXTRACT_PATTERN(item, type, p, 4, 0))
+        return 0;
+    if (!EXTRACT_PATTERN(item, mode, p, 4, 0))
+        return 0;
+    if (!EXTRACT_PATTERN(item, uid, p, 3, 0))
+        return 0;
+    if (!EXTRACT_PATTERN(item, gid, p, 3, 0))
+        return 0;
+    if (!EXTRACT_PATTERN(item, size, p, 4, 0))
+        return 0;
+    if (!EXTRACT_PATTERN(item, mtime, p, 5, 0))
+        return 0;
+    EXTRACT_PATTERN(item, md5, p, 3, 1);
 
     substitute(item->data, ':', '\0');
 
@@ -230,13 +233,15 @@ int print_item(FILE *out, struct item item, struct inventory_meta meta)
     fputs(item.gid, out);
 
     fputc(' ', out);
+    fputs(item.mode, out);
+
+    fputc(' ', out);
     fputs(item.size, out);
 
+    fputc(' ', out);
     if(item.md5) {
-        fputc(' ', out);
         fputs(item.md5, out);
     } else if(strcmp(item.type, "symlink") == 0) {
-        fputc(' ', out);
         c = item.destination;
         while(*c != '\0') {
             if(*c == '%')
@@ -249,7 +254,6 @@ int print_item(FILE *out, struct item item, struct inventory_meta meta)
             c++;
         }
     } else {
-        fputc(' ', out);
         fputs(item.type, out);
     }
 
@@ -285,14 +289,13 @@ int inventarize_file(char *path, struct inventory_meta meta, FILE *outfile)
     while(fgets(line, LINE_MAX, cf) != NULL) {
         chomp(line);
         if(! do_separation(line, &item)) {
-            fprintf(stderr, "failed to separate '%s'\n", line);
+            fprintf(stderr, "bee-cache-inventory: syntax error in '%s'\n", line);
             fclose(cf);
             return 0;
         }
 
         print_item(outfile, item, meta);
 
-        free(item.data);
         init_item(&item);
     }
 
@@ -314,6 +317,21 @@ int inventarize_file(char *path, struct inventory_meta meta, FILE *outfile)
     return 1;
 }
 
+static void _strip_trailing(char *in, char c)
+{
+    char *p;
+    size_t len;
+
+    assert(in);
+
+    len = strlen(in);
+    p   = in+len-1;
+
+    while (p > in && *p == '/')
+        *(p--) = 0;
+
+}
+
 int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
 {
     DIR *dir = NULL;
@@ -325,23 +343,27 @@ int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
     char *packagename = NULL;
     char *filename    = NULL;
 
-    if((dir = opendir(path)) == NULL) {
-        fprintf(stderr, "failed to open '%s': %s", path, strerror(errno));
+    _strip_trailing(path, '/');
+
+    dir = opendir(path);
+    if (!dir) {
+        fprintf(stderr, "failed to open '%s': %m", path);
         return 0;
     }
 
-    while((dirent = readdir(dir)) != NULL) {
+    while ((dirent = readdir(dir))) {
         dirname = dirent->d_name;
 
-        if(strcmp(dirname, ".") == 0 || strcmp(dirname, "..") == 0)
+        if (*dirname == '.')
             continue;
 
         length = strlen(path) + 1 + strlen(dirname) + 1 + strlen("CONTENT") + 1;
         if(length > bufsize) {
             free(buf);
 
-            if((buf = calloc(length, sizeof(char))) == NULL) {
-                fprintf(stderr, "failed to allocate memory: %s", strerror(errno));
+            buf = calloc(length, sizeof(char));
+            if (!buf) {
+                fprintf(stderr, "failed to allocate memory: %m");
                 closedir(dir);
                 return 0;
             }
@@ -351,54 +373,50 @@ int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
 
         snprintf(buf, bufsize, "%s/%s/CONTENT", path, dirname);
 
-        meta.package = strdup(dirname);
+        meta.package = dirname;
 
         out = outfile;
-        if(!out && meta.outfile) {
+        if (!out && meta.outfile) {
             packagename = meta.package;
-            if(!meta.package) {
+            if (!meta.package) {
                 packagename = "content";
             }
 
             filename = meta.outfile;
-            if(meta.multiplefiles && packagename) {
-                if(asprintf(&filename, "%s/%s.inv", meta.outfile, packagename) < 0) {
-                    fprintf(stderr, "failed to create filename %s: %s\n", filename, strerror(errno));
-                    free(meta.package);
+            if (meta.multiplefiles && packagename) {
+                if (asprintf(&filename, "%s/%s.inv", meta.outfile, packagename) < 0) {
+                    fprintf(stderr, "failed to create filename %s: %m\n", filename);
                     closedir(dir);
                     return 0;
                 }
             }
 
-            if((out = fopen(filename, "w")) == NULL) {
-                fprintf(stderr, "failed to open '%s' for appending: %s\n", filename, strerror(errno));
+            out = fopen(filename, "w");
+            if (!out) {
+                fprintf(stderr, "failed to open '%s' for appending: %m\n", filename);
                 free(filename);
-                free(meta.package);
                 closedir(dir);
                 return 0;
             }
-        } else if(!out) {
-            free(meta.package);
+        } else if (!out) {
             closedir(dir);
             return 0;
         }
 
-        if(!inventarize_file(buf, meta, out)) {
-            fprintf(stderr, "inventarization of '%s' failed\n", buf);
+        if (!inventarize_file(buf, meta, out)) {
+            fprintf(stderr, "bee-cache-inventory: %s: Inventarization failed\n", buf);
             free(buf);
             free(filename);
-            free(meta.package);
             closedir(dir);
-            if(!outfile)
+            if (!outfile)
                 fclose(out);
             return 0;
         }
-        free(meta.package);
     }
 
     free(buf);
     closedir(dir);
-    if(!outfile)
+    if (!outfile)
         fclose(out);
 
     return 1;
@@ -575,7 +593,7 @@ int main(int argc, char *argv[])
     meta.infile = argv[0];
 
     if(!inventarize(meta)) {
-        fprintf(stderr, "inventarization failed for '%s'\n", meta.infile);
+        fprintf(stderr, "bee-cache-inventory: %s: Inventarization failed\n", meta.infile);
         return 1;
     }
 

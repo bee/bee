@@ -105,8 +105,6 @@ int main(int argc, char *argv[])
 
    bee_getopt_init(&optctl, argc-1, &argv[1], opts);
 
-   optctl.program = "beegetopt";
-
    while((opt=bee_getopt(&optctl, &i)) != BEE_GETOPT_END) {
 
        if (opt == BEE_GETOPT_ERROR) {

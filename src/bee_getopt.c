@@ -36,6 +36,9 @@
     -help  long = "help"
 */
 
+#define _GNU_SOURCE
+
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -53,7 +56,7 @@ int bee_getopt_init(struct bee_getopt_ctl *ctl, int argc, char **argv, struct be
     ctl->argc    = argc;
     ctl->argv    = argv;
 
-    ctl->program = NULL;
+    ctl->program = program_invocation_short_name;
 
 /*    for (i=0; i < argc; i++) {
        printf("XXX argv[%d] = %s\n", i, argv[i]);

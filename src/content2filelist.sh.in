@@ -69,6 +69,7 @@ function do_convert()
     cat "${@}" | sed \
        -e 's,^.*:file=,,' \
        -e 's,\(^.*\)//.*$,\1,' \
+       -e 's,/$,,' \
        -e "s,^,${prepend}," \
        -e "s,\$,${append},"
 }
