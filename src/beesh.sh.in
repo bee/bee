@@ -789,7 +789,7 @@ expand_prefix_variables
 
 ###############################################################################
 
-check_rebuild "${BEE}" "${PKGALLPKG}"
+# check_rebuild "${BEE}" "${PKGALLPKG}"
 
 print_info "current working directory: ${PWD}"
 
