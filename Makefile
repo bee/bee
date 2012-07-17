@@ -52,41 +52,79 @@ sed-rules = -e 's,@PREFIX@,${PREFIX},g' \
 sed-compat-bashlt4 = -e 'sx\$${\([a-zA-Z_]*\),,}x\$$(tr A-Z a-z <<<\$${\1})xg' \
                      -e 'sx\$${\([a-zA-Z_]*\)^^}x\$$(tr a-z A-Z <<<\$${\1})xg'
 
+PROGRAMS_C+=beecut
+PROGRAMS_C+=beeflock
+PROGRAMS_C+=beegetopt
+PROGRAMS_C+=beesep
+PROGRAMS_C+=beesort
+PROGRAMS_C+=beeuniq
+PROGRAMS_C+=beeversion
 
-PROGRAMS_C=beeversion beesep beecut beeuniq beesort beegetopt beeflock
-PROGRAMS_SHELL=bee beesh beefind
+PROGRAMS_SHELL+=bee
+PROGRAMS_SHELL+=beefind
+PROGRAMS_SHELL+=beesh
 
-HELPER_BEE_SHELL=bee-init bee-check bee-remove bee-install bee-list bee-query bee-download bee-update
-HELPER_BEE_C=bee-dep
+HELPER_BEE_C+=bee-dep
 
-HELPER_SHELL=compat-filesfile2contentfile filelist2content content2filelist compat-fixmetadir
+HELPER_BEE_SHELL+=bee-check
+HELPER_BEE_SHELL+=bee-download
+HELPER_BEE_SHELL+=bee-init
+HELPER_BEE_SHELL+=bee-install
+HELPER_BEE_SHELL+=bee-list
+HELPER_BEE_SHELL+=bee-query
+HELPER_BEE_SHELL+=bee-remove
+HELPER_BEE_SHELL+=bee-update
 
-LIBRARY_SHELL=beelib.config.sh
+HELPER_SHELL+=compat-filesfile2contentfile
+HELPER_SHELL+=compat-fixmetadir
+HELPER_SHELL+=content2filelist
+HELPER_SHELL+=filelist2content
 
-BUILDTYPES=configure cmake autogen perl-module perl-module-makemaker make python-module jb
+LIBRARY_SHELL+=beelib.config.sh
 
-HELPER_HOOKS_SHELL=\
-    update-mime-database \
-    glib-compile-schemas \
-    mkfontdir-mkfontscale \
-    gtk-update-icon-cache \
-    ldconfig \
-    update-desktop-database \
-    gdk-pixbuf-query-loaders \
-    mandb \
-    systemd-tmpfiles \
-    gconf-install-schemas
+BUILDTYPES+=autogen
+BUILDTYPES+=cmake
+BUILDTYPES+=configure
+BUILDTYPES+=jb
+BUILDTYPES+=make
+BUILDTYPES+=perl-module
+BUILDTYPES+=perl-module-makemaker
+BUILDTYPES+=python-module
 
-MANPAGES=bee.1 bee-check.1 bee-init.1 bee-install.1 bee-list.1 bee-query.1 bee-remove.1 bee-dep.1 \
-         bee-update.1 bee-download.1
+HELPER_HOOKS_SHELL+=update-mime-database
+HELPER_HOOKS_SHELL+=glib-compile-schemas
+HELPER_HOOKS_SHELL+=mkfontdir-mkfontscale
+HELPER_HOOKS_SHELL+=gtk-update-icon-cache
+HELPER_HOOKS_SHELL+=ldconfig
+HELPER_HOOKS_SHELL+=update-desktop-database
+HELPER_HOOKS_SHELL+=gdk-pixbuf-query-loaders
+HELPER_HOOKS_SHELL+=mandb
+HELPER_HOOKS_SHELL+=systemd-tmpfiles
+HELPER_HOOKS_SHELL+=gconf-install-schemas
 
-CONFIG_TEMPLATES=fallback
-CONFIG_FILES=skiplist beerc
+MANPAGES+=bee.1
+MANPAGES+=bee-check.1
+MANPAGES+=bee-dep.1
+MANPAGES+=bee-download.1
+MANPAGES+=bee-list.1
+MANPAGES+=bee-init.1
+MANPAGES+=bee-install.1
+MANPAGES+=bee-query.1
+MANPAGES+=bee-remove.1
+MANPAGES+=bee-update.1
 
-COMPAT_BASHLT4=buildtypes/autogen.sh buildtypes/configure.sh buildtypes/make.sh \
-               beesh.sh bee-check.sh
+CONFIG_TEMPLATES+=fallback
 
-.SUFFIXES: .in .sh .sh.in .pl
+CONFIG_FILES+=skiplist
+CONFIG_FILES+=beerc
+
+COMPAT_BASHLT4+=beesh.sh
+COMPAT_BASHLT4+=bee-check.sh
+COMPAT_BASHLT4+=buildtypes/autogen.sh
+COMPAT_BASHLT4+=buildtypes/configure.sh
+COMPAT_BASHLT4+=buildtypes/make.sh
+
+.SUFFIXES: .in .sh .sh.in
 
 all: build
 
@@ -145,9 +183,6 @@ beeflock: $(addprefix src/, ${BEEFLOCK_OBJECTS})
 
 %.sh: src/%.sh.in
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
-
-%.pl: src/%.pl
-	$(call quiet-command,cp $< $@,"CP	$@")
 
 %.1: %.1.in
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
