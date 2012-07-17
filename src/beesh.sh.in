@@ -2,7 +2,7 @@
 #
 # beesh - bee-file interpreter - the main brain
 #
-# Copyright (C) 2009-2011
+# Copyright (C) 2009-2012
 #       Marius Tolzmann <tolzmann@molgen.mpg.de>
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
 #       and other bee developers
@@ -711,7 +711,7 @@ done
 
 config_init_colors
 
-echo -e "${COLOR_CYAN}BEE v${BEE_VERSION} 2009-2011"
+echo -e "${COLOR_CYAN}BEE v${BEE_VERSION} 2009-2012"
 echo -e "  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>"
 echo -e "     Max Planck Institute for Molecular Genetics Berlin Dahlem"
 echo -e "${COLOR_NORMAL}"
