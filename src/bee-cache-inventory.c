@@ -280,11 +280,13 @@ int inventarize_file(char *path, struct inventory_meta meta, FILE *outfile)
     init_item(&item);
 
     cf = fopen(path, "r");
-    if(cf == NULL) {
-        fprintf(stderr, "failed to open '%s': %s\n", path, strerror(errno));
+    if (cf == NULL) {
+        if (errno == ENOTDIR) {
+            return 1;
+        }
+        fprintf(stderr, "bee-cache-inventory: %s: %m\n", path);
         return 0;
     }
-
 
     while(fgets(line, LINE_MAX, cf) != NULL) {
         chomp(line);
