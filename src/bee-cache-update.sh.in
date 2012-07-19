@@ -39,7 +39,7 @@ function create_pkgbcfile()
     local tmpfile=${PKGBCFILE}.tmp.$$
 
     if [ ! -e  "${CONTENTFILE}" ] ; then
-        echo >&2 "bee-cache-update WARNING: ${PKGALLPKG}: Package not installed. (CONTENT file is missing)"
+        rm -f "${PKGBCFILE}"
         return 0
     fi
 
@@ -58,12 +58,25 @@ function create_pkgbcfile()
     mv ${tmpfile} ${PKGBCFILE}
 }
 
+function remove_from_inventory()
+{
+    local PKGALLPKG=${1}
+
+    sed -i ${INVENTORYFILE} \
+        -e "/^${PKGALLPKG} /d"
+}
+
 function update_inventory()
 {
     local PKGALLPKG=${1}
     local PKGBCFILE=${CACHEDIR}/${PKGALLPKG}.bc
 
     local tmpfile=${INVENTORYFILE}.tmp.$$
+
+    if [ ! -e "${PKGBCFILE}" ] ; then
+        remove_from_inventory "${PKGALLPKG}"
+        return 0
+    fi
 
     sort -u -m -k 8 -k 1 >${tmpfile} \
         ${INVENTORYFILE} \
