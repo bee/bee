@@ -27,6 +27,8 @@
 /bee-remove.1
 /bee-dep.1
 /beefind.sh
+/bee-cache-inventory
+/bee-cache-update.sh
 /compat-filesfile2contentfile.sh
 /compat-fixmetadir.sh
 /content2filelist.sh
