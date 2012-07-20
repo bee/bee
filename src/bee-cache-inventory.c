@@ -443,11 +443,11 @@ int inventory_dirfile(char *indname, char *outfname, struct inventory_meta meta)
         if (*dirname == '.')
             continue;
 
-        infh = fopenf("r", "%s/%s/%s", indname, dirname, "CONTENT");
+        infh = fopenf("r", "%s/%s/CONTENT", indname, dirname);
         if (!infh) {
             if (errno == ENOENT || errno == ENOTDIR)
                 continue;
-            fprintf(stderr, "failed to open file %s/%s/%s: %m\n", indname, dirname, "CONTENT");
+            fprintf(stderr, "failed to open file %s/%s/CONTENT: %m\n", indname, dirname);
             res = 0;
             goto closeoutfh;
         }
@@ -456,7 +456,7 @@ int inventory_dirfile(char *indname, char *outfname, struct inventory_meta meta)
 
         res = inventory_fhfh(infh, outfh, meta);
         if (!res) {
-            fprintf(stderr, "inventarization from %s/%s/%s to %s failed: %m\n", indname, dirname, "CONTENT", outfname);
+            fprintf(stderr, "inventarization from %s/%s/CONTENT to %s failed: %m\n", indname, dirname, outfname);
             fclose(infh);
             goto closeoutfh;
         }
@@ -506,14 +506,14 @@ int inventory_dirdir(char *indname, char *outdname, struct inventory_meta meta)
         if (*dirname == '.')
             continue;
 
-        res = asprintf(&infname, "%s/%s/%s", indname, dirname, "CONTENT");
+        res = asprintf(&infname, "%s/%s/CONTENT", indname, dirname);
         if (res < 0) {
             perror("asprintf");
             res = 0;
             goto closedir;
         }
 
-        res = asprintf(&outfname, "%s/%s.%s", outdname, dirname, "inv");
+        res = asprintf(&outfname, "%s/%s.inv", outdname, dirname);
         if (res < 0) {
             perror("asprintf");
             res = 0;
