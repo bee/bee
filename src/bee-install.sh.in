@@ -31,6 +31,8 @@ fi
 VERSION=${BEE_VERSION}
 
 : ${BEE_BINDIR:=@BINDIR@}
+: ${BEEFLOCK=${BEE_BINDIR}/beeflock}
+: ${BEECACHE_CACHEDIR=${BEE_CACHEDIR}/bee-cache}
 
 function debug_msg() {
     if [ "${OPT_DEBUG}" != "1" ] ; then
@@ -396,6 +398,11 @@ function do_install_file() {
 
     # create CONTENT file from CONTENT.INSTALL
     mv ${BEE_METADIR}/${pkg}/CONTENT{.INSTALL,}
+
+    mkdir -p ${BEECACHE_CACHEDIR}
+    ${BEEFLOCK} ${BEECACHE_CACHEDIR}/INVENTORY \
+        ${BEE_LIBEXECDIR}/bee/bee-cache-update ${pkg} \
+        >/dev/null
 
     run_hooks post-install ${pkg}
     ${BEE_LIBEXECDIR}/bee/bee.d/bee-check -d ${pkg} > ${BEE_METADIR}/${pkg}/DEPENDENCIES
