@@ -40,12 +40,15 @@ function create_pkgbcfile()
     local PKGALLPKG=${1}
     local CONTENTFILE=${BEE_METADIR}/${PKGALLPKG}/CONTENT
     local PKGBCFILE=${CACHEDIR}/${PKGALLPKG}.bc
+    local PKGBCRFILE=${PKGBCFILE%.bc}.bcr
 
     local tmpfile=${PKGBCFILE}.tmp.$$
 
     if [ ! -e  "${CONTENTFILE}" ] ; then
-        print_info "removing ${PKGBCFILE} .."
-        rm -f "${PKGBCFILE}"
+        if [ -e "${PKGBCFILE}" ] ; then
+            print_info "moving ${PKGBCFILE} to ${PKGBCRFILE}.."
+            mv "${PKGBCFILE}" "${PKGBCRFILE}"
+        fi;
         return 0
     fi
 
