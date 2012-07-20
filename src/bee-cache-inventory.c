@@ -606,9 +606,13 @@ int inventory(struct inventory_meta meta)
         if (!meta.outfile || outst || S_ISREG(outsb.st_mode)) {
             fputs("DEBUG file file\n", stderr);
             res = inventory_filefile(meta.infile, meta.outfile, meta);
-        } else {
+        } else if (S_ISDIR(outsb.st_mode)) {
             res = 0;
             fputs("cannot convert from file to dir\n", stderr);
+        } else {
+            res = 0;
+            fputs(meta.outfile, stderr);
+            fputs(" is neither file nor directory\n", stderr);
         }
 
     } else if (S_ISDIR(insb.st_mode)) {
