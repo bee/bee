@@ -2,7 +2,7 @@
 #
 # bee-check - check consistency of installed bee-pkgs
 #
-# Copyright (C) 2009-2011
+# Copyright (C) 2009-2012
 #       Marius Tolzmann <tolzmann@molgen.mpg.de>
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
 #       and other bee developers
@@ -293,7 +293,7 @@ do_check() {
 ##### usage ###################################################################
 usage() {
     cat <<-EOF
-	bee-check v${VERSION} 2009-2011
+	bee-check v${VERSION} 2009-2012
 	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
 	     Max Planck Institute for Molecular Genetics Berlin Dahlem
 

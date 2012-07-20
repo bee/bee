@@ -84,7 +84,7 @@ function create_meta() {
 
 function show_help() {
     cat <<-EOF
-	beesh v${VERSION} 2009-2011
+	beesh v${VERSION} 2009-2012
 	    by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
 	       Max Planck Institute for Molecular Genetics Berlin Dahlem
 

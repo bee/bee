@@ -1,7 +1,7 @@
 /*
 ** beecut - split strings
 **
-** Copyright (C) 2009-2011
+** Copyright (C) 2009-2012
 **       Marius Tolzmann <tolzmann@molgen.mpg.de>
 **       Tobias Dreyer <dreyer@molgen.mpg.de>
 **       and other bee developers
@@ -43,7 +43,7 @@
 void print_version(void)
 {
     printf("beecut v%d.%d.%d - "
-           "by Marius Tolzmann <tolzmann@molgen.mpg.de> 2009-2011\n",
+           "by Marius Tolzmann <tolzmann@molgen.mpg.de> 2009-2012\n",
              BEECUT_MAJOR, BEECUT_MINOR, BEECUT_PATCHLVL);
 }
 
