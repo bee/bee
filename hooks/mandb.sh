@@ -2,7 +2,7 @@
 #
 # mandb hook
 #
-# Copyright (C) 2009-2011
+# Copyright (C) 2009-2012
 #       Marius Tolzmann <tolzmann@molgen.mpg.de>
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
 #       and other bee developers
