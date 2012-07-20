@@ -688,5 +688,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    if (meta.sync)
+        sync();
+
     return 0;
 }
