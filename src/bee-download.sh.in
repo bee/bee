@@ -2,7 +2,7 @@
 #
 # bee-download - download a repository and convert it into a tarball
 #
-# Copyright (C) 2009-2011
+# Copyright (C) 2009-2012
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
 #       Marius Tolzmann <tolzmann@molgen.mpg.de>
 #       and other bee developers
@@ -36,7 +36,7 @@ VERSION=${BEE_VERSION}
 
 function usage() {
     cat <<-EOF
-	bee-download v${VERSION} 2009-2011
+	bee-download v${VERSION} 2009-2012
 	  by Tobias Dreyer <dreyer@molgen.mpg.de>
 	     Max Planck Institute for Molecular Genetics Berlin Dahlem
 

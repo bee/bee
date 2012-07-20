@@ -2,7 +2,7 @@
 #
 # font hook
 #
-# Copyright (C) 2009-2011
+# Copyright (C) 2009-2012
 #       Marius Tolzmann <tolzmann@molgen.mpg.de>
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
 #       and other bee developers
@@ -24,6 +24,8 @@
 #
 action=${1}
 pkg=${2}
+content=${3}
+: ${content:=${BEE_METADIR}/${pkg}/CONTENT}
 
 if [ -z ${BEE_VERSION} ] ; then
     echo >&2 "BEE-ERROR: cannot call $0 from the outside of bee .."
@@ -55,7 +57,7 @@ function update_fonts() {
 
 for dir in ${XDG_DATA_DIRS//:/ } ; do
     font_base_dir=${dir}/fonts
-    if grep -q "file=${font_base_dir}" ${BEE_METADIR}/${pkg}/CONTENT ; then
+    if grep -q "file=${font_base_dir}" ${content} ; then
         case "${action}" in
             "post-install")
                 clean_font_dirs ${font_base_dir}

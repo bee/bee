@@ -24,6 +24,8 @@
 #
 action=${1}
 pkg=${2}
+content=${3}
+: ${content:=${BEE_METADIR}/${pkg}/CONTENT}
 
 if [ -z ${BEE_VERSION} ] ; then
     echo >&2 "BEE-ERROR: cannot call $0 from the outside of bee .."
@@ -50,13 +52,13 @@ fi
 
 case "${action}" in
     "post-install")
-        for i in $(grep -o "${PKG_INFODIR}.*\.info.*" ${BEE_METADIR}/${pkg}/CONTENT 2>/dev/null) ; do
+        for i in $(grep -o "${PKG_INFODIR}.*\.info.*" ${content} 2>/dev/null) ; do
             echo "adding ${i##*/} to ${DIRFILE}"
             ${INSTALLINFO} ${i} ${DIRFILE} >/dev/null
         done
         ;;
     "pre-remove")
-        for i in $(grep -o "${PKG_INFODIR}.*\.info.*" ${BEE_METADIR}/${pkg}/CONTENT 2>/dev/null) ; do
+        for i in $(grep -o "${PKG_INFODIR}.*\.info.*" ${content} 2>/dev/null) ; do
             echo "removing ${i##*/} from ${DIRFILE}"
             ${INSTALLINFO} --delete ${i} ${DIRFILE} >/dev/null
         done

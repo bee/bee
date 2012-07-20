@@ -1,7 +1,7 @@
 /*
 ** beegetopt - parse options
 **
-** Copyright (C) 2009-2011
+** Copyright (C) 2009-2012
 **       Marius Tolzmann <tolzmann@molgen.mpg.de>
 **       and other bee developers
 **

@@ -1,7 +1,7 @@
 /*
 ** beesep - split beefind output
 **
-** Copyright (C) 2009-2011
+** Copyright (C) 2009-2012
 **       David Fessler <dfessler@uni-potsdam.de>
 **       Marius Tolzmann <tolzmann@molgen.mpg.de>
 **       Tobias Dreyer <dreyer@molgen.mpg.de>

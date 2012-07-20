@@ -2,7 +2,7 @@
 #
 # ldconfig hook
 #
-# Copyright (C) 2009-2011
+# Copyright (C) 2009-2012
 #       Marius Tolzmann <tolzmann@molgen.mpg.de>
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
 #       and other bee developers
@@ -24,6 +24,8 @@
 #
 action=${1}
 pkg=${2}
+content=${3}
+: ${content:=${BEE_METADIR}/${pkg}/CONTENT}
 
 if [ -z ${BEE_VERSION} ] ; then
     echo >&2 "BEE-ERROR: cannot call $0 from the outside of bee .."
@@ -38,7 +40,7 @@ if ! which ldconfig >/dev/null 2>&1 ; then
     exit 0
 fi
 
-if grep -q "/lib/" ${BEE_METADIR}/${pkg}/CONTENT ; then
+if grep -q "/lib/" ${content} ; then
     case "${action}" in
         "post-install")
             ldconfig

@@ -29,8 +29,6 @@ BEE_VERSION="@BEE_VERSION@"
 
 . ${BEE_LIBEXECDIR}/bee/beelib.config.sh
 
-: ${BEEVERSION:=${BEE_BINDIR}/beeversion}
-: ${BEESEP=${BEE_BINDIR}/beesep}
 : ${BEEGETOPT:=${BEE_BINDIR}/beegetopt}
 
 function usage() {
