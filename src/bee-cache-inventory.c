@@ -573,7 +573,6 @@ int inventory(struct inventory_meta meta)
 
     if (S_ISREG(insb.st_mode)) {
         if (!meta.outfile || outst || S_ISREG(outsb.st_mode)) {
-            fputs("DEBUG file file\n", stderr);
             res = inventory_filefile(meta.infile, meta.outfile, meta);
         } else if (S_ISDIR(outsb.st_mode)) {
             res = 0;
@@ -586,10 +585,8 @@ int inventory(struct inventory_meta meta)
 
     } else if (S_ISDIR(insb.st_mode)) {
         if (!meta.outfile || outst || S_ISREG(outsb.st_mode)) {
-            fputs("DEBUG dir file\n", stderr);
             res = inventory_dirfile(meta.infile, meta.outfile, meta);
         } else if (S_ISDIR(outsb.st_mode) || meta.multiplefiles) {
-            fputs("DEBUG dir dir\n",stderr);
             res = inventory_dirdir(meta.infile, meta.outfile, meta);
         }
 
