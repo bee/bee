@@ -28,6 +28,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -268,55 +269,125 @@ int print_item(FILE *out, struct item item, struct inventory_meta meta)
     return 1;
 }
 
-int inventarize_file(char *path, struct inventory_meta meta, FILE *outfile)
+FILE *fopenf(char *mode, char *format, ...)
 {
-    FILE        *cf = NULL;
-    struct item item;
-    char        line[LINE_MAX];
-    int         outfd = 0;
+    FILE *fh;
+    int res;
+    char *fname;
+    va_list list;
 
-    assert(outfile);
+    assert(mode);
+    assert(format);
 
-    init_item(&item);
+    va_start(list, format);
 
-    cf = fopen(path, "r");
-    if (cf == NULL) {
-        if (errno == ENOTDIR) {
-            return 1;
-        }
-        fprintf(stderr, "bee-cache-inventory: %s: %m\n", path);
+    res = vasprintf(&fname, format, list);
+    if (res < 0) {
+        perror("vasprintf");
+        return NULL;
+    }
+
+    va_end(list);
+
+    fh = fopen(fname, mode);
+
+    free(fname);
+
+    return fh;
+}
+
+int renamef(char *dest, char *source, ...)
+{
+    int res;
+    char *srcfname;
+    va_list list;
+
+    assert(source);
+
+    va_start(list, source);
+
+    res = vasprintf(&srcfname, source, list);
+    if(!res) {
+        perror("vasprintf");
         return 0;
     }
 
-    while(fgets(line, LINE_MAX, cf) != NULL) {
-        chomp(line);
-        if(! do_separation(line, &item)) {
-            fprintf(stderr, "bee-cache-inventory: syntax error in '%s'\n", line);
-            fclose(cf);
-            return 0;
-        }
-
-        print_item(outfile, item, meta);
-
-        init_item(&item);
+    res = rename(srcfname, dest);
+    if(res) {
+        perror("rename failed");
+        free(srcfname);
+        return 0;
     }
 
-    fclose(cf);
+    free(srcfname);
 
-    if(meta.sync && outfile != stdout) {
-        outfd = fileno(outfile);
-        if(outfd < 0) {
-            fputs("failed to retrieve file descriptor", stderr);
+    return 1;
+}
+
+int inventory_fhfh(FILE *infh, FILE *outfh, struct inventory_meta meta)
+{
+    char line[LINE_MAX];
+    struct item item;
+
+    assert(infh);
+    assert(outfh);
+
+    while (fgets(line, LINE_MAX, infh) != NULL) {
+        chomp(line);
+        init_item(&item);
+        if (!do_separation(line, &item)) {
+            fprintf(stderr, "bee-cache-inventory: syntax error in '%s'\n", line);
             return 0;
         }
 
-        if(fsync(outfd) < 0) {
-            fprintf(stderr, "failed to sybc fd %d: %m\n", outfd);
-            return 0;
-        }
+        print_item(outfh, item, meta);
+
     }
 
     return 1;
+}
+
+int inventory_filefile(char *infname, char *outfname, struct inventory_meta meta)
+{
+    int res = 1;
+    FILE *infh;
+    FILE *outfh;
+    pid_t pid;
+
+    assert(infname);
+
+    infh = fopenf("r", "%s", infname);
+    if (!infh) {
+        if (errno == ENOENT || errno == ENOTDIR)
+            return 1;
+        fprintf(stderr, "failed to open file %s: %m\n", infname);
+        return 0;
+    }
+
+    if (outfname) {
+        pid = getpid();
+        outfh = fopenf("w", "%s.%d", outfname, pid);
+        if (!outfh) {
+            fprintf(stderr, "failed to open file %s: %m\n", outfname);
+            fclose(infh);
+            return 0;
+        }
+    } else {
+        outfh = stdout;
+    }
+
+    res = inventory_fhfh(infh, outfh, meta);
+
+    if (outfname) {
+        res = renamef(outfname, "%s.%d", outfname, pid);
+        if(!res)
+            perror("rename failed");
+    }
+
+    fclose(infh);
+    fclose(outfh);
+
+    return res;
 }
 
 static void _strip_trailing(char *in, char c)
@@ -334,179 +405,194 @@ static void _strip_trailing(char *in, char c)
 
 }
 
-int inventarize_dir(char *path, struct inventory_meta meta, FILE *outfile)
+int inventory_dirfile(char *indname, char *outfname, struct inventory_meta meta)
 {
-    DIR *dir = NULL;
-    FILE *out = NULL;
-    struct dirent *dirent = NULL;
-    char *dirname = NULL;
-    int length = 0, bufsize = 0;
-    char *buf = NULL;
-    char *packagename = NULL;
-    char *filename    = NULL;
+    int res = 1;
+    DIR *indh;
+    struct dirent *indent;
+    char *dirname;
+    FILE *infh;
+    FILE *outfh;
+    pid_t pid;
 
-    _strip_trailing(path, '/');
+    assert(indname);
 
-    dir = opendir(path);
-    if (!dir) {
-        fprintf(stderr, "failed to open '%s': %m", path);
+    _strip_trailing(indname, '/');
+
+    indh = opendir(indname);
+    if (!indh) {
+        fprintf(stderr, "failed to open dir %s: %m\n", indname);
         return 0;
     }
 
-    while ((dirent = readdir(dir))) {
-        dirname = dirent->d_name;
+    if (outfname) {
+        pid = getpid();
+        outfh = fopenf("w", "%s.%d", outfname, pid);
+        if (!outfh) {
+            fprintf(stderr, "failed to open file %s: %m\n", outfname);
+            res = 0;
+            goto closedir;
+        }
+    } else {
+        outfh = stdout;
+    }
+
+    while ((indent = readdir(indh))) {
+        dirname = indent->d_name;
 
         if (*dirname == '.')
             continue;
 
-        length = strlen(path) + 1 + strlen(dirname) + 1 + strlen("CONTENT") + 1;
-        if(length > bufsize) {
-            free(buf);
-
-            buf = calloc(length, sizeof(char));
-            if (!buf) {
-                fprintf(stderr, "failed to allocate memory: %m");
-                closedir(dir);
-                return 0;
-            }
-
-            bufsize = length;
+        infh = fopenf("r", "%s/%s/CONTENT", indname, dirname);
+        if (!infh) {
+            if (errno == ENOENT || errno == ENOTDIR)
+                continue;
+            fprintf(stderr, "failed to open file %s/%s/CONTENT: %m\n", indname, dirname);
+            res = 0;
+            goto closeoutfh;
         }
-
-        snprintf(buf, bufsize, "%s/%s/CONTENT", path, dirname);
 
         meta.package = dirname;
 
-        out = outfile;
-        if (!out && meta.outfile) {
-            packagename = meta.package;
-            if (!meta.package) {
-                packagename = "content";
-            }
-
-            filename = meta.outfile;
-            if (meta.multiplefiles && packagename) {
-                if (asprintf(&filename, "%s/%s.inv", meta.outfile, packagename) < 0) {
-                    fprintf(stderr, "failed to create filename %s: %m\n", filename);
-                    closedir(dir);
-                    return 0;
-                }
-            }
-
-            out = fopen(filename, "w");
-            if (!out) {
-                fprintf(stderr, "failed to open '%s' for appending: %m\n", filename);
-                free(filename);
-                closedir(dir);
-                return 0;
-            }
-        } else if (!out) {
-            closedir(dir);
-            return 0;
+        res = inventory_fhfh(infh, outfh, meta);
+        if (!res) {
+            fprintf(stderr, "inventarization from %s/%s/CONTENT to %s failed: %m\n", indname, dirname, outfname);
+            fclose(infh);
+            goto closeoutfh;
         }
 
-        if (!inventarize_file(buf, meta, out)) {
-            fprintf(stderr, "bee-cache-inventory: %s: Inventarization failed\n", buf);
-            free(buf);
-            free(filename);
-            closedir(dir);
-            if (!outfile)
-                fclose(out);
-            return 0;
-        }
+        fclose(infh);
     }
 
-    free(buf);
-    closedir(dir);
-    if (!outfile)
-        fclose(out);
+    if (outfname) {
+        res = renamef(outfname, "%s.%d", outfname, pid);
+        if(!res)
+            perror("rename failed");
+    }
 
-    return 1;
+closeoutfh:
+    if (outfname)
+        fclose(outfh);
+
+closedir:
+    closedir(indh);
+
+    return res;
 }
 
-int inventarize(struct inventory_meta meta)
+int inventory_dirdir(char *indname, char *outdname, struct inventory_meta meta)
 {
-    int result = 0;
-    FILE *outfile = NULL;
-    char *filename = NULL;
+    int res = 1;
+    DIR *indh;
+    struct dirent *indent;
+    char *dirname;
+    char *infname;
+    char *outfname;
 
-    struct stat insb, outsb;
+    assert(indname);
+    assert(outdname);
 
-    if(stat(meta.infile, &insb)) {
-        fprintf(stderr, "failed to stat '%s': %m", meta.infile);
+    _strip_trailing(indname, '/');
+
+    indh = opendir(indname);
+    if (!indh) {
+        fprintf(stderr, "failed to open dir %s: %m\n", indname);
         return 0;
     }
 
-    if(!meta.outfile) {
-        outfile = stdout;
-    } else {
-        result = stat(meta.outfile, &outsb);
+    while ((indent = readdir(indh))) {
+        dirname = indent->d_name;
 
-        if(result < 0) {
+        if (*dirname == '.')
+            continue;
 
-            if(errno != ENOENT) {
-                fprintf(stderr, "failed to stat '%s': %s\n", meta.outfile, strerror(errno));
-                return 0;
-            }
+        res = asprintf(&infname, "%s/%s/CONTENT", indname, dirname);
+        if (res < 0) {
+            perror("asprintf");
+            res = 0;
+            goto closedir;
+        }
 
-            if(meta.multiplefiles) {
+        res = asprintf(&outfname, "%s/%s.inv", outdname, dirname);
+        if (res < 0) {
+            perror("asprintf");
+            res = 0;
+            free(outfname);
+            goto closedir;
+        }
 
-                if(mkdir(meta.outfile, 0777) != 0) {
-                    fprintf(stderr, "failed to create directory '%s': %s\n", meta.outfile, strerror(errno));
-                    return 0;
-                }
+        meta.package = dirname;
 
-                outfile = NULL;
+        res = inventory_filefile(infname, outfname, meta);
+        if(!res) {
+            free(infname);
+            free(outfname);
+            goto closedir;
+        }
 
-            } else {
+        free(infname);
+        free(outfname);
 
-                result = asprintf(&filename, "%s.%d", meta.outfile, getpid());
-                if(result < 0) {
-                    fprintf(stderr, "failed to create filename for %s: %m\n", meta.outfile);
-                    return 0;
-                }
-                if((outfile = fopen(meta.outfile, "w")) == NULL) {
-                    fprintf(stderr, "failed to open %s: %m\n", meta.outfile);
-                    free(filename);
-                    return 0;
-                }
-                free(filename);
+    }
 
-            }
+closedir:
+    closedir(indh);
 
-        } else if(S_ISREG(outsb.st_mode)) {
+    return res;
+}
 
-            if((outfile = fopen(meta.outfile, "w")) == NULL) {
-                fprintf(stderr, "failed to open %s: %m\n", meta.outfile);
-                return 0;
-            }
+int inventory(struct inventory_meta meta)
+{
+    int res = 0;
+    int inst = 0;
+    int outst = 0;
+    struct stat insb;
+    struct stat outsb;
 
-        } else if(S_ISDIR(outsb.st_mode)) {
+    inst = stat(meta.infile, &insb);
+    if (inst) {
+        perror("stat infile");
+        return 0;
+    }
 
-            if(S_ISREG(insb.st_mode)) {
-                fputs("cannot convert from file to directory\n", stderr);
-                return 0;
-            } else if(S_ISDIR(insb.st_mode)) {
-                outfile = NULL;
-                meta.multiplefiles = 1;
-            } else {
-                fprintf(stderr, "cannot read %s: it's neither file nor directory\n", meta.infile);
+    if (meta.outfile) {
+        if (meta.multiplefiles) {
+            res = mkdir(meta.outfile, 0777);
+            if (res && errno != EEXIST) {
+                fprintf(stderr, "creating directory %s failed: %m\n", meta.outfile);
                 return 0;
             }
         }
 
+        outst = stat(meta.outfile, &outsb);
+        if (outst && errno != ENOENT) {
+            perror("stat outfile");
+            return 0;
+        }
     }
 
-    if(S_ISREG(insb.st_mode)) {
-        result = inventarize_file(meta.infile, meta, outfile);
-    } else if(S_ISDIR(insb.st_mode)) {
-        result = inventarize_dir(meta.infile, meta, outfile);
+    if (S_ISREG(insb.st_mode)) {
+        if (!meta.outfile || outst || S_ISREG(outsb.st_mode)) {
+            res = inventory_filefile(meta.infile, meta.outfile, meta);
+        } else if (S_ISDIR(outsb.st_mode)) {
+            res = 0;
+            fputs("cannot convert from file to dir\n", stderr);
+        } else {
+            res = 0;
+            fputs(meta.outfile, stderr);
+            fputs(" is neither file nor directory\n", stderr);
+        }
+
+    } else if (S_ISDIR(insb.st_mode)) {
+        if (!meta.outfile || outst || S_ISREG(outsb.st_mode)) {
+            res = inventory_dirfile(meta.infile, meta.outfile, meta);
+        } else if (S_ISDIR(outsb.st_mode) || meta.multiplefiles) {
+            res = inventory_dirdir(meta.infile, meta.outfile, meta);
+        }
+
     }
 
-    if(outfile && outfile != stdout)
-        fclose(outfile);
-
-    return result;
+    return res;
 }
 
 /*
@@ -594,10 +680,13 @@ int main(int argc, char *argv[])
 
     meta.infile = argv[0];
 
-    if(!inventarize(meta)) {
+    if(!inventory(meta)) {
         fprintf(stderr, "bee-cache-inventory: %s: Inventarization failed\n", meta.infile);
         return 1;
     }
+
+    if (meta.sync)
+        sync();
 
     return 0;
 }
