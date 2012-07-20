@@ -116,7 +116,13 @@ function list_installed_packages() {
     if [ ! -r "${BEE_METADIR}" ] ; then
         return
     fi
-    find ${BEE_METADIR} -mindepth 1 -maxdepth 1 -type d -printf "%f\n"
+    find ${BEE_METADIR} \
+       -mindepth 2 \
+       -maxdepth 2 \
+       -type f \
+       -name CONTENT \
+       -printf "%P\n" \
+       | sed -e 's,/CONTENT$,,'
 }
 
 function list_available_packages() {
