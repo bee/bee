@@ -123,9 +123,11 @@ do_remove() {
 function run_hooks() {
     local action=${1}
     local pkg=${2}
+    local content=${3}
+    : ${content:=${BEE_METADIR}/${pkg}/CONTENT}
 
     for t in ${BEE_LIBEXECDIR}/bee/hooks.d/* ; do
-        ${t} ${action} ${pkg}
+        ${t} ${action} ${pkg} ${content}
     done
 }
 
