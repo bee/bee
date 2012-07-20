@@ -24,6 +24,8 @@
 #
 action=${1}
 pkg=${2}
+content=${3}
+: ${content:=${BEE_METADIR}/${pkg}/CONTENT}
 
 if [ -z ${BEE_VERSION} ] ; then
     echo >&2 "BEE-ERROR: cannot call $0 from the outside of bee .."
@@ -41,7 +43,7 @@ if [ -z "${gdk_pixbuf_moduledir}" -o -z "${gdk_pixbuf_cache_file}" ]; then
     exit 0
 fi
 
-if grep -q "file=${gdk_pixbuf_moduledir}" ${BEE_METADIR}/${pkg}/CONTENT ; then
+if grep -q "file=${gdk_pixbuf_moduledir}" ${content} ; then
     case "${action}" in
         "post-install")
             rm -f ${gdk_pixbuf_cache_file}

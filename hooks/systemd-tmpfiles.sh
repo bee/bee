@@ -24,6 +24,8 @@
 #
 action=${1}
 pkg=${2}
+content=${3}
+: ${content:=${BEE_METADIR}/${pkg}/CONTENT}
 
 if [ -z "${BEE_VERSION}" ] ; then
     echo >&2 "BEE-ERROR: cannot call $0 from the outside of bee .."
@@ -40,7 +42,7 @@ fi
 
 case "${action}" in
     "post-install")
-        if egrep --max-count=1 "file=(/etc|/lib|/usr/lib)/tmpfiles.d" ${BEE_METADIR}/${pkg}/CONTENT >/dev/null 2>&1 ; then
+        if egrep --max-count=1 "file=(/etc|/lib|/usr/lib)/tmpfiles.d" ${content} >/dev/null 2>&1 ; then
             systemd-tmpfiles --create
         fi
         ;;

@@ -24,6 +24,8 @@
 #
 action=${1}
 pkg=${2}
+content=${3}
+: ${content:=${BEE_METADIR}/${pkg}/CONTENT}
 
 if [ -z ${BEE_VERSION} ] ; then
     echo >&2 "BEE-ERROR: cannot call $0 from the outside of bee .."
@@ -36,7 +38,7 @@ fi
 
 for dir in ${XDG_DATA_DIRS//:/ } ; do
     mime_dir=${dir}/mime
-    if grep -q "file=${mime_dir}/packages" ${BEE_METADIR}/${pkg}/CONTENT ; then
+    if grep -q "file=${mime_dir}/packages" ${content} ; then
         case "${action}" in
             "post-install")
                 update-mime-database ${mime_dir}

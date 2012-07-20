@@ -24,6 +24,8 @@
 #
 action=${1}
 pkg=${2}
+content=${3}
+: ${content:=${BEE_METADIR}/${pkg}/CONTENT}
 
 if [ -z ${BEE_VERSION} ] ; then
     echo >&2 "BEE-ERROR: cannot call $0 from the outside of bee .."
@@ -43,22 +45,8 @@ fi
 
 for man_dir in $(beeuniq ${man_dirs//:/ }) ; do
     case "${action}" in
-        "post-install")
-            for line in $(grep "file=${man_dir}" ${BEE_METADIR}/${pkg}/CONTENT) ; do
-                eval $(beesep ${line})
-                if [ -f "${file}" -o -L "${file}" ] ; then
-                    if  [ -f "/var/cache/man/index.db" ] ; then
-                        echo "updating manual index cache for ${file} .."
-                        mandb -q -f ${file}
-                    else
-                        echo "updating manual index cache for ${man_dir} .."
-                        mandb -q ${man_dir}
-                    fi
-                fi
-            done
-            ;;
-        "post-remove")
-            if grep -q "file=${man_dir}" ${BEE_METADIR}/${pkg}/CONTENT ; then
+        "post-remove"|"post-install")
+            if grep -q "file=${man_dir}" ${content} ; then
                 echo "updating manual index cache for ${man_dir} .."
                 mandb -q ${man_dir}
             fi
