@@ -269,11 +269,11 @@ int print_item(FILE *out, struct item item, struct inventory_meta meta)
     return 1;
 }
 
-FILE *fopen_infname(char *mode, char *format, ...)
+FILE *fopenf(char *mode, char *format, ...)
 {
-    FILE *infh;
+    FILE *fh;
     int res;
-    char *infname;
+    char *fname;
     va_list list;
 
     assert(mode);
@@ -281,7 +281,7 @@ FILE *fopen_infname(char *mode, char *format, ...)
 
     va_start(list, format);
 
-    res = vasprintf(&infname, format, list);
+    res = vasprintf(&fname, format, list);
     if (res < 0) {
         perror("vasprintf");
         return NULL;
@@ -289,48 +289,11 @@ FILE *fopen_infname(char *mode, char *format, ...)
 
     va_end(list);
 
-    infh = fopen(infname, mode);
-    if (!infh && errno != ENOENT) {
-        fprintf(stderr, "failed to open file %s: %m\n", infname);
-        free(infname);
-        return NULL;
-    }
+    fh = fopen(fname, mode);
 
-    free(infname);
+    free(fname);
 
-    return infh;
-}
-
-FILE *fopen_outfname(char *mode, char *format, ...)
-{
-    FILE *outfh;
-    int res;
-    char *outfname;
-    va_list list;
-
-    assert(mode);
-    assert(format);
-
-    va_start(list, format);
-
-    res = vasprintf(&outfname, format, list);
-    if (res < 0) {
-        perror("vasprintf");
-        return NULL;
-    }
-
-    va_end(list);
-
-    outfh = fopen(outfname, mode);
-    if (!outfh) {
-        fprintf(stderr, "failed to open file %s: %m\n", outfname);
-        free(outfname);
-        return NULL;
-    }
-
-    free(outfname);
-
-    return outfh;
+    return fh;
 }
 
 int renamef(char *dest, char *source, ...)
@@ -393,15 +356,19 @@ int inventory_filefile(char *infname, char *outfname, struct inventory_meta meta
 
     assert(infname);
 
-    infh = fopen_infname("r", "%s", infname);
+    infh = fopenf("r", "%s", infname);
     if (!infh) {
+        if (errno == ENOENT || errno == ENOTDIR)
+            return 1;
+        fprintf(stderr, "failed to open file %s: %m\n", infname);
         return 0;
     }
 
     if (outfname) {
         pid = getpid();
-        outfh = fopen_outfname("w", "%s.%d", outfname, pid);
+        outfh = fopenf("w", "%s.%d", outfname, pid);
         if (!outfh) {
+            fprintf(stderr, "failed to open file %s: %m\n", outfname);
             fclose(infh);
             return 0;
         }
@@ -460,8 +427,9 @@ int inventory_dirfile(char *indname, char *outfname, struct inventory_meta meta)
 
     if (outfname) {
         pid = getpid();
-        outfh = fopen_outfname("w", "%s.%d", outfname, pid);
+        outfh = fopenf("w", "%s.%d", outfname, pid);
         if (!outfh) {
+            fprintf(stderr, "failed to open file %s: %m\n", outfname);
             res = 0;
             goto closedir;
         }
@@ -475,10 +443,11 @@ int inventory_dirfile(char *indname, char *outfname, struct inventory_meta meta)
         if (*dirname == '.')
             continue;
 
-        infh = fopen_infname("r", "%s/%s/%s", indname, dirname, "CONTENT");
+        infh = fopenf("r", "%s/%s/%s", indname, dirname, "CONTENT");
         if (!infh) {
-            if (errno == ENOENT)
+            if (errno == ENOENT || errno == ENOTDIR)
                 continue;
+            fprintf(stderr, "failed to open file %s/%s/%s: %m\n", indname, dirname, "CONTENT");
             res = 0;
             goto closeoutfh;
         }
