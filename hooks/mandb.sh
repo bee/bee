@@ -47,8 +47,13 @@ for man_dir in $(beeuniq ${man_dirs//:/ }) ; do
     case "${action}" in
         "post-remove"|"post-install")
             if grep -q "file=${man_dir}" ${content} ; then
-                echo "updating manual index cache for ${man_dir} .."
-                mandb -q ${man_dir}
+                nfiles=$(ls ${man_dir}/ | head -2 | grep -c -v index.db)
+                if [ "${nfiles}" -gt 0 ] ; then
+                    rm -f ${man_dir}/index.db
+                else
+                    echo "updating manual index cache for ${man_dir} .."
+                    mandb -q ${man_dir}
+                fi
             fi
             ;;
     esac
