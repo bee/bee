@@ -548,23 +548,23 @@ int inventory_dirdir(char *indname, char *outdname, struct inventory_meta meta)
         if (res < 0) {
             perror("asprintf");
             res = 0;
-            goto freeout;
+            free(outfname);
+            goto closedir;
         }
 
         meta.package = dirname;
 
         res = inventory_filefile(infname, outfname, meta);
         if(!res) {
-            goto freein;
+            free(infname);
+            free(outfname);
+            goto closedir;
         }
 
+        free(infname);
+        free(outfname);
+
     }
-
-freein:
-    free(infname);
-
-freeout:
-    free(outfname);
 
 closedir:
     closedir(indh);
