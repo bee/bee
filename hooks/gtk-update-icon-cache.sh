@@ -24,6 +24,8 @@
 #
 action=${1}
 pkg=${2}
+content=${3}
+: ${content:=${BEE_METADIR}/${pkg}/CONTENT}
 
 if [ -z ${BEE_VERSION} ] ; then
     echo >&2 "BEE-ERROR: cannot call $0 from the outside of bee .."
@@ -36,7 +38,7 @@ fi
 
 for dir in ${XDG_DATA_DIRS//:/ } ; do
     icon_base_dir=${dir}/icons
-    for line in $(grep -h "file=${icon_base_dir}/.*/index.theme" ${BEE_METADIR}/${pkg}/CONTENT) ; do
+    for line in $(grep -h "file=${icon_base_dir}/.*/index.theme" ${content}) ; do
         eval $(beesep ${line})
         icon_dir=${file%%/index.theme}
         case "${action}" in

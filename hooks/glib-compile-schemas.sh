@@ -24,6 +24,8 @@
 #
 action=${1}
 pkg=${2}
+content=${3}
+: ${content:=${BEE_METADIR}/${pkg}/CONTENT}
 
 if [ -z ${BEE_VERSION} ] ; then
     echo >&2 "BEE-ERROR: cannot call $0 from the outside of bee .."
@@ -36,7 +38,7 @@ fi
 
 for dir in ${XDG_DATA_DIRS//:/ } ; do
     schema_dir=${dir}/glib-2.0/schemas
-    if grep -q "file=${schema_dir}" ${BEE_METADIR}/${pkg}/CONTENT ; then
+    if grep -q "file=${schema_dir}" ${content}; then
         case "${action}" in
             "post-install")
                 rm -f ${schema_dir}/gschemas.compiled

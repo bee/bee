@@ -24,6 +24,8 @@
 #
 action=${1}
 pkg=${2}
+content=${3}
+: ${content:=${BEE_METADIR}/${pkg}/CONTENT}
 
 if [ -z ${BEE_VERSION} ] ; then
     echo >&2 "BEE-ERROR: cannot call $0 from the outside of bee .."
@@ -38,7 +40,7 @@ fi
 
 case "${action}" in
     "post-install")
-        for s in $(grep -o "/.*gconf.*\.schemas" ${BEE_METADIR}/${pkg}/CONTENT 2>/dev/null) ; do
+        for s in $(grep -o "/.*gconf.*\.schemas" ${content} 2>/dev/null) ; do
             echo "installing schema '${s##*/}'"
             ${GCONFTOOL} --install-schema-file ${s} >/dev/null
         done
