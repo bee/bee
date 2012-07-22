@@ -525,15 +525,14 @@ int inventory_dirdir(char *indname, char *outdname, struct inventory_meta meta)
         meta.package = dirname;
 
         res = inventory_filefile(infname, outfname, meta);
-        if(!res) {
-            free(infname);
-            free(outfname);
-            ret = 0;
-            break;
-        }
 
         free(infname);
         free(outfname);
+
+        if(!res) {
+            ret = 0;
+            break;
+        }
     }
 
     closedir(indh);
