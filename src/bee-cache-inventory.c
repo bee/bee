@@ -517,7 +517,7 @@ int inventory_dirdir(char *indname, char *outdname, struct inventory_meta meta)
         if (res < 0) {
             perror("asprintf");
             res = 0;
-            free(outfname);
+            free(infname);
             goto closedir;
         }
 
