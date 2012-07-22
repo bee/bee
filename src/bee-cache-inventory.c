@@ -511,7 +511,7 @@ int inventory_dirdir(char *indname, char *outdname, struct inventory_meta meta)
         if (res < 0) {
             perror("asprintf");
             ret = 0;
-            goto closedir;
+            break;
         }
 
         res = asprintf(&outfname, "%s/%s.inv", outdname, dirname);
@@ -519,7 +519,7 @@ int inventory_dirdir(char *indname, char *outdname, struct inventory_meta meta)
             perror("asprintf");
             free(infname);
             ret = 0;
-            goto closedir;
+            break;
         }
 
         meta.package = dirname;
@@ -529,17 +529,14 @@ int inventory_dirdir(char *indname, char *outdname, struct inventory_meta meta)
             free(infname);
             free(outfname);
             ret = 0;
-            goto closedir;
+            break;
         }
 
         free(infname);
         free(outfname);
-
     }
 
-closedir:
     closedir(indh);
-
     return ret;
 }
 
