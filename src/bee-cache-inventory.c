@@ -280,14 +280,12 @@ FILE *fopenf(char *mode, char *format, ...)
     assert(format);
 
     va_start(list, format);
-
     res = vasprintf(&fname, format, list);
+    va_end(list);
     if (res < 0) {
         perror("vasprintf");
         return NULL;
     }
-
-    va_end(list);
 
     fh = fopen(fname, mode);
 
@@ -305,8 +303,8 @@ int renamef(char *dest, char *source, ...)
     assert(source);
 
     va_start(list, source);
-
     res = vasprintf(&srcfname, source, list);
+    va_end(list);
     if(!res) {
         perror("vasprintf");
         return 0;
