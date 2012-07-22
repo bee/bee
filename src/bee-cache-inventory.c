@@ -539,56 +539,73 @@ int inventory_dirdir(char *indname, char *outdname, struct inventory_meta meta)
 
 int inventory(struct inventory_meta meta)
 {
-    int res = 0;
-    int inst = 0;
-    int outst = 0;
+    int res;
     struct stat insb;
     struct stat outsb;
 
-    inst = stat(meta.infile, &insb);
-    if (inst) {
-        perror("stat infile");
+    res = stat(meta.infile, &insb);
+    if (res < 0) {
+        fprintf(stderr, "bee-cache-inventory: %s: %m\n", meta.infile);
+        return 0;
+    }
+
+    if (res == 0 && !S_ISDIR(insb.st_mode) && !S_ISREG(insb.st_mode)) {
+        fprintf(stderr, "bee-cache-inventory: %s: Invalid filetype.\n", meta.infile);
         return 0;
     }
 
     if (meta.outfile) {
-        if (meta.multiplefiles) {
-            res = mkdir(meta.outfile, 0777);
-            if (res && errno != EEXIST) {
-                fprintf(stderr, "creating directory %s failed: %m\n", meta.outfile);
-                return 0;
-            }
+
+        res = stat(meta.outfile, &outsb);
+        if (res < 0 && errno != ENOENT) {
+            fprintf(stderr, "bee-cache-inventory: %s: %m\n", meta.outfile);
+            return 0;
         }
 
-        outst = stat(meta.outfile, &outsb);
-        if (outst && errno != ENOENT) {
-            perror("stat outfile");
+        if (res == 0 && !S_ISDIR(outsb.st_mode) && !S_ISREG(outsb.st_mode)) {
+            fprintf(stderr, "bee-cache-inventory: %s: Invalid filetype.\n", meta.outfile);
             return 0;
+        }
+
+        if (res == 0 && S_ISDIR(outsb.st_mode)) {
+             meta.multiplefiles = 1;
+        } else if (meta.multiplefiles) {
+            if (res == 0) {
+                if (!S_ISDIR(outsb.st_mode)) {
+                    errno = EEXIST;
+                    fprintf(stderr, "bee-cache-inventory: %s: %m\n", meta.outfile);
+                    return 0;
+                }
+            }
+            if (res < 0) {
+                res = mkdir(meta.outfile, 0777);
+                if (res < 0) {
+                    fprintf(stderr, "bee-cache-inventory: %s: %m\n", meta.outfile);
+                    return 0;
+                }
+            }
         }
     }
 
     if (S_ISREG(insb.st_mode)) {
-        if (!meta.outfile || outst || S_ISREG(outsb.st_mode)) {
-            res = inventory_filefile(meta.infile, meta.outfile, meta);
-        } else if (S_ISDIR(outsb.st_mode)) {
-            res = 0;
-            fputs("cannot convert from file to dir\n", stderr);
-        } else {
-            res = 0;
-            fputs(meta.outfile, stderr);
-            fputs(" is neither file nor directory\n", stderr);
+        if (!meta.multiplefiles) {
+            return inventory_filefile(meta.infile, meta.outfile, meta);
         }
-
-    } else if (S_ISDIR(insb.st_mode)) {
-        if (!meta.outfile || outst || S_ISREG(outsb.st_mode)) {
-            res = inventory_dirfile(meta.infile, meta.outfile, meta);
-        } else if (S_ISDIR(outsb.st_mode) || meta.multiplefiles) {
-            res = inventory_dirdir(meta.infile, meta.outfile, meta);
-        }
-
+        errno = ENOTDIR;
+        fprintf(stderr, "bee-cache-inventory: %s: %m\n", meta.infile);
+        return 0;
     }
 
-    return res;
+    if (S_ISDIR(insb.st_mode)) {
+        if (!meta.multiplefiles) {
+            return inventory_dirfile(meta.infile, meta.outfile, meta);
+        }
+        return inventory_dirdir(meta.infile, meta.outfile, meta);
+    }
+
+    assert(0);
+
+    return 0;
 }
 
 /*
