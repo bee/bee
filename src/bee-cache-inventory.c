@@ -482,7 +482,8 @@ closedir:
 
 int inventory_dirdir(char *indname, char *outdname, struct inventory_meta meta)
 {
-    int res = 1;
+    int res;
+    int ret = 1;
     DIR *indh;
     struct dirent *indent;
     char *dirname;
@@ -509,15 +510,15 @@ int inventory_dirdir(char *indname, char *outdname, struct inventory_meta meta)
         res = asprintf(&infname, "%s/%s/CONTENT", indname, dirname);
         if (res < 0) {
             perror("asprintf");
-            res = 0;
+            ret = 0;
             goto closedir;
         }
 
         res = asprintf(&outfname, "%s/%s.inv", outdname, dirname);
         if (res < 0) {
             perror("asprintf");
-            res = 0;
             free(infname);
+            ret = 0;
             goto closedir;
         }
 
@@ -527,6 +528,7 @@ int inventory_dirdir(char *indname, char *outdname, struct inventory_meta meta)
         if(!res) {
             free(infname);
             free(outfname);
+            ret = 0;
             goto closedir;
         }
 
@@ -538,7 +540,7 @@ int inventory_dirdir(char *indname, char *outdname, struct inventory_meta meta)
 closedir:
     closedir(indh);
 
-    return res;
+    return ret;
 }
 
 int inventory(struct inventory_meta meta)
