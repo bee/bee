@@ -115,7 +115,8 @@ function do_f2c() {
 
             echo -n ":md5=${md5%% *}"
         elif [ "${type}" = "symlink" ] ; then
-            file="${file}//$(readlink ${root}${file})"
+            target=$(readlink ${root}${file})
+            file="${file}//${target#${root}}"
         elif [ "${type}" = "block" -o "${type}" = "char" ] ; then
             echo -n ":major=${major}"
             echo -n ":minor=${minor}"
