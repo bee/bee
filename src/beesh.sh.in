@@ -381,22 +381,34 @@ function bee_patch() {
     done
 }
 
+function bee_dummy() {
+
+    info=( $(caller 0) )
+
+    if [ ! -z "${@}" ] ; then
+        print_error "ERROR: ${info[1]} is empty but is used with arguments in bee-file."
+        exit 1
+    else
+        print_info "action '${info[1]}' is not defined: skipping.."
+    fi
+}
+
 #### bee_configure() ##########################################################
 
 function bee_configure() {
-    print_info "action 'configure' not defined: skipping.."
+    bee_dummy "${@}"
 }
 
 #### bee_build() ##############################################################
 
 function bee_build() {
-    print_info "action 'build' not defined: skipping.."
+    bee_dummy "${@}"
 }
 
 #### bee_install() ############################################################
 
 function bee_install() {
-    print_info "action 'install' not defined: skipping.."
+    bee_dummy "${@}"
 }
 
 #### bee_crosscheck() #########################################################
