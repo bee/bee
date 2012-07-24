@@ -58,7 +58,7 @@ pkg_remove() {
 do_remove() {
     pkg=${1}
 
-    mv ${BEE_METADIR}/${pkg}/CONTENT{,.removed} 2>/dev/null
+    mv ${BEE_METADIR}/${pkg}/CONTENT{,.bee-remove} 2>/dev/null
     if [ "$?" != "0" ] ; then
         return 1
     fi
@@ -75,7 +75,7 @@ do_remove() {
     fi
 
     [ "${NOOP}" != "yes" ] && \
-        run_hooks pre-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.removed
+        run_hooks pre-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.bee-remove
 
     echo "removing package '${pkg}'"
 
@@ -89,7 +89,7 @@ do_remove() {
     done
 
     [ "${NOOP}" != "yes" ] && \
-        run_hooks post-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.removed
+        run_hooks post-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.bee-remove
 
     if [ -r "${BEE_METADIR}/${pkg}/META" ] ; then
         . "${BEE_METADIR}/${pkg}/META"
@@ -108,7 +108,7 @@ do_remove() {
             fi
 
             # if dir does is not part of package -> skip it
-            content_file="${BEE_METADIR}/${pkg}/CONTENT.removed"
+            content_file="${BEE_METADIR}/${pkg}/CONTENT.bee-remove"
             if ! grep -q -l -E ":file=${dir}(/|$)" "${content_file}" ; then
                 continue
             fi
