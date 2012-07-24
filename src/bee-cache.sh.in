@@ -91,7 +91,7 @@ function print_conflicting_files_for_pkg() {
 
     cache_conflicts ${inventory} \
         | grep -E "^${pkg} " \
-        | cut -d ' ' -f8-
+        | cut -d ' ' -f${FIELDS}
 }
 
 function cache_uniq() {
@@ -118,7 +118,7 @@ function print_uniq_files_for_pkg() {
 
     cache_uniq ${inventory} \
         | grep -E "^${pkg} " \
-        | cut -d ' ' -f8-
+        | cut -d ' ' -f${FIELDS}
 }
 
 function tmp_merge_install_inventory_files() {
@@ -181,6 +181,7 @@ function usage() {
 
 options=$(${BEE_BINDIR}/beegetopt --name bee-cache \
                  --option help/h \
+                 --option fields/f= \
                  --option tmpinstall/i= \
                  -- "$@")
 
@@ -191,6 +192,7 @@ fi
 eval set -- "${options}"
 
 declare -a TMPINSTALL
+declare FIELDS="8-"
 
 while true ; do
     case "$1" in
@@ -200,6 +202,10 @@ while true ; do
             ;;
         --tmpinstall)
             TMPINSTALL=( "${tmpinstall[@]}" "$2" )
+            shift 2
+            ;;
+        --fields)
+            FIELDS=${2}
             shift 2
             ;;
         --)
