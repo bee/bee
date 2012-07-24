@@ -67,6 +67,33 @@ function cache_update_pkg() {
     return 0
 }
 
+function cache_conflicts() {
+    local file=${1}
+
+    uniq -D -f7 ${file} | uniq -u -f5
+}
+
+function print_conflicting_files() {
+    local pkg=$1
+
+    if [ -z "${pkg}" ] ; then
+        echo >&2 "bee-cache: print-conflicting-files: No package provided."
+        return 1
+    fi
+
+    print_conflicting_files_for_pkg "${pkg}" \
+        <( tmp_merge_install_inventory_files "${TMPINSTALL[@]}" )
+}
+
+function print_conflicting_files_for_pkg() {
+    local pkg=$1
+    local inventory=$2
+
+    cache_conflicts ${inventory} \
+        | grep -E "^${pkg} " \
+        | cut -d ' ' -f8-
+}
+
 function cache_uniq() {
     local file=${1}
 
@@ -194,6 +221,9 @@ case "${cmd}" in
         ;;
     print-uniq-files)
         print_uniq_files "${@}"
+        ;;
+    print-conflicting-files)
+        print_conflicting_files "${@}"
         ;;
     *)
         echo >&2 "bee-cache: ${cmd}: Unknown command."
