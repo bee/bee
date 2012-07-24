@@ -48,8 +48,16 @@ function create_pkgbcfile()
         if [ -e "${PKGBCFILE}" ] ; then
             print_info "moving ${PKGBCFILE} to ${PKGBCRFILE}.."
             mv "${PKGBCFILE}" "${PKGBCRFILE}"
-        fi;
-        return 0
+            return 0
+        elif [ -e "${PKGBCRFILE}" ] ; then
+            return 0
+        elif [ -e "${CONTENTFILE}.bee-remove" ] ; then
+            CONTENTFILE=${CONTENTFILE}.bee-remove
+            PKGBCFILE=${PKGBCRFILE}
+            tmpfile=${PKGBCFILE}.tmp.$$
+        else
+           return 0
+        fi
     fi
 
     print_info "creating ${PKGBCFILE} .."
