@@ -58,7 +58,11 @@ pkg_remove() {
 do_remove() {
     pkg=${1}
 
-    mv ${BEE_METADIR}/${pkg}/CONTENT{,.removed}
+    mv ${BEE_METADIR}/${pkg}/CONTENT{,.removed} 2>/dev/null
+    if [ "$?" != "0" ] ; then
+        return 1
+    fi
+
     mkdir -p ${BEECACHE_CACHEDIR}
     ${BEEFLOCK} ${BEECACHE_CACHEDIR}/INVENTORY \
         ${BEE_LIBEXECDIR}/bee/bee-cache-update ${pkg} \
