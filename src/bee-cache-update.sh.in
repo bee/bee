@@ -1,0 +1,155 @@
+#!/bin/bash
+#
+# Copyright (C) 2012
+#       Marius Tolzmann <tolzmann@molgen.mpg.de>
+#       Tobias Dreyer <dreyer@molgen.mpg.de>
+#       and other bee developers
+#
+# This file is part of bee.
+#
+# bee is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+: ${BEE_BINDIR=@BINDIR@}
+: ${BEE_LIBEXECDIR=@LIBEXECDIR@}
+
+set -e
+
+if [ -z "${BEE_VERSION}" ] ; then
+    echo >&2 "BEE-ERROR: please don't call $0 directly without initializing the environment.."
+    exit 1
+fi
+
+function print_info()
+{
+    echo ${@}
+}
+
+function create_pkgbcfile()
+{
+    local PKGALLPKG=${1}
+    local CONTENTFILE=${BEE_METADIR}/${PKGALLPKG}/CONTENT
+    local PKGBCFILE=${CACHEDIR}/${PKGALLPKG}.bc
+    local PKGBCRFILE=${PKGBCFILE%.bc}.bcr
+
+    local tmpfile=${PKGBCFILE}.tmp.$$
+
+    if [ ! -e  "${CONTENTFILE}" ] ; then
+        if [ -e "${PKGBCFILE}" ] ; then
+            print_info "moving ${PKGBCFILE} to ${PKGBCRFILE}.."
+            mv "${PKGBCFILE}" "${PKGBCRFILE}"
+        fi;
+        return 0
+    fi
+
+    print_info "creating ${PKGBCFILE} .."
+    ${BEE_LIBEXECDIR}/bee/bee-cache-inventory \
+        --prepend "${PKGALLPKG} " \
+        ${CONTENTFILE} \
+        | sort -k 8 -k 1 \
+            >${tmpfile}
+
+    if [ ${PIPESTATUS[0]} != 0 -o ${PIPESTATUS[1]} != 0 ] ; then
+        echo >&2 "bee-cache-update: ${tmpfile}: Creation failed."
+        rm ${tmpfile}
+        return 1
+    fi
+
+    mv ${tmpfile} ${PKGBCFILE}
+}
+
+function remove_from_inventory()
+{
+    local PKGALLPKG=${1}
+
+    print_info "removing ${PKGALLPKG} from ${INVENTORYFILE} .."
+
+    sed -i ${INVENTORYFILE} \
+        -e "/^${PKGALLPKG} /d"
+}
+
+function update_inventory()
+{
+    local PKGALLPKG=${1}
+    local PKGBCFILE=${CACHEDIR}/${PKGALLPKG}.bc
+
+    local tmpfile=${INVENTORYFILE}.tmp.$$
+
+    if [ ! -e "${PKGBCFILE}" ] ; then
+        remove_from_inventory "${PKGALLPKG}"
+        return 0
+    fi
+
+    print_info "merging ${PKGBCFILE} with ${INVENTORYFILE} .."
+
+    sort -u -m -k 8 -k 1 >${tmpfile} \
+        ${INVENTORYFILE} \
+        ${PKGBCFILE}
+
+    if [ $? != 0 ] ; then
+        echo >&2 "bee-cache-update: ${INVENTORYFILE}: Update failed."
+        rm ${tmpfile}
+        return 1
+    fi
+
+    mv ${tmpfile} ${INVENTORYFILE}
+}
+
+function create_inventory()
+{
+    local PKGALLPKG=${1}
+
+    local tmpfile=${INVENTORYFILE}.tmp.$$
+
+    print_info "creating ${INVENTORYFILE} .."
+
+    ${BEE_LIBEXECDIR}/bee/bee-cache-inventory \
+        ${BEE_METADIR} \
+        | sort -k 8 -k 1 \
+            >${tmpfile}
+
+    if [ ${PIPESTATUS[0]} != 0 -o ${PIPESTATUS[1]} != 0 ] ; then
+        echo >&2 "bee-cache-update: ${INVENTORYFILE}: Creation failed."
+        rm ${tmpfile}
+        return 1
+    fi
+
+    mv ${tmpfile} ${INVENTORYFILE}
+}
+
+declare pkg=${1}
+declare CACHEDIR=${BEE_CACHEDIR}/bee-cache
+declare INVENTORYFILE=${CACHEDIR}/INVENTORY
+
+mkdir -p ${CACHEDIR}
+
+if [ "${pkg}" == "PKGS" ] ; then
+    for p in ${BEE_METADIR}/* ; do
+        create_pkgbcfile ${p##*/}
+    done
+    exit 0
+fi
+
+if [ -z "${pkg}" ] ; then
+    create_inventory
+    exit 0
+fi
+
+if [ -s "${INVENTORYFILE}" ] ; then
+    create_pkgbcfile "${pkg}"
+    update_inventory "${pkg}"
+    exit 0
+fi
+
+create_pkgbcfile "${pkg}"
+create_inventory

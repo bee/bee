@@ -31,6 +31,8 @@ fi
 VERSION=${BEE_VERSION}
 
 : ${BEE_BINDIR:=@BINDIR@}
+: ${BEEFLOCK=${BEE_BINDIR}/beeflock}
+: ${BEECACHE_CACHEDIR=${BEE_CACHEDIR}/bee-cache}
 
 pkg_remove_all() {
     for pkg in "${@}" ; do
@@ -56,13 +58,20 @@ pkg_remove() {
 do_remove() {
     pkg=${1}
 
+    mv ${BEE_METADIR}/${pkg}/CONTENT{,.removed}
+    mkdir -p ${BEECACHE_CACHEDIR}
+    ${BEEFLOCK} ${BEECACHE_CACHEDIR}/INVENTORY \
+        ${BEE_LIBEXECDIR}/bee/bee-cache-update ${pkg} \
+        >/dev/null
+
     FILES=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-dep remove --print ${pkg})
     if [ $? -ne 0 ] ; then
         echo "removal of ${pkg} failed"
         exit 1
     fi
 
-    [ "${NOOP}" != "yes" ] && run_hooks pre-remove ${pkg}
+    [ "${NOOP}" != "yes" ] && \
+        run_hooks pre-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.removed
 
     echo "removing package '${pkg}'"
 
@@ -75,7 +84,8 @@ do_remove() {
         fi
     done
 
-    [ "${NOOP}" != "yes" ] && run_hooks post-remove ${pkg}
+    [ "${NOOP}" != "yes" ] && \
+        run_hooks post-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.removed
 
     if [ -r "${BEE_METADIR}/${pkg}/META" ] ; then
         . "${BEE_METADIR}/${pkg}/META"
@@ -94,7 +104,7 @@ do_remove() {
             fi
 
             # if dir does is not part of package -> skip it
-            content_file="${BEE_METADIR}/${pkg}/CONTENT"
+            content_file="${BEE_METADIR}/${pkg}/CONTENT.removed"
             if ! grep -q -l -E ":file=${dir}(/|$)" "${content_file}" ; then
                 continue
             fi
