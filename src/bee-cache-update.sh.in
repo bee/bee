@@ -100,7 +100,7 @@ function update_inventory()
 
     print_info "merging ${PKGBCFILE} with ${INVENTORYFILE} .."
 
-    sort -u -m -r -k 8 -k 1 >${tmpfile} \
+    sort -u -m -u -r -k 8 -k 1 >${tmpfile} \
         ${INVENTORYFILE} \
         ${PKGBCFILE}
 
