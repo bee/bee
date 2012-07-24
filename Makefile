@@ -66,6 +66,7 @@ PROGRAMS_SHELL+=beesh
 
 HELPER_BEE_C+=bee-dep
 
+HELPER_BEE_SHELL+=bee-cache
 HELPER_BEE_SHELL+=bee-check
 HELPER_BEE_SHELL+=bee-download
 HELPER_BEE_SHELL+=bee-init

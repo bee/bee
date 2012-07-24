@@ -31,8 +31,6 @@ fi
 VERSION=${BEE_VERSION}
 
 : ${BEE_BINDIR:=@BINDIR@}
-: ${BEEFLOCK=${BEE_BINDIR}/beeflock}
-: ${BEECACHE_CACHEDIR=${BEE_CACHEDIR}/bee-cache}
 
 pkg_remove_all() {
     for pkg in "${@}" ; do
@@ -55,6 +53,10 @@ pkg_remove() {
     ${BEE_LIBEXECDIR}/bee/bee.d/bee-list -i "${search}"
 }
 
+function bee-cache() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
+}
+
 do_remove() {
     pkg=${1}
 
@@ -63,24 +65,19 @@ do_remove() {
         return 1
     fi
 
-    mkdir -p ${BEECACHE_CACHEDIR}
-    ${BEEFLOCK} ${BEECACHE_CACHEDIR}/INVENTORY \
-        ${BEE_LIBEXECDIR}/bee/bee-cache-update ${pkg} \
-        >/dev/null
-
-    FILES=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-dep remove --print ${pkg})
+    bee-cache update ${pkg}
     if [ $? -ne 0 ] ; then
-        echo "removal of ${pkg} failed"
+        echo >&2 "bee-remove: ${pkg}: bee-cache update failed."
         exit 1
     fi
 
     [ "${NOOP}" != "yes" ] && \
         run_hooks pre-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.bee-remove
 
-    echo "removing package '${pkg}'"
+    FILES=( $(bee-cache --tmpinstall "${pkg}" print-uniq-files "${pkg}") )
 
     # removing files
-    for f in $FILES ; do
+    for f in "${FILES[@]}" ; do
         if [ -d "${f}" -a ! -h "$f" ] ; then
             ${NOOP:+echo} rmdir ${OPT_VERBOSE:+-v} ${f}
         else
