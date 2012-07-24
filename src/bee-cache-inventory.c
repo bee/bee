@@ -237,7 +237,11 @@ int print_item(FILE *out, struct item item, struct inventory_meta meta)
     fputs(item.mode, out);
 
     fputc(' ', out);
-    fputs(item.size, out);
+    if (strcmp(item.type, "directory") == 0) {
+        fputc('0', out);
+    } else {
+        fputs(item.size, out);
+    }
 
     fputc(' ', out);
     if(item.md5) {
