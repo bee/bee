@@ -67,6 +67,21 @@ function cache_update_pkg() {
     return 0
 }
 
+function print_conflicts() {
+    local pkg=${1}
+
+    pkgfullname=$(${BEE_BINDIR}/beeversion --pkgfullname ${pkg})
+
+    if [ -z "${pkgfullname}" ] ; then
+        echo >&2 "bee-cache: ${pkg}: Can't parse bee-package."
+        exit 1
+    fi
+
+    grep --file=<(print_conflicting_files "${pkg}" | cut -d ' ' -f8-) \
+        <( tmp_merge_install_inventory_files "${TMPINSTALL[@]}" ) \
+        | grep -v -E "^${pkgfullname}-[^-]+-[^-]+ "
+}
+
 function cache_conflicts() {
     local file=${1}
 
@@ -90,8 +105,7 @@ function print_conflicting_files_for_pkg() {
     local inventory=$2
 
     cache_conflicts ${inventory} \
-        | grep -E "^${pkg} " \
-        | cut -d ' ' -f${FIELDS}
+        | grep -E "^${pkg} "
 }
 
 function cache_uniq() {
@@ -117,8 +131,7 @@ function print_uniq_files_for_pkg() {
     local inventory=$2
 
     cache_uniq ${inventory} \
-        | grep -E "^${pkg} " \
-        | cut -d ' ' -f${FIELDS}
+        | grep -E "^${pkg} "
 }
 
 function tmp_merge_install_inventory_files() {
@@ -226,10 +239,13 @@ case "${cmd}" in
         cache_update "${@}"
         ;;
     print-uniq-files)
-        print_uniq_files "${@}"
+        print_uniq_files "${@}" | cut -d ' ' -f${FIELDS}
         ;;
     print-conflicting-files)
-        print_conflicting_files "${@}"
+        print_conflicting_files "${@}" | cut -d ' ' -f${FIELDS}
+        ;;
+    print-conflicts)
+        print_conflicts "${@}" | cut -d ' ' -f${FIELDS}
         ;;
     *)
         echo >&2 "bee-cache: ${cmd}: Unknown command."
