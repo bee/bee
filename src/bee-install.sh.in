@@ -407,15 +407,12 @@ function do_install_file() {
 
     last=""
     while read p f ; do
-        if [ "${last}" != "${f}" ] ; then
-            [ "${last}" != "" ] && echo ""
-            echo "  conflicting file found: $f"
-            echo -n "    also in packages:"
-            last=${f}
+        if [ "${last}" != "${p}" ] ; then
+            echo -e "    Conflicts with installed package found: ${p}:"
+            last=${p}
         fi
-        echo -n " $p"
+        echo "        $f"
     done < <(bee-cache print-conflicts ${pkg} -f1,8- | sort -k2 -k1 -u )
-    [ "${last}" != "" ] && echo ""
 }
 
 function run_hooks() {
