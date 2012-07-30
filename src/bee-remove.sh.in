@@ -33,6 +33,10 @@ VERSION=${BEE_VERSION}
 : ${BEE_BINDIR:=@BINDIR@}
 : ${BEE_LIBEXECDIR:=@LIBEXECDIR@}
 
+function bee-list() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-list "${@}"
+}
+
 function pkg_remove_all() {
     for pkg in "${@}" ; do
         pkg_remove "${pkg}"
@@ -51,7 +55,7 @@ function pkg_remove() {
     # pattern is no installed pkg
     # show all pkgs that match pattern
     echo "${search} matches following packages .."
-    ${BEE_LIBEXECDIR}/bee/bee.d/bee-list -i "${search}"
+    bee-list -i "${search}"
 }
 
 function bee-cache() {
