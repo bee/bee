@@ -33,6 +33,10 @@ VERSION=${BEE_VERSION}
 : ${BEE_BINDIR:=@BINDIR@}
 : ${BEE_LIBEXECDIR:=@LIBEXECDIR@}
 
+function bee-cache() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
+}
+
 function bee-list() {
     ${BEE_LIBEXECDIR}/bee/bee.d/bee-list "${@}"
 }
@@ -56,10 +60,6 @@ function pkg_remove() {
     # show all pkgs that match pattern
     echo "${search} matches following packages .."
     bee-list -i "${search}"
-}
-
-function bee-cache() {
-    ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
 }
 
 function do_remove() {
