@@ -31,6 +31,7 @@ fi
 VERSION=${BEE_VERSION}
 
 : ${BEE_BINDIR:=@BINDIR@}
+: ${BEE_LIBEXECDIR:=@LIBEXECDIR@}
 
 function pkg_remove_all() {
     for pkg in "${@}" ; do
