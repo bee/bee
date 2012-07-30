@@ -64,8 +64,7 @@ PROGRAMS_SHELL+=bee
 PROGRAMS_SHELL+=beefind
 PROGRAMS_SHELL+=beesh
 
-HELPER_BEE_C+=bee-dep
-
+HELPER_BEE_SHELL+=bee-cache
 HELPER_BEE_SHELL+=bee-check
 HELPER_BEE_SHELL+=bee-download
 HELPER_BEE_SHELL+=bee-init
@@ -107,7 +106,6 @@ HELPER_HOOKS_SHELL+=gconf-install-schemas
 
 MANPAGES+=bee.1
 MANPAGES+=bee-check.1
-MANPAGES+=bee-dep.1
 MANPAGES+=bee-download.1
 MANPAGES+=bee-list.1
 MANPAGES+=bee-init.1
@@ -145,7 +143,6 @@ BEESEP_OBJECTS=beesep.o
 BEECUT_OBJECTS=beecut.o
 BEEUNIQ_OBJECTS=beeuniq.o
 BEESORT_OBJECTS=bee_tree.o bee_version_compare.o bee_version_output.o bee_version_parse.o bee_getopt.o beesort.o
-BEEDEP_OBJECTS=bee-dep.o graph.o hash.o beedep_tree.o node.o
 BEEGETOPT_OBJECTS=bee_getopt.o beegetopt.o
 BEEFLOCK_OBJECTS=bee_getopt.o beeflock.o
 BEECACHEINVENTORY_OBJECTS=bee-cache-inventory.o bee_getopt.o
@@ -171,9 +168,6 @@ beeuniq: $(addprefix src/, ${BEEUNIQ_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 beesort: $(addprefix src/, ${BEESORT_OBJECTS})
-	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
-
-bee-dep: $(addprefix src/, ${BEEDEP_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 beegetopt: $(addprefix src/, ${BEEGETOPT_OBJECTS})

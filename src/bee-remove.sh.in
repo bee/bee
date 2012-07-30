@@ -31,8 +31,6 @@ fi
 VERSION=${BEE_VERSION}
 
 : ${BEE_BINDIR:=@BINDIR@}
-: ${BEEFLOCK=${BEE_BINDIR}/beeflock}
-: ${BEECACHE_CACHEDIR=${BEE_CACHEDIR}/bee-cache}
 
 pkg_remove_all() {
     for pkg in "${@}" ; do
@@ -55,28 +53,31 @@ pkg_remove() {
     ${BEE_LIBEXECDIR}/bee/bee.d/bee-list -i "${search}"
 }
 
+function bee-cache() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
+}
+
 do_remove() {
     pkg=${1}
 
-    mv ${BEE_METADIR}/${pkg}/CONTENT{,.removed}
-    mkdir -p ${BEECACHE_CACHEDIR}
-    ${BEEFLOCK} ${BEECACHE_CACHEDIR}/INVENTORY \
-        ${BEE_LIBEXECDIR}/bee/bee-cache-update ${pkg} \
-        >/dev/null
+    mv ${BEE_METADIR}/${pkg}/CONTENT{,.bee-remove} 2>/dev/null
+    if [ "$?" != "0" ] ; then
+        return 1
+    fi
 
-    FILES=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-dep remove --print ${pkg})
+    bee-cache update ${pkg}
     if [ $? -ne 0 ] ; then
-        echo "removal of ${pkg} failed"
+        echo >&2 "bee-remove: ${pkg}: bee-cache update failed."
         exit 1
     fi
 
     [ "${NOOP}" != "yes" ] && \
-        run_hooks pre-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.removed
+        run_hooks pre-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.bee-remove
 
-    echo "removing package '${pkg}'"
+    FILES=( $(bee-cache --tmpinstall "${pkg}" print-uniq-files "${pkg}") )
 
     # removing files
-    for f in $FILES ; do
+    for f in "${FILES[@]}" ; do
         if [ -d "${f}" -a ! -h "$f" ] ; then
             ${NOOP:+echo} rmdir ${OPT_VERBOSE:+-v} ${f}
         else
@@ -85,7 +86,7 @@ do_remove() {
     done
 
     [ "${NOOP}" != "yes" ] && \
-        run_hooks post-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.removed
+        run_hooks post-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.bee-remove
 
     if [ -r "${BEE_METADIR}/${pkg}/META" ] ; then
         . "${BEE_METADIR}/${pkg}/META"
@@ -104,7 +105,7 @@ do_remove() {
             fi
 
             # if dir does is not part of package -> skip it
-            content_file="${BEE_METADIR}/${pkg}/CONTENT.removed"
+            content_file="${BEE_METADIR}/${pkg}/CONTENT.bee-remove"
             if ! grep -q -l -E ":file=${dir}(/|$)" "${content_file}" ; then
                 continue
             fi
@@ -128,6 +129,7 @@ do_remove() {
 
     #cleanup meta directory
     ${NOOP:+echo} rm -fr ${OPT_VERBOSE:+-v} ${BEE_METADIR}/${pkg}
+    bee-cache update ${pkg}
 }
 
 function run_hooks() {

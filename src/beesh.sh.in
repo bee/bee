@@ -798,6 +798,7 @@ PKGALLPKG=
 
 config_handle_deprecated_beefile
 expand_prefix_variables
+config_export
 
 ###############################################################################
 
@@ -858,6 +859,30 @@ bee_crosscheck
 
 bee_pkg_pack
 
+function bee-cache() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
+}
+
+function bee_check_conflicts() {
+    ${BEE_LIBEXECDIR}/bee/bee-cache-inventory CONTENT \
+        --prepend "${PKGALLPKG} " \
+        | sort -r -u -k8 -k1 \
+        > ${PKGALLPKG}.bc
+
+    last=""
+    while read p f ; do
+        if [ "${last}" != "${p}" ] ; then
+            print_info "${COLOR_RED}Conflicts with installed package found: ${p}:${COLOR_NORMAL}"
+            last=${p}
+        fi
+        print_info "${COLOR_NORMAL}    $f"
+    done < <(bee-cache print-conflicts ${PKGALLPKG} \
+                --tmpinstall ${PKGALLPKG}.bc \
+                -f1,8- | sort -k1 -u )
+}
+
+bee_check_conflicts
+
 cd ${BEEWORKDIR}
 bee_archivebuild
 
@@ -878,7 +903,6 @@ echo
 
 
 if [ "${OPT_INSTALL}" = "yes" ] ; then
-    config_export
 
     print_info "installing ${PKGALLPKG} .."
     ${BEE_LIBEXECDIR}/bee/bee.d/bee-install ${OPT_FORCE:+-f} ${OPT_UPDATE:+-u} ${BEE_PKGDIR}/${PKGALLPKG}.bee.tar.bz2
