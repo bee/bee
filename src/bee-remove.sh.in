@@ -28,8 +28,6 @@ if [ -z "${BEE_VERSION}" ] ; then
     exit 1
 fi
 
-VERSION=${BEE_VERSION}
-
 : ${BEE_BINDIR:=@BINDIR@}
 : ${BEE_LIBEXECDIR:=@LIBEXECDIR@}
 
@@ -154,7 +152,7 @@ function run_hooks() {
 
 function usage() {
     cat <<-EOF
-	bee-remove v${VERSION} 2009-2012
+	bee-remove v${BEE_VERSION} 2009-2012
 	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
 	     Max Planck Institute for Molecular Genetics Berlin Dahlem
 
