@@ -77,7 +77,7 @@ function print_conflicts() {
         exit 1
     fi
 
-    grep --file=<(print_conflicting_files "${pkg}" | cut -d ' ' -f8-) \
+    grep --file=<(print_conflicting_files "${pkg}" | cut -d ' ' -f8- | sed -e 's,.*, &$,') \
         <( tmp_merge_install_inventory_files "${TMPINSTALL[@]}" ) \
         | grep -v -E "^${pkgfullname}-[^-]+-[^-]+ "
 }
