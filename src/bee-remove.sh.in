@@ -78,22 +78,20 @@ function do_remove() {
         exit 1
     fi
 
-    [ "${NOOP}" != "yes" ] && \
-        run_hooks pre-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.bee-remove
+    run_hooks pre-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.bee-remove
 
     FILES=( $(bee-cache --tmpinstall "${pkg}" print-uniq-files "${pkg}") )
 
     # removing files
     for f in "${FILES[@]}" ; do
         if [ -d "${f}" -a ! -h "$f" ] ; then
-            ${NOOP:+echo} rmdir ${OPT_VERBOSE:+-v} ${f}
+            rmdir ${OPT_VERBOSE:+-v} ${f}
         else
-            ${NOOP:+echo} rm -f ${OPT_VERBOSE:+-v} ${f}
+            rm -f ${OPT_VERBOSE:+-v} ${f}
         fi
     done
 
-    [ "${NOOP}" != "yes" ] && \
-        run_hooks post-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.bee-remove
+    run_hooks post-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.bee-remove
 
     if [ -r "${BEE_METADIR}/${pkg}/META" ] ; then
         . "${BEE_METADIR}/${pkg}/META"
@@ -129,13 +127,13 @@ function do_remove() {
             # filesystem anymore and we have an index db 8)
             # using bee dep here is currently to slow 8(
             if [ -z "$(bee-query ${dir} | head -1)" ] ; then
-                ${NOOP:+echo} rmdir ${OPT_VERBOSE:+-v} ${dir}
+                rmdir ${OPT_VERBOSE:+-v} ${dir}
             fi
         done
     fi
 
     #cleanup meta directory
-    ${NOOP:+echo} rm -fr ${OPT_VERBOSE:+-v} ${BEE_METADIR}/${pkg}
+    rm -fr ${OPT_VERBOSE:+-v} ${BEE_METADIR}/${pkg}
     bee-cache update ${pkg}
 }
 
@@ -160,14 +158,12 @@ function usage() {
 
 	Options:
 	    -h, --help        display this help
-	    -n, --noop        do not actually remove; just print
 	    -v, --verbose     print removed files and directories
 
 	EOF
 }
 
 options=$(${BEE_BINDIR}/beegetopt --name bee-remove \
-                 --option noop/n \
                  --option verbose/v \
                  --option help/h \
                  -- "$@")
@@ -180,10 +176,6 @@ eval set -- "${options}"
 
 while true ; do
     case "$1" in
-        --noop)
-            shift
-            NOOP="yes"
-            ;;
         --help)
             usage
             exit
