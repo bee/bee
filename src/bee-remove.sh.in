@@ -41,6 +41,10 @@ function bee-list() {
     ${BEE_LIBEXECDIR}/bee/bee.d/bee-list "${@}"
 }
 
+function bee-query() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-query "${@}"
+}
+
 function pkg_remove_all() {
     for pkg in "${@}" ; do
         pkg_remove "${pkg}"
@@ -126,7 +130,7 @@ function do_remove() {
             # this may be fixed automatically once bee query doesn't scan the
             # filesystem anymore and we have an index db 8)
             # using bee dep here is currently to slow 8(
-            if [ -z "$(${BEE_LIBEXECDIR}/bee/bee.d/bee-query ${dir} | head -1)" ] ; then
+            if [ -z "$(bee-query ${dir} | head -1)" ] ; then
                 ${NOOP:+echo} rmdir ${OPT_VERBOSE:+-v} ${dir}
             fi
         done
