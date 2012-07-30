@@ -32,13 +32,13 @@ VERSION=${BEE_VERSION}
 
 : ${BEE_BINDIR:=@BINDIR@}
 
-pkg_remove_all() {
+function pkg_remove_all() {
     for pkg in "${@}" ; do
         pkg_remove "${pkg}"
     done
 }
 
-pkg_remove() {
+function pkg_remove() {
     search=$1
 
     # pattern is a pkg in BEE_METADIR
@@ -57,7 +57,7 @@ function bee-cache() {
     ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
 }
 
-do_remove() {
+function do_remove() {
     pkg=${1}
 
     mv ${BEE_METADIR}/${pkg}/CONTENT{,.bee-remove} 2>/dev/null
@@ -143,7 +143,7 @@ function run_hooks() {
     done
 }
 
-usage() {
+function usage() {
     cat <<-EOF
 	bee-remove v${VERSION} 2009-2012
 	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
