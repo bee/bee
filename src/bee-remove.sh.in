@@ -129,6 +129,7 @@ do_remove() {
 
     #cleanup meta directory
     ${NOOP:+echo} rm -fr ${OPT_VERBOSE:+-v} ${BEE_METADIR}/${pkg}
+    bee-cache update ${pkg}
 }
 
 function run_hooks() {
