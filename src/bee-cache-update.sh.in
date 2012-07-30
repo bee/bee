@@ -38,13 +38,17 @@ function print_info()
 function create_pkgbcfile()
 {
     local PKGALLPKG=${1}
-    local CONTENTFILE=${BEE_METADIR}/${PKGALLPKG}/CONTENT
+    local PKGMETADIR=${BEE_METADIR}/${PKGALLPKG}
+    local CONTENTFILE=${PKGMETADIR}/CONTENT
     local PKGBCFILE=${CACHEDIR}/${PKGALLPKG}.bc
     local PKGBCRFILE=${PKGBCFILE%.bc}.bcr
 
     local tmpfile=${PKGBCFILE}.tmp.$$
 
-    if [ ! -e  "${CONTENTFILE}" ] ; then
+    if [ ! -d "${PKGMETADIR}" ] ; then
+        # cleanup cache if metadir does not exist
+        rm -f "${PKGBCFILE}" "${PKGBCRFILE}"
+    elif [ ! -e "${CONTENTFILE}" ] ; then
         if [ -e "${PKGBCFILE}" ] ; then
             print_info "moving ${PKGBCFILE} to ${PKGBCRFILE}.."
             mv "${PKGBCFILE}" "${PKGBCRFILE}"
