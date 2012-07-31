@@ -1,0 +1,253 @@
+#!/bin/bash
+#
+# bee-cache - manage inventory
+#
+# Copyright (C) 2012
+#       Marius Tolzmann <tolzmann@molgen.mpg.de>
+#       Tobias Dreyer <dreyer@molgen.mpg.de>
+#       and other bee developers
+#
+# This file is part of bee.
+#
+# bee is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+if [ -z "${BEE_VERSION}" ] ; then
+    echo >&2 "BEE-ERROR: please call $0 from bee .."
+    exit 1
+fi
+
+VERSION=${BEE_VERSION}
+
+: ${BEE_BINDIR:=@BINDIR@}
+: ${BEEFLOCK=${BEE_BINDIR}/beeflock}
+: ${BEECACHE_CACHEDIR=${BEE_CACHEDIR}/bee-cache}
+: ${BEECACHE_INVENTORY=${BEECACHE_CACHEDIR}/INVENTORY}
+
+function cache_verify() {
+    if ! ${BEEFLOCK} --shared "${BEECACHE_INVENTORY}" \
+              sort -c -u -r -k8 -k1 "${BEECACHE_INVENTORY}" 2>/dev/null ; then
+        rm -fr "${BEECACHE_CACHEDIR}"
+    fi
+
+    mkdir -p "${BEECACHE_CACHEDIR}"
+}
+
+function cache_update() {
+    local pkgs="${@}"
+
+    for p in "${pkgs[@]}" ; do
+        cache_update_pkg "${p}"
+    done
+}
+
+function cache_update_pkg() {
+    local pkg=${1}
+
+    ${BEEFLOCK} ${BEECACHE_INVENTORY} \
+        ${BEE_LIBEXECDIR}/bee/bee-cache-update ${pkg} \
+        >/dev/null
+
+    if [ $? -ne 0 ] ; then
+        echo >&2 "bee-cache: ${pkg}: Updating inventory failed."
+        return 1
+    fi
+
+    return 0
+}
+
+function print_conflicts() {
+    local pkg=${1}
+
+    pkgfullname=$(${BEE_BINDIR}/beeversion --pkgfullname ${pkg})
+
+    if [ -z "${pkgfullname}" ] ; then
+        echo >&2 "bee-cache: ${pkg}: Can't parse bee-package."
+        exit 1
+    fi
+
+    grep --file=<(print_conflicting_files "${pkg}" | cut -d ' ' -f8- | sed -e 's,.*, &$,') \
+        <( tmp_merge_install_inventory_files "${TMPINSTALL[@]}" ) \
+        | grep -v -E "^${pkgfullname}-[^-]+-[^-]+ "
+}
+
+function cache_conflicts() {
+    local file=${1}
+
+    uniq -D -f7 ${file} | uniq -u -f5
+}
+
+function print_conflicting_files() {
+    local pkg=$1
+
+    if [ -z "${pkg}" ] ; then
+        echo >&2 "bee-cache: print-conflicting-files: No package provided."
+        return 1
+    fi
+
+    print_conflicting_files_for_pkg "${pkg}" \
+        <( tmp_merge_install_inventory_files "${TMPINSTALL[@]}" )
+}
+
+function print_conflicting_files_for_pkg() {
+    local pkg=$1
+    local inventory=$2
+
+    cache_conflicts ${inventory} \
+        | grep -E "^${pkg} "
+}
+
+function cache_uniq() {
+    local file=${1}
+
+    uniq -u -f7 ${file}
+}
+
+function print_uniq_files() {
+    local pkg=$1
+
+    if [ -z "${pkg}" ] ; then
+        echo >&2 "bee-cache: print-uniq-files: no package provided."
+        return 1
+    fi
+
+    print_uniq_files_for_pkg "${pkg}" \
+        <( tmp_merge_install_inventory_files "${TMPINSTALL[@]}" )
+}
+
+function print_uniq_files_for_pkg() {
+    local pkg=$1
+    local inventory=$2
+
+    cache_uniq ${inventory} \
+        | grep -E "^${pkg} "
+}
+
+function tmp_merge_install_inventory_files() {
+    ${BEEFLOCK} --shared ${BEECACHE_INVENTORY} sort -m -u -r -k8 -k1 \
+        ${BEECACHE_INVENTORY} "${@}"
+}
+
+function tmpinstall_to_filenames() {
+    local -a fn
+
+    for f in "${TMPINSTALL[@]}" ; do
+        if [ -e "${f}" ] ; then
+            fn=( "${fn[@]}" "$f" )
+            continue
+        fi
+
+        if [ -e "${BEECACHE_CACHEDIR}/${f}.bc" ] ; then
+            fn=( "${fn[@]}" "${BEECACHE_CACHEDIR}/${f}.bc" )
+            continue
+        fi
+
+        if [ -e "${BEECACHE_CACHEDIR}/${f}.bcr" ] ; then
+            fn=( "${fn[@]}" "${BEECACHE_CACHEDIR}/${f}.bcr" )
+            continue
+        fi
+
+        cache_update "${f}"
+
+        if [ -e "${BEECACHE_CACHEDIR}/${f}.bc" ] ; then
+            fn=( "${fn[@]}" "${BEECACHE_CACHEDIR}/${f}.bc" )
+            continue
+        fi
+
+        if [ -e "${BEECACHE_CACHEDIR}/${f}.bcr" ] ; then
+            fn=( "${fn[@]}" "${BEECACHE_CACHEDIR}/${f}.bcr" )
+            continue
+        fi
+
+        echo >&2 "bee-cache: ${f}: Can't create inventory."
+        exit 1
+    done
+
+    TMPINSTALL=( "${fn[@]}" )
+    return 0
+}
+
+function usage() {
+    cat <<-EOF
+	bee-cache v${VERSION} 2012
+	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
+	     Max Planck Institute for Molecular Genetics Berlin Dahlem
+
+	Usage: bee remove [options] <package>
+
+	Options:
+	    -h, --help        display this help
+
+	EOF
+}
+
+options=$(${BEE_BINDIR}/beegetopt --name bee-cache \
+                 --option help/h \
+                 --option fields/f= \
+                 --option tmpinstall/i= \
+                 -- "$@")
+
+if [ $? != 0 ] ; then
+    usage
+    exit 1
+fi
+eval set -- "${options}"
+
+declare -a TMPINSTALL
+declare FIELDS="8-"
+
+while true ; do
+    case "$1" in
+        --help)
+            usage
+            exit 0
+            ;;
+        --tmpinstall)
+            TMPINSTALL=( "${tmpinstall[@]}" "$2" )
+            shift 2
+            ;;
+        --fields)
+            FIELDS=${2}
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+    esac
+done
+
+cmd=$1
+shift
+
+cache_verify
+tmpinstall_to_filenames
+
+case "${cmd}" in
+    update)
+        cache_update "${@}"
+        ;;
+    print-uniq-files)
+        print_uniq_files "${@}" | cut -d ' ' -f${FIELDS}
+        ;;
+    print-conflicting-files)
+        print_conflicting_files "${@}" | cut -d ' ' -f${FIELDS}
+        ;;
+    print-conflicts)
+        print_conflicts "${@}" | cut -d ' ' -f${FIELDS}
+        ;;
+    *)
+        echo >&2 "bee-cache: ${cmd}: Unknown command."
+        exit 1
+esac

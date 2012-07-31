@@ -335,6 +335,9 @@ function do_install() {
     return
 }
 
+function bee-cache() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
+}
 
 function do_install_file() {
     local file=$1
@@ -364,7 +367,7 @@ function do_install_file() {
         --transform="s,^BUILD$,${BEE_METADIR}/${pkg}/${beefile}," \
         --transform="s,^META$,${BEE_METADIR}/${pkg}/META," \
         --transform="s,^PATCHES,${BEE_METADIR}/${pkg}/PATCHES," \
-        --transform="s,^DEPENDENCIES$,${BEE_METADIR}/${pkg}/DEPENDENCIES," \
+        --transform="s,^DEPENDENCIES$,${BEE_METADIR}/${pkg}/DEPENDENCIES.deprecated," \
         --show-transformed-names
 
     if [ ! -e "${BEE_METADIR}/${pkg}/CONTENT.INSTALL" ] ; then
@@ -397,9 +400,18 @@ function do_install_file() {
     # create CONTENT file from CONTENT.INSTALL
     mv ${BEE_METADIR}/${pkg}/CONTENT{.INSTALL,}
 
+    bee-cache update ${pkg}
+
     run_hooks post-install ${pkg}
-    ${BEE_LIBEXECDIR}/bee/bee.d/bee-check -d ${pkg} > ${BEE_METADIR}/${pkg}/DEPENDENCIES
-    ${BEE_LIBEXECDIR}/bee/bee.d/bee-dep update ${pkg}
+
+    last=""
+    while read p f ; do
+        if [ "${last}" != "${p}" ] ; then
+            echo -e "    Conflicts with installed package found: ${p}:"
+            last=${p}
+        fi
+        echo "        $f"
+    done < <(bee-cache print-conflicts ${pkg} -f1,8- | sort -k2 -k1 -u )
 }
 
 function run_hooks() {

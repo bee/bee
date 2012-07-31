@@ -28,17 +28,28 @@ if [ -z "${BEE_VERSION}" ] ; then
     exit 1
 fi
 
-VERSION=${BEE_VERSION}
-
 : ${BEE_BINDIR:=@BINDIR@}
+: ${BEE_LIBEXECDIR:=@LIBEXECDIR@}
 
-pkg_remove_all() {
+function bee-cache() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
+}
+
+function bee-list() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-list "${@}"
+}
+
+function bee-query() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-query "${@}"
+}
+
+function pkg_remove_all() {
     for pkg in "${@}" ; do
         pkg_remove "${pkg}"
     done
 }
 
-pkg_remove() {
+function pkg_remove() {
     search=$1
 
     # pattern is a pkg in BEE_METADIR
@@ -50,32 +61,37 @@ pkg_remove() {
     # pattern is no installed pkg
     # show all pkgs that match pattern
     echo "${search} matches following packages .."
-    ${BEE_LIBEXECDIR}/bee/bee.d/bee-list -i "${search}"
+    bee-list -i "${search}"
 }
 
-do_remove() {
+function do_remove() {
     pkg=${1}
 
-    FILES=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-dep remove --print ${pkg})
+    mv ${BEE_METADIR}/${pkg}/CONTENT{,.bee-remove} 2>/dev/null
+    if [ "$?" != "0" ] ; then
+        return 1
+    fi
+
+    bee-cache update ${pkg}
     if [ $? -ne 0 ] ; then
-        echo "removal of ${pkg} failed"
+        echo >&2 "bee-remove: ${pkg}: bee-cache update failed."
         exit 1
     fi
 
-    [ "${NOOP}" != "yes" ] && run_hooks pre-remove ${pkg}
+    run_hooks pre-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.bee-remove
 
-    echo "removing package '${pkg}'"
+    FILES=( $(bee-cache --tmpinstall "${pkg}" print-uniq-files "${pkg}") )
 
     # removing files
-    for f in $FILES ; do
+    for f in "${FILES[@]}" ; do
         if [ -d "${f}" -a ! -h "$f" ] ; then
-            ${NOOP:+echo} rmdir ${OPT_VERBOSE:+-v} ${f}
+            rmdir ${OPT_VERBOSE:+-v} ${f}
         else
-            ${NOOP:+echo} rm -f ${OPT_VERBOSE:+-v} ${f}
+            rm -f ${OPT_VERBOSE:+-v} ${f}
         fi
     done
 
-    [ "${NOOP}" != "yes" ] && run_hooks post-remove ${pkg}
+    run_hooks post-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.bee-remove
 
     if [ -r "${BEE_METADIR}/${pkg}/META" ] ; then
         . "${BEE_METADIR}/${pkg}/META"
@@ -94,7 +110,7 @@ do_remove() {
             fi
 
             # if dir does is not part of package -> skip it
-            content_file="${BEE_METADIR}/${pkg}/CONTENT"
+            content_file="${BEE_METADIR}/${pkg}/CONTENT.bee-remove"
             if ! grep -q -l -E ":file=${dir}(/|$)" "${content_file}" ; then
                 continue
             fi
@@ -110,14 +126,15 @@ do_remove() {
             # this may be fixed automatically once bee query doesn't scan the
             # filesystem anymore and we have an index db 8)
             # using bee dep here is currently to slow 8(
-            if [ -z "$(${BEE_LIBEXECDIR}/bee/bee.d/bee-query ${dir} | head -1)" ] ; then
-                ${NOOP:+echo} rmdir ${OPT_VERBOSE:+-v} ${dir}
+            if [ -z "$(bee-query ${dir} | head -1)" ] ; then
+                rmdir ${OPT_VERBOSE:+-v} ${dir}
             fi
         done
     fi
 
     #cleanup meta directory
-    ${NOOP:+echo} rm -fr ${OPT_VERBOSE:+-v} ${BEE_METADIR}/${pkg}
+    rm -fr ${OPT_VERBOSE:+-v} ${BEE_METADIR}/${pkg}
+    bee-cache update ${pkg}
 }
 
 function run_hooks() {
@@ -131,9 +148,9 @@ function run_hooks() {
     done
 }
 
-usage() {
+function usage() {
     cat <<-EOF
-	bee-remove v${VERSION} 2009-2012
+	bee-remove v${BEE_VERSION} 2009-2012
 	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
 	     Max Planck Institute for Molecular Genetics Berlin Dahlem
 
@@ -141,14 +158,12 @@ usage() {
 
 	Options:
 	    -h, --help        display this help
-	    -n, --noop        do not actually remove; just print
 	    -v, --verbose     print removed files and directories
 
 	EOF
 }
 
 options=$(${BEE_BINDIR}/beegetopt --name bee-remove \
-                 --option noop/n \
                  --option verbose/v \
                  --option help/h \
                  -- "$@")
@@ -161,10 +176,6 @@ eval set -- "${options}"
 
 while true ; do
     case "$1" in
-        --noop)
-            shift
-            NOOP="yes"
-            ;;
         --help)
             usage
             exit
