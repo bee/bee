@@ -48,6 +48,7 @@ function create_pkgbcfile()
     if [ ! -d "${PKGMETADIR}" ] ; then
         # cleanup cache if metadir does not exist
         rm -f "${PKGBCFILE}" "${PKGBCRFILE}"
+        return 0
     elif [ ! -e "${CONTENTFILE}" ] ; then
         if [ -e "${PKGBCFILE}" ] ; then
             print_info "moving ${PKGBCFILE} to ${PKGBCRFILE}.."
