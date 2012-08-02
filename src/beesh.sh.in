@@ -569,7 +569,7 @@ function bee_archivebuild() {
         --absolute-names \
         ${S} ${B} \
         ${bee_FETCHED_FILES[@]} \
-        ${BEE_BEEDIR}/${BEE##*/} \
+        ${BEE_BEEDIR}/${PKGALLPKG}.bee \
         --transform="s,^${BEEWORKDIR},${PKGALLPKG}," \
         --transform="s,^${F},${PKGALLPKG}/files," \
         --transform="s,^${BEE_BEEDIR},${PKGALLPKG}/files,"
