@@ -103,6 +103,7 @@ HELPER_HOOKS_SHELL+=gdk-pixbuf-query-loaders
 HELPER_HOOKS_SHELL+=mandb
 HELPER_HOOKS_SHELL+=systemd-tmpfiles
 HELPER_HOOKS_SHELL+=gconf-install-schemas
+HELPER_HOOKS_SHELL+=info-dir
 
 MANPAGES+=bee.1
 MANPAGES+=bee-check.1
