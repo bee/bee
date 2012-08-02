@@ -49,9 +49,6 @@ sed-rules = -e 's,@PREFIX@,${PREFIX},g' \
 	    -e 's,@BEE_VERSION@,${BEE_VERSION},g' \
 	    -e 's,@DATADIR@,${DATADIR},g'
 
-sed-compat-bashlt4 = -e 'sx\$${\([a-zA-Z_]*\),,}x\$$(tr A-Z a-z <<<\$${\1})xg' \
-                     -e 'sx\$${\([a-zA-Z_]*\)^^}x\$$(tr a-z A-Z <<<\$${\1})xg'
-
 PROGRAMS_C+=beecut
 PROGRAMS_C+=beeflock
 PROGRAMS_C+=beegetopt
@@ -119,22 +116,11 @@ CONFIG_TEMPLATES+=fallback
 CONFIG_FILES+=skiplist
 CONFIG_FILES+=beerc
 
-COMPAT_BASHLT4+=beesh.sh
-COMPAT_BASHLT4+=bee-check.sh
-COMPAT_BASHLT4+=buildtypes/autogen.sh
-COMPAT_BASHLT4+=buildtypes/configure.sh
-COMPAT_BASHLT4+=buildtypes/make.sh
-
 .SUFFIXES: .in .sh .sh.in
 
 all: build
 
 build: shellscripts buildtypes cprograms manpages
-
-compat: compat-bashlt4
-
-compat-bashlt4: ${COMPAT_BASHLT4}
-	$(call quiet-command, sed ${sed-compat-bashlt4} -i ${COMPAT_BASHLT4}, "COMPAT	$^" )
 
 SHELLSCRIPTS=$(PROGRAMS_SHELL) $(HELPER_BEE_SHELL) $(HELPER_SHELL)
 
@@ -151,7 +137,7 @@ bee_MANPAGES=$(addprefix manpages/,${MANPAGES})
 bee_BUILDTYPES=$(addsuffix .sh,$(addprefix buildtypes/,$(BUILDTYPES)))
 
 shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS)) $(LIBRARY_SHELL)
-cprograms:    $(PROGRAMS_C) ${HELPER_BEE_C} ${HELPER_C}
+cprograms:    $(PROGRAMS_C) ${HELPER_C}
 manpages:     ${bee_MANPAGES}
 buildtypes:   ${bee_BUILDTYPES}
 
@@ -177,7 +163,7 @@ beeflock: $(addprefix src/, ${BEEFLOCK_OBJECTS})
 	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 bee-cache-inventory: $(addprefix src/, ${BEECACHEINVENTORY_OBJECTS})
-	$(call quiet-command,${CC} ${LDFLAGS} -lcrypt -o $@ $^,"LD	$@")
+	$(call quiet-command,${CC} ${LDFLAGS} -o $@ $^,"LD	$@")
 
 %.o: %.c
 	$(call quiet-command,${CC} ${CFLAGS} -o $@ -c $^,"CC	$@")
@@ -194,7 +180,6 @@ bee-cache-inventory: $(addprefix src/, ${BEECACHEINVENTORY_OBJECTS})
 clean:
 	$(call quiet-command,rm -f $(addsuffix .sh,${SHELLSCRIPTS}) $(LIBRARY_SHELL) $(HELPER_SHELL),"CLEAN	<various>.sh")
 	$(call quiet-command,rm -f ${PROGRAMS_C},"CLEAN	${PROGRAMS_C}")
-	$(call quiet-command,rm -f ${HELPER_BEE_C},"CLEAN	${HELPER_BEE_C}")
 	$(call quiet-command,rm -f ${HELPER_C},"CLEAN	${HELPER_C}")
 	$(call quiet-command,rm -f src/*.o,"CLEAN	c object files")
 	$(call quiet-command,rm -f ${bee_MANPAGES},"CLEAN	manpages")
@@ -215,7 +200,7 @@ ${DESTDIR}${BINDIR}/%: % install-dir-bindir
 ${DESTDIR}${BINDIR}/%: %.sh install-dir-bindir
 	$(call quiet-install,0755,$<,$@)
 
-install-tools: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/bee.d/,${HELPER_BEE_SHELL} ${HELPER_BEE_C})
+install-tools: $(addprefix ${DESTDIR}${LIBEXECDIR}/bee/bee.d/,${HELPER_BEE_SHELL})
 
 install-dir-tools:
 	$(call quiet-installdir,0755,${DESTDIR}${LIBEXECDIR}/bee/bee.d)
