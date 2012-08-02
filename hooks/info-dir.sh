@@ -44,7 +44,7 @@ fi
 
 . ${BEE_METADIR}/${pkg}/META
 
-if [ ! "${BEEMETAFORMAT}" -ge 2 ] ; then
+if [ ! "${BEEMETAFORMAT:=0}" -ge 2 ] ; then
     exit 0
 fi
 
