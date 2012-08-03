@@ -155,6 +155,8 @@ function create_beefile_from_template {
 function initialize() {
     surl=${1}
 
+    [ ! -z "${surl}" ] && shift
+
     pname=${OPT_OUTPUT}
 
     DEFAULT_CONFIGURE_OPTIONS="${@}"
