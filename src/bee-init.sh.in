@@ -155,7 +155,7 @@ function create_beefile_from_template {
 function initialize() {
     surl=${1}
 
-    shift
+    [ ! -z "${surl}" ] && shift
 
     pname=${OPT_OUTPUT}
 
@@ -398,7 +398,7 @@ while true ; do
 
         *)
             shift
-            if [ -z "${1}" ] ; then
+            if [ -z "${1}" -a -z "${OPT_OUTPUT}" ] ; then
                  usage
                  exit 1
             fi
