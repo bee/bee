@@ -36,12 +36,16 @@ VERSION=${BEE_VERSION}
 : ${BEECACHE_INVENTORY=${BEECACHE_CACHEDIR}/INVENTORY}
 
 function cache_verify() {
-    if ! ${BEEFLOCK} --shared "${BEECACHE_INVENTORY}" \
+    if ${BEEFLOCK} --shared "${BEECACHE_INVENTORY}" \
               sort -c -u -r -k8 -k1 "${BEECACHE_INVENTORY}" 2>/dev/null ; then
-        rm -fr "${BEECACHE_CACHEDIR}"
+        return
     fi
 
+    rm -fr "${BEECACHE_CACHEDIR}"
     mkdir -p "${BEECACHE_CACHEDIR}"
+
+    ${BEEFLOCK} ${BEECACHE_INVENTORY} \
+        ${BEE_LIBEXECDIR}/bee/bee-cache-update >/dev/null
 }
 
 function cache_update() {
