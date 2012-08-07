@@ -71,6 +71,11 @@ function cache_update_pkg() {
     return 0
 }
 
+function cache_grep() {
+    ${BEEFLOCK} --shared ${BEECACHE_INVENTORY} \
+        grep "${@}" ${BEECACHE_INVENTORY}
+}
+
 function print_conflicts() {
     local pkg=${1}
 
@@ -239,6 +244,9 @@ cache_verify
 tmpinstall_to_filenames
 
 case "${cmd}" in
+    grep)
+        cache_grep "${@}" | cut -d ' ' -f${FIELDS}
+        ;;
     update)
         cache_update "${@}"
         ;;
