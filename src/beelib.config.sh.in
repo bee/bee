@@ -366,6 +366,7 @@ function config_export() {
     export BEE_TMP_TMPDIR
     export BEE_TMP_BUILDROOT
 
+    export BEE_BINDIR
     export BEE_SYSCONFDIR
     export BEE_DATADIR
     export BEE_LIBEXECDIR
