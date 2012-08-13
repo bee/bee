@@ -534,7 +534,7 @@ function bee_pkg_pack() {
                 ${D}/CONTENT )
 
     beefilename=${BEE##*/}
-    beefiledest=${BEE_BEEDIR}/${beefilename}
+    beefiledest=${BEE_BEEDIR}/${PKGALLPKG}.bee
 
     print_info "-> saving bee-file ${beefilename} .."
     print_info "${COLOR_CYAN}${beefiledest}"
@@ -543,7 +543,7 @@ function bee_pkg_pack() {
         mkdir -pv ${BEE_BEEDIR}
     fi
 
-    cp -v ${BEE} ${BEE_BEEDIR}
+    cp -v ${BEE} ${beefiledest}
 }
 
 
@@ -569,7 +569,7 @@ function bee_archivebuild() {
         --absolute-names \
         ${S} ${B} \
         ${bee_FETCHED_FILES[@]} \
-        ${BEE_BEEDIR}/${BEE##*/} \
+        ${BEE_BEEDIR}/${PKGALLPKG}.bee \
         --transform="s,^${BEEWORKDIR},${PKGALLPKG}," \
         --transform="s,^${F},${PKGALLPKG}/files," \
         --transform="s,^${BEE_BEEDIR},${PKGALLPKG}/files,"
@@ -598,6 +598,81 @@ function load_buildmagic() {
     if [ ! -z "${BEE_BUILDTYPE}" ] ; then
         print_info "using magic buildtype '${BEE_BUILDTYPE}' from '${xdgmagic}' .."
     fi
+}
+
+function save_current_package_variables() {
+    oPKGNAME=${PKGNAME}
+    oPKGEXTRANAME=${PKGEXTRANAME}
+    oPKGFULLNAME=${PKGFULLNAME}
+    oPKGVERSION=${PKGVERSION}
+    oPKGEXTRAVERSION=${PKGEXTRAVERSION}
+    oPKGFULLVERSION=${PKGFULLVERSION}
+    oPKGREVISION=${PKGREVISION}
+}
+
+function verify_new_package_variables() {
+    nPKGFULLNAME="${PKGNAME}${PKGEXTRANAME:+_${PKGEXTRANAME}}"
+
+    if [ "${oPKGFULLNAME}" != "${PKGFULLNAME}" ] ; then
+        if [ "${oPKGFULLNAME}" != "${nPKGFULLNAME}" ] ; then
+            print_error "${BEE##*/}: Changing PKGFULLNAME and one of PKGNAME or PKGEXTRANAME is not supported."
+            exit 1
+        fi
+        PKGNAME=${PKGFULLNAME//_*}
+        PKGEXTRANAME=${PKGFULLNAME#*_}
+    fi
+    PKGFULLNAME="${PKGNAME}${PKGEXTRANAME:+_${PKGEXTRANAME}}"
+
+    nPKGFULLVERSION="${PKGVERSION}${PKGEXTRAVERSION:+_${PKGEXTRAVERSION}}"
+    if [ "${oPKGFULLVERSION}" != "${PKGFULLVERSION}" ] ; then
+        if [ "${oPKGFULLVERSION}" != "${nPKGFULLVERSION}" ] ; then
+            print_error "${BEE##*/}: Changing PKGFULLVERSION and one of PKGVERSION or PKGEXTRAVERSION is not supported."
+            exit 1
+        fi
+        PKGVERSION=${PKGFULLVERSION//_*}
+        PKGEXTRAVERSION=${PKGFULLVERSION#*_}
+    fi
+    PKGFULLVERSION="${PKGVERSION}${PKGEXTRAVERSION:+_${PKGEXTRAVERSION}}"
+}
+
+function extract_new_package_variables() {
+    if [ "${PKGNAME}" != "${oPKGNAME}" ] ; then
+        # pkgname changed! we allow prefixing 'anything-' to the packagename
+        if [ "${PKGNAME}" != "${PKGNAME/-${oPKGNAME}}-${oPKGNAME}" ] ; then
+            print_error "${BEE##*/}: Invalid change in PKGNAME(${PKGNAME}) detected. Only prefixing 'something-' is supported."
+            exit 1
+        fi
+        print_info "${COLOR_YELLOW}PKGNAME changed from '${oPKGNAME}' to '${PKGNAME}'"
+    fi
+    if [ "${PKGEXTRANAME}" != "${oPKGEXTRANAME}" ] ; then
+        if [ ! -z "${oPKGEXTRANAME}" -a  "${PKGEXTRANAME}" != "${oPKGEXTRANAME}_${PKGEXTRANAME#${oPKGEXTRANAME}_}" ] ; then
+            print_error "${BEE##*/}: Invalid change in PKGEXTRANAME(${PKGEXTRANAME}) detected. Only appending '_something' is supported."
+            exit 1
+        fi
+        print_info "${COLOR_YELLOW}PKGEXTRANAME changed from '${oPKGEXTRANAME}' to '${PKGEXTRANAME}'"
+    fi
+    if [ "${PKGVERSION}" != "${oPKGVERSION}" ] ; then
+        print_error "${BEE##*/}: Invalid change in PKGVERSION(${PKGVERSION}) detected. Changing PKGVERSION is not supported."
+        exit 1
+    fi
+    if [ "${PKGEXTRAVERSION}" != "${oPKGEXTRAVERSION}" ] ; then
+        if [ ! -z "${oPKGEXTRAVERSION}" -a  "${PKGEXTRAVERSION}" != "${oPKGEXTRAVERSION}_${PKGEXTRAVERSION#${oPKGEXTRAVERSION}_}" ] ; then
+            print_error "${BEE##*/}: Invalid change in PKGEXTRAVERSION(${PKGEXTRAVERSION}) detected. Only appending '_something' is supported."
+            exit 1
+        fi
+        print_info "${COLOR_YELLOW}PKGEXTRAVERSION changed from '${oPKGEXTRAVERSION}' to '${PKGEXTRAVERSION}'"
+    fi
+    if [ "${PKGREVISION}" != "${oPKGREVISION}" ] ; then
+        print_error "${BEE##*/}: Invalid change in PKGREVISION(${PKGREVISION}) detected. Changing PKGREVISION is not supported."
+        exit 1
+    fi
+
+    PKGFULLPKG=${PKGFULLNAME}-${PKGFULLVERSION}-${PKGREVISION}
+
+    # since PKGARCH is now known reconstruct PKGALLPKG
+    : ${PKGALLPKG:=${PKGFULLPKG}.${PKGARCH}}
+
+    eval $(${BEE_BINDIR}/beeversion ${PKGALLPKG})
 }
 
 ###############################################################################
@@ -764,12 +839,7 @@ if [ -z "${PKGNAME}" -o -z "${PKGVERSION}" -o -z "${PKGREVISION}" ] ; then
     exit 1
 fi
 
-PN=${PKGNAME}
 PV=( ${PKGVERSION[@]} )
-PS=${PKGEXTRAVERSION}
-PR=${PKGREVISION}
-
-P=${PKGFULLNAME}-${PKGFULLVERSION}
 
 BEEPKGROOT="${BEE_TMP_BUILDROOT}/${PKGNAME}"
 BEEWORKDIR="${BEEPKGROOT}/${PKGFULLPKG}"
@@ -787,14 +857,16 @@ D=${BEEWORKDIR}/image
 # clear PKGALLPKG since we can't trust PKGARCH in this state
 PKGALLPKG=
 
+save_current_package_variables
+
 # source file.bee
 . ${BEE}
 
 # now set PKGARCH if set or changed by user via ARCH=.. and not given via file.arch.bee
 : ${PKGARCH:=${ARCH}}
 
-# since PKGARCH is now known reconstruct PKGALLPKG
-: ${PKGALLPKG:=${PKGFULLPKG}.${PKGARCH}}
+verify_new_package_variables
+extract_new_package_variables
 
 config_handle_deprecated_beefile
 expand_prefix_variables
