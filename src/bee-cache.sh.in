@@ -41,6 +41,10 @@ function cache_verify() {
         return
     fi
 
+    cache_rebuild
+}
+
+function cache_rebuild() {
     rm -fr "${BEECACHE_CACHEDIR}"
     mkdir -p "${BEECACHE_CACHEDIR}"
 
@@ -246,6 +250,9 @@ tmpinstall_to_filenames
 case "${cmd}" in
     grep)
         cache_grep "${@}" | cut -d ' ' -f${FIELDS}
+        ;;
+    rebuild)
+        cache_rebuild
         ;;
     update)
         cache_update "${@}"
