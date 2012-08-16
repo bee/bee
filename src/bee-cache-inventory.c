@@ -433,7 +433,7 @@ static void _strip_trailing(char *in, char c)
     len = strlen(in);
     p   = in+len-1;
 
-    while (p > in && *p == '/')
+    while (p > in && *p == c)
         *(p--) = 0;
 
 }
