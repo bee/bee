@@ -334,7 +334,7 @@ function expand_prefix_variables() {
     expand_prefix_variables_defaults
     BEE_AUTO_EXCLUDE=""
     for var in PREFIX EPREFIX BINDIR SBINDIR LIBEXECDIR SYSCONFDIR \
-               SHAREDSTATEDIR LOCALSTATEDIR LIBDIR INCLUDEDIR \
+               LOCALSTATEDIR SHAREDSTATEDIR LIBDIR INCLUDEDIR \
                DATAROOTDIR DATADIR INFODIR LOCALEDIR MANDIR DOCDIR ; do
         eval eval ${var}=\${${var}}
         eval 'BEE_AUTO_EXCLUDE=( "${BEE_AUTO_EXCLUDE[@]}" \${${var}} )'
