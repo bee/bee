@@ -939,7 +939,7 @@ function bee_check_conflicts() {
     ${BEE_LIBEXECDIR}/bee/bee-cache-inventory CONTENT \
         --prepend "${PKGALLPKG} " \
         | sort -r -u -k8 -k1 \
-        > ${PKGALLPKG}.bc
+        > ${D}${PKGALLPKG}.bc
 
     last=""
     while read p f ; do
@@ -949,7 +949,7 @@ function bee_check_conflicts() {
         fi
         print_info "${COLOR_NORMAL}    $f"
     done < <(bee-cache print-conflicts ${PKGALLPKG} \
-                --tmpinstall ${PKGALLPKG}.bc \
+                --tmpinstall ${D}${PKGALLPKG}.bc \
                 -f1,8- | sort -k1 -u )
 }
 
