@@ -126,6 +126,11 @@ function create_inventory()
 
     print_info "creating ${INVENTORYFILE} .."
 
+    if [ ! -d "${BEE_METADIR}" ] ; then
+        touch ${INVENTORYFILE}
+        return 0
+    fi
+
     ${BEE_LIBEXECDIR}/bee/bee-cache-inventory \
         ${BEE_METADIR} \
         | sort -r -k 8 -k 1 \
