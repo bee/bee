@@ -63,7 +63,7 @@ function pkg_remove() {
     echo >&2 "bee-remove: FAILED to remove '${search}': No such package."
     echo >&2 "bee-remove: List of installed packages matching '${search}':"
     bee-list -i "${search}" | sed -e 's,^,    ,' >&2
-    if [ $? != 0 ] ; then
+    if [ ${PIPESTATUS[0]} != 0 ] ; then
         echo >&2 "    No packages found."
     fi
 }
