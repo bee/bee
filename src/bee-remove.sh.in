@@ -68,9 +68,29 @@ function pkg_remove() {
     fi
 }
 
+
+# for each argument
+# recursive get all dirnames that are directories on same mountpoint
+#
+# /path/to/somewhere -> /path/to/somewhere /path/to /path
+#
 function subdirs() {
+    local last
+
     for path in "${@}" ; do
+        last=""
         while [ "${path:0:1}" = '/' -a "${path}" != "" ]  ; do
+            this=$(stat "${path}" --printf "%F%m")
+            if [ -n "${last}" -a "${last}" != "${this}" ] ; then
+                continue 2
+            else
+                last="${this}"
+            fi
+
+            if [ "${this:0:9}" != 'directory' ] ; then
+                continue 2
+            fi
+
             echo ${path}
             path=${path%/*}
         done
@@ -119,16 +139,6 @@ function do_remove() {
                DATAROOTDIR DATADIR INFODIR LOCALEDIR MANDIR DOCDIR )
         dirs=( $(for var in ${vars[@]} ; do eval echo \${PKG_${var}} ; done) )
         for dir in $( subdirs ${dirs[@]} | sort -ur )  ; do
-            # if dir does not exist -> skip it
-            if [ ! -d "${dir}" ] ; then
-                continue
-            fi
-
-            # skip if dir is a symlink (-d does not do an lstat())
-            if [ -L "${dir}" ] ; then
-                continue
-            fi
-
             # if dir does is not part of package -> skip it
             content_file="${BEE_METADIR}/${pkg}/CONTENT.bee-remove"
             if ! grep -q -l -E ":file=${dir}(/|$)" "${content_file}" ; then
