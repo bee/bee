@@ -80,6 +80,10 @@ function subdirs() {
     for path in "${@}" ; do
         last=""
         while [ "${path:0:1}" = '/' -a "${path}" != "" ]  ; do
+            if [ ! -d "${path}" ] ; then
+                continue 2
+            fi
+
             this=$(stat "${path}" --printf "%F%m")
             if [ -n "${last}" -a "${last}" != "${this}" ] ; then
                 continue 2
