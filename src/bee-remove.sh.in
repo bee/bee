@@ -64,6 +64,15 @@ function pkg_remove() {
     bee-list -i "${search}"
 }
 
+function subdirs() {
+    for path in "${@}" ; do
+        while [ "${path:0:1}" = '/' -a "${path}" != "" ]  ; do
+            echo ${path}
+            path=${path%/*}
+        done
+    done
+}
+
 function do_remove() {
     pkg=${1}
 
@@ -102,8 +111,8 @@ function do_remove() {
         vars=( PREFIX EPREFIX BINDIR SBINDIR LIBEXECDIR SYSCONFDIR \
                SHAREDSTATEDIR LOCALSTATEDIR LIBDIR INCLUDEDIR \
                DATAROOTDIR DATADIR INFODIR LOCALEDIR MANDIR DOCDIR )
-        dirs=( $(for var in ${vars[@]} ; do eval echo \${PKG_${var}} ; done | sort -ur) )
-        for dir in "${dirs[@]}" ; do
+        dirs=( $(for var in ${vars[@]} ; do eval echo \${PKG_${var}} ; done) )
+        for dir in $( subdirs ${dirs[@]} | sort -ur )  ; do
             # if dir does not exist -> skip it
             if [ ! -d "${dir}" ] ; then
                 continue
