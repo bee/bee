@@ -118,6 +118,11 @@ function do_remove() {
                 continue
             fi
 
+            # skip if dir is a symlink (-d does not do an lstat())
+            if [ -L "${dir}" ] ; then
+                continue
+            fi
+
             # if dir does is not part of package -> skip it
             content_file="${BEE_METADIR}/${pkg}/CONTENT.bee-remove"
             if ! grep -q -l -E ":file=${dir}(/|$)" "${content_file}" ; then
