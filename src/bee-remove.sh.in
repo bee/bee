@@ -60,8 +60,12 @@ function pkg_remove() {
 
     # pattern is no installed pkg
     # show all pkgs that match pattern
-    echo "${search} matches following packages .."
-    bee-list -i "${search}"
+    echo >&2 "bee-remove: FAILED to remove '${search}': No such package."
+    echo >&2 "bee-remove: List of installed packages matching '${search}':"
+    bee-list -i "${search}" | sed -e 's,^,    ,' >&2
+    if [ $? != 0 ] ; then
+        echo >&2 "    No packages found."
+    fi
 }
 
 function subdirs() {
@@ -80,6 +84,8 @@ function do_remove() {
     if [ "$?" != "0" ] ; then
         return 1
     fi
+
+    echo "removing ${pkg} .."
 
     bee-cache update ${pkg}
     if [ $? -ne 0 ] ; then
