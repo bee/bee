@@ -196,7 +196,6 @@ function do_remove() {
             echo "REMOVE ${p}"
             continue
         fi
-        echo "removing ${p} .."
         ${BEE_LIBEXECDIR}/bee/bee.d/bee-remove ${p}
     done
 }
