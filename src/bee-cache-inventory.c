@@ -489,7 +489,8 @@ int inventory_dirfile(char *indname, char *outfname, struct inventory_meta meta)
 
         res = inventory_fhfh(infh, outfh, meta);
         if (!res) {
-            fprintf(stderr, "inventarization from %s/%s/CONTENT to %s failed: %m\n", indname, dirname, outfname);
+            fprintf(stderr, "inventarization from %s/%s/CONTENT to %s failed: %m\n",
+                    indname, dirname, outfname ? outfname : "stdout");
             fclose(infh);
             goto closeoutfh;
         }
