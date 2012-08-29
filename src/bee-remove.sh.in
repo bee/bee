@@ -80,16 +80,14 @@ function do_remove() {
 
     run_hooks pre-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.bee-remove
 
-    FILES=( $(bee-cache --tmpinstall "${pkg}" print-uniq-files "${pkg}") )
-
-    # removing files
-    for f in "${FILES[@]}" ; do
-        if [ -d "${f}" -a ! -h "$f" ] ; then
-            rmdir ${OPT_VERBOSE:+-v} ${f}
+    # remove files that are uniq to the package..
+    while read f ; do
+        if [ -d "${f}" -a ! -h "${f}" ] ; then
+            rmdir ${OPT_VERBOSE:+-v} "${f}"
         else
-            rm -f ${OPT_VERBOSE:+-v} ${f}
+            rm -f ${OPT_VERBOSE:+-v} "${f}"
         fi
-    done
+    done < <(bee-cache --tmpinstall "${pkg}" print-uniq-files "${pkg}")
 
     run_hooks post-remove ${pkg} ${BEE_METADIR}/${pkg}/CONTENT.bee-remove
 
