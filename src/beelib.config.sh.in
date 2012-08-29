@@ -280,6 +280,7 @@ function config_verify_builtin_config() {
     user=${LOGNAME}
     : ${user:=${USER}}
     : ${user:=${USERNAME}}
+    : ${user:=$(logname)}
 
     : ${BEE_TMP_TMPDIR:=/tmp}
     : ${BEE_TMP_BUILDROOT:=${BEE_TMP_TMPDIR}/bee-${user}}
