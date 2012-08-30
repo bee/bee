@@ -124,13 +124,19 @@ function pkg_install() {
 
     # install specific package
     if [ -f "${search}" ] ; then
-         do_install "${search}"
-         return
-    fi
-
-    # if search is path do nothing..
-    if [[ "${search}" =~ "/" ]] ; then
-        echo >&2 "${search}: No such file or directory"
+         if beeversion "${search}" >/dev/null 2>&1 ; then
+            do_install "${search}"
+            return
+         fi
+         if [[ "${search}" =~ "/" ]] ; then
+             echo >&2 "bee-install: ${search}:" \
+                      "Invalid package name. Aborting."
+             return
+         fi
+         echo >&2 "bee-install: ${search}:" \
+                  "Invalid package name. Skipping local file. Continuing."
+    elif [[ "${search}" =~ "/" ]] ; then
+        echo >&2 "bee-install: ${search}: No such file or directory."
         return
     fi
 
@@ -144,7 +150,7 @@ function pkg_install() {
     available=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --available "${search}") )
 
     if [ ${#available[@]} -eq 0 ] ; then
-        echo >&2 "bee-install: ${search}: No matching available package found."
+        echo >&2 "bee-install: ${search}: No packages available matching your query."
         return
     fi
 
