@@ -215,12 +215,16 @@ function do_install() {
 
     assert "x${file}" != "x"
 
-    local pkg=$(${BEE_BINDIR}/beeversion --format="%A" ${file})
-    local fullname=$(${BEE_BINDIR}/beeversion --pkgfullname ${file})
+    local pkg=$(${BEE_BINDIR}/beeversion --format="%A" ${file} 2>/dev/null)
+    local fullname=$(${BEE_BINDIR}/beeversion --pkgfullname ${file} 2>/dev/null)
     local maxinst=
     local maxall=${pkg}
 
-    assert "y${pkg}" != "y"
+    if [ "y${pkg}" = "y" ] ; then
+        echo >&2 "bee-install: ${file}: Invalid package name. Skipping."
+        return 1
+    fi
+
     assert "z${fullname}" != "z"
 
     debug_msg "do_install file=${file}"
