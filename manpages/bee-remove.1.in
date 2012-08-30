@@ -23,13 +23,6 @@ does not match the full name of a bee package, all matching packages will be dis
 .TQ
 .B \-h
 Print a little help screen.
-.TP
-.B \-\-noop
-.TQ
-.B \-n
-Do not actually remove
-.IR <bee-package> ,
-just print.
 
 .SH "ENVIRONMENT"
 .TP
