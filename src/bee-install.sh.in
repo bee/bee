@@ -221,7 +221,7 @@ function do_install() {
     local maxall=${pkg}
 
     if [ "y${pkg}" = "y" ] ; then
-        echo >&2 "bee-install: ${file}: Invalid package name. Skipping."
+        echo >&2 "bee-install: ${file}: Invalid input file. Skipping."
         return 1
     fi
 
