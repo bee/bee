@@ -184,6 +184,9 @@ function initialize() {
         # and remove all HTTP-GET variables..
         pname=${pname%%\?*}
 
+        # remove anchors
+        pname=${pname%%\#*}
+
         # strip some known and some special suffixes
         pname=${pname%.gz}
         pname=${pname%.bz2}
