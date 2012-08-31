@@ -1,7 +1,29 @@
-.TH "bee-list" "1" "2012-05-18" "bee @BEE_VERSION@" "bee - bau et einfach"
+." manpage of bee-list
+."
+." Copyright (C) 2009-2012
+."       Marius Tolzmann <tolzmann@molgen.mpg.de>
+."       Tobias Dreyer <dreyer@molgen.mpg.de>
+."       and other bee developers
+."
+." This file is part of bee.
+."
+." bee is free software; you can redistribute it and/or modify
+." it under the terms of the GNU General Public License as published by
+." the Free Software Foundation, either version 3 of the License, or
+." (at your option) any later version.
+."
+." program is distributed in the hope that it will be useful,
+." but WITHOUT ANY WARRANTY; without even the implied warranty of
+." MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+." GNU General Public License for more details.
+."
+." You should have received a copy of the GNU General Public License
+." along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+.TH "bee-list" "1" "2012-08-31" "bee @BEE_VERSION@" "bee - bau et einfach"
 
 .SH "NAME"
-bee\-list \- List installed and available bee packages
+bee\-list \- List bee packages
 
 .SH "SYNOPSIS"
 .SY "bee list"
@@ -12,30 +34,32 @@ bee\-list \- List installed and available bee packages
 .SH "DESCRIPTION"
 .P
 .B bee-list
-is used to display all bee packages that are installed or available for installation.
+is used to display all bee packages that are installed, available, uninstalled or updatable.
 
 .SH "OPTIONS"
 .TP
-.B \-\-available
-.TQ
-.B \-a
-List all bee packages available for installation that match
+.B \-a, \-\-available
+List all bee packages available for installation matching
 .IR <pattern> .
 .TP
-.B \-\-by\-pkgfullname
-Use this flag, if you want that
+.B \-\-exact, \-\-by\-pkgfullname
+Use this option, if you want
 .I <pattern>
-has to match the full packagename.
+to match the full package name.
 .TP
-.B \-\-installed
-.TQ
-.B \-i
-List all installed bee packages that match
+.B \-i, \-\-installed
+List all installed bee packages matching
 .IR <pattern> .
+.br
+This is the default.
 .TP
-.B \-h
-.TQ
-.B \-\-help
+.B \-u, \-\-updateable
+List all packages that can be updated.
+.TP
+.B \-U, \-\-uninstalled
+List all uninstalled packages.
+.TP
+.B \-h, \-\-help
 Print a little help screen.
 
 .SH "ENVIRONMENT"
@@ -70,8 +94,7 @@ Please report bugs to bee-dev@googlegroups.com or directly to the authors.
 
 .SH "SEE ALSO"
 .BR bee (1)
-.BR bee\-check (1) 
-.BR bee\-dep (1)
+.BR bee\-check (1)
 .BR bee\-download (1)
 .BR bee\-init (1)
 .BR bee\-install (1)

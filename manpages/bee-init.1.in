@@ -1,4 +1,26 @@
-.TH "bee-init" "1" "2012-05-18" "bee @BEE_VERSION@" "bee - bau et einfach"
+." manpage of bee-init
+."
+." Copyright (C) 2009-2012
+."       Marius Tolzmann <tolzmann@molgen.mpg.de>
+."       Tobias Dreyer <dreyer@molgen.mpg.de>
+."       and other bee developers
+."
+." This file is part of bee.
+."
+." bee is free software; you can redistribute it and/or modify
+." it under the terms of the GNU General Public License as published by
+." the Free Software Foundation, either version 3 of the License, or
+." (at your option) any later version.
+."
+." program is distributed in the hope that it will be useful,
+." but WITHOUT ANY WARRANTY; without even the implied warranty of
+." MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+." GNU General Public License for more details.
+."
+." You should have received a copy of the GNU General Public License
+." along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+.TH "bee-init" "1" "2012-08-31" "bee @BEE_VERSION@" "bee - bau et einfach"
 
 .SH "NAME"
 bee\-init \- Create a bee file for building a bee package
@@ -7,7 +29,7 @@ bee\-init \- Create a bee file for building a bee package
 .SY "bee init"
 .OP options
 .I <url-to-sources>
-.OP "-- configure options" 
+.OP "-- configure options"
 .YS
 
 .SH "DESCRIPTION"
@@ -18,48 +40,32 @@ is used to create a file, that is run in order to build a bee package.
 .SH "OPTIONS"
 .TP
 .BI \-\-configure " <mode>"
-Set <mode> to 'compat' if DATAROOTDIR is not supported in your build process
+Use the configure mode 'compat' if DATAROOTDIR is not supported in your build process.
 .TP
 .BI \-\-buildtype " <type>"
-force buildtype: configure, cmake, make, autogen, perl-module, perl-module-makemaker, python-module
+Force buildtype: configure, cmake, make, autogen, perl-module, perl-module-makemaker, python-module
 .TP
 .B \-\-disable-versionify
-Enable this flag, if you do not want that version numbers in your source url are substituted for
-bee variables.
+Do not substitute version numbers in the source url.
 .TP
-.BI --template " <template>"
-.TQ
-.BI -t " <template>"
-Create bee file with template <template>.
+.BI "\-t, \-\-template" " <template>"
+Create bee file with template
+.IR <template> .
 .TP
-.B \-\-force
-.TQ
-.B \-f
-Normally
-.B bee-init
-warns you, if that bee file you want to create already exists. Use
-.B \-\-force
-to ignore the warning and override the old file.
+.B \-f, \-\-force
+Overwrite already existing beefile.
 .TP
-.B \-\-help
-.TQ
-.B \-h
+.B \-h, \-\-help
 Print a little help screen.
 .TP
-.B \-\-version
-.TQ
-.B \-v
-print version number
+.B \-v, \-\-version
+Print version number.
 .TP
-.B \-\-execute
-.TQ
-.B \-e
-execute bee-file after creation
+.B \-e, \-\-execute
+Execute the bee file after creation.
 .TP
-.B \-\-install
-.TQ
-.B \-i
-execute bee-file and install software
+.B \-i, \-\-install
+Execute the bee file and install the package.
 .TP
 .B \-\-prefix
 .TQ
@@ -96,9 +102,13 @@ Set these directories, if you do not want to install to the default locations.
 
 .SH "CONFIGURE OPTIONS"
 .P
-Package specific configure options may be appended at the end of your bee-init line, e.g.
+Package specific configure options may be appended at the end of your
+.B bee\-init
+line, e.g.
+.br
 .B bee init http://ftp.gnome.org/pub/gnome/sources/gtk+/3.5/gtk+-3.5.2.tar.xz
 .B -- --enable-introspection --enable-xinerama
+.br
 will automatically append
 .B --enable-introspection --enable-xinerama
 to the
@@ -129,8 +139,7 @@ Please report bugs to bee-dev@googlegroups.com or directly to the authors.
 
 .SH "SEE ALSO"
 .BR bee (1)
-.BR bee\-check (1) 
-.BR bee\-dep (1)
+.BR bee\-check (1)
 .BR bee\-download (1)
 .BR bee\-init (1)
 .BR bee\-install (1)
