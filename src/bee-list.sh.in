@@ -26,9 +26,9 @@
 #
 #  bee list -i - list installed
 #  bee list -a - list available
-#  bee list -u - list updateable
+#  bee list -u - list updatable
 #  bee list -U - list uninstalled
-#  bee list -s - list status (installed, uninstalled, updateable, available)
+#  bee list -s - list status (installed, uninstalled, updatable, available)
 #  --sorted    - pipe through beesort
 #  --max       - only list highest versions
 #  --format "" - print formated
@@ -65,7 +65,7 @@ function usage() {
 	Actions:
 	    -i, --installed (default)    list installed packages
 	    -a, --available              list available packages
-	    -u, --updateable             list packages that can be updated
+	    -u, --updatable              list packages which can be updated
 	    -U, --uninstalled            list uninstalled packages
 	    --exact, --by-pkgfullname    exact match
 	    --display-pathname           print pathname
@@ -89,7 +89,7 @@ function config_init_colors() {
         COLOR_ERROR=${COLOR_RED}
         COLOR_WARN=${COLOR_YELLOW}
         COLOR_INSTALLABLE="${COLOR_YELLOW}installable${COLOR_NORMAL} "
-        COLOR_UPDATEABLE=" ${COLOR_GREEN}updateable${COLOR_NORMAL} "
+        COLOR_UPDATABLE=" ${COLOR_GREEN}updatable${COLOR_NORMAL} "
     else
         COLOR_NORMAL=""
         COLOR_GREEN=""
@@ -104,7 +104,7 @@ function config_init_colors() {
         COLOR_ERROR="**ERROR** "
         COLOR_WARN="**WARNING** "
         COLOR_INSTALLABLE="installable "
-        COLOR_UPDATEABLE=" updateable "
+        COLOR_UPDATABLE=" updatable "
     fi
 }
 
@@ -232,7 +232,7 @@ function bee_list_exact() {
     done
 }
 
-function list_updateable() {
+function list_updatable() {
     local search=${1}
 
     pkgs=$(bee_list_packages "available" ${search})
@@ -254,8 +254,8 @@ function list_updateable() {
         maxinstalled=$(${BEE_BINDIR}/beeversion --max ${installed})
         maxall=$(${BEE_BINDIR}/beeversion --max ${maxinstalled} ${a})
         if [ "${maxall}" != "${maxinstalled}" ] ; then
-            if [ "${OPT_UPDATEABLE}" = "yes" ] ; then
-                echo -e "${COLOR_UPDATEABLE}${a}${COLOR_NORMAL}"
+            if [ "${OPT_UPDATABLE}" = "yes" ] ; then
+                echo -e "${COLOR_UPDATABLE}${a}${COLOR_NORMAL}"
             fi
         fi
     done
@@ -268,7 +268,7 @@ function list_updateable() {
 options=$(${BEE_BINDIR}/beegetopt --name bee-list \
                  --option available/a \
                  --option installed/i \
-                 --option updateable/u \
+                 --option updatable/u \
                  --option uninstalled/U \
                  --option display-pathname \
                  --option exact/by-pkgfullname \
@@ -286,7 +286,7 @@ filter=""
 
 OPT_EXACT="no"
 OPT_PATHNAME="no"
-OPT_UPDATEABLE="no"
+OPT_UPDATABLE="no"
 OPT_UNINSTALLED="no"
 
 while true ; do
@@ -303,9 +303,9 @@ while true ; do
             shift
             filter="installed"
             ;;
-        --updateable)
+        --updatable)
             shift;
-            OPT_UPDATEABLE="yes"
+            OPT_UPDATABLE="yes"
             ;;
         --uninstalled)
             shift;
@@ -328,13 +328,13 @@ done
 
 config_init_colors
 
-if [ "${OPT_UPDATEABLE}" = "yes" -o "${OPT_UNINSTALLED}" = "yes" ] ; then
+if [ "${OPT_UPDATABLE}" = "yes" -o "${OPT_UNINSTALLED}" = "yes" ] ; then
     if [ ! ${#@} -gt 0 ] ; then
-        list_updateable
+        list_updatable
     fi
 
     for p in "${@}" ; do
-        list_updateable ${p}
+        list_updatable ${p}
     done
     exit 0
 fi

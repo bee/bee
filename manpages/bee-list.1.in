@@ -53,7 +53,7 @@ List all installed bee packages matching
 .br
 This is the default.
 .TP
-.B \-u, \-\-updateable
+.B \-u, \-\-updatable
 List all packages that can be updated.
 .TP
 .B \-U, \-\-uninstalled
