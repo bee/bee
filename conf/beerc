@@ -46,5 +46,5 @@
 #: ${DATADIR:='${DATAROOTDIR}'}
 #: ${INFODIR:='${DATAROOTDIR}/info'}
 #: ${MANDIR:='${DATAROOTDIR}/man'}
-#: ${DOCDIR:='${DATAROOTDIR}/doc/gtkhtml'}
+#: ${DOCDIR:='${DATAROOTDIR}/doc/${PKGNAME}'}
 #: ${LOCALEDIR:='${DATAROOTDIR}/locale'}
