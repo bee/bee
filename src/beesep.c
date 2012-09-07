@@ -1,0 +1,178 @@
+/*
+** beesep - split beefind output
+**
+** Copyright (C) 2012
+**       Marius Tolzmann <tolzmann@molgen.mpg.de>
+**       Tobias Dreyer <dreyer@molgen.mpg.de>
+**       Matthias Ruester <ruester@molgen.mpg.de>
+**       and other bee developers
+**
+** This file is part of bee.
+**
+** bee is free software; you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program; if not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <err.h>
+#include <regex.h>
+
+#define errf(exit, format, ...) err(exit, "%s: " format, __func__, ## __VA_ARGS__)
+
+#define BEE_STATIC_INLINE __attribute__((always_inline)) static inline
+
+BEE_STATIC_INLINE void putn(char *str, size_t n)
+{
+    size_t printed;
+
+    assert(n >= 0);
+
+    if (!n)
+        return;
+
+#ifdef DEBUG
+    assert(n <= strlen(str));
+#endif
+
+    printed = fwrite(str, sizeof(*str), n, stdout);
+
+    if (printed != n)
+        errf(EXIT_FAILURE, "fwrite");
+}
+
+BEE_STATIC_INLINE void print_escaped(char *s, size_t n)
+{
+    char *c;
+
+    assert(s);
+
+    c = s;
+
+    fputs("'", stdout);
+
+    while ((c = strchr(s, '\'')) && c - s < n) {
+        putn(s, c - s);
+        fputs("'\\''", stdout);
+        n -= c - s + 1;
+        s  = c + 1;
+    }
+
+    if (n)
+        putn(s, n);
+
+    puts("'");
+}
+
+BEE_STATIC_INLINE int create_regex(regex_t *reg, char *regex)
+{
+    int r;
+    char errbuf[BUFSIZ];
+
+    r = regcomp(reg, regex, REG_EXTENDED);
+
+    if (r) {
+        regerror(r, reg, errbuf, BUFSIZ);
+        fprintf(stderr, "beesep: create_regex: regcomp: %s\n", errbuf);
+        return 0;
+    }
+
+    return 1;
+}
+
+int do_separation(char *str)
+{
+    regex_t regex;
+    regmatch_t pmatch;
+    int start;
+    int end;
+    int keylen;
+    char *value;
+    char *key;
+
+    if (!create_regex(&regex, "^[[:alnum:]]+=")) {
+        fprintf(stderr, "beesep: do_separation: failed to create regex\n");
+        return 0;
+    }
+
+    if (regexec(&regex, str, 1, &pmatch, 0) == REG_NOMATCH) {
+        fprintf(stderr, "beesep: do_separation: "
+                        "separation failed for '%s': no key found\n", str);
+        regfree(&regex);
+        return 0;
+    }
+
+    regfree(&regex);
+
+    end = pmatch.rm_eo;
+
+    /* keep the key */
+    key    = str;
+    keylen = end;
+
+    /* jump to end of key */
+    str += end;
+
+    /* assign the beginning of the value */
+    value = str;
+
+    create_regex(&regex, ":[[:alnum:]]+=");
+
+    while (regexec(&regex, str, 1, &pmatch, 0) != REG_NOMATCH) {
+        /*    s    e
+           baz:foo=bar */
+        start = pmatch.rm_so;
+        end   = pmatch.rm_eo;
+
+        /* jump to the beginning of the next key */
+        str += start + 1;
+
+        /* print previous key */
+        putn(key, keylen);
+
+        /* print previous value */
+        print_escaped(value, str - value - 1);
+
+        /* memorize the found key */
+        key    = str;
+        keylen = end - start - 1;
+
+        /* assign the new beginning of the value */
+        value = str + (end - start) - 1;
+    }
+
+    /* print last key */
+    putn(key, keylen);
+
+    /* print everything leftover as a value */
+    print_escaped(value, strlen(value));
+
+    regfree(&regex);
+
+    return 1;
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc != 2) {
+        fprintf(stderr, "beesep: argument missing\n");
+        return 1;
+    }
+
+    if (!do_separation(argv[1]))
+        return 1;
+
+    return 0;
+}
