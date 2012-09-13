@@ -1,4 +1,26 @@
-.TH "beesh" "1" "2012-03-22" "bee @BEE_VERSION@" "bee package management"
+." manpage of beesh
+."
+." Copyright (C) 2009-2012
+."       Marius Tolzmann <tolzmann@molgen.mpg.de>
+."       Tobias Dreyer <dreyer@molgen.mpg.de>
+."       and other bee developers
+."
+." This file is part of bee.
+."
+." bee is free software; you can redistribute it and/or modify
+." it under the terms of the GNU General Public License as published by
+." the Free Software Foundation, either version 3 of the License, or
+." (at your option) any later version.
+."
+." program is distributed in the hope that it will be useful,
+." but WITHOUT ANY WARRANTY; without even the implied warranty of
+." MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+." GNU General Public License for more details.
+."
+." You should have received a copy of the GNU General Public License
+." along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+.TH "beesh" "1" "2012-08-31" "bee @BEE_VERSION@" "bee package management"
 .SH "HOWTO WRITE A BEE-FILE"
 .SS "I have an url and want to build that stuff."
 The simplest way to create a bee file is to run
@@ -59,9 +81,11 @@ Tobias Dreyer
 .ME
 .SH "SEE ALSO"
 .BR bee (1)
-.BR bee-check (1)
-.BR bee-init (1)
-.BR bee-install (1)
-.BR bee-list (1)
-.BR bee-query (1)
-.BR bee-remove (1)
+.BR bee\-check (1)
+.BR bee\-download (1)
+.BR bee\-init (1)
+.BR bee\-install (1)
+.BR bee\-list (1)
+.BR bee\-query (1)
+.BR bee\-remove (1)
+.BR bee\-update (1)

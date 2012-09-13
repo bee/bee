@@ -197,10 +197,20 @@ function usage() {
 	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
 	     Max Planck Institute for Molecular Genetics Berlin Dahlem
 
-	Usage: bee remove [options] <package>
+	Usage: bee cache [options] <command> [<args>]
 
 	Options:
-	    -h, --help        display this help
+	    -f, --fields        choose fields to print
+	    -i, --tmpinstall    install a package temporarily
+	    -h, --help          display this help
+
+	Commands:
+	    grep <pattern>
+	    rebuild
+	    update <pkgname...>
+	    print-uniq-files <pkgname>
+	    print-conflicting-files <pkgname>
+	    print-conflicts <pkgname>
 
 	EOF
 }

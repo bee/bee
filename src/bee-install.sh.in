@@ -76,7 +76,7 @@ function usage() {
 	    -u, --update,
 	        --upgrade       install a package and remove old version afterwards
 	    -r, --remove-all    when updating: remove all old versions of the package
-	    -n, --noop          do not install; just print what would be installed
+	    -n, --noop          do not install; just print which files would be installed
 	    -h, --help          display this help
 
 	EOF

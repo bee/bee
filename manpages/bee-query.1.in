@@ -1,4 +1,26 @@
-.TH "bee-query" "1" "2012-05-18" "bee @BEE_VERSION@" "bee - bau et einfach"
+." manpage of bee-query
+."
+." Copyright (C) 2009-2012
+."       Marius Tolzmann <tolzmann@molgen.mpg.de>
+."       Tobias Dreyer <dreyer@molgen.mpg.de>
+."       and other bee developers
+."
+." This file is part of bee.
+."
+." bee is free software; you can redistribute it and/or modify
+." it under the terms of the GNU General Public License as published by
+." the Free Software Foundation, either version 3 of the License, or
+." (at your option) any later version.
+."
+." program is distributed in the hope that it will be useful,
+." but WITHOUT ANY WARRANTY; without even the implied warranty of
+." MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+." GNU General Public License for more details.
+."
+." You should have received a copy of the GNU General Public License
+." along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+.TH "bee-query" "1" "2012-08-31" "bee @BEE_VERSION@" "bee - bau et einfach"
 
 .SH "NAME"
 bee\-query \- Ask the bee database for files and packages
@@ -22,9 +44,7 @@ matching files and the related packages will be displayed.
 
 .SH "OPTIONS"
 .TP
-.B \-\-help
-.TQ
-.B \-h
+.B \-h, \-\-help
 Print a little help screen.
 
 .SH "ENVIRONMENT"
@@ -57,8 +77,7 @@ Please report bugs to bee-dev@googlegroups.com or directly to the authors.
 
 .SH "SEE ALSO"
 .BR bee (1)
-.BR bee\-check (1) 
-.BR bee\-dep (1)
+.BR bee\-check (1)
 .BR bee\-download (1)
 .BR bee\-init (1)
 .BR bee\-install (1)
