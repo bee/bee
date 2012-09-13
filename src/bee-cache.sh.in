@@ -254,6 +254,11 @@ done
 cmd=$1
 shift
 
+if [ "${cmd}" == "" ] ; then
+    usage
+    exit 0
+fi
+
 cache_verify
 tmpinstall_to_filenames
 
