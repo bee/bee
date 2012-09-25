@@ -30,27 +30,28 @@
 #include <err.h>
 #include <regex.h>
 
+#define bee_fprint(fh, str)  bee_fnprint(fh, 0, str)
+
 #define errf(exit, format, ...) err(exit, "%s: " format, __func__, ## __VA_ARGS__)
 
 #define BEE_STATIC_INLINE __attribute__((always_inline)) static inline
 
-BEE_STATIC_INLINE void putn(char *str, size_t n)
+static void bee_fnprint(FILE *fh, size_t n, char *str)
 {
-    size_t printed;
+    size_t m;
 
-    assert(n >= 0);
+    m =  strlen(str);
+
+    assert(n <= m);
+
+    if (!n)
+        n = m;
 
     if (!n)
         return;
 
-#ifdef DEBUG
-    assert(n <= strlen(str));
-#endif
-
-    printed = fwrite(str, sizeof(*str), n, stdout);
-
-    if (printed != n)
-        errf(EXIT_FAILURE, "fwrite");
+    while ((m = fwrite(str, sizeof(*str), n, fh)) != n)
+        n -= m;
 }
 
 BEE_STATIC_INLINE void print_escaped(char *s, size_t n)
@@ -61,19 +62,20 @@ BEE_STATIC_INLINE void print_escaped(char *s, size_t n)
 
     c = s;
 
-    fputs("'", stdout);
+    bee_fprint(stdout, "'");
 
     while ((c = strchr(s, '\'')) && c - s < n) {
-        putn(s, c - s);
-        fputs("'\\''", stdout);
+        if (c-s)
+            bee_fnprint(stdout, c - s, s);
+        bee_fprint(stdout, "'\\''");
         n -= c - s + 1;
         s  = c + 1;
     }
 
     if (n)
-        putn(s, n);
+        bee_fnprint(stdout, n, s);
 
-    puts("'");
+    bee_fprint(stdout, "'\n");
 }
 
 BEE_STATIC_INLINE int create_regex(regex_t *reg, char *regex)
@@ -140,7 +142,7 @@ int do_separation(char *str)
         str += start + 1;
 
         /* print previous key */
-        putn(key, keylen);
+        bee_fnprint(stdout, keylen, key);
 
         /* print previous value */
         print_escaped(value, str - value - 1);
@@ -154,7 +156,7 @@ int do_separation(char *str)
     }
 
     /* print last key */
-    putn(key, keylen);
+    bee_fnprint(stdout, keylen, key);
 
     /* print everything leftover as a value */
     print_escaped(value, strlen(value));
