@@ -110,14 +110,13 @@ int do_separation(char *str)
         return 0;
     }
 
-    if (regexec(&regex, str, 1, &pmatch, 0) == REG_NOMATCH) {
-        fprintf(stderr, "beesep: do_separation: "
-                        "separation failed for '%s': no key found\n", str);
-        regfree(&regex);
+    r = regexec(&regex, str, 1, &pmatch, 0);
+    regfree(&regex);
+
+    if (r == REG_NOMATCH) {
+        warnx("String '%s' does not start with a key\n", str);
         return 0;
     }
-
-    regfree(&regex);
 
     end = pmatch.rm_eo;
 
