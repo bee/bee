@@ -100,9 +100,10 @@ int do_separation(char *str)
 
     int start;
     int end;
-    int keylen;
+    int keylen, vallen;
     char *value;
     char *key;
+
 
     r = bee_regcomp(&regex, "^[[:alnum:]]+=", REG_EXTENDED);
     if (!r) {
@@ -120,15 +121,8 @@ int do_separation(char *str)
 
     end = pmatch.rm_eo;
 
-    /* keep the key */
     key    = str;
-    keylen = end;
-
-    /* jump to end of key */
-    str += end;
-
-    /* assign the beginning of the value */
-    value = str;
+    value  = str+end;
 
     r = bee_regcomp(&regex, ":[[:alnum:]]+=", REG_EXTENDED);
     if (!r) {
@@ -136,36 +130,42 @@ int do_separation(char *str)
         return 0;
     }
 
+    /* always continue search for next match within value */
+    str = value;
+
     while (regexec(&regex, str, 1, &pmatch, 0) != REG_NOMATCH) {
-        /*    s    e
-           baz:foo=bar */
-        start = pmatch.rm_so;
-        end   = pmatch.rm_eo;
+        start   = pmatch.rm_so;
+        end     = pmatch.rm_eo;
 
-        /* jump to the beginning of the next key */
-        str += start + 1;
+        /*
+                +--+ keylen
+                     +----+ vallen
+                     +-----+ start
+                     +-----------+ end
+            ...:key1=value1:key2=value2:...
+                ^    ^      ^
+                |    |      |
+                key  value  (nextkey)
+                     str
+        */
 
-        /* print previous key */
-        bee_fnprint(stdout, keylen, key);
+        keylen = value-key-1;
+        vallen = start;
 
-        /* print previous value */
-        print_escaped(value, str - value - 1);
+        bee_fnprint(stdout, keylen+1, key);
+        print_escaped(value, vallen);
 
-        /* memorize the found key */
-        key    = str;
-        keylen = end - start - 1;
-
-        /* assign the new beginning of the value */
-        value = str + (end - start) - 1;
+        key   = str+start+1;
+        value = str+end;
+        str   = value;
     }
 
-    /* print last key */
-    bee_fnprint(stdout, keylen, key);
-
-    /* print everything leftover as a value */
-    print_escaped(value, strlen(value));
-
     regfree(&regex);
+
+    keylen = value-key-1;
+
+    bee_fnprint(stdout, keylen+1, key);
+    print_escaped(value, strlen(value));
 
     return 1;
 }
