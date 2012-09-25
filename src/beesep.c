@@ -1,10 +1,10 @@
 /*
 ** beesep - split beefind output
 **
-** Copyright (C) 2009-2012
-**       David Fessler <dfessler@uni-potsdam.de>
+** Copyright (C) 2012
 **       Marius Tolzmann <tolzmann@molgen.mpg.de>
 **       Tobias Dreyer <dreyer@molgen.mpg.de>
+**       Matthias Ruester <ruester@molgen.mpg.de>
 **       and other bee developers
 **
 ** This file is part of bee.
@@ -25,77 +25,178 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
-int main(int argc, char** argv)
+#include <string.h>
+#include <assert.h>
+#include <err.h>
+#include <regex.h>
+
+#define bee_fprint(fh, str)  bee_fnprint(fh, 0, str)
+
+static void bee_fnprint(FILE *fh, size_t n, char *str)
 {
-        char gl=0;      /* equal sign */
-        char dp=0;      /* colon */
-        int dp_pos=0;   /* position of last colon */
-        int length=0;
-        int i=0;
-        if(argc<2)
-        {
-                fprintf(stderr,"beesep: missing argument\n");
-                return 2;
-        }
-        
-        while(argv[1][i]!='\0')
-        {       
-                /* no ':' before '=' */
-                if(argv[1][i]=='=')
-                {
-                        gl=1;
-                }
-                /* save occurrence and position of ':' */
-                if(gl && argv[1][i]==':')
-                {
-                        dp_pos=i;
-                        dp=1;
-                }
-                /* last ':' was a delimiter if there is a '=' */
-                if(gl && dp && argv[1][i]=='=')
-                {
-                        argv[1][dp_pos]='\0';
-                        gl=1;
-                        dp=0;
-                }
-                i++;
-        }
-        if(!gl)
-        {
-                fprintf(stderr,"beesep: there is no '='\n");
-                return 1;
-        }
-        
-        /* save tokens in an array and print them */
-        length=i;
-        i=0;
-        gl=0;
-        while(i<length)
-        {
-                printf("%c",argv[1][i]);
-                fflush(stdout);
-                if(!gl && !isalnum(argv[1][i]) && argv[1][i]!='=')
-                {
-                        fprintf(stderr,"\nbeesep: '%c' only alpha numeric characters are allowed in the key\n",argv[1][i]);
-                        return 1;
-                }
-                if(argv[1][i]=='\0')
-                {       
-                        gl=0;
-                        printf("'\n");
-                }
-                if(argv[1][i]=='\'')
-                {
-                        printf("\\''");
-                }       
-                if(argv[1][i]=='=' && !gl)
-                {       
-                        gl=1;
-                        printf("'");
-                }
-                i++;            
-        }
-        printf("'\n");
-        return 0;
+    size_t m;
+
+    m =  strlen(str);
+
+    assert(n <= m);
+
+    if (!n)
+        n = m;
+
+    if (!n)
+        return;
+
+    while ((m = fwrite(str, sizeof(*str), n, fh)) != n)
+        n -= m;
+}
+
+static void print_escaped(char *s, size_t n)
+{
+    char *c;
+
+    assert(s);
+
+    c = s;
+
+    bee_fprint(stdout, "'");
+
+    while ((c = strchr(s, '\'')) && c - s < n) {
+        if (c-s)
+            bee_fnprint(stdout, c - s, s);
+        bee_fprint(stdout, "'\\''");
+        n -= c - s + 1;
+        s  = c + 1;
+    }
+
+    if (n)
+        bee_fnprint(stdout, n, s);
+
+    bee_fprint(stdout, "'\n");
+}
+
+static int bee_regcomp(regex_t *preg, char *regex, int cflags)
+{
+    int  regerr;
+    char errbuf[BUFSIZ];
+
+    regerr = regcomp(preg, regex, cflags);
+
+    if (!regerr)
+        return 1;
+
+    regerror(regerr, preg, errbuf, BUFSIZ);
+    warnx("bee_regcomp: %s\n", errbuf);
+    return 0;
+}
+
+static short do_separation(char *str)
+{
+    int   res=0;
+    int   r;
+
+    int   start,
+          end;
+
+    char *key,
+         *value;
+    int   keylen,
+          vallen;
+
+    regex_t    regex_first;
+    regex_t    regex_next;
+    regmatch_t pmatch;
+
+    /* compile regexes */
+
+    r = bee_regcomp(&regex_first, "^[[:alnum:]]+=", REG_EXTENDED);
+    if (!r)
+        goto out_first;
+
+    r = bee_regcomp(&regex_next, ":[[:alnum:]]+=", REG_EXTENDED);
+    if (!r)
+        goto out;
+
+
+    /* match first key */
+
+    r = regexec(&regex_first, str, 1, &pmatch, 0);
+    if (r == REG_NOMATCH) {
+        warnx("String '%s' does not start with a key\n", str);
+        goto out;
+    }
+
+    /* init loop variables */
+
+    end = pmatch.rm_eo;
+
+    key    = str;
+    value  = str+end;
+
+    /* always continue search for next match within value */
+    str = value;
+
+    /* match all other keys */
+
+    while (regexec(&regex_next, str, 1, &pmatch, 0) != REG_NOMATCH) {
+        start   = pmatch.rm_so;
+        end     = pmatch.rm_eo;
+
+        /*
+                +--+ keylen
+                     +----+ vallen
+                     +-----+ start
+                     +-----------+ end
+            ...:key1=value1:key2=value2:...
+                ^    ^      ^
+                |    |      |
+                key  value  (nextkey)
+                     str
+        */
+
+        keylen = value-key-1;
+        vallen = start;
+
+        /* print current key/value pair */
+
+        bee_fnprint(stdout, keylen+1, key);
+        print_escaped(value, vallen);
+
+        /* reinit for next round */
+
+        key   = str+start+1;
+        value = str+end;
+        str   = value;
+    }
+
+    /* print last key/value pair */
+
+    keylen = value-key-1;
+
+    bee_fnprint(stdout, keylen+1, key);
+    print_escaped(value, strlen(value));
+
+    /* we are done -> set success and clean up */
+
+    res = 1;
+
+out_first:
+    regfree(&regex_first);
+
+out:
+    regfree(&regex_next);
+
+    return res;
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc != 2) {
+        warnx("argument missing\n");
+        return 1;
+    }
+
+    if (!do_separation(argv[1]))
+        return 1;
+
+    return 0;
 }
