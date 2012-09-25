@@ -76,34 +76,37 @@ static void print_escaped(char *s, size_t n)
     bee_fprint(stdout, "'\n");
 }
 
-static int create_regex(regex_t *reg, char *regex)
+static int bee_regcomp(regex_t *preg, char *regex, int cflags)
 {
-    int r;
+    int  regerr;
     char errbuf[BUFSIZ];
 
-    r = regcomp(reg, regex, REG_EXTENDED);
+    regerr = regcomp(preg, regex, cflags);
 
-    if (r) {
-        regerror(r, reg, errbuf, BUFSIZ);
-        fprintf(stderr, "beesep: create_regex: regcomp: %s\n", errbuf);
-        return 0;
-    }
+    if (!regerr)
+        return 1;
 
-    return 1;
+    regerror(regerr, preg, errbuf, BUFSIZ);
+    warnx("bee_regcomp: %s\n", errbuf);
+    return 0;
 }
 
 int do_separation(char *str)
 {
     regex_t regex;
     regmatch_t pmatch;
+
+    int r;
+
     int start;
     int end;
     int keylen;
     char *value;
     char *key;
 
-    if (!create_regex(&regex, "^[[:alnum:]]+=")) {
-        fprintf(stderr, "beesep: do_separation: failed to create regex\n");
+    r = bee_regcomp(&regex, "^[[:alnum:]]+=", REG_EXTENDED);
+    if (!r) {
+        regfree(&regex);
         return 0;
     }
 
@@ -128,7 +131,11 @@ int do_separation(char *str)
     /* assign the beginning of the value */
     value = str;
 
-    create_regex(&regex, ":[[:alnum:]]+=");
+    r = bee_regcomp(&regex, ":[[:alnum:]]+=", REG_EXTENDED);
+    if (!r) {
+        regfree(&regex);
+        return 0;
+    }
 
     while (regexec(&regex, str, 1, &pmatch, 0) != REG_NOMATCH) {
         /*    s    e
