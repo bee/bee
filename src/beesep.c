@@ -34,8 +34,6 @@
 
 #define errf(exit, format, ...) err(exit, "%s: " format, __func__, ## __VA_ARGS__)
 
-#define BEE_STATIC_INLINE __attribute__((always_inline)) static inline
-
 static void bee_fnprint(FILE *fh, size_t n, char *str)
 {
     size_t m;
@@ -54,7 +52,7 @@ static void bee_fnprint(FILE *fh, size_t n, char *str)
         n -= m;
 }
 
-BEE_STATIC_INLINE void print_escaped(char *s, size_t n)
+static void print_escaped(char *s, size_t n)
 {
     char *c;
 
@@ -78,7 +76,7 @@ BEE_STATIC_INLINE void print_escaped(char *s, size_t n)
     bee_fprint(stdout, "'\n");
 }
 
-BEE_STATIC_INLINE int create_regex(regex_t *reg, char *regex)
+static int create_regex(regex_t *reg, char *regex)
 {
     int r;
     char errbuf[BUFSIZ];
