@@ -534,7 +534,7 @@ function bee_pkg_pack() {
                 ${D}/CONTENT )
 
     beefilename=${BEE##*/}
-    beefiledest=${BEE_BEEDIR}/${PKGALLPKG}.bee
+    beefiledest=${BEE_BEEDIR}/${PKGFULLPKG}.bee
 
     print_info "-> saving bee-file ${beefilename} .."
     print_info "${COLOR_CYAN}${beefiledest}"
@@ -569,7 +569,7 @@ function bee_archivebuild() {
         --absolute-names \
         ${S} ${B} \
         ${bee_FETCHED_FILES[@]} \
-        ${BEE_BEEDIR}/${PKGALLPKG}.bee \
+        ${BEE_BEEDIR}/${PKGFULLPKG}.bee \
         --transform="s,^${BEEWORKDIR},${PKGALLPKG}," \
         --transform="s,^${F},${PKGALLPKG}/files," \
         --transform="s,^${BEE_BEEDIR},${PKGALLPKG}/files,"
