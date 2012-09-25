@@ -32,8 +32,6 @@
 
 #define bee_fprint(fh, str)  bee_fnprint(fh, 0, str)
 
-#define errf(exit, format, ...) err(exit, "%s: " format, __func__, ## __VA_ARGS__)
-
 static void bee_fnprint(FILE *fh, size_t n, char *str)
 {
     size_t m;
@@ -193,7 +191,7 @@ out:
 int main(int argc, char *argv[])
 {
     if (argc != 2) {
-        fprintf(stderr, "beesep: argument missing\n");
+        warnx("argument missing\n");
         return 1;
     }
 
