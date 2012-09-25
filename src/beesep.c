@@ -91,49 +91,55 @@ static int bee_regcomp(regex_t *preg, char *regex, int cflags)
     return 0;
 }
 
-int do_separation(char *str)
+static short do_separation(char *str)
 {
-    regex_t regex;
+    int   res=0;
+    int   r;
+
+    int   start,
+          end;
+
+    char *key,
+         *value;
+    int   keylen,
+          vallen;
+
+    regex_t    regex_first;
+    regex_t    regex_next;
     regmatch_t pmatch;
 
-    int r;
+    /* compile regexes */
 
-    int start;
-    int end;
-    int keylen, vallen;
-    char *value;
-    char *key;
+    r = bee_regcomp(&regex_first, "^[[:alnum:]]+=", REG_EXTENDED);
+    if (!r)
+        goto out_first;
+
+    r = bee_regcomp(&regex_next, ":[[:alnum:]]+=", REG_EXTENDED);
+    if (!r)
+        goto out;
 
 
-    r = bee_regcomp(&regex, "^[[:alnum:]]+=", REG_EXTENDED);
-    if (!r) {
-        regfree(&regex);
-        return 0;
-    }
+    /* match first key */
 
-    r = regexec(&regex, str, 1, &pmatch, 0);
-    regfree(&regex);
-
+    r = regexec(&regex_first, str, 1, &pmatch, 0);
     if (r == REG_NOMATCH) {
         warnx("String '%s' does not start with a key\n", str);
-        return 0;
+        goto out;
     }
+
+    /* init loop variables */
 
     end = pmatch.rm_eo;
 
     key    = str;
     value  = str+end;
 
-    r = bee_regcomp(&regex, ":[[:alnum:]]+=", REG_EXTENDED);
-    if (!r) {
-        regfree(&regex);
-        return 0;
-    }
-
     /* always continue search for next match within value */
     str = value;
 
-    while (regexec(&regex, str, 1, &pmatch, 0) != REG_NOMATCH) {
+    /* match all other keys */
+
+    while (regexec(&regex_next, str, 1, &pmatch, 0) != REG_NOMATCH) {
         start   = pmatch.rm_so;
         end     = pmatch.rm_eo;
 
@@ -152,22 +158,36 @@ int do_separation(char *str)
         keylen = value-key-1;
         vallen = start;
 
+        /* print current key/value pair */
+
         bee_fnprint(stdout, keylen+1, key);
         print_escaped(value, vallen);
+
+        /* reinit for next round */
 
         key   = str+start+1;
         value = str+end;
         str   = value;
     }
 
-    regfree(&regex);
+    /* print last key/value pair */
 
     keylen = value-key-1;
 
     bee_fnprint(stdout, keylen+1, key);
     print_escaped(value, strlen(value));
 
-    return 1;
+    /* we are done -> set success and clean up */
+
+    res = 1;
+
+out_first:
+    regfree(&regex_first);
+
+out:
+    regfree(&regex_next);
+
+    return res;
 }
 
 int main(int argc, char *argv[])
