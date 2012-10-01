@@ -110,11 +110,11 @@ static short do_separation(char *str)
 
     r = bee_regcomp(&regex_first, "^[[:alnum:]]+=", REG_EXTENDED);
     if (!r)
-        goto out_first;
+        return 0;
 
     r = bee_regcomp(&regex_next, ":[[:alnum:]]+=", REG_EXTENDED);
     if (!r)
-        goto out;
+        goto out_first;
 
 
     /* match first key */
@@ -179,11 +179,11 @@ static short do_separation(char *str)
 
     res = 1;
 
-out_first:
-    regfree(&regex_first);
-
 out:
     regfree(&regex_next);
+
+out_first:
+    regfree(&regex_first);
 
     return res;
 }
