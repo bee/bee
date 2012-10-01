@@ -32,9 +32,12 @@
 
 #define bee_fprint(fh, str)  bee_fnprint(fh, 0, str)
 
-static void bee_fnprint(FILE *fh, size_t n, char *str)
+static int bee_fnprint(FILE *fh, size_t n, char *str)
 {
     size_t m;
+
+    if (ferror(fh))
+        return 0;
 
     m =  strlen(str);
 
@@ -44,10 +47,17 @@ static void bee_fnprint(FILE *fh, size_t n, char *str)
         n = m;
 
     if (!n)
-        return;
+        return 1;
 
-    while ((m = fwrite(str, sizeof(*str), n, fh)) != n)
-        n -= m;
+    m = fwrite(str, sizeof(*str), n, fh);
+
+    if (m != n) {
+        assert(ferror(fh));
+        warn("fwrite");
+        return 0;
+    }
+
+    return 1;
 }
 
 static void print_escaped(char *s, size_t n)
@@ -175,9 +185,9 @@ static short do_separation(char *str)
     bee_fnprint(stdout, keylen+1, key);
     print_escaped(value, strlen(value));
 
-    /* we are done -> set success and clean up */
+    /* we are done -> set error-state and clean up */
 
-    res = 1;
+    res = !ferror(stdout);
 
 out:
     regfree(&regex_next);
