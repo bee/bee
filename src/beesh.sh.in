@@ -895,7 +895,7 @@ bee_run patch ${bee_PATCHFILES[@]}
 
 bee_buildmagic=$(${BEE_BINDIR}/beeuniq ${BEE_BUILDTYPE[@]} \
                                cmake \
-                               configure \
+                               autotools \
                                autogen \
                                perl-module \
                                perl-module-makemaker \
