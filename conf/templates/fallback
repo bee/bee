@@ -35,7 +35,7 @@
 ###############################################################################
 ## Change the default (auto-detected) steps to
 ## extract, patch, configure/setup, build and install the software.
-## Make sure the mee_install fnction does install everything to the
+## Make sure the mee_install function does install everything to the
 ## image directory "${D}"
 
 #mee_extract() {
