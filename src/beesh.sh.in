@@ -580,7 +580,7 @@ function load_buildmagic() {
     local IFS=":${IFS}"
     local magic=$1
 
-    if [ ! -z "${BEE_BUILDTYPE}" ] ; then
+    if [ ! -z "${BEE_BUILDTYPE_DETECTED}" ] ; then
         return
     fi
 
@@ -589,14 +589,14 @@ function load_buildmagic() {
         xdgmagic="${dir}/bee/beesh.d/${magic}.sh"
         if [ -r "${xdgmagic}" ] ; then
             . ${xdgmagic}
-            if [ ! -z "${BEE_BUILDTYPE}" ] ; then
+            if [ ! -z "${BEE_BUILDTYPE_DETECTED}" ] ; then
                 break
             fi
         fi
     done
 
-    if [ ! -z "${BEE_BUILDTYPE}" ] ; then
-        print_info "using magic buildtype '${BEE_BUILDTYPE}' from '${xdgmagic}' .."
+    if [ "${BEE_BUILDTYPE_DETECTED}" == "${magic}" ] ; then
+        print_info "using magic buildtype '${BEE_BUILDTYPE_DETECTED}' from '${xdgmagic}' .."
     fi
 }
 
@@ -895,7 +895,7 @@ bee_run patch ${bee_PATCHFILES[@]}
 
 bee_buildmagic=$(${BEE_BINDIR}/beeuniq ${BEE_BUILDTYPE[@]} \
                                cmake \
-                               configure \
+                               autotools \
                                autogen \
                                perl-module \
                                perl-module-makemaker \
@@ -904,13 +904,14 @@ bee_buildmagic=$(${BEE_BINDIR}/beeuniq ${BEE_BUILDTYPE[@]} \
                                jb \
                                )
 
-BEE_BUILDTYPE=""
+BEE_BUILDTYPE_DETECTED=""
 for t in ${bee_buildmagic[@]} ; do
     load_buildmagic ${t}
-    if [ -n "${BEE_BUILDTYPE}" ] ; then
+    if [ -n "${BEE_BUILDTYPE_DETECTED}" ] ; then
         break
     fi
 done
+
 
 print_info "changing to build directory: ${B}"
 cd ${B}

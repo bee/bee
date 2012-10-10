@@ -22,55 +22,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-if [ ! -x ${S}/configure ] ; then
-    return
+
+if [ "${BEE_BUILDTYPE}" = "configure" ] ; then
+     print_warning "BEE_BUILDTYPE=configure has been deprecated in favor of BEE_BUILDTYPE=autotools" >&2
+     BEE_BUILDTYPE=autotools
+     load_buildmagic autotools
 fi
-
-BEE_BUILDTYPE=configure
-
-#### bee_configure() ##########################################################
-
-bee_configure() {
-    start_cmd ${S}/configure ${DEFCONFIG} "$@"
-}
-
-#### bee_build() ##############################################################
-
-bee_build() {
-    start_cmd make ${BEE_MAKEFLAGS} "$@"
-}
-
-#### bee_install() ############################################################
-
-bee_install() {
-    start_cmd make ${BEE_MAKEFLAGS} install DESTDIR=${D} "$@"
-}
-
-if ! grep -q datarootdir ${S}/configure ; then
-    BEE_CONFIGURE='compat'
-fi
-
-# check IGNORE_DATAROOTDIR for compatibility with old bee-files
-if [ ${IGNORE_DATAROOTDIR} ] ; then
-    print_error "IGNORE_DATAROOTDIR is deprecated! please use BEE_CONFIGURE='compat' instead." >&2
-    BEE_CONFIGURE='compat'
-fi
-
-if [ "${BEE_CONFIGURE}" = "compat" ] ; then
-    unset DATAROOTDIR
-    unset LOCALEDIR
-    unset DOCDIR
-fi
-
-# create default configure options
-if [ -z "${DEFCONFIG}" ] ; then
-    for var in prefix bindir sbindir libexecdir sysconfdir \
-               sharedstatedir localstatedir libdir includedir \
-               datarootdir datadir infodir localedir mandir docdir ; do
-        DEFCONFIG="${DEFCONFIG} \${${var^^}:+--${var,,}=\${${var^^}}}"
-    done
-    DEFCONFIG="${DEFCONFIG} \${EPREFIX:+--exec-prefix=\${EPREFIX}}"
-fi
-
-# expand default configure options
-eval DEFCONFIG=\"${DEFCONFIG}\"

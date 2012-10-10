@@ -1,20 +1,42 @@
 #!/usr/bin/env beesh
 
+## this file was created by bee init and should be executed to build a
+## bee-package. (Additional hints are located at the end of this file.)
+
+###############################################################################
+## The source URL(s) define the location of the sources that will be
+## downloaded. Version variables may be used to simplify reuse of this bee-file.
+
 @SRCURL@
 
-PATCHURL[0]=""
+###############################################################################
+## Add URLs/pathes to patch files to the PATCHURL array.
+## The sources will be patched in the order of the array.
+
+# PATCHURL+=()
+
+###############################################################################
+## Add filename patterns to the EXCLUDE array of files that should not
+## be added to you package but may be present in the image directory.
+
+# EXCLUDE+=()
 
 @BEE_CONFIGURE@
-
 @BEE_BUILDTYPE@
-
-# EXCLUDE=()
+###############################################################################
+## Uncomment the next statement, if the software may not be able to be build
+## outside the source directory and need to be build inside the source
+## directory.
 
 # build_in_sourcedir
 
 @DEFAULT_PREFIX_VARS@
-
 @BEE_DEFINES@
+###############################################################################
+## Change the default (auto-detected) steps to
+## extract, patch, configure/setup, build and install the software.
+## Make sure the mee_install fnction does install everything to the
+## image directory "${D}"
 
 #mee_extract() {
 #    bee_extract "${@}"
@@ -35,3 +57,22 @@ PATCHURL[0]=""
 #mee_install() {
 #    bee_install
 #}
+## by default this may be 'make install DESTDIR="${D}"'
+
+###############################################################################
+##
+## Additional hints:
+##
+## The name of this bee-file should follow the following naming convention:
+##     pkgname-pkgversion-pkgrevision.bee
+##
+## You may remove all comments as long as SRCURL[0]="" is set.
+##
+## Everything in this file will be executed in a bash environment.
+##
+## Build the package by executing
+##     './pkg-version-N.bee' or
+##     'beesh ./pkg-version-N.bee'
+##
+## see http://beezinga.org/
+##

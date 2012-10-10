@@ -241,25 +241,35 @@ function initialize() {
         unset dir
     done
 
-    sed -e "s,@DEFAULT_PREFIX_VARS@,${DEFAULT_PREFIX_VARS}," \
-        -i ${beefile}
-
-    sed -e "s,@BEE_DEFINES@,${OPT_DEFINE}," \
-        -i ${beefile}
-
-    if [ "${CONFIGURE_BEEHAVIOR}" ] ; then
-        sed -e "s,@BEE_CONFIGURE@,BEE_CONFIGURE=${CONFIGURE_BEEHAVIOR}," \
+    if [ -n "${DEFAULT_PREFIX_VARS}" ] ; then
+        sed -e "s,@DEFAULT_PREFIX_VARS@,${DEFAULT_PREFIX_VARS}," \
             -i ${beefile}
     else
-        sed -e "s,@BEE_CONFIGURE@,# BEE_CONFIGURE=compat," \
+        sed -e "/@DEFAULT_PREFIX_VARS@/d" \
+            -i ${beefile}
+    fi
+
+    if [ -n "${OPT_DEFINE}" ] ; then
+        sed -e "s,@BEE_DEFINES@,${OPT_DEFINE}\n," \
+            -i ${beefile}
+    else
+        sed -e "/@BEE_DEFINES@/d" \
+            -i ${beefile}
+    fi
+
+    if [ -n "${CONFIGURE_BEEHAVIOR}" ] ; then
+        sed -e "s,@BEE_CONFIGURE@,BEE_CONFIGURE=${CONFIGURE_BEEHAVIOR}\n," \
+            -i ${beefile}
+    else
+        sed -e "/@BEE_CONFIGURE@/d" \
             -i ${beefile}
     fi
 
     if [ -n "${OPT_BUILDTYPE}" ] ; then
-        sed -e "s,@BEE_BUILDTYPE@,BEE_BUILDTYPE=\"${OPT_BUILDTYPE}\"," \
+        sed -e "s,@BEE_BUILDTYPE@,BEE_BUILDTYPE=\"${OPT_BUILDTYPE}\"\n," \
             -i ${beefile}
     else
-        sed -e "s,@BEE_BUILDTYPE@,# BEE_BUILDTYPE=," \
+        sed -e "/@BEE_BUILDTYPE@/d" \
             -i ${beefile}
     fi
 

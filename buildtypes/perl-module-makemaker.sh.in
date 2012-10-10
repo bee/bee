@@ -26,7 +26,7 @@ if [ ! -r ${S}/Makefile.PL ] ; then
     return
 fi
 
-BEE_BUILDTYPE=perl-makemaker
+BEE_BUILDTYPE_DETECTED=perl-makemaker
 
 : ${PERL:=perl}
 
