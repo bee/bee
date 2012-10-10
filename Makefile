@@ -84,6 +84,7 @@ LIBRARY_SHELL+=beelib.config.sh
 BUILDTYPES+=autogen
 BUILDTYPES+=autotools
 BUILDTYPES+=cmake
+BUILDTYPES+=configure
 BUILDTYPES+=jb
 BUILDTYPES+=make
 BUILDTYPES+=perl-module
