@@ -30,7 +30,7 @@ if ! which cmake >/dev/null 2>&1 ; then
     return
 fi
 
-BEE_BUILDTYPE=cmake
+BEE_BUILDTYPE_DETECTED=cmake
 
 #### bee_configure() ##########################################################
 

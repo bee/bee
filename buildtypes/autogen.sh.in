@@ -26,7 +26,7 @@ if [ ! -x ${S}/autogen.sh ] ; then
     return
 fi
 
-BEE_BUILDTYPE=autogen
+BEE_BUILDTYPE_DETECTED=autogen
 
 #### bee_configure() ##########################################################
 

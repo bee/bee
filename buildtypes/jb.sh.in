@@ -26,7 +26,7 @@ if [ ! -r ${S}/jb ] ; then
     return
 fi
 
-BEE_BUILDTYPE=jb
+BEE_BUILDTYPE_DETECTED=jb
 
 build_in_sourcedir
 

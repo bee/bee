@@ -36,7 +36,7 @@ fi
 
 #### set autotools build type #################################################
 
-BEE_BUILDTYPE=configure
+BEE_BUILDTYPE_DETECTED=autotools
 
 #### bee_configure() ##########################################################
 

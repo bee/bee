@@ -27,7 +27,7 @@ if [ ! -r ${S}/setup.py ] ; then
     return
 fi
 
-BEE_BUILDTYPE=python-module
+BEE_BUILDTYPE_DETECTED=python-module
 
 : ${PYTHON:=python}
 
