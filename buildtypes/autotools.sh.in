@@ -59,6 +59,10 @@ bee_install() {
 #### setup autotools build type ###############################################
 
 if ! grep -q datarootdir ${S}/configure ; then
+    print_info "[buildtype::autotools] Detected out-dated configure script. Switching to compat mode."
+    if [ "${BEE_CONFIGURE}" = "compat" ] ; then
+        print_warning "[buildtype::autotools] BEE_CONFIGURE=compat was auto-detected and may be removed from your bee-file."
+    fi
     BEE_CONFIGURE='compat'
 fi
 
