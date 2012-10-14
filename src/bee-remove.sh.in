@@ -76,6 +76,13 @@ function pkg_remove() {
 #
 function subdirs() {
     local last
+    local mtabexists=0
+
+    # checking for mountpoint boundaries only works if
+    # /etc/mtab exists since "stat" depends on it..
+    if [ -e "/etc/mtab" ] ; then
+        mtabexists=1
+    fi
 
     for path in "${@}" ; do
         last=""
@@ -84,11 +91,13 @@ function subdirs() {
                 continue 2
             fi
 
-            this=$(stat "${path}" --printf "%F%m")
-            if [ -n "${last}" -a "${last}" != "${this}" ] ; then
-                continue 2
-            else
-                last="${this}"
+            if [ "${mtabexists}" = "1" ] ; then
+                this=$(stat "${path}" --printf "%F%m")
+                if [ -n "${last}" -a "${last}" != "${this}" ] ; then
+                    continue 2
+                else
+                    last="${this}"
+                fi
             fi
 
             if [ "${this:0:9}" != 'directory' ] ; then
