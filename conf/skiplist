@@ -1,4 +1,4 @@
-^/(bin|boot|etc|home|lib|media|mnt|node|opt|root|sbin|srv|tmp|usr)$
+^/(bin|boot|etc|home|lib|lib64|media|mnt|node|opt|root|sbin|srv|tmp|usr)$
 
 ^/usr/(doc|info|lib64|man|bin|include|lib|local|sbin|share)$
 
