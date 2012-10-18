@@ -26,7 +26,7 @@ if [ ! -r ${S}/CMakeLists.txt ] ; then
     return
 fi
 
-if ! which cmake >/dev/null 2>&1 ; then
+if ! type -p cmake >/dev/null 2>&1 ; then
     return
 fi
 

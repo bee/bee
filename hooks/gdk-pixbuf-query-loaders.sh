@@ -32,7 +32,7 @@ if [ -z ${BEE_VERSION} ] ; then
     exit 1
 fi
 
-if ! which gdk-pixbuf-query-loaders >/dev/null 2>&1 ; then
+if ! type -p gdk-pixbuf-query-loaders >/dev/null 2>&1 ; then
     exit 0
 fi
 

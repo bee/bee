@@ -32,7 +32,7 @@ if [ -z ${BEE_VERSION} ] ; then
     exit 1
 fi
 
-if ! which mkfontscale mkfontdir >/dev/null 2>&1 ; then
+if ! type -p mkfontscale mkfontdir >/dev/null 2>&1 ; then
     exit 0
 fi
 

@@ -34,7 +34,7 @@ fi
 
 : ${INSTALLINFO:=install-info}
 
-if ! which ${INSTALLINFO} >/dev/null 2>&1 ; then
+if ! type -p ${INSTALLINFO} >/dev/null 2>&1 ; then
     exit 0
 fi
 

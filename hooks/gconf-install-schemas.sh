@@ -34,7 +34,7 @@ fi
 
 : ${GCONFTOOL:=gconftool-2}
 
-if ! which ${GCONFTOOL} >/dev/null 2>&1 ; then
+if ! type -p ${GCONFTOOL} >/dev/null 2>&1 ; then
     exit 0
 fi
 

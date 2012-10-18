@@ -36,7 +36,7 @@ if [ ${UID} -ne 0 ] ; then
     exit 0
 fi
 
-if ! which ldconfig >/dev/null 2>&1 ; then
+if ! type -p ldconfig >/dev/null 2>&1 ; then
     exit 0
 fi
 

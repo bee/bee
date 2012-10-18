@@ -32,7 +32,7 @@ if [ -z ${BEE_VERSION} ] ; then
     exit 1
 fi
 
-if ! which glib-compile-schemas >/dev/null 2>&1 ; then
+if ! type -p glib-compile-schemas >/dev/null 2>&1 ; then
     exit 0
 fi
 
