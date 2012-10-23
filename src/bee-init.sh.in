@@ -163,6 +163,9 @@ function initialize() {
 
     if [ -z "${pname}" ] ; then
 
+        # start auto packagename generation with surl basename
+        pname=${surl##*/}
+
         # fix sourceforge urls for automatic pkgname generation
         if [[ $surl = *://sourceforge.net/*/files/*/download ]] ; then
             # strip /files directory
@@ -176,10 +179,29 @@ function initialize() {
 
             # strip /download basename
             surl=${surl%/download}
+            pname=${surl##*/}
         fi
 
-        # start auto packagename generation with surl basename
-        pname=${surl##*/}
+        if [[ "${surl}" = https://github.com/*/*/tarball/* ]] ; then
+            local github_url
+            local github_tag
+            local github_pkg
+            github_url=${surl}
+            github_tag=${github_url##*/}
+            github_pkg=${github_url%/*/*}
+            github_pkg=${github_pkg##*/}
+            # see bee-download for description of the following
+            github_tag=$( sed \
+                    -e 's,^[vV]\([0-9]\+[-_\.]\),\1,' \
+                    -e 's,.*[-_][vV]\([0-9]\+[-_\.]\),\1,' \
+                    -e 's,^\(\([A-Za-z]\+[0-9]*\)\+[-_]\)\+,,' \
+                    -e 's,^[vV]\([0-9]\+\)$,\1,' \
+                    -e 's,-,_,g' \
+                    -e 's,_\([0-9]\),.\1,g' \
+                    -e 's,\([A-Z]\+\),\L\1,g' <<< "${github_tag}" )
+            pname="${github_pkg}-${github_tag}"
+            surl="${surl} ${pname}.tar.gz"
+        fi
 
         # and remove all HTTP-GET variables..
         pname=${pname%%\?*}
