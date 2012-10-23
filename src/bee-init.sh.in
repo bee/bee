@@ -182,6 +182,10 @@ function initialize() {
             pname=${surl##*/}
         fi
 
+        if [[ "${surl}" = https://github.com/*/*/zipball/* ]] ; then
+            surl=${surl/\/zipball\//\/tarball\/}
+        fi
+
         if [[ "${surl}" = https://github.com/*/*/tarball/* ]] ; then
             local github_url
             local github_tag
