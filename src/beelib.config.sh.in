@@ -179,20 +179,28 @@ function config_load_local_config() {
     local mp
     local mp_last
 
-    mp_last=""
-
     : ${BEE_LOCAL_CONFIG_FILENAME:=.beerc}
 
     path=${PWD}
 
     unset BEE_LOCAL_CONFIG_CONTINUE
 
+    # check for mtab sicne stat -printf "%m" depend on it
+    if [ -e /etc/mtab ] ; then
+        mp_last=""
+    else
+        mp_last="nomtab"
+    fi
+
     while [ ! -z "${path}" ] ; do
-        mp=$(stat --printf="%m" "${path}")
-        if [ ! -z "${mp_last}" -a "${mp}" != "${mp_last}" ] ; then
-            break
+        # stop traversing path at mountpoint boundaries
+        if [ "${mplast}" != "nomtab" ] ; then
+            mp=$(stat --printf="%m" "${path}")
+            if [ "${mp}" != "${mp_last}" ] ; then
+                break
+            fi
+            mp_last="${mp}"
         fi
-        mp_last="${mp}"
         local_config="${path}/${BEE_LOCAL_CONFIG_FILENAME}"
         if [ -r "${local_config}" ] ; then
             . ${local_config}

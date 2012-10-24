@@ -38,16 +38,19 @@ fi
 
 for dir in ${XDG_DATA_DIRS//:/ } ; do
     icon_base_dir=${dir}/icons
-    for line in $(grep -h "file=${icon_base_dir}/.*/index.theme" ${content}) ; do
-        eval $(beesep ${line})
-        icon_dir=${file%%/index.theme}
+    dirs=($(sed -n -e "s,^.*file=\(${icon_base_dir}/[^/]\+\)/[^/]\+$,\1,p" ${content} | sort -u ) )
+    for icon_dir in "${dirs[@]}" ; do
+        if [ ! -e "${icon_dir}/index.theme" ] ; then
+            rm -f "${icon_dir}/icon-theme.cache"
+            continue 1
+        fi
+
         case "${action}" in
             "post-install")
-                rm -f ${icon_dir}/icon-theme.cache
                 gtk-update-icon-cache -f ${icon_dir}
                 ;;
-            "pre-remove")
-                rm -f ${icon_dir}/icon-theme.cache
+            "post-remove")
+                gtk-update-icon-cache -f ${icon_dir}
                 ;;
         esac
     done
