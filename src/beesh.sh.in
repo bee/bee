@@ -270,6 +270,10 @@ function fetch_one_patch() {
         if bunzip2 "${bee_FETCHED_FILE}" -c >"${bee_FETCHED_FILE%.bz2}" ; then
             bee_FETCHED_FILE=${bee_FETCHED_FILE%.bz2}
         fi
+    elif [ "${bee_FETCHED_FILE: -3:3}" = ".xz" ] ; then
+        if unxz "${bee_FETCHED_FILE}" -c >"${bee_FETCHED_FILE%.xz}" ; then
+            bee_FETCHED_FILE=${bee_FETCHED_FILE%.xz}
+        fi
     fi
 
     bee_PATCHFILES=( ${bee_PATCHFILES[@]} ${bee_FETCHED_FILE} )
