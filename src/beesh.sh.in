@@ -265,14 +265,17 @@ function fetch_one_patch() {
     if [ "${bee_FETCHED_FILE: -3:3}" = ".gz" ] ; then
         if gunzip "${bee_FETCHED_FILE}" -c >"${bee_FETCHED_FILE%.gz}" ; then
             bee_FETCHED_FILE=${bee_FETCHED_FILE%.gz}
+            print_info "patch (compressed by gzip) was uncompressed and saved as ${bee_FETCHED_FILE}"
         fi
     elif [ "${bee_FETCHED_FILE: -4:4}" = ".bz2" ] ; then
         if bunzip2 "${bee_FETCHED_FILE}" -c >"${bee_FETCHED_FILE%.bz2}" ; then
             bee_FETCHED_FILE=${bee_FETCHED_FILE%.bz2}
+            print_info "patch (compressed by bzip2) was uncompressed and saved as ${bee_FETCHED_FILE}"
         fi
     elif [ "${bee_FETCHED_FILE: -3:3}" = ".xz" ] ; then
         if unxz "${bee_FETCHED_FILE}" -c >"${bee_FETCHED_FILE%.xz}" ; then
             bee_FETCHED_FILE=${bee_FETCHED_FILE%.xz}
+            print_info "patch (compressed by xz) was uncompressed and saved as ${bee_FETCHED_FILE}"
         fi
     fi
 
