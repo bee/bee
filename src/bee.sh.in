@@ -89,6 +89,11 @@ options=$(${BEE_BINDIR}/beegetopt --name=bee \
     --option=destdir= \
     -- "${@}")
 
+if [ $? != 0 ] ; then
+    usage
+    exit 1
+fi
+
 eval set -- ${options}
 
 while true ; do
