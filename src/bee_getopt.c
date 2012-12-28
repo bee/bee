@@ -125,7 +125,8 @@ static int find_short_option(struct bee_option *options, char **name, char **opt
 
    short_opt = *name[0];
 
-   assert(short_opt);
+   if (!short_opt)
+       return BEE_GETOPT_OPTUNKNOWN;
 
    if (optarg)
        *optarg = NULL;
