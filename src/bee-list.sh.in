@@ -43,7 +43,13 @@ fi
 VERSION=${BEE_VERSION}
 
 : ${BEE_BINDIR:=@BINDIR@}
+: ${BEE_LIBEXECDIR:=@LIBEXECDIR@}
+
 : ${BEESORT:=${BEE_BINDIR}/beesort}
+
+function bee-list() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-list "${@}"
+}
 
 #
 # BUGS TO FIX/FEATURES TO ADD:
@@ -244,7 +250,7 @@ function list_updatable() {
     pkgs=$(${BEE_BINDIR}/beeversion --max ${pkgs})
     for a in ${pkgs} ; do
         pname=$(${BEE_BINDIR}/beeversion --pkgfullname "${a}")
-        installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --exact "${pname}")
+        installed=$(bee-list --exact "${pname}")
         if [ -z "${installed}" ] ; then
             if [ "${OPT_UNINSTALLED}" = "yes" ] ; then
                 echo -e "${COLOR_INSTALLABLE}${a}${COLOR_NORMAL}"

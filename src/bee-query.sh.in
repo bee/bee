@@ -31,6 +31,11 @@ fi
 VERSION=${BEE_VERSION}
 
 : ${BEE_BINDIR:=@BINDIR@}
+: ${BEE_LIBEXECDIR:=@LIBEXECDIR@}
+
+function bee-list() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-list "${@}"
+}
 
 BEESEP=${BEE_BINDIR}/beesep
 
@@ -79,7 +84,7 @@ function get_files() {
 function get_pkgs() {
     f=$1
 
-    for pkg in $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed) ; do
+    for pkg in $(bee-list --installed) ; do
 
         if egrep -q "file=.*${f}" "${BEE_METADIR}/${pkg}/CONTENT" ; then
             echo ${pkg}

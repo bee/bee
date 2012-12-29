@@ -37,6 +37,11 @@ fi
 VERSION=${BEE_VERSION}
 
 : ${BEE_BINDIR:=@BINDIR@}
+: ${BEE_LIBEXECDIR:=@LIBEXECDIR@}
+
+function bee-list() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-list "${@}"
+}
 
 ###############################################################################
 ##
@@ -58,10 +63,10 @@ function pkg_check_all() {
 ##
 ##
 function pkg_check_deps() {
-    installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --by-pkgfullname ${1})
+    installed=$(bee-list --installed --by-pkgfullname ${1})
 
     if [ ! "${installed}" -a $OPT_F -gt 0 ] ; then
-        installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed "${1}")
+        installed=$(bee-list --installed "${1}")
     fi
 
     if [ "${installed}" ] ; then
@@ -76,10 +81,10 @@ function pkg_check_deps() {
 ##
 ##
 function pkg_check() {
-    installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --by-pkgfullname ${1})
+    installed=$(bee-list --installed --by-pkgfullname ${1})
 
     if [ ! "${installed}" -a $OPT_F -gt 0 ] ; then
-        installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed "${1}")
+        installed=$(bee-list --installed "${1}")
     fi
 
     if [ "${installed}" ] ; then
@@ -89,7 +94,7 @@ function pkg_check() {
         return 0
     fi
 
-    installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed "${1}")
+    installed=$(bee-list --installed "${1}")
 
     if [ "${installed}" ] ; then
         echo "packages matching '${1}':"
