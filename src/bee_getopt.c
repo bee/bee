@@ -125,8 +125,11 @@ static int find_short_option(struct bee_option *options, char **name, char **opt
 
    short_opt = *name[0];
 
-   if (!short_opt)
+   if (!short_opt) {
+       /* reset unhandled options */
+       *name = NULL;
        return BEE_GETOPT_OPTUNKNOWN;
+   }
 
    if (optarg)
        *optarg = NULL;
