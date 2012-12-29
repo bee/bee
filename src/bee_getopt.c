@@ -125,11 +125,7 @@ static int find_short_option(struct bee_option *options, char **name, char **opt
 
    short_opt = *name[0];
 
-   if (!short_opt) {
-       /* reset unhandled options */
-       *name = NULL;
-       return BEE_GETOPT_OPTUNKNOWN;
-   }
+   assert(short_opt);
 
    if (optarg)
        *optarg = NULL;
@@ -342,8 +338,11 @@ static int _bee_getopt_long(struct bee_getopt_ctl *optctl, int *optindex)
 
     this = optctl->optind;
 
-    maybe_option = (optctl->argv[this][0] == '-');
+    /* "-" is not considered an option but an argument => maybe_option = false */
+    /* "--" will be processed later */
+    maybe_option = (optctl->argv[this][0] == '-' && optctl->argv[this][1]);
     maybe_long   = maybe_option && (optctl->argv[this][1] == '-');
+
     name         = &(optctl->argv[this][maybe_option+maybe_long]);
 
     optctl->optarg = NULL;
