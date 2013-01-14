@@ -2,7 +2,7 @@
 #
 # config-lib - bash-function-library
 #
-# Copyright (C) 2009-2012
+# Copyright (C) 2009-2013
 #       Marius Tolzmann <tolzmann@molgen.mpg.de>
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
 #       and other bee developers
@@ -194,7 +194,7 @@ function config_load_local_config() {
 
     while [ ! -z "${path}" ] ; do
         # stop traversing path at mountpoint boundaries
-        if [ "${mplast}" != "nomtab" ] ; then
+        if [ "${mp_last}" != "nomtab" ] ; then
             mp=$(stat --printf="%m" "${path}")
             if [ "${mp}" != "${mp_last}" ] ; then
                 break
