@@ -196,7 +196,7 @@ function config_load_local_config() {
         # stop traversing path at mountpoint boundaries
         if [ "${mp_last}" != "nomtab" ] ; then
             mp=$(stat --printf="%m" "${path}")
-            if [ "${mp}" != "${mp_last}" ] ; then
+            if [ -n "${mp_last}" -a "${mp}" != "${mp_last}" ] ; then
                 break
             fi
             mp_last="${mp}"
