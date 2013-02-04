@@ -159,6 +159,9 @@ int main(int argc, char *argv[])
             case OPT_VERSION:
                 print_version();
                 exit(EXIT_SUCCESS);
+
+            case '?':
+                exit(EXIT_FAILURE);
         }
     }  /* end while getopt_long_only */
 
