@@ -156,7 +156,7 @@ function tmpinstall_to_filenames() {
     local -a fn
 
     for f in "${TMPINSTALL[@]}" ; do
-        if [ -e "${f}" ] ; then
+        if [ -f "${f}" ] ; then
             fn=( "${fn[@]}" "$f" )
             continue
         fi
