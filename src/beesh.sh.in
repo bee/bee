@@ -881,7 +881,7 @@ config_export
 
 ###############################################################################
 
-# check_rebuild "${BEE}" "${PKGALLPKG}"
+check_rebuild "${BEE}" "${PKGALLPKG}"
 
 print_info "current working directory: ${PWD}"
 
