@@ -117,12 +117,17 @@ function require_version() {
 function check_rebuild() {
     local beefile=${1}
     local beepkgallpkg=${2}
+    local error=0
 
     if [ -f "${BEE_PKGDIR}/${beepkgallpkg}.bee.tar.bz2" ] ; then
-        print_warning "package already exists: ${BEE_PKGDIR}/${beepkgallpkg}.bee.tar.bz2"
-    elif [ -f "${BEE_BEEDIR}/${beefile##*/}" ] ; then
+        print_warning "package  already exists: ${BEE_PKGDIR}/${beepkgallpkg}.bee.tar.bz2"
+        error=1
+    fi
+    if [ -f "${BEE_BEEDIR}/${beefile##*/}" ] ; then
         print_warning "bee-file already exists: ${BEE_BEEDIR}/${beefile##*/}"
-    else
+        error=1
+    fi
+    if [ "${error}" = "0" ] ; then
         return 0
     fi
 
