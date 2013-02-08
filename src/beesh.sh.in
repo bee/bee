@@ -180,6 +180,10 @@ function build_in_sourcedir() {
    B=${S}
 }
 
+function add_sourcesubdir() {
+   BEE_SOURCESUBDIR="${1}"
+}
+
 #### bee_init_builddir() ######################################################
 
 function bee_init_builddir() {
@@ -917,6 +921,14 @@ bee_buildmagic=$(${BEE_BINDIR}/beeuniq ${BEE_BUILDTYPE[@]} \
                                )
 
 BEE_BUILDTYPE_DETECTED=""
+
+: ${BEE_SOURCESUBDIR=""}
+
+if [ ! -d "${S}/${BEE_SOURCESUBDIR}" ] ; then
+    print_error "ERROR: directory specified with add_sourcesubdir does not exist."
+    exit 1
+fi
+
 for t in ${bee_buildmagic[@]} ; do
     load_buildmagic ${t}
     if [ -n "${BEE_BUILDTYPE_DETECTED}" ] ; then
