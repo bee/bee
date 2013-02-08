@@ -230,8 +230,8 @@ do_check() {
 
     echo "checking ${pkg} .."
 
-    for line in $(cat ${filesfile}) ; do
-        eval $(${BEESEP} ${line})
+    while read line ; do
+        eval $(${BEESEP} "${line}")
 
         # save and strip possible symbolic link destination..
         symlink=${file#*//}
@@ -246,7 +246,7 @@ do_check() {
             if [ ! -h "${file}" ] ; then
                 echo "  [changed] <was symlink to ${symlink}> ${file}"
             else
-                sdest=$(readlink ${file})
+                sdest=$(readlink "${file}")
                 if [ "${sdest}"  != "${symlink}" ] ; then
                     echo "  [changed] <symlink destination '${symlink}' != '${sdest}'> ${file}"
                 fi
@@ -262,7 +262,7 @@ do_check() {
             fi
         else
             # regular file - check md5sum..
-            md5now=$(md5sum ${file} | sed -e 's,^\([a-z0-9]*\).*$,\1,')
+            md5now=$(md5sum "${file}" | sed -e 's,^\([a-z0-9]*\).*$,\1,')
 
             if [ "${md5}" != "${md5now}" ] ; then
                 echo "  [changed] <md5 ${md5} != ${md5now}> ${file}"
@@ -271,7 +271,7 @@ do_check() {
 
         # check mode, uid and gid of directory/file
 
-        stat=( $(stat ${file} --printf "%f %u %g %U %G") )
+        stat=( $(stat "${file}" --printf "%f %u %g %U %G") )
 
         full=$(printf "0%o" 0x${stat[0]})
 
@@ -286,7 +286,7 @@ do_check() {
         if [ "${gid}" != "${stat[2]}" ] ; then
             echo "  [changed] <gid ${gid} (${group}) != ${stat[2]} (${stat[4])})> ${file}"
         fi
-    done
+    done < "${filesfile}"
 
 }
 
