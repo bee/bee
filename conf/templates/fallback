@@ -30,8 +30,17 @@
 
 # build_in_sourcedir
 
+###############################################################################
+## bee cannot detect buildtypes specified in subdirectories.
+## Sometimes packages "hide" the real sources in a subdirectory named
+## 'src' or 'cmake' or ..
+## use 'add_sourcesubdir' to specify this directory if known.
+
+# add_sourcesubdir src
+
 @DEFAULT_PREFIX_VARS@
 @BEE_DEFINES@
+
 ###############################################################################
 ## Change the default (auto-detected) steps to
 ## extract, patch, configure/setup, build and install the software.
