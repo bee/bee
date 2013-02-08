@@ -22,7 +22,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-if [ ! -r ${S}/CMakeLists.txt ] ; then
+: ${BEE_BUILDTYPE_CMAKE_CMAKELISTSTXT:=${S}/${BEE_SOURCESUBDIR}/CMakeLists.txt}
+
+if [ ! -r "${BEE_BUILDTYPE_CMAKE_CMAKELISTSTXT}" ] ; then
     return
 fi
 
@@ -32,13 +34,15 @@ fi
 
 BEE_BUILDTYPE_DETECTED=cmake
 
+BEE_BUILDTYPE_CMAKE_SOURCEDIR=${BEE_BUILDTYPE_CMAKE_CMAKELISTSTXT%/*}
+
 #### bee_configure() ##########################################################
 
 bee_configure() {
     start_cmd cmake \
         -DCMAKE_INSTALL_PREFIX=${PREFIX} \
         "${@}" \
-        ${S}
+        ${BEE_BUILDTYPE_CMAKE_SOURCEDIR}
 }
 
 #### bee_build() ##############################################################
