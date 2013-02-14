@@ -60,6 +60,10 @@ function usage() {
 	   -e  --execute          execute bee-file after creation
 	   -i  --install          execute bee-file and install software
 	
+	 Naming bee-files:
+	   --pkgextraname=NAME    add pkgextraname '_NAME' to bee-file-name
+	   --pkgprefix=NAME       prefix bee-file with 'NAME-'
+	
 	 Installation directories:
 	   --prefix=PREFIX        install architecture-independent files in PREFIX
 	                          [${PREFIX}]
@@ -236,7 +240,9 @@ function initialize() {
         fi
     fi
 
-    beefile="${pname%.bee}.bee"
+    eval $(${BEE_BINDIR}/beeversion ${pname})
+
+    beefile="${OPT_pkgprefix}${PKGFULLNAME}${OPT_pkgextraname}-${PKGFULLVERSION:=0}-${PKGREVISION:=0}.bee"
 
     if [ -e "${beefile}" ] && [ "$OPT_FORCE" != "yes" ] ; then
         echo "${beefile} already exists .. use option -f to overwrite .."
@@ -336,6 +342,8 @@ options=$(${BEE_BINDIR}/beegetopt --name bee-init \
                  --option docdir= \
                  --option localedir= \
                  --option buildtype= \
+                 --option pkgextraname= \
+                 --option pkgprefix= \
                  -- "$@")
 
 if [ $? != 0 ] ; then
@@ -347,6 +355,8 @@ OPT_VERSIONIFY="yes"
 OPT_OUTPUT=
 OPT_EXEC="no"
 OPT_INSTALL=
+OPT_pkgextraname=""
+OPT_pkgprefix=""
 
 eval set -- "${options}"
 
@@ -406,6 +416,16 @@ while true ; do
         --docdir|\
         --localedir)
             eval OPT_${1:2}="${2}"
+            shift 2
+            ;;
+
+        --pkgextraname)
+            eval OPT_${1:2}="_${2}"
+            shift 2
+            ;;
+
+        --pkgprefix)
+            eval OPT_${1:2}="${2}-"
             shift 2
             ;;
 
