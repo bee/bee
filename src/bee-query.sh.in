@@ -46,7 +46,7 @@ usage() {
 	EOF
 }
 
-query() {
+function query() {
     list=$@
 
     for f in "${list[@]}" ; do
@@ -62,7 +62,7 @@ query() {
     done
 }
 
-get_files() {
+function get_files() {
     pkg=${1}
 
     for s in "" "${BEE_METADIR}" ; do
@@ -76,7 +76,7 @@ get_files() {
     done
 }
 
-get_pkgs() {
+function get_pkgs() {
     f=$1
 
     for pkg in $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed) ; do
