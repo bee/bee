@@ -41,7 +41,7 @@ VERSION=${BEE_VERSION}
 ###############################################################################
 ##
 ##
-pkg_check_all() {
+function pkg_check_all() {
 
     if [ ! "${1}" ] ; then
         pkg_check
@@ -57,7 +57,7 @@ pkg_check_all() {
 ###############################################################################
 ##
 ##
-pkg_check_deps() {
+function pkg_check_deps() {
     installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --by-pkgfullname ${1})
 
     if [ ! "${installed}" -a $OPT_F -gt 0 ] ; then
@@ -75,7 +75,7 @@ pkg_check_deps() {
 ###############################################################################
 ##
 ##
-pkg_check() {
+function pkg_check() {
     installed=$(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --by-pkgfullname ${1})
 
     if [ ! "${installed}" -a $OPT_F -gt 0 ] ; then
@@ -101,7 +101,7 @@ pkg_check() {
 
 }
 
-do_check_deps_of_file() {
+function do_check_deps_of_file() {
     local file=${1}
     local type="OTHER"
 
@@ -175,7 +175,7 @@ do_check_deps_of_file() {
 ###############################################################################
 ##
 ##
-do_check_deps() {
+function do_check_deps() {
     local pkg=${1}
     local filesfile=${BEE_METADIR}/${pkg}/CONTENT
 
@@ -222,7 +222,7 @@ do_check_deps() {
 ###############################################################################
 ##
 ##
-do_check() {
+function do_check() {
     local pkg=${1}
     local stat
     local full
@@ -291,7 +291,7 @@ do_check() {
 }
 
 ##### usage ###################################################################
-usage() {
+function usage() {
     cat <<-EOF
 	bee-check v${VERSION} 2009-2012
 	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
