@@ -363,6 +363,22 @@ function bee_getsources() {
 
 #### bee_extract() #############################################################
 
+function bee_extract_do_zip() {
+    local file="${1}"
+    local dest="${2}"
+    local -a list
+
+    shift 2
+
+    start_cmd unzip -q -o "${file}" -d "${dest}" "${@}"
+
+    readarray -t list < <(ls -a "${dest}" | grep -vE '^\.(\.|)$' | head -2)
+
+    if [ "${#list[@]}" = "1" ] ; then
+        sourcesubdir_prepend "${list[0]}"
+    fi
+}
+
 function bee_extract_do_tar() {
     local file="${1}"
     local dest="${2}"
@@ -400,7 +416,8 @@ function bee_extract_do() {
     mimetype=$(get_or_guess_mimetype "${file}")
 
     if [ "${mimetype}" = "application/zip" ] ; then
-        print_error "zip extraction not yet implemented"
+        bee_extract_do_zip "${file}" "${dest}"
+        return
     fi
 
     if [ "${mode}" = "primary" ] ; then
