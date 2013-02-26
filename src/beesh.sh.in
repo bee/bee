@@ -355,6 +355,20 @@ function bee_getsources() {
 
 #### bee_extract() #############################################################
 
+function bee_extract_do_tar() {
+    local file="${1}"
+    local dest="${2}"
+
+    shift 2
+
+    start_cmd tar xof "${file}" -C "${dest}" "${@}"
+}
+
+function bee_extract_do_tar0() {
+    bee_extract_do_tar "${@}" --strip-components "${BEE_EXTRACT_STRIP}"
+}
+
+
 function bee_extract() {
     local bee_S
     bee_S=( "$@" )
@@ -373,13 +387,13 @@ function bee_extract() {
 
     s=${bee_S[0]}
     print_info " -> extracting main source ${s} .."
-    tar xof ${s} --strip-components ${BEE_EXTRACT_STRIP} -C ${S}
+    bee_extract_do_tar0 "${s}" "${S}"
 
     unset bee_S[0]
 
     for s in ${bee_S[@]} ; do
         print_info " -> extracting additional source ${s} .."
-        tar xof ${s} -C ${S}
+        bee_extract_do_tar "${s}" "${S}"
     done
 
     print_info " -> all sources extracted to: ${S} .."
