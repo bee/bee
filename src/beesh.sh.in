@@ -375,6 +375,39 @@ function bee_extract_do_tar0() {
     bee_extract_do_tar "${@}" --strip-components "${BEE_EXTRACT_STRIP}"
 }
 
+function get_or_guess_mimetype() {
+    local file="${1}"
+    local mimetype=""
+
+    if ! mimetype=$(file --mime --brief "${file}" 2>/dev/null) ; then
+        if [ "${file: -4}" = ".zip" ] ; then
+            mimetype="application/zip"
+        fi
+    fi
+
+    echo ${mimetype%%;*}
+}
+
+function bee_extract_do() {
+    local file="${1}"
+    local dest="${2}"
+    local mode="${3}"
+    local mimetype=""
+
+    shift 3
+
+    mimetype=$(get_or_guess_mimetype "${file}")
+
+    if [ "${mimetype}" = "application/zip" ] ; then
+        print_error "zip extraction not yet implemented"
+    fi
+
+    if [ "${mode}" = "primary" ] ; then
+       bee_extract_do_tar0 "${file}" "${dest}"
+    else
+       bee_extract_do_tar "${file}" "${dest}"
+    fi
+}
 
 function bee_extract() {
     local bee_S
@@ -397,11 +430,11 @@ function bee_extract() {
     unset bee_S[0]
 
     print_info " -> extracting main source ${s} .."
-    bee_extract_do_tar0 "${s}" "${S}"
+    bee_extract_do "${s}" "${S}" "primary"
 
     for s in ${bee_S[@]} ; do
         print_info " -> extracting additional source ${s} .."
-        bee_extract_do_tar "${s}" "${S}"
+        bee_extract_do "${s}" "${S}" "secondary"
     done
 
     print_info " -> all sources extracted to: ${S} .."
