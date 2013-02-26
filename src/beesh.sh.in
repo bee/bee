@@ -236,8 +236,15 @@ function bee_init_builddir() {
 # fetch_one_file <url> [filename]
 
 function fetch_one_file() {
-    url=$1
-    file=${2:-${url##*/}}
+    local url="${1}"
+    local file="${2}"
+    local guessed_filename="${url##*/}"
+
+    guessed_filename=${guessed_filename%%\?*}
+    guessed_filename=${guessed_filename%%#*}
+    guessed_filename=${guessed_filename%/}
+
+    : ${file:=${guessed_filename}}
 
     if [ "${url:0:8}" = "file:///" ] ; then
         url=${url:7}
