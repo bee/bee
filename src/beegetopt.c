@@ -244,6 +244,8 @@ int main(int argc, char *argv[])
 
     while((opt=bee_getopt(&optctl, &i)) != BEE_GETOPT_END) {
        if (opt == BEE_GETOPT_ERROR) {
+           free(beeopts);
+           free(beeoptptr);
            exit(1);
        }
 

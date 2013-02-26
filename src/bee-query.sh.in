@@ -46,7 +46,7 @@ usage() {
 	EOF
 }
 
-query() {
+function query() {
     list=$@
 
     for f in "${list[@]}" ; do
@@ -57,36 +57,36 @@ query() {
             eval $(${BEE_BINDIR}/beeversion $base)
             get_files "${PKGALLPKG}"
         else
-            get_pkgs ${f}
+            get_pkgs "${f}"
         fi
     done
 }
 
-get_files() {
+function get_files() {
     pkg=${1}
 
     for s in "" "${BEE_METADIR}" ; do
         ff="${s}/${pkg}/CONTENT"
         if [ -e "${ff}" ] ; then
-            for line in $(cat ${ff}) ; do
-                eval $(${BEESEP} ${line})
+            while read line ; do
+                eval $(${BEESEP} "${line}")
                 echo ${file}
-            done
+            done < "${ff}"
         fi
     done
 }
 
-get_pkgs() {
+function get_pkgs() {
     f=$1
 
     for pkg in $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed) ; do
 
-        if egrep -q "file=.*${f}" ${BEE_METADIR}/${pkg}/CONTENT ; then
+        if egrep -q "file=.*${f}" "${BEE_METADIR}/${pkg}/CONTENT" ; then
             echo ${pkg}
-            for line in $(egrep "file=.*${f}" ${BEE_METADIR}/${pkg}/CONTENT) ; do
-                eval $(${BEESEP} ${line})
+            while read line ; do
+                eval $(${BEESEP} "${line}")
                 echo "  ${file}"
-            done
+            done < <(egrep "file=.*${f}" "${BEE_METADIR}/${pkg}/CONTENT")
         fi
     done
 }
