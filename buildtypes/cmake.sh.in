@@ -22,7 +22,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-: ${BEE_BUILDTYPE_CMAKE_CMAKELISTSTXT:=${S}/${BEE_SOURCESUBDIR}/CMakeLists.txt}
+: ${BEE_BUILDTYPE_CMAKE_CMAKELISTSTXT:=${S}/CMakeLists.txt}
 
 if [ ! -r "${BEE_BUILDTYPE_CMAKE_CMAKELISTSTXT}" ] ; then
     return

@@ -215,21 +215,22 @@ function bee_init_builddir() {
     fi
 
     print_info " -> creating source dir ${S}"
-
     mkdir -p ${S}
 
+    print_info " -> creating image dir ${D}"
+    mkdir -p ${D}
+}
 
+function bee_init_buildinsourcedir() {
     if [ "${B}" == "${S}" ] ; then
         link=${BEEWORKDIR}/build
         print_info " -> B=S linking build dir ${link} to source dir"
-        ln -s source ${link}
+        ln -s ${S#${W}/} ${link}
     else
         print_info " -> creating build dir ${B}"
         mkdir -p ${B}
     fi
 
-    print_info " -> creating image dir ${D}"
-    mkdir -p ${D}
 }
 
 #### bee_getsources() #########################################################
@@ -972,6 +973,19 @@ bee_run getsources
 
 bee_run extract ${bee_SOURCEFILES[@]}
 
+: ${BEE_SOURCESUBDIR=""}
+
+if [ ! -d "${S}/${BEE_SOURCESUBDIR}" ] ; then
+    print_error "ERROR: directory specified as sourcesubdir (${S}/${BEE_SOURCESUBDIR}) does not exist."
+    exit 1
+fi
+
+if [ "${B}" = "${S}" ] ; then
+   B="${S}/${BEE_SOURCESUBDIR}"
+fi
+
+S="${S}/${BEE_SOURCESUBDIR}"
+
 print_info "changing to source directory: ${S}"
 cd ${S}
 
@@ -990,13 +1004,6 @@ bee_buildmagic=$(${BEE_BINDIR}/beeuniq ${BEE_BUILDTYPE[@]} \
 
 BEE_BUILDTYPE_DETECTED=""
 
-: ${BEE_SOURCESUBDIR=""}
-
-if [ ! -d "${S}/${BEE_SOURCESUBDIR}" ] ; then
-    print_error "ERROR: directory specified with add_sourcesubdir does not exist."
-    exit 1
-fi
-
 for t in ${bee_buildmagic[@]} ; do
     load_buildmagic ${t}
     if [ -n "${BEE_BUILDTYPE_DETECTED}" ] ; then
@@ -1004,6 +1011,7 @@ for t in ${bee_buildmagic[@]} ; do
     fi
 done
 
+bee_init_buildinsourcedir
 
 print_info "changing to build directory: ${B}"
 cd ${B}
