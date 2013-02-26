@@ -181,7 +181,20 @@ function build_in_sourcedir() {
 }
 
 function add_sourcesubdir() {
+   print_warning "WARNING: add_sourcesubdir is deprecated in favor of sourcesubdir_append"
+   sourcesubdir_append "${@}"
+}
+
+function sourcesubdir_set() {
    BEE_SOURCESUBDIR="${1}"
+}
+
+function sourcesubdir_prepend() {
+   BEE_SOURCESUBDIR="${1}${BEE_SOURCESUBDIR:+/${BEE_SOURCESUBDIR}}"
+}
+
+function sourcesubdir_append() {
+   BEE_SOURCESUBDIR="${BEE_SOURCESUBDIR:+${BEE_SOURCESUBDIR}/}{$1}"
 }
 
 #### bee_init_builddir() ######################################################

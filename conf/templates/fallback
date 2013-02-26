@@ -34,9 +34,9 @@
 ## bee cannot detect buildtypes specified in subdirectories.
 ## Sometimes packages "hide" the real sources in a subdirectory named
 ## 'src' or 'cmake' or ..
-## use 'add_sourcesubdir' to specify this directory if known.
+## use 'sourcesubdir_append' to specify this directory if known.
 
-# add_sourcesubdir src
+# sourcesubdir_append src
 
 @DEFAULT_PREFIX_VARS@
 @BEE_DEFINES@
