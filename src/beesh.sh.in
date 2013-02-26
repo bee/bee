@@ -392,11 +392,12 @@ function bee_extract() {
         return
     fi
 
+    # get first source archive and remove it from source archive array
     s=${bee_S[0]}
+    unset bee_S[0]
+
     print_info " -> extracting main source ${s} .."
     bee_extract_do_tar0 "${s}" "${S}"
-
-    unset bee_S[0]
 
     for s in ${bee_S[@]} ; do
         print_info " -> extracting additional source ${s} .."
