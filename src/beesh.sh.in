@@ -181,7 +181,20 @@ function build_in_sourcedir() {
 }
 
 function add_sourcesubdir() {
+   print_warning "WARNING: add_sourcesubdir is deprecated in favor of sourcesubdir_append"
+   sourcesubdir_append "${@}"
+}
+
+function sourcesubdir_set() {
    BEE_SOURCESUBDIR="${1}"
+}
+
+function sourcesubdir_prepend() {
+   BEE_SOURCESUBDIR="${1}${BEE_SOURCESUBDIR:+/${BEE_SOURCESUBDIR}}"
+}
+
+function sourcesubdir_append() {
+   BEE_SOURCESUBDIR="${BEE_SOURCESUBDIR:+${BEE_SOURCESUBDIR}/}{$1}"
 }
 
 #### bee_init_builddir() ######################################################
@@ -202,29 +215,37 @@ function bee_init_builddir() {
     fi
 
     print_info " -> creating source dir ${S}"
-
     mkdir -p ${S}
 
+    print_info " -> creating image dir ${D}"
+    mkdir -p ${D}
+}
 
+function bee_init_buildinsourcedir() {
     if [ "${B}" == "${S}" ] ; then
         link=${BEEWORKDIR}/build
         print_info " -> B=S linking build dir ${link} to source dir"
-        ln -s source ${link}
+        ln -s ${S#${W}/} ${link}
     else
         print_info " -> creating build dir ${B}"
         mkdir -p ${B}
     fi
 
-    print_info " -> creating image dir ${D}"
-    mkdir -p ${D}
 }
 
 #### bee_getsources() #########################################################
 # fetch_one_file <url> [filename]
 
 function fetch_one_file() {
-    url=$1
-    file=${2:-${url##*/}}
+    local url="${1}"
+    local file="${2}"
+    local guessed_filename="${url##*/}"
+
+    guessed_filename=${guessed_filename%%\?*}
+    guessed_filename=${guessed_filename%%#*}
+    guessed_filename=${guessed_filename%/}
+
+    : ${file:=${guessed_filename}}
 
     if [ "${url:0:8}" = "file:///" ] ; then
         url=${url:7}
@@ -342,6 +363,70 @@ function bee_getsources() {
 
 #### bee_extract() #############################################################
 
+function bee_extract_do_zip() {
+    local file="${1}"
+    local dest="${2}"
+    local -a list
+
+    shift 2
+
+    start_cmd unzip -q -o "${file}" -d "${dest}" "${@}"
+
+    readarray -t list < <(ls -a "${dest}" | grep -vE '^\.(\.|)$' | head -2)
+
+    if [ "${#list[@]}" = "1" ] ; then
+        sourcesubdir_prepend "${list[0]}"
+    fi
+}
+
+function bee_extract_do_tar() {
+    local file="${1}"
+    local dest="${2}"
+
+    shift 2
+
+    start_cmd tar xof "${file}" -C "${dest}" "${@}"
+}
+
+function bee_extract_do_tar0() {
+    bee_extract_do_tar "${@}" --strip-components "${BEE_EXTRACT_STRIP}"
+}
+
+function get_or_guess_mimetype() {
+    local file="${1}"
+    local mimetype=""
+
+    if ! mimetype=$(file --mime --brief "${file}" 2>/dev/null) ; then
+        if [ "${file: -4}" = ".zip" ] ; then
+            mimetype="application/zip"
+        fi
+    fi
+
+    echo ${mimetype%%;*}
+}
+
+function bee_extract_do() {
+    local file="${1}"
+    local dest="${2}"
+    local mode="${3}"
+    local mimetype=""
+
+    shift 3
+
+    mimetype=$(get_or_guess_mimetype "${file}")
+
+    if [ "${mimetype}" = "application/zip" ] ; then
+        bee_extract_do_zip "${file}" "${dest}"
+        return
+    fi
+
+    if [ "${mode}" = "primary" ] ; then
+       bee_extract_do_tar0 "${file}" "${dest}"
+    else
+       bee_extract_do_tar "${file}" "${dest}"
+    fi
+}
+
 function bee_extract() {
     local bee_S
     bee_S=( "$@" )
@@ -358,15 +443,16 @@ function bee_extract() {
         return
     fi
 
+    # get first source archive and remove it from source archive array
     s=${bee_S[0]}
-    print_info " -> extracting main source ${s} .."
-    tar xof ${s} --strip-components ${BEE_EXTRACT_STRIP} -C ${S}
-
     unset bee_S[0]
+
+    print_info " -> extracting main source ${s} .."
+    bee_extract_do "${s}" "${S}" "primary"
 
     for s in ${bee_S[@]} ; do
         print_info " -> extracting additional source ${s} .."
-        tar xof ${s} -C ${S}
+        bee_extract_do "${s}" "${S}" "secondary"
     done
 
     print_info " -> all sources extracted to: ${S} .."
@@ -904,6 +990,19 @@ bee_run getsources
 
 bee_run extract ${bee_SOURCEFILES[@]}
 
+: ${BEE_SOURCESUBDIR=""}
+
+if [ ! -d "${S}/${BEE_SOURCESUBDIR}" ] ; then
+    print_error "ERROR: directory specified as sourcesubdir (${S}/${BEE_SOURCESUBDIR}) does not exist."
+    exit 1
+fi
+
+if [ "${B}" = "${S}" ] ; then
+   B="${S}/${BEE_SOURCESUBDIR}"
+fi
+
+S="${S}/${BEE_SOURCESUBDIR}"
+
 print_info "changing to source directory: ${S}"
 cd ${S}
 
@@ -922,13 +1021,6 @@ bee_buildmagic=$(${BEE_BINDIR}/beeuniq ${BEE_BUILDTYPE[@]} \
 
 BEE_BUILDTYPE_DETECTED=""
 
-: ${BEE_SOURCESUBDIR=""}
-
-if [ ! -d "${S}/${BEE_SOURCESUBDIR}" ] ; then
-    print_error "ERROR: directory specified with add_sourcesubdir does not exist."
-    exit 1
-fi
-
 for t in ${bee_buildmagic[@]} ; do
     load_buildmagic ${t}
     if [ -n "${BEE_BUILDTYPE_DETECTED}" ] ; then
@@ -936,6 +1028,7 @@ for t in ${bee_buildmagic[@]} ; do
     fi
 done
 
+bee_init_buildinsourcedir
 
 print_info "changing to build directory: ${B}"
 cd ${B}
