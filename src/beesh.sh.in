@@ -194,7 +194,7 @@ function sourcesubdir_prepend() {
 }
 
 function sourcesubdir_append() {
-   BEE_SOURCESUBDIR="${BEE_SOURCESUBDIR:+${BEE_SOURCESUBDIR}/}{$1}"
+   BEE_SOURCESUBDIR="${BEE_SOURCESUBDIR:+${BEE_SOURCESUBDIR}/}${1}"
 }
 
 #### bee_init_builddir() ######################################################
