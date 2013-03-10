@@ -46,6 +46,14 @@ VERSION=${BEE_VERSION}
 # load libs
 . ${BEE_LIBEXECDIR}/bee/beelib.config.sh
 
+function bee-cache() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
+}
+
+function bee-install() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-install "${@}"
+}
+
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -1049,10 +1057,6 @@ bee_crosscheck
 
 bee_pkg_pack
 
-function bee-cache() {
-    ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
-}
-
 function bee_check_conflicts() {
     ${BEE_LIBEXECDIR}/bee/bee-cache-inventory CONTENT \
         --prepend "${PKGALLPKG} " \
@@ -1095,5 +1099,5 @@ echo
 if [ "${OPT_INSTALL}" = "yes" ] ; then
 
     print_info "installing ${PKGALLPKG} .."
-    ${BEE_LIBEXECDIR}/bee/bee.d/bee-install ${OPT_FORCE:+-f} ${OPT_UPDATE:+-u} ${BEE_PKGDIR}/${PKGALLPKG}.bee.tar.bz2
+    bee-install ${OPT_FORCE:+-f} ${OPT_UPDATE:+-u} ${BEE_PKGDIR}/${PKGALLPKG}.bee.tar.bz2
 fi

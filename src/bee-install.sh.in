@@ -31,6 +31,19 @@ fi
 VERSION=${BEE_VERSION}
 
 : ${BEE_BINDIR:=@BINDIR@}
+: ${BEE_LIBEXECDIR:=@LIBEXECDIR@}
+
+function bee-cache() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
+}
+
+function bee-list() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-list "${@}"
+}
+
+function bee-remove() {
+    ${BEE_LIBEXECDIR}/bee/bee.d/bee-remove "${@}"
+}
 
 function debug_msg() {
     if [ "${OPT_DEBUG}" != "1" ] ; then
@@ -147,7 +160,7 @@ function pkg_install() {
     fi
 
     # pkg not found yet - lets search a little deeper
-    available=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --available "${search}") )
+    available=( $(bee-list --available "${search}") )
 
     if [ ${#available[@]} -eq 0 ] ; then
         echo >&2 "bee-install: ${search}: No packages available matching your query."
@@ -183,11 +196,11 @@ function pkg_install() {
         return
     fi
 
-    available=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --available --exact "${fullname}" | grep ${search}) )
+    available=( $(bee-list --available --exact "${fullname}" | grep ${search}) )
 
     maxavail=$(${BEE_BINDIR}/beeversion -max ${available[@]})
 
-    fileavail=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --available --exact --display-pathname ${maxavail}) )
+    fileavail=( $(bee-list --available --exact --display-pathname ${maxavail}) )
 
     assert "${#fileavail[@]}" = 1
 
@@ -202,7 +215,7 @@ function do_remove() {
             echo "REMOVE ${p}"
             continue
         fi
-        ${BEE_LIBEXECDIR}/bee/bee.d/bee-remove ${p}
+        bee-remove ${p}
     done
 }
 
@@ -236,8 +249,8 @@ function do_install() {
     debug_msg "do_install file=${file}"
     debug_msg "do_install pkg=${pkg}"
 
-    installed=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --exact "${fullname}" | grep -v "${pkg}") )
-    isinstalled=( $(${BEE_LIBEXECDIR}/bee/bee.d/bee-list --installed --exact "${pkg}") )
+    installed=( $(bee-list --installed --exact "${fullname}" | grep -v "${pkg}") )
+    isinstalled=( $(bee-list --installed --exact "${pkg}") )
 
     assert ${#isinstalled[@]} -le 1
 
@@ -342,10 +355,6 @@ function do_install() {
 
     echo >&2 "YOU HIT A BUG #101: you should have never reached this point"
     return
-}
-
-function bee-cache() {
-    ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
 }
 
 function do_install_file() {
