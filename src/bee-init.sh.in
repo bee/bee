@@ -211,7 +211,7 @@ function initialize() {
             surl="${surl} ${pname}.tar.gz"
         fi
 
-        if [[ "${surl}" = http://cran.r-project.org/src/contrib/* ]] ; then
+        if [[ "${OPT_BUILDTYPE}" = "r-package" || "${surl}" = http://cran.r-project.org/src/contrib/* ]] ; then
             local cran_pname
             local cran_version
             local cran_revision
