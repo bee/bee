@@ -211,12 +211,12 @@ function bee_init_builddir() {
 
     print_info "==> initializing build environment .."
 
-    if [ -d "${W}" ] ; then
+    if [ -d "${BEEWORKDIR}" ] ; then
         if [ "${OPT_CLEANUP}" = "yes" ] ; then
-            print_info " -> cleaning work dir ${W} .."
-            rm -fr ${W}
+            print_info " -> cleaning work dir ${BEEWORKDIR} .."
+            rm -fr ${BEEWORKDIR}
         else
-            print_error "error initializing build-dir ${W}"
+            print_error "error initializing build-dir ${BEEWORKDIR}"
             print_error "please use -c to force a cleanup."
             exit 1
         fi
@@ -233,7 +233,7 @@ function bee_init_buildinsourcedir() {
     if [ "${B}" == "${S}" ] ; then
         link=${BEEWORKDIR}/build
         print_info " -> B=S linking build dir ${link} to source dir"
-        ln -s ${S#${W}/} ${link}
+        ln -s ${S#${BEEWORKDIR}/} ${link}
     else
         print_info " -> creating build dir ${B}"
         mkdir -p ${B}
@@ -953,9 +953,6 @@ PV=( ${PKGVERSION[@]} )
 
 BEEPKGROOT="${BEE_TMP_BUILDROOT}/${PKGNAME}"
 BEEWORKDIR="${BEEPKGROOT}/${PKGFULLPKG}"
-
-R=${BEEPKGROOT}
-W=${BEEWORKDIR}
 
 F=${BEEPKGROOT}/files
 S=${BEEWORKDIR}/source
