@@ -41,6 +41,24 @@ int compare_version_strings(char *v1, char *v2) {
     while(*a && *b && *a == *b) {
         a++;
         b++;
+
+        if (*a == *b)
+            continue;
+
+        /* skip leading zeros of numbers != 0 */
+        if (isdigit(*a) && isdigit(*b)) {
+            char *c;
+
+            for (c=a; *c == '0'; c++)
+               ;
+            if (isdigit(*c))
+               a = c;
+
+            for (c=b; *c == '0'; c++)
+               ;
+            if (isdigit(*c))
+               b = c;
+        }
     }
 
     /* strings are equal ; *a==*b==0*/
@@ -51,7 +69,8 @@ int compare_version_strings(char *v1, char *v2) {
         if(isdigit(*b)) {
             /* rewind string to first digit */
             /* e.g. to compare 12 vs 100 and not 2 vs 00 */
-            while(a > v1 && isdigit(*(a-1))) {
+            while(a > v1 && isdigit(*(a-1)) &&
+                  b > v2 && isdigit(*(b-1))) {
                 a--;
                 b--;
             }
