@@ -375,7 +375,7 @@ function do_install_file() {
     fi
 
     if [ -n "${BEE_BEEDESTDIR}" ] ; then
-        changedir="--transform=s,^/,${BEE_BEEDESTDIR}/,"
+        changedir="--transform=s,^/,${BEE_BEEDESTDIR}/,S"
     fi
 
     start_cmd tar -x --dereference -${vv}Pf ${file} \
