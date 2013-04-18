@@ -283,6 +283,8 @@ function fetch_one_file() {
             ${nocheck} \
             --output-document="${F}/${file}" \
             --no-clobber \
+            --timeout=60 \
+            --tries=1 \
             "${url}" || true
 
         trap - EXIT
