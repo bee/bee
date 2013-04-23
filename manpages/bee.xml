@@ -1,0 +1,161 @@
+<?xml version='1.0'?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+          "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+
+<!--
+    manpage of bee
+
+    Copyright (C) 2013
+          Lena Kristin Zander <zander@molgen.mpg.de>
+
+    This file is part of bee.
+
+    bee is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<refentry id="bee">
+        <refentryinfo>
+                <title>bee - bau et einfach</title>
+                <productname>bee @BEE_VERSION@</productname>
+
+                <authorgroup>
+                    <author>
+                        <contrib></contrib> <!-- prevent warning -->
+                        <firstname>Marius</firstname>
+                        <surname>Tolzmann</surname>
+                        <email>tolzmann@molgen.mpg.de</email>
+                    </author>
+
+                    <author>
+                        <contrib></contrib>
+                        <firstname>Tobias</firstname>
+                        <surname>Dreyer</surname>
+                        <email>dreyer@molgen.mpg.de</email>
+                    </author>
+
+                    <author>
+                        <contrib></contrib>
+                        <firstname>and other bee developers</firstname>
+                    </author>
+                </authorgroup>
+        </refentryinfo>
+
+        <refmeta>
+                <refentrytitle>bee</refentrytitle>
+                <manvolnum>1</manvolnum>
+        </refmeta>
+
+        <refnamediv>
+                <refname>bee</refname>
+                <refpurpose>Run a bee tool</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+                <cmdsynopsis>
+                        <command>bee</command>
+                        <arg choice="opt">options</arg>
+                        <arg choice="plain"><replaceable>&lt;tool&gt;</replaceable></arg>
+                        <arg choice="opt">tool-options</arg>
+                        <arg choice="opt">tool-arguments</arg>
+                </cmdsynopsis>
+        </refsynopsisdiv>
+
+        <refsect1>
+                <title>Description</title>
+
+                <para>
+                <command>bee</command> is a wrapper tool that is used to run all bee tools.
+                All options known by these bee tools can bee passed to <command>bee</command>.
+                </para>
+        </refsect1>
+
+        <refsect1>
+                <title>Options</title>
+
+                <variablelist>
+                        <varlistentry>
+                                <term><option>--destdir &lt;BEE_BEEDESTDIR&gt;</option></term>
+
+                                <listitem><para>
+                                Run <command>bee</command> as if <command>BEE_BEEDESTDIR</command>
+                                is your system's root directory. That means
+                                <command>BEE_BEEDESTDIR</command> is prepended to
+                                <command>BEE_METADIR</command> and <command>BEE_CACHEDIR</command>
+                                and in case you run
+                                <citerefentry><refentrytitle>bee-install</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+                                all files are extracted under <command>BEE_BEEDESTDIR</command>.
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>--print-config</option></term>
+
+                                <listitem><para>
+                                Displays all bee relevant variables.
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-h</option></term>
+                                <term><option>--help</option></term>
+
+                                <listitem><para>Print a usage message.</para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-V</option></term>
+                                <term><option>--version</option></term>
+
+                                <listitem><para>Print bee's version.</para></listitem>
+                        </varlistentry>
+                </variablelist>
+        </refsect1>
+
+        <refsect1>
+                <title>Environment</title>
+
+                <variablelist>
+                    <varlistentry>
+                        <term><option>BEE_METADIR</option></term>
+                        <listitem><para>Directory searched for installed bee packages</para></listitem>
+                    </varlistentry>
+
+                    <varlistentry>
+                        <term><option>BEE_PKGDIR</option></term>
+                        <listitem><para>Directory searched for available bee packages</para></listitem>
+                    </varlistentry>
+                </variablelist>
+        </refsect1>
+
+        <refsect1>
+                <title>Bugs</title>
+                <para>
+                Please report bugs to bee-dev@googlegroups.com or directly to the authors.
+                </para>
+        </refsect1>
+
+        <refsect1>
+                <title>See Also</title>
+                <para>
+                        <citerefentry><refentrytitle>bee-check</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-download</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-init</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-install</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-list</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-query</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-remove</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-update</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+                </para>
+        </refsect1>
+</refentry>

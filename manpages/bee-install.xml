@@ -1,0 +1,184 @@
+<?xml version='1.0'?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+          "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+
+<!--
+    manpage of bee-install
+
+    Copyright (C) 2013
+          Lena Kristin Zander <zander@molgen.mpg.de>
+
+    This file is part of bee.
+
+    bee is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<refentry id="bee-install">
+        <refentryinfo>
+                <title>bee - bau et einfach</title>
+                <productname>bee @BEE_VERSION@</productname>
+
+                <authorgroup>
+                    <author>
+                        <contrib></contrib> <!-- prevent warning -->
+                        <firstname>Marius</firstname>
+                        <surname>Tolzmann</surname>
+                        <email>tolzmann@molgen.mpg.de</email>
+                    </author>
+
+                    <author>
+                        <contrib></contrib>
+                        <firstname>Tobias</firstname>
+                        <surname>Dreyer</surname>
+                        <email>dreyer@molgen.mpg.de</email>
+                    </author>
+
+                    <author>
+                        <contrib></contrib>
+                        <firstname>and other bee developers</firstname>
+                    </author>
+                </authorgroup>
+        </refentryinfo>
+
+        <refmeta>
+                <refentrytitle>bee-install</refentrytitle>
+                <manvolnum>1</manvolnum>
+        </refmeta>
+
+        <refnamediv>
+                <refname>bee-install</refname>
+                <refpurpose>Install a bee package</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+                <cmdsynopsis>
+                        <command>bee install</command>
+                        <arg choice="opt">options</arg>
+                        <arg choice="plain"><replaceable>&lt;bee-package&gt;</replaceable></arg>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                        <command>bee update</command>
+                        <arg choice="opt">options</arg>
+                        <arg choice="plain"><replaceable>&lt;bee-package&gt;</replaceable></arg>
+                </cmdsynopsis>
+        </refsynopsisdiv>
+
+        <refsect1>
+                <title>Description</title>
+
+                <para>
+                <command>bee-install</command> is used to install a bee package.
+                </para>
+                <para>
+                Normally <command>bee-install</command> searches <command>BEE_PKGDIR</command>
+                for <replaceable>&lt;bee-package&gt;</replaceable> but you can use
+                <command>/path/to/</command><replaceable>&lt;bee-package&gt;</replaceable><command>.bee.tar.bz2</command> too.
+                </para>
+                <para><command>bee-update</command> is the short form of '<command>bee install --update</command>'.</para>
+        </refsect1>
+
+        <refsect1>
+                <title>Options</title>
+
+                <variablelist>
+                        <varlistentry>
+                                <term><option>-f</option></term>
+                                <term><option>--force</option></term>
+
+                                <listitem><para>
+                                Prevent <command>bee-install</command> from checking whether
+                                <replaceable>&lt;bee-package&gt;</replaceable>
+                                is already installed.
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-u</option></term>
+                                <term><option>--update</option></term>
+                                <term><option>--upgrade</option></term>
+
+                                <listitem><para>
+                                Update an installed
+                                <replaceable>&lt;bee-package&gt;</replaceable>.
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-n</option></term>
+                                <term><option>--noop</option></term>
+
+                                <listitem><para>
+                                Do not install. Just print which files would be installed.
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-r</option></term>
+                                <term><option>--remove-all</option></term>
+
+                                <listitem><para>
+                                When updating: Remove all older versions of the package.
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-v</option></term>
+                                <term><option>--verbose</option></term>
+
+                                <listitem><para>
+                                Be more verbose (can be use twice e.g. -vv).
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-h</option></term>
+                                <term><option>--help</option></term>
+
+                                <listitem><para>Print a usage message.</para></listitem>
+                        </varlistentry>
+                </variablelist>
+        </refsect1>
+
+        <refsect1>
+                <title>Environment</title>
+
+                <variablelist>
+                    <varlistentry>
+                        <term><option>BEE_PKGDIR</option></term>
+                        <listitem><para>Directory searched for available bee packages</para></listitem>
+                    </varlistentry>
+                </variablelist>
+        </refsect1>
+
+        <refsect1>
+                <title>Bugs</title>
+                <para>
+                Please report bugs to bee-dev@googlegroups.com or directly to the authors.
+                </para>
+        </refsect1>
+
+        <refsect1>
+                <title>See Also</title>
+                <para>
+                        <citerefentry><refentrytitle>bee</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-check</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-download</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-init</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-list</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-query</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-remove</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-update</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+                </para>
+        </refsect1>
+</refentry>
