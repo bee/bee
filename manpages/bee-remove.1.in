@@ -1,88 +1,76 @@
-." manpage of bee-remove
-."
-." Copyright (C) 2009-2012
-."       Marius Tolzmann <tolzmann@molgen.mpg.de>
-."       Tobias Dreyer <dreyer@molgen.mpg.de>
-."       and other bee developers
-."
-." This file is part of bee.
-."
-." bee is free software; you can redistribute it and/or modify
-." it under the terms of the GNU General Public License as published by
-." the Free Software Foundation, either version 3 of the License, or
-." (at your option) any later version.
-."
-." program is distributed in the hope that it will be useful,
-." but WITHOUT ANY WARRANTY; without even the implied warranty of
-." MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-." GNU General Public License for more details.
-."
-." You should have received a copy of the GNU General Public License
-." along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-.TH "bee-remove" "1" "2012-08-31" "bee @BEE_VERSION@" "bee - bau et einfach"
-
+'\" t
+.\"     Title: bee-remove
+.\"    Author: Marius Tolzmann <tolzmann@molgen.mpg.de>
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 04/24/2013
+.\"    Manual: bee - bau et einfach
+.\"    Source: bee @BEE_VERSION@
+.\"  Language: English
+.\"
+.TH "BEE\-REMOVE" "1" "04/24/2013" "bee @BEE_VERSION@" "bee - bau et einfach"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
 .SH "NAME"
-bee\-remove \- Remove an installed bee package
-
+bee-remove \- Remove an installed bee package
 .SH "SYNOPSIS"
-.SY "bee remove"
-.OP options
-.I <bee-package>
-.YS
-
+.HP \w'\fBbee\ remove\fR\ 'u
+\fBbee remove\fR [options] \fI<bee\-package>\fR
 .SH "DESCRIPTION"
-.P
+.PP
 Use
-.B bee-remove
-to remove installed bee packages. If
-.I <bee-package>
-does not match the full name of a bee package, all matching packages will be displayed.
-
+\fBbee\-remove\fR
+to remove installed bee packages\&. If
+\fI<bee\-package>\fR
+does not match the full name of a bee package, all matching packages will be displayed\&.
 .SH "OPTIONS"
-.TP
-.B \-h, \-\-help
-Print a little help screen.
-
-.TP
-.B \-v, \-\-verbose
-Print removed files and directories.
-
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print a usage message\&.
+.RE
+.PP
+\fB\-v\fR, \fB\-\-verbose\fR
+.RS 4
+Print removed files and directories\&.
+.RE
 .SH "ENVIRONMENT"
-.TP
-.B BEE_METADIR
-.RS
+.PP
+\fBBEE_METADIR\fR
+.RS 4
 Directory searched for installed bee packages
-
-.SH "AUTHORS"
-.P
-.MT tolzmann@molgen.mpg.de
-Marius Tolzmann
-.ME
-.br
-.MT dreyer@molgen.mpg.de
-Tobias Dreyer
-.ME
-.br
-.MT ruester@molgen.mpg.de
-Matthias Ruester
-.ME
-.br
-and other bee developers
-
-.SH "BEE"
-.P
-This file is part of bee.
-.P
-Please report bugs to bee-dev@googlegroups.com or directly to the authors.
-
+.RE
+.SH "BUGS"
+.PP
+Please report bugs to bee\-dev@googlegroups\&.com or directly to the authors\&.
 .SH "SEE ALSO"
-.BR bee (1)
-.BR bee\-check (1)
-.BR bee\-download (1)
-.BR bee\-init (1)
-.BR bee\-install (1)
-.BR bee\-list (1)
-.BR bee\-query (1)
-.BR bee\-remove (1)
-.BR bee\-update (1)
+.PP
+
+\fBbee\fR(1),
+\fBbee-check\fR(1),
+\fBbee-download\fR(1),
+\fBbee-init\fR(1),
+\fBbee-install\fR(1),
+\fBbee-list\fR(1),
+\fBbee-query\fR(1),
+\fBbee-update\fR(1)
+.SH "AUTHORS"
+.PP
+\fBMarius Tolzmann\fR <\&tolzmann@molgen\&.mpg\&.de\&>
+.RS 4
+.RE
+.PP
+\fBTobias Dreyer\fR <\&dreyer@molgen\&.mpg\&.de\&>
+.RS 4
+.RE
+.PP
+\fBand other bee developers\fR
+.RS 4
+.RE

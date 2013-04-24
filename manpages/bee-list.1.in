@@ -1,104 +1,107 @@
-." manpage of bee-list
-."
-." Copyright (C) 2009-2012
-."       Marius Tolzmann <tolzmann@molgen.mpg.de>
-."       Tobias Dreyer <dreyer@molgen.mpg.de>
-."       and other bee developers
-."
-." This file is part of bee.
-."
-." bee is free software; you can redistribute it and/or modify
-." it under the terms of the GNU General Public License as published by
-." the Free Software Foundation, either version 3 of the License, or
-." (at your option) any later version.
-."
-." program is distributed in the hope that it will be useful,
-." but WITHOUT ANY WARRANTY; without even the implied warranty of
-." MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-." GNU General Public License for more details.
-."
-." You should have received a copy of the GNU General Public License
-." along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-.TH "bee-list" "1" "2012-08-31" "bee @BEE_VERSION@" "bee - bau et einfach"
-
+'\" t
+.\"     Title: bee-list
+.\"    Author: Marius Tolzmann <tolzmann@molgen.mpg.de>
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 04/24/2013
+.\"    Manual: bee - bau et einfach
+.\"    Source: bee @BEE_VERSION@
+.\"  Language: English
+.\"
+.TH "BEE\-LIST" "1" "04/24/2013" "bee @BEE_VERSION@" "bee - bau et einfach"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
 .SH "NAME"
-bee\-list \- List bee packages
-
+bee-list \- List bee packages
 .SH "SYNOPSIS"
-.SY "bee list"
-.OP options
-.I <pattern>
-.YS
-
+.HP \w'\fBbee\ list\fR\ 'u
+\fBbee list\fR [options] \fI<pattern>\fR
 .SH "DESCRIPTION"
-.P
-.B bee-list
-is used to display all bee packages that are installed, available, uninstalled or updatable.
-
+.PP
+\fBbee\-list\fR
+is used to display all bee packages that are installed, available, uninstalled or updatable\&.
 .SH "OPTIONS"
-.TP
-.B \-a, \-\-available
+.PP
+\fB\-a\fR, \fB\-\-available\fR
+.RS 4
 List all bee packages available for installation matching
-.IR <pattern> .
-.TP
-.B \-\-exact, \-\-by\-pkgfullname
+\fI<pattern>\fR\&.
+.RE
+.PP
+\fB\-\-exact\fR, \fB\-\-by\-pgkfullname\fR
+.RS 4
 Use this option, if you want
-.I <pattern>
-to match the full package name.
-.TP
-.B \-i, \-\-installed
+\fI<pattern>\fR
+to match the full package name\&.
+.RE
+.PP
+\fB\-i\fR, \fB\-\-installed\fR
+.RS 4
 List all installed bee packages matching
-.IR <pattern> .
-.br
-This is the default.
-.TP
-.B \-u, \-\-updatable
-List all packages that can be updated.
-.TP
-.B \-U, \-\-uninstalled
-List all uninstalled packages.
-.TP
-.B \-h, \-\-help
-Print a little help screen.
-
+\fI<pattern>\fR\&. This is the default\&.
+.RE
+.PP
+\fB\-u\fR, \fB\-\-updatable\fR
+.RS 4
+List all packages that can bee updated\&.
+.RE
+.PP
+\fB\-U\fR, \fB\-\-uninstalled\fR
+.RS 4
+List all uninstalled packages\&.
+.RE
+.PP
+\fB\-\-display\-pathname\fR
+.RS 4
+Show pathname when listing available packages\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print a usage message\&.
+.RE
 .SH "ENVIRONMENT"
-.TP
-.B BEE_METADIR
+.PP
+\fBBEE_METADIR\fR
+.RS 4
 Directory searched for installed bee packages
-.TP
-.B BEE_PKGDIR
+.RE
+.PP
+\fBBEE_PKGDIR\fR
+.RS 4
 Directory searched for available bee packages
-
-.SH "AUTHORS"
-.P
-.MT tolzmann@molgen.mpg.de
-Marius Tolzmann
-.ME
-.br
-.MT dreyer@molgen.mpg.de
-Tobias Dreyer
-.ME
-.br
-.MT ruester@molgen.mpg.de
-Matthias Ruester
-.ME
-.br
-and other bee developers
-
-.SH "BEE"
-.P
-This file is part of bee.
-.P
-Please report bugs to bee-dev@googlegroups.com or directly to the authors.
-
+.RE
+.SH "BUGS"
+.PP
+Please report bugs to bee\-dev@googlegroups\&.com or directly to the authors\&.
 .SH "SEE ALSO"
-.BR bee (1)
-.BR bee\-check (1)
-.BR bee\-download (1)
-.BR bee\-init (1)
-.BR bee\-install (1)
-.BR bee\-list (1)
-.BR bee\-query (1)
-.BR bee\-remove (1)
-.BR bee\-update (1)
+.PP
+
+\fBbee\fR(1),
+\fBbee-check\fR(1),
+\fBbee-download\fR(1),
+\fBbee-init\fR(1),
+\fBbee-install\fR(1),
+\fBbee-query\fR(1),
+\fBbee-remove\fR(1),
+\fBbee-update\fR(1)
+.SH "AUTHORS"
+.PP
+\fBMarius Tolzmann\fR <\&tolzmann@molgen\&.mpg\&.de\&>
+.RS 4
+.RE
+.PP
+\fBTobias Dreyer\fR <\&dreyer@molgen\&.mpg\&.de\&>
+.RS 4
+.RE
+.PP
+\fBand other bee developers\fR
+.RS 4
+.RE

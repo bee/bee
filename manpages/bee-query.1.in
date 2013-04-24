@@ -1,87 +1,72 @@
-." manpage of bee-query
-."
-." Copyright (C) 2009-2012
-."       Marius Tolzmann <tolzmann@molgen.mpg.de>
-."       Tobias Dreyer <dreyer@molgen.mpg.de>
-."       and other bee developers
-."
-." This file is part of bee.
-."
-." bee is free software; you can redistribute it and/or modify
-." it under the terms of the GNU General Public License as published by
-." the Free Software Foundation, either version 3 of the License, or
-." (at your option) any later version.
-."
-." program is distributed in the hope that it will be useful,
-." but WITHOUT ANY WARRANTY; without even the implied warranty of
-." MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-." GNU General Public License for more details.
-."
-." You should have received a copy of the GNU General Public License
-." along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-.TH "bee-query" "1" "2012-08-31" "bee @BEE_VERSION@" "bee - bau et einfach"
-
+'\" t
+.\"     Title: bee-query
+.\"    Author: Marius Tolzmann <tolzmann@molgen.mpg.de>
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 04/24/2013
+.\"    Manual: bee - bau et einfach
+.\"    Source: bee @BEE_VERSION@
+.\"  Language: English
+.\"
+.TH "BEE\-QUERY" "1" "04/24/2013" "bee @BEE_VERSION@" "bee - bau et einfach"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
 .SH "NAME"
-bee\-query \- Ask the bee database for files and packages
-
+bee-query \- Ask the bee database for files and packages
 .SH "SYNOPSIS"
-.SY "bee query"
-.OP options
-.I <pattern>
-.YS
-
+.HP \w'\fBbee\ query\fR\ 'u
+\fBbee query\fR [options] \fI<pattern>\fR
 .SH "DESCRIPTION"
-.P
+.PP
 Use
-.B bee-query
+\fBbee\-query\fR
 to ask the bee database for
-.IR <pattern> .
-If
-.I <pattern>
-matches the full name of an installed package, all related files, otherwise all
-matching files and the related packages will be displayed.
-
+\fI<pattern>\fR\&. If
+\fI<pattern>\fR
+matches the full name of an installed package, all related files, otherwise all matching files and the related packages will be displayed\&.
 .SH "OPTIONS"
-.TP
-.B \-h, \-\-help
-Print a little help screen.
-
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print a usage message\&.
+.RE
 .SH "ENVIRONMENT"
-.TP
-.B BEE_METADIR
-.RS
+.PP
+\fBBEE_METADIR\fR
+.RS 4
 Directory searched for installed bee packages
-
-.SH "AUTHORS"
-.P
-.MT tolzmann@molgen.mpg.de
-Marius Tolzmann
-.ME
-.br
-.MT dreyer@molgen.mpg.de
-Tobias Dreyer
-.ME
-.br
-.MT ruester@molgen.mpg.de
-Matthias Ruester
-.ME
-.br
-and other bee developers
-
-.SH "BEE"
-.P
-This file is part of bee.
-.P
-Please report bugs to bee-dev@googlegroups.com or directly to the authors.
-
+.RE
+.SH "BUGS"
+.PP
+Please report bugs to bee\-dev@googlegroups\&.com or directly to the authors\&.
 .SH "SEE ALSO"
-.BR bee (1)
-.BR bee\-check (1)
-.BR bee\-download (1)
-.BR bee\-init (1)
-.BR bee\-install (1)
-.BR bee\-list (1)
-.BR bee\-query (1)
-.BR bee\-remove (1)
-.BR bee\-update (1)
+.PP
+
+\fBbee\fR(1),
+\fBbee-check\fR(1),
+\fBbee-download\fR(1),
+\fBbee-init\fR(1),
+\fBbee-install\fR(1),
+\fBbee-list\fR(1),
+\fBbee-remove\fR(1),
+\fBbee-update\fR(1)
+.SH "AUTHORS"
+.PP
+\fBMarius Tolzmann\fR <\&tolzmann@molgen\&.mpg\&.de\&>
+.RS 4
+.RE
+.PP
+\fBTobias Dreyer\fR <\&dreyer@molgen\&.mpg\&.de\&>
+.RS 4
+.RE
+.PP
+\fBand other bee developers\fR
+.RS 4
+.RE

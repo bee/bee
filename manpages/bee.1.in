@@ -1,108 +1,103 @@
-." manpage of bee
-."
-." Copyright (C) 2009-2012
-."       Marius Tolzmann <tolzmann@molgen.mpg.de>
-."       Tobias Dreyer <dreyer@molgen.mpg.de>
-."       and other bee developers
-."
-." This file is part of bee.
-."
-." bee is free software; you can redistribute it and/or modify
-." it under the terms of the GNU General Public License as published by
-." the Free Software Foundation, either version 3 of the License, or
-." (at your option) any later version.
-."
-." program is distributed in the hope that it will be useful,
-." but WITHOUT ANY WARRANTY; without even the implied warranty of
-." MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-." GNU General Public License for more details.
-."
-." You should have received a copy of the GNU General Public License
-." along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-.TH "bee" "1" "2012-08-31" "bee @BEE_VERSION@" "bee - bau et einfach"
-
+'\" t
+.\"     Title: bee
+.\"    Author: Marius Tolzmann <tolzmann@molgen.mpg.de>
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 04/24/2013
+.\"    Manual: bee - bau et einfach
+.\"    Source: bee @BEE_VERSION@
+.\"  Language: English
+.\"
+.TH "BEE" "1" "04/24/2013" "bee @BEE_VERSION@" "bee - bau et einfach"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
 .SH "NAME"
 bee \- Run a bee tool
-
 .SH "SYNOPSIS"
-.SY "bee "
-.OP options
-.I <command>
-.OP args
-.YS
-
+.HP \w'\fBbee\fR\ 'u
+\fBbee\fR [options] \fI<tool>\fR [tool\-options] [tool\-arguments]
 .SH "DESCRIPTION"
-.P
-.B bee
-is a wrapper tool that is used to run all bee tools. All options known by these bee tools can be passed
-to
-.BR bee .
+.PP
 
+\fBbee\fR
+is a wrapper tool that is used to run all bee tools\&. All options known by these bee tools can bee passed to
+\fBbee\fR\&.
 .SH "OPTIONS"
-.TP
-.B \-\-destdir <BEE_BEEDESTDIR>
+.PP
+\fB\-\-destdir <BEE_BEEDESTDIR>\fR
+.RS 4
 Run
-.B bee
+\fBbee\fR
 as if
-.B BEE_BEEDESTDIR
-is your system's root directory. That means
-.B BEE_BEEDESTDIR
+\fBBEE_BEEDESTDIR\fR
+is your system\'s root directory\&. That means
+\fBBEE_BEEDESTDIR\fR
 is prepended to
-.B BEE_METADIR
+\fBBEE_METADIR\fR
 and
-.B BEE_CACHEDIR
+\fBBEE_CACHEDIR\fR
 and in case you run
-.BR bee\-install (1)
+\fBbee-install\fR(1)
 all files are extracted under
-.BR BEE_BEEDESTDIR .
-.TP
-.B \-\-print-config
-Dispays all bee relevant variables.
-.TP
-.B \-\-h, \-\-help
-Prints a little help screen and all available commands.
-.TP
-.B \-V, \-\-version
-Prints bee's version.
-
+\fBBEE_BEEDESTDIR\fR\&.
+.RE
+.PP
+\fB\-\-print\-config\fR
+.RS 4
+Displays all bee relevant variables\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print a usage message\&.
+.RE
+.PP
+\fB\-V\fR, \fB\-\-version\fR
+.RS 4
+Print bee\'s version\&.
+.RE
 .SH "ENVIRONMENT"
-.TP
-.B BEE_METADIR
+.PP
+\fBBEE_METADIR\fR
+.RS 4
 Directory searched for installed bee packages
-.TP
-.B BEE_PKGDIR
+.RE
+.PP
+\fBBEE_PKGDIR\fR
+.RS 4
 Directory searched for available bee packages
-
-.SH "AUTHORS"
-.P
-.MT tolzmann@molgen.mpg.de
-Marius Tolzmann
-.ME
-.br
-.MT dreyer@molgen.mpg.de
-Tobias Dreyer
-.ME
-.br
-.MT ruester@molgen.mpg.de
-Matthias Ruester
-.ME
-.br
-and other bee developers
-
-.SH "BEE"
-.P
-This file is part of bee.
-.P
-Please report bugs to bee-dev@googlegroups.com or directly to the authors.
-
+.RE
+.SH "BUGS"
+.PP
+Please report bugs to bee\-dev@googlegroups\&.com or directly to the authors\&.
 .SH "SEE ALSO"
-.BR bee (1)
-.BR bee\-check (1)
-.BR bee\-download (1)
-.BR bee\-init (1)
-.BR bee\-install (1)
-.BR bee\-list (1)
-.BR bee\-query (1)
-.BR bee\-remove (1)
-.BR bee\-update (1)
+.PP
+
+\fBbee-check\fR(1),
+\fBbee-download\fR(1),
+\fBbee-init\fR(1),
+\fBbee-install\fR(1),
+\fBbee-list\fR(1),
+\fBbee-query\fR(1),
+\fBbee-remove\fR(1),
+\fBbee-update\fR(1)
+.SH "AUTHORS"
+.PP
+\fBMarius Tolzmann\fR <\&tolzmann@molgen\&.mpg\&.de\&>
+.RS 4
+.RE
+.PP
+\fBTobias Dreyer\fR <\&dreyer@molgen\&.mpg\&.de\&>
+.RS 4
+.RE
+.PP
+\fBand other bee developers\fR
+.RS 4
+.RE
