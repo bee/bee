@@ -136,12 +136,11 @@ BEEGETOPT_OBJECTS=bee_getopt.o beegetopt.o
 BEEFLOCK_OBJECTS=bee_getopt.o beeflock.o
 BEECACHEINVENTORY_OBJECTS=bee-cache-inventory.o bee_getopt.o
 
-bee_MANPAGES=$(addprefix manpages/,${MANPAGES})
 bee_BUILDTYPES=$(addsuffix .sh,$(addprefix buildtypes/,$(BUILDTYPES)))
 
 shellscripts: $(addsuffix .sh,$(SHELLSCRIPTS)) $(LIBRARY_SHELL)
 cprograms:    $(PROGRAMS_C) ${HELPER_C}
-manpages:     ${bee_MANPAGES}
+manpages:     $(MANPAGES)
 buildtypes:   ${bee_BUILDTYPES}
 
 beesep: $(addprefix src/, ${BEESEP_OBJECTS})
@@ -174,7 +173,7 @@ bee-cache-inventory: $(addprefix src/, ${BEECACHEINVENTORY_OBJECTS})
 %.sh: src/%.sh.in
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
 
-%.1: %.1.in
+%.1: manpages/%.1.in
 	$(call quiet-command,sed ${sed-rules} $< >$@,"SED	$@")
 
 %.sh: %.sh.in
@@ -185,7 +184,7 @@ clean:
 	$(call quiet-command,rm -f ${PROGRAMS_C},"CLEAN	${PROGRAMS_C}")
 	$(call quiet-command,rm -f ${HELPER_C},"CLEAN	${HELPER_C}")
 	$(call quiet-command,rm -f src/*.o,"CLEAN	c object files")
-	$(call quiet-command,rm -f ${bee_MANPAGES},"CLEAN	manpages")
+	$(call quiet-command,rm -f ${MANPAGES},"CLEAN	manpages")
 	$(call quiet-command,rm -f ${bee_BUILDTYPES},"CLEAN	buildtypes")
 
 install: install-core install-config
@@ -254,7 +253,7 @@ install-man: $(addprefix ${DESTDIR}${MANDIR}/man1/,${MANPAGES})
 install-dir-mandir:
 	$(call quiet-installdir,0755,${DESTDIR}${MANDIR}/man1)
 
-${DESTDIR}${MANDIR}/man1/%.1: manpages/%.1 install-dir-mandir
+${DESTDIR}${MANDIR}/man1/%.1: %.1 install-dir-mandir
 	$(call quiet-install,0644,$<,$@)
 
 install-dir-config:
