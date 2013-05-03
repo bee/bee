@@ -19,11 +19,13 @@
 /beelib.config.sh
 /bee.1
 /bee-check.1
+/bee-download.1
 /bee-init.1
 /bee-install.1
 /bee-list.1
 /bee-query.1
 /bee-remove.1
+/bee-update.1
 /beefind.sh
 /bee-cache-inventory
 /bee-cache-update.sh
@@ -32,7 +34,6 @@
 /content2filelist.sh
 /filelist2content.sh
 /buildtypes/*.sh
-/manpages/*.1
 /.beerc
 *.tar.gz
 *.o
