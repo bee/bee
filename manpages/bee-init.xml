@@ -1,0 +1,255 @@
+<?xml version='1.0'?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+          "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+
+<!--
+    manpage of bee-init
+
+    Copyright (C) 2013
+          Lena Kristin Zander <zander@molgen.mpg.de>
+
+    This file is part of bee.
+
+    bee is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<refentry id="bee-init">
+        <refentryinfo>
+                <title>bee - bau et einfach</title>
+                <productname>bee @BEE_VERSION@</productname>
+
+                <authorgroup>
+                    <author>
+                        <contrib></contrib> <!-- prevent warning -->
+                        <firstname>Marius</firstname>
+                        <surname>Tolzmann</surname>
+                        <email>tolzmann@molgen.mpg.de</email>
+                    </author>
+
+                    <author>
+                        <contrib></contrib>
+                        <firstname>Tobias</firstname>
+                        <surname>Dreyer</surname>
+                        <email>dreyer@molgen.mpg.de</email>
+                    </author>
+
+                    <author>
+                        <contrib></contrib>
+                        <firstname>and other bee developers</firstname>
+                    </author>
+                </authorgroup>
+        </refentryinfo>
+
+        <refmeta>
+                <refentrytitle>bee-init</refentrytitle>
+                <manvolnum>1</manvolnum>
+        </refmeta>
+
+        <refnamediv>
+                <refname>bee-init</refname>
+                <refpurpose>Create a bee file for building a bee package</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+                <cmdsynopsis>
+                        <command>bee init</command>
+                        <arg choice="opt">options</arg>
+                        <arg choice="plain"><replaceable>&lt;url-to-source&gt;</replaceable></arg>
+                        <arg choice="opt">-- configure options</arg>
+                </cmdsynopsis>
+        </refsynopsisdiv>
+
+        <refsect1>
+                <title>Description</title>
+
+                <para><command>bee-init</command> is used to create
+                a file, that is run in order to build a bee package.
+                </para>
+        </refsect1>
+
+        <refsect1>
+                <title>Options</title>
+
+                <variablelist>
+                        <varlistentry>
+                                <term><option>--configure <replaceable>mode</replaceable></option></term>
+
+                                <listitem><para>
+                                Use the configure mode 'compat' if DATAROOTDIR
+                                is not supported in your build process.
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>--buildtype <replaceable>type</replaceable></option></term>
+
+                                <listitem><para>
+                                Force builtype: configure, cmake, make, autogen, perl-module,
+                                perl-module-makemaker, phython-module
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>--disable-versionify</option></term>
+
+                                <listitem><para>
+                                Do not substitute version numbers in the source url.
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-f</option></term>
+                                <term><option>--force</option></term>
+
+                                <listitem><para>
+                                Overwrite already existing bee-file.</para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-h</option></term>
+                                <term><option>--help</option></term>
+
+                                <listitem><para>Print a usage message.</para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-V</option></term>
+                                <term><option>--version</option></term>
+
+                                <listitem><para>Print version number.</para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-D</option></term>
+                                <term><option>--define <replaceable>A</replaceable> <replaceable>B</replaceable></option></term>
+
+                                <listitem><para>
+                                Define environment variables within the bee-file.
+                                Extra (over)quoting may be needed if B contains spaces.
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-o</option></term>
+                                <term><option>--output <replaceable>bee-file</replaceable></option></term>
+
+                                <listitem><para>
+                                Name of the new bee-file.
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-e</option></term>
+                                <term><option>--execute</option></term>
+
+                                <listitem><para>
+                                Execute the bee-file after creation.
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>-i</option></term>
+                                <term><option>--install</option></term>
+
+                                <listitem><para>
+                                Execute the bee-file and install software.
+                                </para></listitem>
+                        </varlistentry>
+                 </variablelist>
+        </refsect1>
+
+        <refsect1>
+                <title>Naming bee-files</title>
+
+                <variablelist>
+                        <varlistentry>
+                                <term><option>--pkgextraname <replaceable>NAME</replaceable></option></term>
+
+                                <listitem><para>
+                                Add pkgextraname '_NAME' to bee-file-name.
+                                </para></listitem>
+                        </varlistentry>
+
+                        <varlistentry>
+                                <term><option>--pkgprefix <replaceable>NAME</replaceable></option></term>
+
+                                <listitem><para>
+                                Prefix bee-file with 'NAME-'.
+                                </para></listitem>
+                        </varlistentry>
+                </variablelist>
+        </refsect1>
+
+        <refsect1>
+                <title>Installation Directories</title>
+
+                <variablelist>
+                        <varlistentry>
+                                <term><option>--prefix</option></term>
+                                <term><option>--eprefix</option></term>
+                                <term><option>--bindir</option></term>
+                                <term><option>--sbindir</option></term>
+                                <term><option>--libexecdir</option></term>
+                                <term><option>--sysconfdir</option></term>
+                                <term><option>--localstatedir</option></term>
+                                <term><option>--sharedstatedir</option></term>
+                                <term><option>--libdir</option></term>
+                                <term><option>--includedir</option></term>
+                                <term><option>--datarootdir</option></term>
+                                <term><option>--datadir</option></term>
+                                <term><option>--infodir</option></term>
+                                <term><option>--mandir</option></term>
+                                <term><option>--docdir</option></term>
+                                <term><option>--localedir</option></term>
+
+                                <listitem><para>Set these directories, if you do not want
+                                to install to the default locations.</para></listitem>
+                        </varlistentry>
+                </variablelist>
+        </refsect1>
+
+        <refsect1>
+                <title>Configure Options</title>
+                <para>
+                Package specific configure options may be appended at the end of your
+                <command>bee-init</command> line, e.g.
+                <command>bee init http://ftp.gnome.org/pub/gnome/sources/gtk+/3.5/gtk+-3.5.2.tar.xz
+                -- --enable-introspection --enable-xinerama
+                </command> will automatically append
+                <command>--enable-introspection</command> and <command>--enable-xinerama</command>
+                to the <command>bee_configure</command> call in your bee-file.
+                </para>
+        </refsect1>
+
+        <refsect1>
+                <title>Bugs</title>
+                <para>
+                Please report bugs to bee-dev@googlegroups.com or directly to the authors.
+                </para>
+        </refsect1>
+
+        <refsect1>
+                <title>See Also</title>
+                <para>
+                        <citerefentry><refentrytitle>bee</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-check</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-download</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-install</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-list</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-query</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-remove</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                        <citerefentry><refentrytitle>bee-update</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+                </para>
+        </refsect1>
+</refentry>

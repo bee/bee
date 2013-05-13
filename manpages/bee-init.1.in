@@ -1,149 +1,137 @@
-." manpage of bee-init
-."
-." Copyright (C) 2009-2012
-."       Marius Tolzmann <tolzmann@molgen.mpg.de>
-."       Tobias Dreyer <dreyer@molgen.mpg.de>
-."       and other bee developers
-."
-." This file is part of bee.
-."
-." bee is free software; you can redistribute it and/or modify
-." it under the terms of the GNU General Public License as published by
-." the Free Software Foundation, either version 3 of the License, or
-." (at your option) any later version.
-."
-." program is distributed in the hope that it will be useful,
-." but WITHOUT ANY WARRANTY; without even the implied warranty of
-." MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-." GNU General Public License for more details.
-."
-." You should have received a copy of the GNU General Public License
-." along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-.TH "bee-init" "1" "2012-08-31" "bee @BEE_VERSION@" "bee - bau et einfach"
-
+'\" t
+.\"     Title: bee-init
+.\"    Author: Marius Tolzmann <tolzmann@molgen.mpg.de>
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 04/24/2013
+.\"    Manual: bee - bau et einfach
+.\"    Source: bee @BEE_VERSION@
+.\"  Language: English
+.\"
+.TH "BEE\-INIT" "1" "04/24/2013" "bee @BEE_VERSION@" "bee - bau et einfach"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
 .SH "NAME"
-bee\-init \- Create a bee file for building a bee package
-
+bee-init \- Create a bee file for building a bee package
 .SH "SYNOPSIS"
-.SY "bee init"
-.OP options
-.I <url-to-sources>
-.OP "-- configure options"
-.YS
-
+.HP \w'\fBbee\ init\fR\ 'u
+\fBbee init\fR [options] \fI<url\-to\-source>\fR [\-\-\ configure\ options]
 .SH "DESCRIPTION"
-.P
-.B bee-init
-is used to create a file, that is run in order to build a bee package.
-
+.PP
+\fBbee\-init\fR
+is used to create a file, that is run in order to build a bee package\&.
 .SH "OPTIONS"
-.TP
-.BI \-\-configure " <mode>"
-Use the configure mode 'compat' if DATAROOTDIR is not supported in your build process.
-.TP
-.BI \-\-buildtype " <type>"
-Force buildtype: configure, cmake, make, autogen, perl-module, perl-module-makemaker, python-module
-.TP
-.B \-\-disable-versionify
-Do not substitute version numbers in the source url.
-.TP
-.BI "\-t, \-\-template" " <template>"
-Create bee file with template
-.IR <template> .
-.TP
-.B \-f, \-\-force
-Overwrite already existing beefile.
-.TP
-.B \-h, \-\-help
-Print a little help screen.
-.TP
-.B \-v, \-\-version
-Print version number.
-.TP
-.B \-e, \-\-execute
-Execute the bee file after creation.
-.TP
-.B \-i, \-\-install
-Execute the bee file and install the package.
-.TP
-.B \-\-prefix
-.TQ
-.B \-\-eprefix
-.TQ
-.B \-\-bindir
-.TQ
-.B \-\-sbindir
-.TQ
-.B \-\-libexecdir
-.TQ
-.B \-\-sysconfdir
-.TQ
-.B \-\-localstatedir
-.TQ
-.B \-\-sharedstatedir
-.TQ
-.B \-\-libdir
-.TQ
-.B \-\-includedir
-.TQ
-.B \-\-datarootdir
-.TQ
-.B \-\-datadir
-.TQ
-.B \-\-infodir
-.TQ
-.B \-\-mandir
-.TQ
-.B \-\-docdir
-.TQ
-.B \-\-localedir
-Set these directories, if you do not want to install to the default locations.
-
+.PP
+\fB\-\-configure \fR\fB\fImode\fR\fR
+.RS 4
+Use the configure mode \'compat\' if DATAROOTDIR is not supported in your build process\&.
+.RE
+.PP
+\fB\-\-buildtype \fR\fB\fItype\fR\fR
+.RS 4
+Force builtype: configure, cmake, make, autogen, perl\-module, perl\-module\-makemaker, phython\-module
+.RE
+.PP
+\fB\-\-disable\-versionify\fR
+.RS 4
+Do not substitute version numbers in the source url\&.
+.RE
+.PP
+\fB\-f\fR, \fB\-\-force\fR
+.RS 4
+Overwrite already existing bee\-file\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print a usage message\&.
+.RE
+.PP
+\fB\-V\fR, \fB\-\-version\fR
+.RS 4
+Print version number\&.
+.RE
+.PP
+\fB\-D\fR, \fB\-\-define \fR\fB\fIA\fR\fR\fB \fR\fB\fIB\fR\fR
+.RS 4
+Define environment variables within the bee\-file\&. Extra (over)quoting may be needed if B contains spaces\&.
+.RE
+.PP
+\fB\-o\fR, \fB\-\-output \fR\fB\fIbee\-file\fR\fR
+.RS 4
+Name of the new bee\-file\&.
+.RE
+.PP
+\fB\-e\fR, \fB\-\-execute\fR
+.RS 4
+Execute the bee\-file after creation\&.
+.RE
+.PP
+\fB\-i\fR, \fB\-\-install\fR
+.RS 4
+Execute the bee\-file and install software\&.
+.RE
+.SH "NAMING BEE-FILES"
+.PP
+\fB\-\-pkgextraname \fR\fB\fINAME\fR\fR
+.RS 4
+Add pkgextraname \'_NAME\' to bee\-file\-name\&.
+.RE
+.PP
+\fB\-\-pkgprefix \fR\fB\fINAME\fR\fR
+.RS 4
+Prefix bee\-file with \'NAME\-\'\&.
+.RE
+.SH "INSTALLATION DIRECTORIES"
+.PP
+\fB\-\-prefix\fR, \fB\-\-eprefix\fR, \fB\-\-bindir\fR, \fB\-\-sbindir\fR, \fB\-\-libexecdir\fR, \fB\-\-sysconfdir\fR, \fB\-\-localstatedir\fR, \fB\-\-sharedstatedir\fR, \fB\-\-libdir\fR, \fB\-\-includedir\fR, \fB\-\-datarootdir\fR, \fB\-\-datadir\fR, \fB\-\-infodir\fR, \fB\-\-mandir\fR, \fB\-\-docdir\fR, \fB\-\-localedir\fR
+.RS 4
+Set these directories, if you do not want to install to the default locations\&.
+.RE
 .SH "CONFIGURE OPTIONS"
-.P
+.PP
 Package specific configure options may be appended at the end of your
-.B bee\-init
-line, e.g.
-.br
-.B bee init http://ftp.gnome.org/pub/gnome/sources/gtk+/3.5/gtk+-3.5.2.tar.xz
-.B -- --enable-introspection --enable-xinerama
-.br
+\fBbee\-init\fR
+line, e\&.g\&.
+\fBbee init http://ftp\&.gnome\&.org/pub/gnome/sources/gtk+/3\&.5/gtk+\-3\&.5\&.2\&.tar\&.xz \-\- \-\-enable\-introspection \-\-enable\-xinerama \fR
 will automatically append
-.B --enable-introspection --enable-xinerama
+\fB\-\-enable\-introspection\fR
+and
+\fB\-\-enable\-xinerama\fR
 to the
-.B bee_configure
-call in your bee file.
-
-.SH "AUTHORS"
-.P
-.MT tolzmann@molgen.mpg.de
-Marius Tolzmann
-.ME
-.br
-.MT dreyer@molgen.mpg.de
-Tobias Dreyer
-.ME
-.br
-.MT ruester@molgen.mpg.de
-Matthias Ruester
-.ME
-.br
-and other bee developers
-
-.SH "BEE"
-.P
-This file is part of bee.
-.P
-Please report bugs to bee-dev@googlegroups.com or directly to the authors.
-
+\fBbee_configure\fR
+call in your bee\-file\&.
+.SH "BUGS"
+.PP
+Please report bugs to bee\-dev@googlegroups\&.com or directly to the authors\&.
 .SH "SEE ALSO"
-.BR bee (1)
-.BR bee\-check (1)
-.BR bee\-download (1)
-.BR bee\-init (1)
-.BR bee\-install (1)
-.BR bee\-list (1)
-.BR bee\-query (1)
-.BR bee\-remove (1)
-.BR bee\-update (1)
+.PP
+
+\fBbee\fR(1),
+\fBbee-check\fR(1),
+\fBbee-download\fR(1),
+\fBbee-install\fR(1),
+\fBbee-list\fR(1),
+\fBbee-query\fR(1),
+\fBbee-remove\fR(1),
+\fBbee-update\fR(1)
+.SH "AUTHORS"
+.PP
+\fBMarius Tolzmann\fR <\&tolzmann@molgen\&.mpg\&.de\&>
+.RS 4
+.RE
+.PP
+\fBTobias Dreyer\fR <\&dreyer@molgen\&.mpg\&.de\&>
+.RS 4
+.RE
+.PP
+\fBand other bee developers\fR
+.RS 4
+.RE
