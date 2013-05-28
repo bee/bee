@@ -29,7 +29,7 @@ declare -A hardlink
 
 while read line ; do
    md5=""
-   data=$(${BEESEP} ${line} 2>/dev/null)
+   data=$(${BEESEP} "${line}" 2>/dev/null)
 
    if [ $? -ne '0' ] ; then
       echo >&2 "**ERROR** INVALID CONTENT: ${line}"

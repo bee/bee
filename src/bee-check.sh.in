@@ -193,12 +193,12 @@ function do_check_deps() {
     echo "    provides = ${PKGFULLPKG}"
 
     while read line; do
-        eval $(${BEESEP} ${line})
+        eval $(${BEESEP} "${line}")
         echo "    provides = ${file%%//*}"
     done < "${filesfile}"
 
     while read line; do
-        eval $(${BEESEP} ${line})
+        eval $(${BEESEP} "${line}")
 
         # save and strip possible symbolic link destination..
         symlink=${file#*//}
