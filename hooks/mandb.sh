@@ -47,6 +47,10 @@ for man_dir in $(beeuniq ${man_dirs//:/ }) ; do
     case "${action}" in
         "post-remove"|"post-install")
             if grep -q "file=${man_dir}" ${content} ; then
+                if [ ! -d ${man_dir} ]; then
+                    continue
+                fi
+
                 nfiles=$(ls ${man_dir}/ | head -2 | grep -c -v index.db)
                 if [ "${nfiles}" -gt 0 ] ; then
                     rm -f ${man_dir}/index.db
