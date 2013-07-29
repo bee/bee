@@ -75,7 +75,7 @@
 ## The name of this bee-file should follow the following naming convention:
 ##     pkgname-pkgversion-pkgrevision.bee
 ##
-## You may remove all comments as long as SRCURL[0]="" is set.
+## You may remove all comments as long as SRCURL[0] is set.
 ##
 ## Everything in this file will be executed in a bash environment.
 ##
