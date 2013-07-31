@@ -1,0 +1,75 @@
+#
+# bee magic for haskell modules
+#
+# Copyright (C) 2009-2012
+#       Marius Tolzmann <tolzmann@molgen.mpg.de>
+#       Tobias Dreyer <dreyer@molgen.mpg.de>
+#       and other bee developers
+#
+# This file is part of bee.
+#
+# bee is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+if [ ! -x ${S}/Setup -a ! -r ${S}/Setup.hs -a ! -r ${S}/Setup.lhs ]; then
+    return
+fi
+
+BEE_BUILDTYPE_DETECTED="haskell-module"
+
+: ${GHC:=ghc}
+
+build_in_sourcedir
+
+#### bee_configure() ##########################################################
+
+bee_configure() {
+    if [ ! -x Setup ]; then
+        # compile Setup with ghc
+        if [ -r Setup.hs ]; then
+            ${GHC} Setup.hs -o Setup
+        else
+            # instead of a Setup.hs file there is
+            # sometimes a 'literate haskell' file Setup.lhs
+            ${GHC} Setup.lhs -o Setup
+        fi
+    fi
+
+    start_cmd ./Setup \
+        configure \
+        --prefix="${PREFIX}" \
+        --bindir="${BINDIR}" \
+        --libdir="${LIBDIR}" \
+        --libexecdir="${LIBEXECDIR}" \
+        --datadir="${DATADIR}" \
+        --docdir="${DOCDIR}" \
+        "${@}"
+}
+
+#### bee_build() ##############################################################
+
+bee_build() {
+    start_cmd ./Setup \
+        build \
+        "${@}"
+}
+
+#### bee_install() ############################################################
+
+bee_install() {
+    start_cmd ./Setup \
+        copy \
+        --destdir="${D}" \
+        "${@}"
+}

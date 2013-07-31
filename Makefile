@@ -91,6 +91,7 @@ BUILDTYPES+=perl-module
 BUILDTYPES+=perl-module-makemaker
 BUILDTYPES+=python-module
 BUILDTYPES+=r-package
+BUILDTYPES+=haskell-module
 
 HELPER_HOOKS_SHELL+=update-mime-database
 HELPER_HOOKS_SHELL+=glib-compile-schemas
