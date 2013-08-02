@@ -142,7 +142,7 @@ function check_rebuild() {
     print_warning "please increase revision number"
 
     beefile_dir=${beefile%/*}
-    eval $(${BEEVERSION} ${beefile}})
+    eval $(${BEEVERSION} ${beefile})
 
     beefile_pattern="${PKGFULLNAME}-${PKGFULLVERSION}"
     beefile_max=$(for bf in $(ls ${beefile%/*}/${beefile_pattern}*.bee ${BEE_BEEDIR}/${beefile_pattern}*.bee 2>/dev/null |\
