@@ -1008,11 +1008,13 @@ if [ ! -d "${S}/${BEE_SOURCESUBDIR}" ] ; then
     exit 1
 fi
 
-if [ "${B}" = "${S}" ] ; then
-   B="${S}/${BEE_SOURCESUBDIR}"
+if [ "${B}" = "${S}" -a -n "${BEE_SOURCESUBDIR}" ] ; then
+    B="${S}/${BEE_SOURCESUBDIR}"
 fi
 
-S="${S}/${BEE_SOURCESUBDIR}"
+if [ -n "${BEE_SOURCESUBDIR}" ]; then
+    S="${S}/${BEE_SOURCESUBDIR}"
+fi
 
 print_info "changing to source directory: ${S}"
 cd ${S}
