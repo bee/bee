@@ -626,7 +626,8 @@ function bee_pkg_pack() {
     print_info " -> creating package ${pkgname} .."
     print_info "${COLOR_CYAN}${pkgfile}"
 
-    tar cjvvf ${pkgfile} \
+    rm -f ${pkgfile}.tmp
+    tar cjvvf ${pkgfile}.tmp \
         --transform="s,${D},," \
         --show-transformed-names \
         --sparse \
@@ -642,6 +643,8 @@ function bee_pkg_pack() {
         -T <( ${BEE_LIBEXECDIR}/bee/content2filelist \
                 --prepend="${D}" \
                 ${D}/CONTENT )
+
+    mv ${pkgfile}.tmp ${pkgfile}
 
     beefilename=${BEE##*/}
     beefiledest=${BEE_BEEDIR}/${PKGFULLPKG}.bee
