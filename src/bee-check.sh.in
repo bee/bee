@@ -192,13 +192,13 @@ function do_check_deps() {
     echo "    provides = ${PKGNAME}"
     echo "    provides = ${PKGFULLPKG}"
 
-    for line in $(cat ${filesfile}) ; do
-        eval $(${BEESEP} ${line})
+    while read line; do
+        eval $(${BEESEP} "${line}")
         echo "    provides = ${file%%//*}"
-    done
+    done < "${filesfile}"
 
-    for line in $(cat ${filesfile}) ; do
-        eval $(${BEESEP} ${line})
+    while read line; do
+        eval $(${BEESEP} "${line}")
 
         # save and strip possible symbolic link destination..
         symlink=${file#*//}
@@ -220,8 +220,7 @@ function do_check_deps() {
         fi
 
         do_check_deps_of_file "${file}"
-
-    done
+    done < "${filesfile}"
 }
 
 ###############################################################################
