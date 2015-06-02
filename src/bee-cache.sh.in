@@ -147,6 +147,23 @@ function print_uniq_files_for_pkg() {
         | grep -E "^${pkg} "
 }
 
+function print_missing_files() {
+    local pkg=$1
+
+    if [ -z "${pkg}" ] ; then
+        pkg="*"
+    fi
+
+    while read line; do
+        file=$(cut -d ' ' -f 8- <<< ${line})
+
+        if [ ! -e "${file}" ]; then
+            echo "${line}"
+        fi
+    done < <( tmp_merge_install_inventory_files "${TMPINSTALL[@]}" ) \
+        | grep -E "^${pkg} "
+}
+
 function tmp_merge_install_inventory_files() {
     ${BEEFLOCK} --shared ${BEECACHE_INVENTORY} sort -m -u -r -k8 -k1 \
         ${BEECACHE_INVENTORY} "${@}"
@@ -211,6 +228,7 @@ function usage() {
 	    print-uniq-files <pkgname>
 	    print-conflicting-files <pkgname>
 	    print-conflicts <pkgname>
+	    print-missing-files [pkgname]
 
 	EOF
 }
@@ -280,6 +298,9 @@ case "${cmd}" in
         ;;
     print-conflicts)
         print_conflicts "${@}" | cut -d ' ' -f${FIELDS}
+        ;;
+    print-missing-files)
+        print_missing_files "${@}" | cut -d ' ' -f${FIELDS}
         ;;
     *)
         echo >&2 "bee-cache: ${cmd}: Unknown command."
