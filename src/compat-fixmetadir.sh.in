@@ -30,13 +30,8 @@ function fix_deprecated_FILES_file() {
     local pkg
     local cf
 
-    for ff in $(find ${dir} \
-                     -mindepth 2 \
-                     -maxdepth 2 \
-                     -type f \
-                     -name FILES \
-                     -printf "%P\n") ; do
-
+    while IFS= read -r -d '' ff
+    do
         pkg=${ff%/FILES}
         cf="${pkg}/CONTENT"
 
@@ -47,7 +42,12 @@ function fix_deprecated_FILES_file() {
             mv "${dir}/${cf}.$$" "${dir}/${cf}"
         fi
         mv "${dir}/${ff}" "${dir}/${ff}.deprecated"
-    done
+    done < <(find "${dir}" \
+                  -mindepth 2 \
+                  -maxdepth 2 \
+                  -type f \
+                  -name FILES \
+                  -printf "%P\n")
 }
 
 ############################################################################
