@@ -82,4 +82,4 @@ while read line ; do
    fi
    echo ":file=${file}"
    
-done < <(cat $@)
+done < <(cat "$@")

@@ -32,7 +32,7 @@ fi
 
 function print_info()
 {
-    echo ${@}
+    echo "${@}"
 }
 
 function create_pkgbcfile()

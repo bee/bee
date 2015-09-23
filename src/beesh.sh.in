@@ -297,13 +297,13 @@ function fetch_one_file() {
 }
 
 function fetch_one_archive() {
-    fetch_one_file $@
+    fetch_one_file "$@"
 
     bee_SOURCEFILES=( ${bee_SOURCEFILES[@]} ${bee_FETCHED_FILE} )
 }
 
 function fetch_one_patch() {
-    fetch_one_file $@
+    fetch_one_file "$@"
 
     if [ "${bee_FETCHED_FILE: -3:3}" = ".gz" ] ; then
         if gunzip "${bee_FETCHED_FILE}" -c >"${bee_FETCHED_FILE%.gz}" ; then

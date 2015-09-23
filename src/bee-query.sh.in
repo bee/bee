@@ -52,7 +52,7 @@ usage() {
 }
 
 function query() {
-    list=$@
+    list="$@"
 
     for f in "${list[@]}" ; do
         # check if $f is pkg, list related files
