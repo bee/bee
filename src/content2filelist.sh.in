@@ -40,7 +40,6 @@ declare append=""
 declare prepend=""
 declare sortopts=""
 declare -i opt_sort=0
-declare dosort=""
 
 while true ; do
   case "$1" in

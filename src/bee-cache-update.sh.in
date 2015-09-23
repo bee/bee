@@ -120,8 +120,6 @@ function update_inventory()
 
 function create_inventory()
 {
-    local PKGALLPKG=${1}
-
     local tmpfile=${INVENTORYFILE}.tmp.$$
 
     print_info "creating ${INVENTORYFILE} .."
