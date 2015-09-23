@@ -25,12 +25,12 @@
 : ${BEE_LIBEXECDIR=@LIBEXECDIR@}
 
 function fix_deprecated_FILES_file() {
-   local dir=${1}
-   local ff
-   local pkg
-   local cf
+    local dir=${1}
+    local ff
+    local pkg
+    local cf
 
-   for ff in $(find ${dir} \
+    for ff in $(find ${dir} \
                      -mindepth 2 \
                      -maxdepth 2 \
                      -type f \
