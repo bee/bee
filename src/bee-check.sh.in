@@ -242,6 +242,9 @@ function do_check() {
         file=${file%%//*}
 
         if [ ! -e "${file}" ] && [ ! -h "${file}" ]; then
+            if [ "${type}" = "directory" ] ; then
+                md5="${type}"
+            fi
             echo "  [missing] <${md5}> ${file}"
             continue
         fi
