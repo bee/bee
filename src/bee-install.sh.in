@@ -378,6 +378,8 @@ function do_install_file() {
         changedir="--transform=s,^/,${BEE_BEEDESTDIR}/,S"
     fi
 
+    umask 022
+
     start_cmd tar -x --dereference -${vv}Pf ${file} \
         ${changedir} \
         --transform="s,^FILES$,${BEE_METADIR}/${pkg}/CONTENT.FILES," \
