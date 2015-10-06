@@ -362,7 +362,7 @@ function bee_getsources() {
         unset PATCHURL
     fi
 
-    if [ -z "{PATCHES}" ] ; then
+    if [ -z "${PATCHES}" ] ; then
         unset PATCHES
     fi
 
