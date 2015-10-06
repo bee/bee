@@ -78,13 +78,13 @@ function start_cmd() {
 #### create_meta() ############################################################
 
 function create_meta() {
-    echo >>${D}/META "BEEMETAFORMAT=2"
-    echo >>${D}/META "BEEPKG='${PKGALLPKG}'"
+    echo >> "${D}/META" "BEEMETAFORMAT=2"
+    echo >> "${D}/META" "BEEPKG='${PKGALLPKG}'"
 
     for var in prefix eprefix bindir sbindir libexecdir sysconfdir \
            sharedstatedir localstatedir libdir includedir \
            datarootdir datadir infodir localedir mandir docdir ; do
-        eval eval echo PKG_${var^^}=\${${var^^}} >>${D}/META
+        eval eval echo PKG_${var^^}=\${${var^^}} >> "${D}/META"
     done
 }
 
@@ -116,7 +116,7 @@ function disable_autoexclusion() {
 }
 
 function require_version() {
-    if ${BEE_BINDIR}/beeversion "${VERSION}" -lt "${1}" ; then
+    if "${BEE_BINDIR}/beeversion" "${VERSION}" -lt "${1}" ; then
         print_error "this bee-file requires at least bee v${1} .."
         exit 1;
     fi
@@ -142,13 +142,13 @@ function check_rebuild() {
     print_warning "please increase revision number"
 
     beefile_dir=${beefile%/*}
-    eval $(${BEEVERSION} ${beefile})
+    eval $(${BEEVERSION} "${beefile}")
 
     beefile_pattern="${PKGFULLNAME}-${PKGFULLVERSION}"
     beefile_pattern=${beefile_pattern//+/\\+} # replace all + with \+
     beefile_pattern=${beefile_pattern//./\\.} # replace all . with \.
 
-    beefile_max=$(for bf in $(ls ${beefile%/*}/${beefile_pattern}*.bee ${BEE_BEEDIR}/${beefile_pattern}*.bee 2>/dev/null |\
+    beefile_max=$(for bf in $(ls "${beefile%/*}/${beefile_pattern}*.bee" "${BEE_BEEDIR}/${beefile_pattern}*.bee" 2>/dev/null |\
                               grep -E "/${beefile_pattern}-[0-9]+.bee") ; do
                       echo "${bf}"
                   done | ${BEESORT} | tail -1)
@@ -163,9 +163,9 @@ function check_repositories() {
     r=0
     print_info "==> checking repositories .."
 
-    mkdir -pv ${BEE_BEEDIR}
-    mkdir -pv ${BEE_PKGDIR}
-    mkdir -pv ${BEE_BUILDARCHIVEDIR}
+    mkdir -pv "${BEE_BEEDIR}"
+    mkdir -pv "${BEE_PKGDIR}"
+    mkdir -pv "${BEE_BUILDARCHIVEDIR}"
 
     if [ ! -w "${BEE_BEEDIR}" ] ; then
         print_error " !! ${BEE_BEEDIR} not writable"
@@ -217,7 +217,7 @@ function bee_init_builddir() {
     if [ -d "${BEEWORKDIR}" ] ; then
         if [ "${OPT_CLEANUP}" = "yes" ] ; then
             print_info " -> cleaning work dir ${BEEWORKDIR} .."
-            rm -fr ${BEEWORKDIR}
+            rm -fr "${BEEWORKDIR}"
         else
             print_error "error initializing build-dir ${BEEWORKDIR}"
             print_error "please use -c to force a cleanup."
@@ -226,20 +226,20 @@ function bee_init_builddir() {
     fi
 
     print_info " -> creating source dir ${S}"
-    mkdir -p ${S}
+    mkdir -p "${S}"
 
     print_info " -> creating image dir ${D}"
-    mkdir -p ${D}
+    mkdir -p "${D}"
 }
 
 function bee_init_buildinsourcedir() {
     if [ "${B}" == "${S}" ] ; then
         link=${BEEWORKDIR}/build
         print_info " -> B=S linking build dir ${link} to source dir"
-        ln -s ${S#${BEEWORKDIR}/} ${link}
+        ln -s "${S#${BEEWORKDIR}/}" "${link}"
     else
         print_info " -> creating build dir ${B}"
-        mkdir -p ${B}
+        mkdir -p "${B}"
     fi
 
 }
@@ -273,7 +273,7 @@ function fetch_one_file() {
         fi
 
         if [ ! -s "${F}/${file}" ] ; then
-            rm -vf ${F}/${file}
+            rm -vf "${F}/${file}"
         fi
 
         trap "rm -f ${F}/${file}" EXIT
@@ -329,7 +329,7 @@ function bee_getsrcurl() {
     local -a archives=( "${@}" )
 
     for a in "${archives[@]}" ; do
-        fetch_one_archive ${a}
+        fetch_one_archive "${a}"
     done
 }
 
@@ -337,7 +337,7 @@ function bee_getpatchurl() {
     local -a patches=( "${@}" )
 
     for p in "${patches[@]}" ; do
-        fetch_one_patch ${p}
+        fetch_one_patch "${p}"
     done
 }
 
@@ -463,7 +463,7 @@ function bee_extract() {
     print_info " -> extracting main source ${s} .."
     bee_extract_do "${s}" "${S}" "primary"
 
-    for s in ${bee_S[@]} ; do
+    for s in "${bee_S[@]}" ; do
         print_info " -> extracting additional source ${s} .."
         bee_extract_do "${s}" "${S}" "secondary"
     done
@@ -481,7 +481,7 @@ function bee_patch() {
         bee_P=( ${bee_PATCHFILES[@]} )
     fi
 
-    for p in ${bee_P[@]} ; do
+    for p in "${bee_P[@]}" ; do
         striplevel=1
 
         for i in 1 0 2 3 4 5 6 7 8 9 ; do
@@ -530,20 +530,20 @@ function bee_install() {
 
 function bee_crosscheck() {
 
-    directories=( $(find ${D} -type d -printf "/%P\n") )
+    directories=( $(find "${D}" -type d -printf "/%P\n") )
     for d in ${directories[@]} ; do
         if [ ! -e "${d}" -o -d "${d}" -a ! -L "${d}" ] ; then
            # its ok
            continue
         fi
         print_warning "WARNING: system and image files named '${d}' differ"
-        print_warning "         image : $(file -b ${D}${d})"
-        print_warning "         system: $(file -b ${d})"
+        print_warning "         image : $(file -b "${D}${d}")"
+        print_warning "         system: $(file -b "${d}")"
     done
 
-    links=( $(find ${D} -type l -printf "%p\n") )
-    for imagefilename in ${links[@]} ; do
-        target="$(readlink ${imagefilename})"
+    links=( $(find "${D}" -type l -printf "%p\n") )
+    for imagefilename in "${links[@]}" ; do
+        target="$(readlink "${imagefilename}")"
 
         if [ "${target#${D}}" != "${target}" ] ; then
             print_warning "WARNING: image: target of ${imagefilename#${D}} contains path to image directory"
@@ -567,7 +567,7 @@ function bee_crosscheck() {
         fi
 
         if [ -L "${systemfilename}" ] ; then
-            target="$(readlink ${systemfilename})"
+            target="$(readlink "${systemfilename}")"
 
             if [ "${target:0:1}" = "/" ] ; then
                 systemtarget=${target}
@@ -582,8 +582,8 @@ function bee_crosscheck() {
         fi
 
         print_warning "WARNING: system and image files named '${systemfilename}' differ"
-        print_warning "         image : $(file -b ${imagefilename})"
-        print_warning "         system: $(file -b ${systemfilename})"
+        print_warning "         image : $(file -b "${imagefilename}")"
+        print_warning "         system: $(file -b "${systemfilename}")"
 
     done
 }
@@ -596,33 +596,33 @@ function bee_pkg_pack() {
     ${BEEFIND} --exclude='^/CONTENT$' \
                --exclude-list=<(
                    if [ -n "${BEE_SKIPLIST}" ] ; then
-                       cat ${BEE_SKIPLIST}
+                       cat "${BEE_SKIPLIST}"
                    fi
                    for pattern in "${EXCLUDE[@]}" "${BEE_AUTO_EXCLUDE[@]}" ; do
                       echo "${pattern}"
                    done ) \
                --cutroot \
-               ${D} | \
-                   ${BEE_LIBEXECDIR}/bee/filelist2content --root ${D} > ${D}/CONTENT
+               "${D}" | \
+                   "${BEE_LIBEXECDIR}/bee/filelist2content" --root "${D}" > "${D}/CONTENT"
 
     if [ ! -s "${D}/CONTENT" ]; then
         print_error "ERROR: empty image directory"
         exit 1
     fi
 
-    cp ${BEE} ${D}/BUILD
+    cp "${BEE}" "${D}/BUILD"
 
     create_meta
 
     if [ -n "${bee_PATCHFILES[0]}" ] ; then
-        mkdir -pv ${D}/PATCHES
+        mkdir -pv "${D}/PATCHES"
     fi
-    for p in ${bee_PATCHFILES[@]} ; do
-        cp ${p} ${D}/PATCHES
+    for p in "${bee_PATCHFILES[@]}" ; do
+        cp "${p}" "${D}/PATCHES"
     done
 
     if [ ! -d "${BEE_PKGDIR}" ] ; then
-        mkdir -pv ${BEE_PKGDIR}
+        mkdir -pv "${BEE_PKGDIR}"
     fi
 
     pkgname=${PKGALLPKG}.bee.tar.bz2
@@ -631,8 +631,8 @@ function bee_pkg_pack() {
     print_info " -> creating package ${pkgname} .."
     print_info "${COLOR_CYAN}${pkgfile}"
 
-    rm -f ${pkgfile}.tmp
-    tar cjvvf ${pkgfile}.tmp \
+    rm -f "${pkgfile}.tmp"
+    tar cjvvf "${pkgfile}.tmp" \
         --transform="s,${D},," \
         --show-transformed-names \
         --sparse \
@@ -645,11 +645,11 @@ function bee_pkg_pack() {
         ${D}/{CONTENT,BUILD,META} \
         ${bee_PATCHFILES:+${D}/PATCHES} \
         ${bee_PATCHFILES:+${D}/PATCHES/*} \
-        -T <( ${BEE_LIBEXECDIR}/bee/content2filelist \
+        -T <( "${BEE_LIBEXECDIR}/bee/content2filelist" \
                 --prepend="${D}" \
-                ${D}/CONTENT )
+                "${D}/CONTENT" )
 
-    mv ${pkgfile}.tmp ${pkgfile}
+    mv "${pkgfile}.tmp" "${pkgfile}"
 
     beefilename=${BEE##*/}
     beefiledest=${BEE_BEEDIR}/${PKGFULLPKG}.bee
@@ -658,10 +658,10 @@ function bee_pkg_pack() {
     print_info "${COLOR_CYAN}${beefiledest}"
 
     if [ ! -d "${BEE_BEEDIR}" ] ; then
-        mkdir -pv ${BEE_BEEDIR}
+        mkdir -pv "${BEE_BEEDIR}"
     fi
 
-    cp -v ${BEE} ${beefiledest}
+    cp -v "${BEE}" "${beefiledest}"
 }
 
 
@@ -669,7 +669,7 @@ function bee_archivebuild() {
     [ "${OPT_ARCHIVE_BUILD}" != "yes" ] && return
 
     if [ ! -d "${BEE_BUILDARCHIVEDIR}" ] ; then
-        mkdir -pv ${BEE_BUILDARCHIVEDIR}
+        mkdir -pv "${BEE_BUILDARCHIVEDIR}"
     fi
 
     archive="${BEE_BUILDARCHIVEDIR}/${PKGALLPKG}.beebuild.tar.bz2"
@@ -685,9 +685,9 @@ function bee_archivebuild() {
         --show-transformed-names \
         --sparse \
         --absolute-names \
-        ${S} ${B} \
-        ${bee_FETCHED_FILES[@]} \
-        ${BEE_BEEDIR}/${PKGFULLPKG}.bee \
+        "${S}" "${B}" \
+        "${bee_FETCHED_FILES[@]}" \
+        "${BEE_BEEDIR}/${PKGFULLPKG}.bee" \
         --transform="s,^${BEEWORKDIR},${PKGALLPKG}," \
         --transform="s,^${F},${PKGALLPKG}/files," \
         --transform="s,^${BEE_BEEDIR},${PKGALLPKG}/files,"
@@ -706,7 +706,7 @@ function load_buildmagic() {
         local IFS=${oIFS}
         xdgmagic="${dir}/bee/beesh.d/${magic}.sh"
         if [ -r "${xdgmagic}" ] ; then
-            . ${xdgmagic}
+            . "${xdgmagic}"
             if [ ! -z "${BEE_BUILDTYPE_DETECTED}" ] ; then
                 break
             fi
@@ -790,7 +790,7 @@ function extract_new_package_variables() {
     # since PKGARCH is now known reconstruct PKGALLPKG
     : ${PKGALLPKG:=${PKGFULLPKG}.${PKGARCH}}
 
-    eval $(${BEE_BINDIR}/beeversion ${PKGALLPKG})
+    eval $("${BEE_BINDIR}/beeversion" "${PKGALLPKG}")
 }
 
 ###############################################################################
@@ -804,7 +804,7 @@ function dump_variables() {
 }
 
 function is_func() {
-    [ "$(type -t ${1})" == "function" ]
+    [ "$(type -t "${1}")" == "function" ]
     return $?
 }
 
@@ -840,7 +840,7 @@ function bee_run() {
 
 ###############################################################################
 
-OPTIONS=$(${BEE_BINDIR}/beegetopt --name beesh \
+OPTIONS=$("${BEE_BINDIR}/beegetopt" --name beesh \
                  --option help/h \
                  --option install/i \
                  --option force-install/f \
@@ -950,7 +950,7 @@ PKGNAME=
 PKGVERSION=
 PKGREVISION=
 
-eval $(${BEE_BINDIR}/beeversion ${BEE})
+eval $("${BEE_BINDIR}/beeversion" "${BEE}")
 
 if [ -z "${PKGNAME}" -o -z "${PKGVERSION}" -o -z "${PKGREVISION}" ] ; then
     print_error "${BEE}: please use the proper package versioning (e.g. package-1.0-0)"
@@ -975,7 +975,7 @@ PKGALLPKG=
 save_current_package_variables
 
 # source file.bee
-. ${BEE}
+. "${BEE}"
 
 # now set PKGARCH if set or changed by user via ARCH=.. and not given via file.arch.bee
 : ${PKGARCH:=${ARCH}}
@@ -1001,7 +1001,7 @@ print_info "==> building ${PKGALLPKG} .."
 
 bee_run getsources
 
-bee_run extract ${bee_SOURCEFILES[@]}
+bee_run extract "${bee_SOURCEFILES[@]}"
 
 : ${BEE_SOURCESUBDIR=""}
 
@@ -1019,11 +1019,11 @@ if [ -n "${BEE_SOURCESUBDIR}" ]; then
 fi
 
 print_info "changing to source directory: ${S}"
-cd ${S}
+cd "${S}"
 
-bee_run patch ${bee_PATCHFILES[@]}
+bee_run patch "${bee_PATCHFILES[@]}"
 
-bee_buildmagic=$(${BEE_BINDIR}/beeuniq ${BEE_BUILDTYPE[@]} \
+bee_buildmagic=$("${BEE_BINDIR}/beeuniq" "${BEE_BUILDTYPE[@]}" \
                                cmake \
                                autotools \
                                autogen \
@@ -1037,8 +1037,8 @@ bee_buildmagic=$(${BEE_BINDIR}/beeuniq ${BEE_BUILDTYPE[@]} \
 
 BEE_BUILDTYPE_DETECTED=""
 
-for t in ${bee_buildmagic[@]} ; do
-    load_buildmagic ${t}
+for t in "${bee_buildmagic[@]}" ; do
+    load_buildmagic "${t}"
     if [ -n "${BEE_BUILDTYPE_DETECTED}" ] ; then
         break
     fi
@@ -1047,7 +1047,7 @@ done
 bee_init_buildinsourcedir
 
 print_info "changing to build directory: ${B}"
-cd ${B}
+cd "${B}"
 
 bee_run configure
 bee_run build
@@ -1059,17 +1059,17 @@ fi
 bee_run install
 
 print_info "changing to image directory: ${D}"
-cd ${D}
+cd "${D}"
 
 bee_crosscheck
 
 bee_pkg_pack
 
 function bee_check_conflicts() {
-    ${BEE_LIBEXECDIR}/bee/bee-cache-inventory CONTENT \
+    "${BEE_LIBEXECDIR}/bee/bee-cache-inventory" CONTENT \
         --prepend "${PKGALLPKG} " \
         | sort -r -u -k8 -k1 \
-        > ${D}${PKGALLPKG}.bc
+        > "${D}${PKGALLPKG}.bc"
 
     last=""
     while read p f ; do
@@ -1079,13 +1079,13 @@ function bee_check_conflicts() {
         fi
         print_info "${COLOR_NORMAL}    $f"
     done < <(bee-cache print-conflicts ${PKGALLPKG} \
-                --tmpinstall ${D}${PKGALLPKG}.bc \
+                --tmpinstall "${D}${PKGALLPKG}.bc" \
                 -f1,8- | sort -k1 -u )
 }
 
 bee_check_conflicts
 
-cd ${BEEWORKDIR}
+cd "${BEEWORKDIR}"
 bee_archivebuild
 
 echo
@@ -1107,5 +1107,5 @@ echo
 if [ "${OPT_INSTALL}" = "yes" ] ; then
 
     print_info "installing ${PKGALLPKG} .."
-    bee-install ${OPT_FORCE:+-f} ${OPT_UPDATE:+-u} ${BEE_PKGDIR}/${PKGALLPKG}.bee.tar.bz2
+    bee-install ${OPT_FORCE:+-f} ${OPT_UPDATE:+-u} "${BEE_PKGDIR}/${PKGALLPKG}.bee.tar.bz2"
 fi
