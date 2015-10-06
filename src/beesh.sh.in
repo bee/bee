@@ -957,8 +957,6 @@ if [ -z "${PKGNAME}" -o -z "${PKGVERSION}" -o -z "${PKGREVISION}" ] ; then
     exit 1
 fi
 
-PV=( ${PKGVERSION[@]} )
-
 BEEPKGROOT="${BEE_TMP_BUILDROOT}/${PKGNAME}"
 BEEWORKDIR="${BEEPKGROOT}/${PKGFULLPKG}"
 
