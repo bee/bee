@@ -81,7 +81,11 @@ function usage() {
 }
 
 function config_init_colors() {
+    : ${BEE_COLOR:="no"}
     if [ -t 1 ] ; then
+        BEE_COLOR='no'
+    fi
+    if [ ${BEE_COLOR} != "no" ] ; then
         COLOR_NORMAL="\\033[0;39m\\033[0;22m"
         COLOR_GREEN="\\033[0;32m"
         COLOR_YELLOW="\\033[0;33m"
@@ -106,9 +110,9 @@ function config_init_colors() {
         COLOR_PURPLE=""
         COLOR_BRACKET=""
         COLOR_BRCONTENT=""
-        COLOR_INFO="**INFO** "
-        COLOR_ERROR="**ERROR** "
-        COLOR_WARN="**WARNING** "
+        COLOR_INFO=""
+        COLOR_ERROR=""
+        COLOR_WARN=""
         COLOR_INSTALLABLE="installable "
         COLOR_UPDATABLE=" updatable "
     fi
