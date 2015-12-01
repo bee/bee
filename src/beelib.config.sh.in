@@ -91,8 +91,8 @@ function config_init_base_config() {
     XDG_CONFIG_DIRS=${XDG_CONFIG_DIRS}:${BEE_CONFIG_DIR}
 
     # remove dupes from pathes
-    XDG_CONFIG_DIRS=$(beeuniq -d : ${XDG_CONFIG_DIRS//:/ })
-    XDG_DATA_DIRS=$(beeuniq -d : ${XDG_DATA_DIRS//:/ })
+    XDG_CONFIG_DIRS=$(${BEE_BINDIR}/beeuniq -d : ${XDG_CONFIG_DIRS//:/ })
+    XDG_DATA_DIRS=$(${BEE_BINDIR}/beeuniq -d : ${XDG_DATA_DIRS//:/ })
 }
 
 

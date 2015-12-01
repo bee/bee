@@ -43,7 +43,7 @@ fi
 : ${man_dirs:=${PKG_MANDIR}}
 : ${man_dirs:=${XDG_DATA_DIRS//:/\/man:}/man}
 
-for man_dir in $(beeuniq ${man_dirs//:/ }) ; do
+for man_dir in $(${BEE_BINDIR}/beeuniq ${man_dirs//:/ }) ; do
     case "${action}" in
         "post-remove"|"post-install")
             if grep -q "file=${man_dir}" ${content} ; then
