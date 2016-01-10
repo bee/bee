@@ -2,7 +2,7 @@
 ** bee-cache-inventory - store bee's inventory data
 **
 ** Copyright (C) 2012
-**       Marius Tolzmann <tolzmann@molgen.mpg.de>
+**       Marius Tolzmann <m@rius.berlin>
 **       Tobias Dreyer <dreyer@molgen.mpg.de>
 **       and other bee developers
 **

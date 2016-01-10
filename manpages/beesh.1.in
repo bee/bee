@@ -1,7 +1,7 @@
 ." manpage of beesh
 ."
-." Copyright (C) 2009-2012
-."       Marius Tolzmann <tolzmann@molgen.mpg.de>
+." Copyright (C) 2009-2016
+."       Marius Tolzmann <m@rius.berlin>
 ."       Tobias Dreyer <dreyer@molgen.mpg.de>
 ."       and other bee developers
 ."
@@ -72,7 +72,7 @@ bee-file-1.0-0.bee
 .RE
 .SH "AUTHORS"
 .P
-.MT tolzmann@molgen.mpg.de
+.MT m@rius.berlin
 Marius Tolzmann
 .ME
 .P

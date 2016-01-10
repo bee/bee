@@ -5,7 +5,7 @@
 <!--
     manpage of bee-download
 
-    Copyright (C) 2013
+    Copyright (C) 2013-2016
           Lena Kristin Zander <zander@molgen.mpg.de>
 
     This file is part of bee.
@@ -34,7 +34,7 @@
                         <contrib></contrib> <!-- prevent warning -->
                         <firstname>Marius</firstname>
                         <surname>Tolzmann</surname>
-                        <email>tolzmann@molgen.mpg.de</email>
+                        <email>m@rius.berlin</email>
                     </author>
 
                     <author>

@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: bee-query
-.\"    Author: Marius Tolzmann <tolzmann@molgen.mpg.de>
+.\"    Author: Marius Tolzmann <m@rius.berlin>
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 04/24/2013
+.\"      Date: 01/11/2016
 .\"    Manual: bee - bau et einfach
 .\"    Source: bee @BEE_VERSION@
 .\"  Language: English
 .\"
-.TH "BEE\-QUERY" "1" "04/24/2013" "bee @BEE_VERSION@" "bee - bau et einfach"
+.TH "BEE\-QUERY" "1" "01/11/2016" "bee @BEE_VERSION@" "bee - bau et einfach"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -59,7 +59,7 @@ Please report bugs to bee\-dev@googlegroups\&.com or directly to the authors\&.
 \fBbee-update\fR(1)
 .SH "AUTHORS"
 .PP
-\fBMarius Tolzmann\fR <\&tolzmann@molgen\&.mpg\&.de\&>
+\fBMarius Tolzmann\fR <\&m@rius\&.berlin\&>
 .RS 4
 .RE
 .PP

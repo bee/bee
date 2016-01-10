@@ -2,9 +2,9 @@
 #
 # beefind - scan directory and print files
 #
-# Copyright (C) 2009-2012
+# Copyright (C) 2009-2016
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
-#       Marius Tolzmann <tolzmann@molgen.mpg.de>
+#       Marius Tolzmann <m@rius.berlin>
 #       and other bee developers
 #
 # This file is part of bee.
@@ -33,9 +33,8 @@ BEE_VERSION="@BEE_VERSION@"
 
 function usage() {
     cat <<-EOF
-	beefind v${BEE_VERSION} 2009-2012
-	  by Tobias Dreyer and Marius Tolzmann <{dreyer,tolzmann}@molgen.mpg.de>
-	     Max Planck Institute for Molecular Genetics Berlin Dahlem
+	beefind v${BEE_VERSION} 2009-2016
+	  by Tobias Dreyer <dreyer@molgen.mpg.de> and Marius Tolzmann <m@rius.berlin>
 
 	Usage: beefind [options] <directory>
 

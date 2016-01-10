@@ -2,8 +2,8 @@
 #
 # update-mime-database hook
 #
-# Copyright (C) 2009-2012
-#       Marius Tolzmann <tolzmann@molgen.mpg.de>
+# Copyright (C) 2009-2016
+#       Marius Tolzmann <m@rius.berlin>
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
 #       and other bee developers
 #
