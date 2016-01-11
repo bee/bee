@@ -5,8 +5,8 @@
 <!--
     manpage of bee-check
 
-    Copyright (C) 2013
-          Matthias Ruester <ruester@molgen.mpg.de>
+    Copyright (C) 2013-2016
+          Matthias Ruester <matthias.ruester@gmail.com>
           Lena Kristin Zander <zander@molgen.mpg.de>
 
     This file is part of bee.
@@ -35,7 +35,14 @@
                         <contrib></contrib> <!-- prevent warning -->
                         <firstname>Marius</firstname>
                         <surname>Tolzmann</surname>
-                        <email>tolzmann@molgen.mpg.de</email>
+                        <email>m@rius.berlin</email>
+                    </author>
+
+                    <author>
+                        <contrib></contrib>
+                        <firstname>Matthias</firstname>
+                        <surname>Ruester</surname>
+                        <email>matthias.ruester@gmail.com</email>
                     </author>
 
                     <author>

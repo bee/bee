@@ -2,8 +2,8 @@
 #
 # bee-check - check consistency of installed bee-pkgs
 #
-# Copyright (C) 2009-2012
-#       Marius Tolzmann <tolzmann@molgen.mpg.de>
+# Copyright (C) 2009-2016
+#       Marius Tolzmann <m@rius.berlin>
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
 #       and other bee developers
 #
@@ -300,9 +300,8 @@ function do_check() {
 ##### usage ###################################################################
 function usage() {
     cat <<-EOF
-	bee-check v${VERSION} 2009-2012
-	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
-	     Max Planck Institute for Molecular Genetics Berlin Dahlem
+	bee-check v${VERSION} 2009-2016
+	  by Marius Tolzmann <m@rius.berlin> and Tobias Dreyer <dreyer@molgen.mpg.de>
 
 	Usage: bee check [options] [action] <package>
 

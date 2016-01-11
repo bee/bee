@@ -2,9 +2,9 @@
 #
 # info dir hook
 #
-# Copyright (C) 2009-2012
+# Copyright (C) 2009-2016
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
-#       Marius Tolzmann <tolzmann@molgen.mpg.de>
+#       Marius Tolzmann <m@rius.berlin>
 #       and other bee developers
 #
 # This file is part of bee.

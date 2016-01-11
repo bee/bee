@@ -1,7 +1,7 @@
 /*
 ** beeversion - compare bee package versionnumbers
-** Copyright (C) 2010
-**       Marius Tolzmann <tolzmann@molgen.mpg.de>
+** Copyright (C) 2010-2016
+**       Marius Tolzmann <m@rius.berlin>
 **       David Fessler <dfessler@uni-potsdam.de>
 **
 ** This program is free software; you can redistribute it and/or modify

@@ -1,8 +1,8 @@
 /*
 ** beeflock - lock file and execute commands
 **
-** Copyright (C) 2012
-**       Marius Tolzmann <tolzmann@molgen.mpg.de>
+** Copyright (C) 2012-2016
+**       Marius Tolzmann <m@rius.berlin>
 **       and other bee developers
 **
 ** This file is part of bee.

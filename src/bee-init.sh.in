@@ -2,8 +2,8 @@
 #
 # bee-init - initialize bee-files from source-urls
 #
-# Copyright (C) 2009-2012
-#       Marius Tolzmann <tolzmann@molgen.mpg.de>
+# Copyright (C) 2009-2016
+#       Marius Tolzmann <m@rius.berlin>
 #       Tobias Dreyer <dreyer@molgen.mpg.de>
 #       and other bee developers
 #
@@ -36,9 +36,8 @@ VERSION=${BEE_VERSION}
 
 function usage() {
     cat <<-EOF
-	bee-init v${VERSION} 2009-2012
-	  by Marius Tolzmann and Tobias Dreyer <{tolzmann,dreyer}@molgen.mpg.de>
-	     Max Planck Institute for Molecular Genetics Berlin Dahlem
+	bee-init v${VERSION} 2009-2016
+	  by Marius Tolzmann <m@rius.berlin> and Tobias Dreyer <dreyer@molgen.mpg.de>
 
 	  bee [bee-options] init [options] <url>
 	

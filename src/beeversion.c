@@ -1,8 +1,8 @@
 /*
 ** beeversion - compare bee package versionnumbers
 **
-** Copyright (C) 2009-2012
-**       Marius Tolzmann <tolzmann@molgen.mpg.de>
+** Copyright (C) 2009-2016
+**       Marius Tolzmann <m@rius.berlin>
 **       Tobias Dreyer <dreyer@molgen.mpg.de>
 **       and other bee developers
 **
@@ -78,7 +78,7 @@ char parse_extra(struct beeversion *);
 
 void print_version(void) {
     printf("beeversion v%d.%d.%d - "
-           "by Marius Tolzmann <tolzmann@molgen.mpg.de> 2010\n", 
+           "by Marius Tolzmann <m@rius.berlin> 2010-2016\n", 
            BEEVERSION_MAJOR, BEEVERSION_MINOR, BEEVERSION_PATCHLVL);
 }
 
