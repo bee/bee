@@ -916,15 +916,13 @@ while true ; do
     esac
 done
 
-config_init_colors
+config_init
 
 echo -e "${COLOR_CYAN}BEE v${BEE_VERSION} 2009-2016"
 echo -e "  by  Marius Tolzmann <marius@mariux.de>"
 echo -e "      Matthias Ruester <ruester@molgen.mpg.de>"
 echo -e "      Tobias Dreyer <dreyer@molgen.mpg.de>"
 echo -e "${COLOR_NORMAL}"
-
-config_init
 
 config_set_skiplist
 
