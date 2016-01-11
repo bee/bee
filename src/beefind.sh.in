@@ -151,4 +151,4 @@ if [ -n "${OPT_OUTPUT}" ] ; then
     fi
 fi
 
-do_beefind ${@}
+do_beefind "${@}"

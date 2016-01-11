@@ -159,4 +159,4 @@ while true ; do
     esac
 done
 
-do_f2c <(cat ${@}) "${OPT_ROOT}"
+do_f2c <(cat "${@}") "${OPT_ROOT}"
