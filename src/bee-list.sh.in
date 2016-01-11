@@ -81,11 +81,11 @@ function usage() {
 }
 
 function config_init_colors() {
-    : ${BEE_COLOR:="no"}
-    if [ -t 1 ] ; then
-        BEE_COLOR='no'
+    : ${BEE_COLOR:="yes"}
+    if [ ! -t 1 ] ; then
+        BEE_COLOR="no"
     fi
-    if [ ${BEE_COLOR} != "no" ] ; then
+    if [ "${BEE_COLOR}" != "no" ] ; then
         COLOR_NORMAL="\\033[0;39m\\033[0;22m"
         COLOR_GREEN="\\033[0;32m"
         COLOR_YELLOW="\\033[0;33m"
