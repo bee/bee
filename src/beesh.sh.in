@@ -1022,7 +1022,7 @@ cd "${S}"
 
 bee_run patch "${bee_PATCHFILES[@]}"
 
-bee_buildmagic=$("${BEE_BINDIR}/beeuniq" "${BEE_BUILDTYPE[@]}" \
+bee_buildmagic=( $("${BEE_BINDIR}/beeuniq" "${BEE_BUILDTYPE[@]}" \
                                cmake \
                                autotools \
                                autogen \
@@ -1032,7 +1032,7 @@ bee_buildmagic=$("${BEE_BINDIR}/beeuniq" "${BEE_BUILDTYPE[@]}" \
                                make \
                                jb \
                                haskell-module \
-                               )
+                               ) )
 
 BEE_BUILDTYPE_DETECTED=""
 
