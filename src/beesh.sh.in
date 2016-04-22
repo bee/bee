@@ -47,6 +47,8 @@ VERSION=${BEE_VERSION}
 # load libs
 . ${BEE_LIBEXECDIR}/bee/beelib.config.sh
 
+umask 022
+
 function bee-cache() {
     ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
 }
