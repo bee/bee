@@ -729,7 +729,11 @@ function verify_new_package_variables() {
             exit 1
         fi
         PKGNAME=${PKGFULLNAME//_*}
-        PKGEXTRANAME=${PKGFULLNAME#*_}
+        if [ "$PKGNAME" = "$PKGFULLNAME" ] ; then
+            PKGEXTRANAME=""
+        else
+            PKGEXTRANAME=${PKGFULLNAME#*_}
+        fi
     fi
     PKGFULLNAME="${PKGNAME}${PKGEXTRANAME:+_${PKGEXTRANAME}}"
 
@@ -740,7 +744,11 @@ function verify_new_package_variables() {
             exit 1
         fi
         PKGVERSION=${PKGFULLVERSION//_*}
-        PKGEXTRAVERSION=${PKGFULLVERSION#*_}
+        if [ "$PKGVERSION" = "$PKGFULLVERSION" ] ; then
+            PKGEXTRAVERSION=""
+        else
+            PKGEXTRAVERSION=${PKGFULLVERSION#*_}
+        fi
     fi
     PKGFULLVERSION="${PKGVERSION}${PKGEXTRAVERSION:+_${PKGEXTRAVERSION}}"
 }
