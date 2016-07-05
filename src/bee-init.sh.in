@@ -305,6 +305,7 @@ function initialize() {
 
     sed -e "s,@DEFAULT_CONFIGURE_OPTIONS@,${DEFAULT_CONFIGURE_OPTIONS}," \
         -e "s,@DEFAULT_CONFIGURE_OPTIONS_NOTSET@,${DEFAULT_CONFIGURE_OPTIONS_NOTSET}," \
+        -e 's/\s$//' \
         -i ${beefile}
 
     for i in prefix eprefix bindir sbindir libexecdir sysconfdir \
