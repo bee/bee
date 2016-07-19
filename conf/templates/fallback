@@ -34,8 +34,8 @@
 @BEE_CONFIGURE@
 @BEE_BUILDTYPE@
 ###############################################################################
-## Uncomment the next statement, if the software may not be able to be build
-## outside the source directory and need to be build inside the source
+## Uncomment the next statement, if the software may not be able to be built
+## outside the source directory and needs to be built inside the source
 ## directory.
 
 # build_in_sourcedir
