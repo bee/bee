@@ -344,6 +344,9 @@ function initialize() {
             -i ${beefile}
     fi
 
+    sed -e "s,@PKGALLPKG@,${PKGALLPKG}," \
+        -i ${beefile}
+
     bee_versionify ${beefile}
 
     chmod 755 ${beefile}

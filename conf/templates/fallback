@@ -3,6 +3,16 @@
 ## this file was created by bee init and should be executed to build a
 ## bee-package. (Additional hints are located at the end of this file.)
 
+##########################
+## Set version information from within beefile by adding/uncommenting
+## these lines (requires bee >= 1.3):
+##
+## #@beepackage pkgname-version-revision
+## require_version 1.3
+
+##@beepackage @PKGALLPKG@
+#require_version 1.2.99
+
 ###############################################################################
 ## The source URL(s) define the location of the sources that will be
 ## downloaded. Version variables may be used to simplify reuse of this bee-file.
