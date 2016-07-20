@@ -592,8 +592,6 @@ function bee_crosscheck() {
 
 #### bee_pkg_pack() ###########################################################
 
-# $EXCLUDE is read from .bee file
-# $BEE_SKIPLIST is found in $BEEFAULTS
 function bee_pkg_pack() {
     ${BEEFIND} --exclude='^/CONTENT$' \
                --exclude-list=<(
@@ -938,7 +936,7 @@ print_info "  BEE_TMP_BUILDROOT      ${BEE_TMP_BUILDROOT}"
 
 BEE=$1
 if [ "${BEE:0:1}" != "/" ] ; then
-    BEE=${PWD}/$BEE
+    BEE=${PWD}/${BEE}
 fi
 
 if [ ! -f "${BEE}" ] ; then
