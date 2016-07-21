@@ -120,10 +120,10 @@ function bee_versionify() {
 
     i=${#PKGVERSION[@]}-2
 
-    rules="-e 's,${PKGVERSION//\./\\.},\${PKGVERSION},g'"
+    rules="-e '/SRCURL/s,${PKGVERSION//\./\\.},\${PKGVERSION},g'"
 
     while [ $i -gt 1 ] ; do
-       rules="${rules} -e 's,${PKGVERSION[$i]//\./\\.},\${PKGVERSION[$i]},g'"
+       rules="${rules} -e '/SRCURL/s,${PKGVERSION[$i]//\./\\.},\${PKGVERSION[$i]},g'"
 
        i=i-1
     done
@@ -290,7 +290,7 @@ function initialize() {
 
     create_beefile_from_template ${beefile} ${TEMPLATE}
 
-    sed -e "s,@SRCURL@,SRCURL[0]=\"${surl}\"," \
+    sed -e "s,@SRCURL@,SRCURL=( \"${surl}\" )," \
         -i ${beefile}
 
     if [ -z "${DEFAULT_CONFIGURE_OPTIONS}" ] ; then
@@ -343,6 +343,9 @@ function initialize() {
         sed -e "/@BEE_BUILDTYPE@/d" \
             -i ${beefile}
     fi
+
+    sed -e "s,@PKGALLPKG@,${PKGALLPKG}," \
+        -i ${beefile}
 
     bee_versionify ${beefile}
 
