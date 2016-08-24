@@ -136,9 +136,9 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
                     if(*p == 'A' && *(v->arch))
                         printf(".%s", v->arch);
                     break;
-            }
-            if (*p) {
-                switch(*(p+1)) {
+                case '-':
+                case '_':
+                  switch(*(p+1)) {
                     case 'x':
                         if (*(v->subname))
                             printf("%c%s", *p, v->subname);
@@ -149,7 +149,10 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
                             printf("%c%s", *p, v->extraversion);
                         p++;
                         continue;
-                }
+                  }
+                default:
+                    printf("%%%c", *p);
+                    break;
             }
             continue;
         } /* if '%' */
@@ -167,6 +170,9 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
                     break;
                 case 'E':
                     cut_and_print(v->extraversion, '_', 1);
+                    break;
+                default:
+                    printf("@%c", *p);
                     break;
             }
             continue;
@@ -194,4 +200,3 @@ void print_format(char* s, struct beeversion *v, char *filter_pkgfullname)
 
     } /* for *p */
 }
-
