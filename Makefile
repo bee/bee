@@ -99,6 +99,7 @@ HELPER_HOOKS_SHELL+=mandb
 HELPER_HOOKS_SHELL+=systemd-tmpfiles
 HELPER_HOOKS_SHELL+=gconf-install-schemas
 HELPER_HOOKS_SHELL+=info-dir
+HELPER_HOOKS_SHELL+=kernel-modules
 
 MANPAGES+=bee.1
 MANPAGES+=bee-check.1

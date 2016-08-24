@@ -35,6 +35,10 @@ VERSION=${BEE_VERSION}
 : ${BEECACHE_CACHEDIR=${BEE_CACHEDIR}/bee-cache}
 : ${BEECACHE_INVENTORY=${BEECACHE_CACHEDIR}/INVENTORY}
 
+function ere_quote() {
+    sed 's/[]\.|$(){}?+*^]/\\&/g' <<< "$*"
+}
+
 function cache_verify() {
     if ${BEEFLOCK} --shared "${BEECACHE_INVENTORY}" \
               sort -c -u -r -k8 -k1 "${BEECACHE_INVENTORY}" 2>/dev/null ; then
@@ -92,7 +96,7 @@ function print_conflicts() {
 
     grep --file=<(print_conflicting_files "${pkg}" | cut -d ' ' -f8- | sed -e 's,.*, &$,') \
         <( tmp_merge_install_inventory_files "${TMPINSTALL[@]}" ) \
-        | grep -v -E "^${pkgfullname}-[^-]+-[^-]+ "
+        | grep -v -E "^$(ere_quote "${pkgfullname}")-[^-]+-[^-]+ "
 }
 
 function cache_conflicts() {
@@ -118,7 +122,7 @@ function print_conflicting_files_for_pkg() {
     local inventory=$2
 
     cache_conflicts ${inventory} \
-        | grep -E "^${pkg} "
+        | grep -E "^$(ere_quote "${pkg}")"
 }
 
 function cache_uniq() {
@@ -144,7 +148,7 @@ function print_uniq_files_for_pkg() {
     local inventory=$2
 
     cache_uniq ${inventory} \
-        | grep -E "^${pkg} "
+        | grep -E "^$(ere_quote "${pkg}")"
 }
 
 function print_missing_files() {
@@ -161,7 +165,7 @@ function print_missing_files() {
             echo "${line}"
         fi
     done < <( tmp_merge_install_inventory_files "${TMPINSTALL[@]}" ) \
-        | grep -E "^${pkg} "
+        | grep -E "^$(ere_quote "${pkg}")"
 }
 
 function tmp_merge_install_inventory_files() {

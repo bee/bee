@@ -47,6 +47,8 @@ VERSION=${BEE_VERSION}
 # load libs
 . ${BEE_LIBEXECDIR}/bee/beelib.config.sh
 
+umask 022
+
 function bee-cache() {
     ${BEE_LIBEXECDIR}/bee/bee.d/bee-cache "${@}"
 }
@@ -729,7 +731,11 @@ function verify_new_package_variables() {
             exit 1
         fi
         PKGNAME=${PKGFULLNAME//_*}
-        PKGEXTRANAME=${PKGFULLNAME#*_}
+        if [ "$PKGNAME" = "$PKGFULLNAME" ] ; then
+            PKGEXTRANAME=""
+        else
+            PKGEXTRANAME=${PKGFULLNAME#*_}
+        fi
     fi
     PKGFULLNAME="${PKGNAME}${PKGEXTRANAME:+_${PKGEXTRANAME}}"
 
@@ -740,7 +746,11 @@ function verify_new_package_variables() {
             exit 1
         fi
         PKGVERSION=${PKGFULLVERSION//_*}
-        PKGEXTRAVERSION=${PKGFULLVERSION#*_}
+        if [ "$PKGVERSION" = "$PKGFULLVERSION" ] ; then
+            PKGEXTRAVERSION=""
+        else
+            PKGEXTRAVERSION=${PKGFULLVERSION#*_}
+        fi
     fi
     PKGFULLVERSION="${PKGVERSION}${PKGEXTRAVERSION:+_${PKGEXTRAVERSION}}"
 }
@@ -780,7 +790,7 @@ function extract_new_package_variables() {
     PKGFULLPKG=${PKGFULLNAME}-${PKGFULLVERSION}-${PKGREVISION}
 
     # since PKGARCH is now known reconstruct PKGALLPKG
-    : ${PKGALLPKG:=${PKGFULLPKG}.${PKGARCH}}
+    PKGALLPKG="${PKGFULLPKG}.${PKGARCH}"
 
     eval $("${BEE_BINDIR}/beeversion" "${PKGALLPKG}")
 }

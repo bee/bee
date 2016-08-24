@@ -210,6 +210,10 @@ function initialize() {
             surl="${surl} ${pname}.tar.gz"
         fi
 
+        if [[ $surl =~ ^https://github\.molgen\.mpg\.de/([^/]+)/([^/]+)/archive/(.+)\.tar\.gz$ ]] ; then
+            pname="${BASH_REMATCH[2]}-${BASH_REMATCH[3]#v}"
+        fi
+
         if [[ "${OPT_BUILDTYPE}" = "r-package" || "${surl}" = http://cran.r-project.org/src/contrib/* ]] ; then
             local cran_pname
             local cran_version
@@ -301,6 +305,7 @@ function initialize() {
 
     sed -e "s,@DEFAULT_CONFIGURE_OPTIONS@,${DEFAULT_CONFIGURE_OPTIONS}," \
         -e "s,@DEFAULT_CONFIGURE_OPTIONS_NOTSET@,${DEFAULT_CONFIGURE_OPTIONS_NOTSET}," \
+        -e 's/\s$//' \
         -i ${beefile}
 
     for i in prefix eprefix bindir sbindir libexecdir sysconfdir \
