@@ -323,17 +323,21 @@ function fetch_one_patch() {
 
 function bee_getsrcurl() {
     local -a archives=( "${@}" )
+    local url filename
 
     for a in "${archives[@]}" ; do
-        fetch_one_archive "${a}"
+        read -r url filename <<< "${a}"
+        fetch_one_archive "${url}" "${filename}"
     done
 }
 
 function bee_getpatchurl() {
     local -a patches=( "${@}" )
+    local url filename
 
     for p in "${patches[@]}" ; do
-        fetch_one_patch "${p}"
+        read -r url filename <<< "${p}"
+        fetch_one_patch "${url}" "${filename}"
     done
 }
 
