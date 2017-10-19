@@ -53,4 +53,5 @@ bee_install() {
     start_cmd make ${BEE_MAKEFLAGS} \
         install \
         "${@}"
+    find ${D} -name perllocal.pod -exec rm {} \;
 }
