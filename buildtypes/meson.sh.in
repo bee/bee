@@ -27,10 +27,6 @@ if [ ! -r "${BEE_BUILDTYPE_MESON_MESONBUILD}" ] ; then
     return
 fi
 
-if ! type -p meson >/dev/null 2>&1 ; then
-    return
-fi
-
 BEE_BUILDTYPE_DETECTED=meson
 
 BEE_BUILDTYPE_MESON_SOURCEDIR=${BEE_BUILDTYPE_MESON_MESONBUILD%/*}
