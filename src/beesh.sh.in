@@ -1054,6 +1054,7 @@ bee_run patch "${bee_PATCHFILES[@]}"
 
 bee_buildmagic=( $("${BEE_BINDIR}/beeuniq" "${BEE_BUILDTYPE[@]}" \
                                cmake \
+                               meson \
                                autotools \
                                autogen \
                                perl-module \

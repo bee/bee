@@ -82,6 +82,7 @@ BUILDTYPES+=cmake
 BUILDTYPES+=configure
 BUILDTYPES+=jb
 BUILDTYPES+=make
+BUILDTYPES+=meson
 BUILDTYPES+=perl-module
 BUILDTYPES+=perl-module-makemaker
 BUILDTYPES+=python-module
