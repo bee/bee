@@ -91,7 +91,6 @@ function download_http() {
     trap "rm -f ${destination}" EXIT
 
     wget \
-        --no-check-certificate \
         --output-document=${destination} \
         --no-clobber \
         ${repository_url}
