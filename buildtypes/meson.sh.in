@@ -36,7 +36,6 @@ BEE_BUILDTYPE_MESON_SOURCEDIR=${BEE_BUILDTYPE_MESON_MESONBUILD%/*}
 bee_configure() {
     start_cmd meson \
         --prefix ${PREFIX} \
-        --buildtype=plain \
         "${@}" \
         ${S}
 }
