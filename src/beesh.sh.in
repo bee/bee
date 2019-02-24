@@ -260,7 +260,7 @@ function fetch_one_file() {
 
     if [ "${url:0:1}" = "/" ] ; then
         print_info "copying file ${url}"
-        cp -v "${url}" "${F}/${file}"
+        cp --no-preserve=mode -v "${url}" "${F}/${file}"
     else
         if [ ! -s "${F}/${file}" ] ; then
             rm -vf "${F}/${file}"
@@ -601,7 +601,7 @@ function bee_pkg_pack() {
         exit 1
     fi
 
-    cp "${BEE}" "${D}/BUILD"
+    cp --no-preserve=mode "${BEE}" "${D}/BUILD"
 
     create_meta
 
@@ -609,7 +609,7 @@ function bee_pkg_pack() {
         mkdir -pv "${D}/PATCHES"
     fi
     for p in "${bee_PATCHFILES[@]}" ; do
-        cp "${p}" "${D}/PATCHES"
+        cp --no-preserve=mode "${p}" "${D}/PATCHES"
     done
 
     if [ ! -d "${BEE_PKGDIR}" ] ; then
@@ -652,7 +652,7 @@ function bee_pkg_pack() {
         mkdir -pv "${BEE_BEEDIR}"
     fi
 
-    cp -v "${BEE}" "${beefiledest}"
+    cp --no-preserve=mode -v "${BEE}" "${beefiledest}"
 }
 
 
