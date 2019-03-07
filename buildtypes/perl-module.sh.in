@@ -53,5 +53,5 @@ bee_install() {
     start_cmd ./Build \
         install \
         "${@}"
-    find ${D} -name perllocal.pod -exec rm {} \;
+    find "${D}" -name perllocal.pod -exec rm {} \;
 }
