@@ -165,18 +165,18 @@ function download_git() {
 
     filename=${OPT_PKGNAME:-${PKGNAME}}-${OPT_VERSION:-${PKGFULLVERSION}}${pkgextraextraversion}
 
-    git archive --format=tar --prefix=${filename}/ ${commit} | bzip2 >${filename}.tar.bz2
+    git archive --format=tar --prefix=${filename}/ ${commit} | zstd >${filename}.tar.zstd
 
     if [ ! -d "${BEE_DOWNLOADDIR}" ] ; then
         mkdir -p ${BEE_DOWNLOADDIR}
     fi
-    mv ${filename}.tar.bz2 ${BEE_DOWNLOADDIR}
+    mv ${filename}.tar.zstd ${BEE_DOWNLOADDIR}
 
     trap - EXIT
 
     rm -fr ${tmp_path}
 
-    echo ${BEE_DOWNLOADDIR}/${filename}.tar.bz2
+    echo ${BEE_DOWNLOADDIR}/${filename}.tar.zstd
 }
 
 options=$(${BEE_BINDIR}/beegetopt --name bee-download \
